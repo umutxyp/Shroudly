@@ -34,6 +34,8 @@
 const fs = require('fs');
 const net = require('net');
 const path = require('path');
+const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 const { spawn } = require('child_process');
 
 const STALL_MS = 90 * 1000;          // no progress this long: the next stage
@@ -85,6 +87,25 @@ function bridgesOf(configText) {
 const SNOWFLAKE_PEERS = 2;
 function withPeers(line) {
   return /^snowflake /.test(line) && !/ max=\d+/.test(line) ? `${line} max=${SNOWFLAKE_PEERS}` : line;
+}
+
+/* Windows: Tor reads its torrc's path and the paths written in it with the
+ * system's ANSI code page, so a user folder named in another alphabet
+ * (C:\Users\Владимир, or ç/ş/ı in Turkish names) made it end at once, at
+ * every start ("Tor ended (1)", a Rostelecom report). There Tor's own files
+ * go where every character is ASCII: the folder's short (8.3) name, else a
+ * folder of its own under ProgramData. Anywhere else, or an ASCII folder,
+ * the folder itself. `short(dir)` gives a short name (tests stand it in). */
+const ASCII = /^[\x20-\x7e]*$/;
+function asciiDir(dir, platform, { short = shortName, programData = process.env.ProgramData || 'C:\\ProgramData' } = {}) {
+  if (platform !== 'win32' || ASCII.test(dir)) return dir;
+  try { const s = short(dir); if (s && ASCII.test(s)) return s; } catch {}
+  return path.win32.join(programData, 'Shroudly', `tor-${crypto.createHash('sha256').update(dir).digest('hex').slice(0, 12)}`);
+}
+function shortName(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+  const out = execFileSync('cmd.exe', ['/d', '/c', `for %I in ("${dir}") do @echo %~sI`], { encoding: 'utf8', windowsHide: true, timeout: 5000 });
+  return String(out).trim().split(/\r?\n/).pop();
 }
 
 function torrc({ port, dataDir, lyrebird, bridges, stage, ownerPid }) {
@@ -221,13 +242,19 @@ class TorRoute {
     let bridges = {};
     try { bridges = bridgesOf(fs.readFileSync(f.config, 'utf8')); } catch {}
     if (!bridges.snowflake && stage === 'snowflake') stage = 'all';
-    const data = path.join(this.dataDir, 'tor');
+    // Where Tor can read every path (asciiDir); found once.
+    if (this._base === undefined) {
+      this._base = asciiDir(this.dataDir, this.platform);
+      if (this._base !== this.dataDir) this.log('info', `The last way out: Tor's files go to ${this._base} (Tor cannot read this user folder's name)`);
+    }
+    const base = this._base;
+    const data = path.join(base, 'tor');
     try { fs.mkdirSync(data, { recursive: true, mode: 0o700 }); fs.chmodSync(data, 0o700); } catch {}
-    const rc = path.join(this.dataDir, 'torrc');
+    const rc = path.join(base, 'torrc');
     const pt = this.platform === 'win32' ? path.basename(f.lyrebird) : `./${path.basename(f.lyrebird)}`;
     fs.writeFileSync(rc, torrc({ port: this.port, dataDir: data, lyrebird: pt, bridges, stage, ownerPid: this.ownerPid }), { mode: 0o600 });
     // An empty defaults file: nothing of a Tor installed on this computer.
-    fs.writeFileSync(path.join(this.dataDir, 'torrc-defaults-none'), '', { mode: 0o600 });
+    fs.writeFileSync(path.join(base, 'torrc-defaults-none'), '', { mode: 0o600 });
     const env = { ...process.env };
     // Linux: Tor's own OpenSSL and libevent, next to it.
     if (this.platform === 'linux') env.LD_LIBRARY_PATH = [this.dir, env.LD_LIBRARY_PATH].filter(Boolean).join(':');
@@ -235,13 +262,14 @@ class TorRoute {
     env.TOR_PT_STATE_LOCATION = path.join(data, 'pt_state');
     let p;
     try {
-      p = this.spawn(f.tor, ['-f', rc, '--defaults-torrc', path.join(this.dataDir, 'torrc-defaults-none')],
+      p = this.spawn(f.tor, ['-f', rc, '--defaults-torrc', path.join(base, 'torrc-defaults-none')],
         { cwd: this.dir, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
     } catch (e) {
       this._fail(`Tor could not start: ${e.message}`);
       return;
     }
     this.proc = p;
+    this._lastWord = null;
     this.stage = stage;
     this.state = 'starting';
     this.progress = 0;
@@ -263,13 +291,15 @@ class TorRoute {
       if (gen !== this._gen) return;
       this.proc = null;
       if (this.state === 'off') return;
-      this._fail(`Tor ended (${code})`);
+      this._fail(`Tor ended (${code})${this._lastWord ? `: ${this._lastWord}` : ''}`);
     });
     this._armStall(gen);
   }
 
   _line(line, gen) {
     if (gen !== this._gen) return;
+    // Its own words on why it ended, for the log (an [err] or [warn] line).
+    if (/\[(err|warn)\]/.test(line)) this._lastWord = line.replace(/^.*?\[(err|warn)\]\s*/, '').slice(0, 200);
     const m = line.match(/Bootstrapped (\d+)%/);
     if (m) {
       const pct = Number(m[1]);
@@ -383,5 +413,6 @@ module.exports.torDir = torDir;
 module.exports.files = files;
 module.exports.bridgesOf = bridgesOf;
 module.exports.torrc = torrc;
+module.exports.asciiDir = asciiDir;
 module.exports.withPeers = withPeers;
 module.exports.SNOWFLAKE_PEERS = SNOWFLAKE_PEERS;

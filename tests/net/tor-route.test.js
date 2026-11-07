@@ -157,6 +157,20 @@ function fakeSpawn(runs) {
     t.ok(idle.status().state === 'off' && !idle._timers.linger, 'nothing running: nothing kept');
   }
 
+  // Windows reads Tor's paths in its ANSI code page: a user folder in
+  // another alphabet goes to an ASCII one (short name, else ProgramData).
+  {
+    const A = TorRoute.asciiDir;
+    const ru = 'C:\\Users\\Владимир\\AppData\\Roaming\\shroudly';
+    t.ok(A('C:\\Users\\umut\\AppData\\Roaming\\shroudly', 'win32') === 'C:\\Users\\umut\\AppData\\Roaming\\shroudly' && A('/home/владимир/.config/shroudly', 'linux') === '/home/владимир/.config/shroudly',
+      'an ASCII folder, or any folder off Windows: itself');
+    t.ok(A(ru, 'win32', { short: () => 'C:\\Users\\D0B2~1\\AppData\\Roaming\\shroudly' }) === 'C:\\Users\\D0B2~1\\AppData\\Roaming\\shroudly', 'Windows, a Cyrillic user folder: its short name');
+    const pd = A(ru, 'win32', { short: () => ru, programData: 'C:\\ProgramData' });
+    t.ok(/^C:\\ProgramData\\Shroudly\\tor-[0-9a-f]{12}$/.test(pd) && pd === A(ru, 'win32', { short: () => { throw new Error('no 8.3'); }, programData: 'C:\\ProgramData' }),
+      `no short name: a folder of its own under ProgramData, the same each time (${pd})`);
+    t.ok(A('C:\\Users\\Şükrü\\AppData\\Roaming\\shroudly', 'win32', { short: () => null, programData: 'C:\\ProgramData' }).startsWith('C:\\ProgramData\\Shroudly\\tor-'), 'a Turkish name too');
+  }
+
   fs.rmSync(dir, { recursive: true, force: true });
 
   console.log(`tor-route: ${t.count} passed`);
