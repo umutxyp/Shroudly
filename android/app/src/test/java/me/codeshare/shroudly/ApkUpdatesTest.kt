@@ -108,6 +108,6 @@ class ApkUpdatesTest {
         assertTrue(play.contains("fun available(ctx: Context): Boolean = false"))
         // The real one checks the signature before Android's installer gets it.
         val real = File("src/apk/kotlin/me/codeshare/shroudly/ApkUpdates.kt").readText().substringAfter("private fun run(")
-        assertTrue(real.indexOf("if (!verified(ctx, file))") in 0 until real.indexOf("install(ctx, file, version)"))
+        assertTrue(real.indexOf("if (!verified(ctx, file") in 0 until real.indexOf("install(ctx, file, version)"))
     }
 }
