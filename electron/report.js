@@ -136,4 +136,25 @@ async function send(request, body, { url = URL_REPORT, timeoutMs = 45000, bits =
   });
 }
 
-module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send };
+/* The Connections list (the engine's CONNS) as lines of the report: the
+ * names Shroudly did something to (a technique, Tor, the user's own server),
+ * and those of the apps it looks after (`apps(host)`: Discord, Roblox,
+ * Riot's games) however they went, so a report says whether Shroudly touched
+ * a sign-in or a game at all. Other names that went through untouched are
+ * left out: they would be the user's browsing, which a report does not
+ * carry. Those it did something to first, then the busiest; at most `max`. */
+const ROUTE_ORDER = { tor: 0, server: 1, technique: 2, direct: 3 };
+function connsText(rows, max = 60, apps = () => false) {
+  const list = (Array.isArray(rows) ? rows : []).filter((r) => r && typeof r.host === 'string' && r.host
+    && ((r.route && r.route !== 'direct') || apps(r.host)));
+  if (!list.length) return '(none)';
+  list.sort((a, b) => ((ROUTE_ORDER[a.route] ?? 3) - (ROUTE_ORDER[b.route] ?? 3)) || ((b.conns || 0) - (a.conns || 0)) || a.host.localeCompare(b.host));
+  const lines = list.slice(0, max).map((r) => {
+    const extra = [r.blocked ? 'blocked by the user' : '', r.refused ? `${r.refused} refused` : ''].filter(Boolean).join(', ');
+    return `${r.host.slice(0, 120)}  ${r.route || 'direct'}  ${r.conns || 0} conns${extra ? `  (${extra})` : ''}`;
+  });
+  if (list.length > max) lines.push(`(+${list.length - max} more)`);
+  return lines.join('\n');
+}
+
+module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText };

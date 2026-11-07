@@ -3611,6 +3611,8 @@ ipcMain.handle('report:send', async (_e, fields) => {
   reportSending = true;
   try {
     const st = reportState();
+    // What went through this session, by name (the Connections list).
+    const conns = engine && engine.isActive() ? await engine.connsList().catch(() => []) : [];
     const body = Report.payload({
       fields,
       version: appVersion(),
@@ -3618,7 +3620,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
       os: st.os,
       device: process.arch,
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
-      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n`,
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n== Connections this session ==\n${Report.connsText(conns, 60, (h) => !!Autopilot.familyOf(h))}\n`,
     });
     const r = await Report.send((o) => require('electron').net.request(o), body);
     if (r.ok) {

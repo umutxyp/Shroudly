@@ -112,6 +112,21 @@ function server(reply) {
   r = await Report.send(request, p, { url: 'http://127.0.0.1:9/x', timeoutMs: 3000 });
   t.ok(!r.ok && r.error === 'network', 'nothing there: not sent');
 
+  // The Connections list in the report: what Shroudly did something to first.
+  const ct = Report.connsText([
+    { host: 'auth.riotgames.com', route: 'direct', conns: 9 },
+    { host: 'discord.com', route: 'technique', conns: 2 },
+    { host: 'pulsar.roblox.com', route: 'tor', conns: 1, refused: 2 },
+    { host: 'x.com', route: 'direct', conns: 30, blocked: 1 },
+    { host: 'news.example', route: 'direct', conns: 50 },
+  ], 60, (h) => h.endsWith('riotgames.com') || h === 'x.com').split('\n');
+  t.ok(ct[0].startsWith('pulsar.roblox.com  tor  1 conns  (2 refused)') && ct[1].startsWith('discord.com  technique') && ct[2].startsWith('x.com  direct  30 conns  (blocked by the user)') && ct[3].startsWith('auth.riotgames.com  direct  9'),
+    'connections: Tor, then techniques, then the busiest untouched');
+  t.ok(ct.length === 4 && !ct.some((l) => l.includes('news.example')), 'connections: other untouched names (the browsing) left out');
+  t.ok(Report.connsText([]) === '(none)' && Report.connsText(null) === '(none)', 'connections: none');
+  const many = Report.connsText(Array.from({ length: 70 }, (_, i) => ({ host: `h${i}.example`, route: 'technique', conns: i })), 60).split('\n');
+  t.ok(many.length === 61 && many[60] === '(+10 more)', 'connections: at most 60, the rest counted');
+
   console.log(`report: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });
