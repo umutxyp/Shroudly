@@ -73,4 +73,13 @@ class ReportTest {
         val js = java.io.File("../../electron/report.js").readText()
         for (d in Report.APP_DOMAINS) assertTrue(d, js.contains("'$d'"))
     }
+
+    @Test
+    fun aReportAfterAStopHasTheLastSession() {
+        val row = Conns.Row("cdn.roblox.com", 0, 3, 0, 0, "technique", false, 0)
+        assertTrue(Report.connsSection(true, listOf(row), null, 0).startsWith("== Connections this session ==\ncdn.roblox.com"))
+        val off = Report.connsSection(false, emptyList(), listOf(row), 1_794_000_000_000L)
+        assertTrue(off.startsWith("== Connections last session (ended ") && off.contains("cdn.roblox.com  technique"))
+        assertTrue(Report.connsSection(false, emptyList(), null, 0).contains("has not run"))
+    }
 }

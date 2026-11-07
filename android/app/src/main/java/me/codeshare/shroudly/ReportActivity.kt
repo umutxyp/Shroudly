@@ -200,7 +200,7 @@ class ReportActivity : Activity() {
             if (on) try { Thread.sleep(800) } catch (_: InterruptedException) {}
             val log = try {
                 Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n" +
-                    "== Connections this session ==\n" + (if (on) Report.connsText(Conns.rows) else "(protection is off)") + "\n"
+                    Report.connsSection(on, Conns.rows, Conns.lastSession, Conns.lastSessionEnded) + "\n"
             } catch (e: Exception) {
                 "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)"
             }

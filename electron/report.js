@@ -174,4 +174,12 @@ function connsText(rows, max = 60, apps = isApp) {
   return lines.join('\n');
 }
 
-module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, isApp, APP_DOMAINS };
+/* The section: this session's list, or, protection off, the one of the
+ * session that ended last (kept in memory until the next start). */
+function connsSection(on, rows, last) {
+  if (on) return `== Connections this session ==\n${connsText(rows)}`;
+  if (last && Array.isArray(last.rows)) return `== Connections last session (ended ${new Date(last.at).toISOString()}) ==\n${connsText(last.rows)}`;
+  return '== Connections ==\n(protection is off, and has not run since Shroudly started)';
+}
+
+module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };

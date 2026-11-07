@@ -862,6 +862,7 @@ class EngineManager {
   }
 
   async _start() {
+    this.lastConns = null;
     if (this.active) return { success: true, alreadyActive: true };
 
     const bin = this.binPath;
@@ -1811,6 +1812,12 @@ class EngineManager {
       if (!keepProxy) { await this.proxy.restore({ interactive: user }); this._setProxyStatus(null); this._refreshRecovery(); }
       if (user) this._clearProxyEnv();
       return { success: true };
+    }
+    // What went through, for a report sent after this stop: most are sent
+    // once the user has turned protection off. In memory only, until the
+    // next start (lastConns).
+    if (this.proc) {
+      try { const rows = await this.connsList(800); if (rows.length) this.lastConns = { rows, at: Date.now() }; } catch {}
     }
     this.expectingStop = true;
     this._stopStatsPoll();

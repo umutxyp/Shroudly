@@ -280,6 +280,15 @@ object Report {
 
     private val ROUTE_ORDER = mapOf("tor" to 0, "server" to 1, "technique" to 2, "direct" to 3)
 
+    /* The section: this session's list, or, protection off, the one of the
+     * session that ended last (kept in memory until the next start). */
+    fun connsSection(on: Boolean, now: List<Conns.Row>, last: List<Conns.Row>?, lastEnded: Long): String = when {
+        on -> "== Connections this session ==\n" + connsText(now)
+        last != null -> "== Connections last session (ended " +
+            java.text.SimpleDateFormat("MM-dd HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date(lastEnded)) + ") ==\n" + connsText(last)
+        else -> "== Connections ==\n(protection is off, and has not run since the app started)"
+    }
+
     /* The Connections list as lines of the report, as the desktop's
      * (electron/report.js connsText): the names Shroudly did something to,
      * and the apps' names however they went; other untouched names (the

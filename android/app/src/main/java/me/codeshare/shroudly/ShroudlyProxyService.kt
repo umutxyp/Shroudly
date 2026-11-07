@@ -178,6 +178,7 @@ class ShroudlyProxyService : Service() {
     private fun log(msg: String) = ShroudlyVpnService.log(msg)
 
     private fun startAll() {
+        Conns.newSession()
         if (active) return
         // The VPN mode runs (the mode was changed in Settings while on): it
         // stays as it is; this one leaves the foreground it was owed.
@@ -508,6 +509,8 @@ class ShroudlyProxyService : Service() {
     private val connsCollector = Conns.Collector()
 
     private fun cleanup() {
+        // What went through, for a report sent after this stop (Conns.lastSession).
+        engine?.let { e -> Conns.keepLastSession({ e.send("CONNS") }) }
         active = false
         // Kept a few minutes: a quick Stop and Start goes on with it.
         torRoute.linger()

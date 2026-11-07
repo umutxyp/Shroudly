@@ -127,6 +127,11 @@ function server(reply) {
   const many = Report.connsText(Array.from({ length: 70 }, (_, i) => ({ host: `h${i}.example`, route: 'technique', conns: i })), 60).split('\n');
   t.ok(many.length === 61 && many[60] === '(+10 more)', 'connections: at most 60, the rest counted');
 
+  // Off at the time of the report: the last session's list, said as such.
+  t.ok(Report.connsSection(true, [{ host: 'discord.com', route: 'technique', conns: 1 }], null).startsWith('== Connections this session ==\ndiscord.com'), 'on: this session');
+  t.ok(/^== Connections last session \(ended 2026-11-07T09:00:00\.000Z\) ==\ndiscord\.com  technique/.test(Report.connsSection(false, [], { rows: [{ host: 'discord.com', route: 'technique', conns: 1 }], at: Date.UTC(2026, 10, 7, 9) })), 'off: the last session, with when it ended');
+  t.ok(/has not run/.test(Report.connsSection(false, [], null)), 'off and never on: said');
+
   console.log(`report: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

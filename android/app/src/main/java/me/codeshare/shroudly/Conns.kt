@@ -58,12 +58,38 @@ object Conns {
         return if (b.isEmpty()) emptyList() else listOf("BLOCK-CLEAR") + b.sorted().map { "BLOCK $it" }
     }
 
+    /* A new list came (counted, so a wait can tell). */
+    @Volatile var rowsGen = 0L
+        internal set
+
+    /* The list of the session that ended last, kept in memory only until the
+     * next start: a report sent after the user turned protection off (most
+     * are: "it does not work", off, then report) still says what went
+     * through and how. */
+    @Volatile var lastSession: List<Row>? = null
+    @Volatile var lastSessionEnded = 0L
+
+    /* At a stop, the engine still running: its list asked for (`ask`), and
+     * kept once it comes, waiting at most waitMs. */
+    fun keepLastSession(ask: () -> Unit, waitMs: Long = 700) {
+        val g = rowsGen
+        try { ask() } catch (_: Exception) { return }
+        val until = System.currentTimeMillis() + waitMs
+        while (rowsGen == g && System.currentTimeMillis() < until) {
+            try { Thread.sleep(25) } catch (_: InterruptedException) { break }
+        }
+        if (rowsGen != g) { lastSession = rows; lastSessionEnded = System.currentTimeMillis() }
+    }
+
+    /* A new session: the last one's list goes. */
+    fun newSession() { lastSession = null; lastSessionEnded = 0L; rows = emptyList() }
+
     /* The engine's lines: rows until conns_end (one collector per service). */
     class Collector {
         private val pending = ArrayList<Row>()
         fun take(ev: EngineEvent): Boolean = when (ev) {
             is EngineEvent.Conn -> { synchronized(pending) { pending += ev.row }; true }
-            is EngineEvent.ConnsEnd -> { synchronized(pending) { rows = pending.toList(); pending.clear() }; Protection.changed(); true }
+            is EngineEvent.ConnsEnd -> { synchronized(pending) { rows = pending.toList(); pending.clear() }; rowsGen++; Protection.changed(); true }
             else -> false
         }
     }

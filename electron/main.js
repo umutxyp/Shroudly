@@ -3675,8 +3675,11 @@ ipcMain.handle('report:send', async (_e, fields) => {
   reportSending = true;
   try {
     const st = reportState();
-    // What went through this session, by name (the Connections list).
-    const conns = engine && engine.isActive() ? await engine.connsList().catch(() => []) : [];
+    // What went through this session, by name (the Connections list); with
+    // protection off, the last session's, kept until the next start.
+    const on = !!(engine && engine.isActive());
+    const conns = on ? await engine.connsList().catch(() => []) : [];
+    const lastConns = !on && engine && engine.lastConns ? engine.lastConns : null;
     const body = Report.payload({
       fields,
       version: appVersion(),
@@ -3684,7 +3687,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
       os: st.os,
       device: process.arch,
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
-      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n== Connections this session ==\n${Report.connsText(conns)}\n`,
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n`,
     });
     const r = await Report.send((o) => require('electron').net.request(o), body);
     if (r.ok) {

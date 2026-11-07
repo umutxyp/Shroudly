@@ -516,6 +516,7 @@ class ShroudlyVpnService : VpnService() {
     /* ── start ─────────────────────────────────────────────────────────── */
 
     private fun startAll() {
+        Conns.newSession()
         try {
             val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
             if (prefs.contains(OLD_PID_KEY)) prefs.edit().remove(OLD_PID_KEY).apply()
@@ -1625,6 +1626,8 @@ class ShroudlyVpnService : VpnService() {
     }
 
     private fun teardown() {
+        // What went through, for a report sent after this stop (Conns.lastSession).
+        engine?.let { e -> Conns.keepLastSession({ e.send("CONNS") }) }
         val wasActive = active
         active = false
         snowflake.stop()
