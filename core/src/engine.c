@@ -1491,7 +1491,7 @@ static int socks_accept(sock_t c, socks_req *rq) {
   if (sock_wait_readable(c, 5000) != 1) return -1;
   if (recv_exact(c, b, 2) != 0) return -1;
   if (b[0] == 'C' && b[1] == 'O') {
-    if (auth) {
+    if (auth && !g_cfg.http_open) {
       static const char no[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
       send_str(c, no);
       return -1;
@@ -1500,7 +1500,7 @@ static int socks_accept(sock_t c, socks_req *rq) {
   }
   /* Any other request in capitals: a plain http:// one, or refused. */
   if (b[0] >= 'A' && b[0] <= 'Z' && b[1] >= 'A' && b[1] <= 'Z') {
-    if (auth) {
+    if (auth && !g_cfg.http_open) {
       static const char no[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
       send_str(c, no);
       return -1;

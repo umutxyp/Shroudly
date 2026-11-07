@@ -111,13 +111,16 @@ enum EngineArgs {
      * so a change needs no restart. */
     static func make(port: Int, dohPort: Int, settings: AppSettings, authFile: String?,
                      blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet, upstreamFile: String? = nil,
-                     fallbackFile: String? = nil) -> [String] {
+                     fallbackFile: String? = nil, httpOpen: Bool = false) -> [String] {
         let strategy = settings.strategy
         var a = ["--listen", "127.0.0.1", "--port", String(port), "--strategy", strategy.spec]
         if strategy.auto { a.append("--auto") }
         a.append("--doh")
         if dohPort > 0 { a += ["--doh-port", String(dohPort)] }
         if let authFile { a += [SocksAuth.option, authFile] }
+        // The Mac as its own proxy (AppSettings.proxyOnly): the apps' HTTP
+        // proxy requests without the password; SOCKS keeps it.
+        if httpOpen { a.append("--http-open") }
         if let fakeNet { a += ["--fake-net", fakeNet] }
         for ip in blockIps { a += ["--block-ip", ip] }
         if settings.quicOff { a.append("--drop-quic") }

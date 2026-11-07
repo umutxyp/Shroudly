@@ -80,6 +80,8 @@
 "linkReleases" = "Reliz qaydlari";
 "linkSourceCode" = "GitHubdagi manba kodi";
 "linkWebsite" = "Codeshare sayti";
+"macAllApps" = "Barcha ilovalar Shroudly orqali (VPN)";
+"macAllAppsDesc" = "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi.";
 "madeBy" = "Codeshare Technology Ltd mahsuloti";
 "nationalOnlyBody" = "Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.";
 "nationalOnlyHelp" = "Yana nima yordam berishi mumkin";

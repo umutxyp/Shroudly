@@ -80,6 +80,8 @@
 "linkReleases" = "Notên weşanê";
 "linkSourceCode" = "Koda çavkaniyê li GitHubê";
 "linkWebsite" = "Malpera Codeshare";
+"macAllApps" = "Hemû sepan bi Shroudly (VPN)";
+"macAllAppsDesc" = "Girtî: Shroudly proxyya vê Mac e, wekî guhertoya ji GitHub: gerok û sepanên ku proxyya pergalê bi kar tînin di wê re derbas dibin, yên din rasterast diçin û Mac bilez dimîne. Vekirî: hemû sepan, yên ku proxyyê paşguh dikin jî (sepana Discord, lîstik), di Shroudly re derbas dibin, lê Mac hêdîtir dibe.";
 "madeBy" = "Berhemeke Codeshare Technology Ltd";
 "nationalOnlyBody" = "Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.";
 "nationalOnlyHelp" = "Hîn çi dikare alîkariyê bike";

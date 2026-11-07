@@ -256,6 +256,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--adblock") && i+1<argc) strncpy(g_adblock_file, argv[++i], sizeof(g_adblock_file)-1);
     else if (!strcmp(argv[i], "--allow") && i+1<argc) adblock_allow(argv[++i]);   /* a bad one is left out */
     else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
+    else if (!strcmp(argv[i], "--http-open")) g_cfg.http_open = 1;
     else if (!strcmp(argv[i], "--upstream-file") && i+1<argc) strncpy(g_upstream_file, argv[++i], sizeof(g_upstream_file)-1);
     else if (!strcmp(argv[i], "--fallback-file") && i+1<argc) strncpy(g_fallback_file, argv[++i], sizeof(g_fallback_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);

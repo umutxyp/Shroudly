@@ -53,6 +53,11 @@ struct SettingsView: View {
                 // The last way out (Tunnel/TorRoute.swift): the Mac only
                 // (iOS ends a tunnel that big; Apple TV has no Tor).
                 #if os(macOS)
+                // Off (the default): Shroudly as the Mac's proxy, as the
+                // desktop app from GitHub (AppSettings.proxyOnly).
+                Toggle(isOn: $settings.macAllApps) {
+                    Labelled(title: tr("macAllApps"), detail: tr("macAllAppsDesc"))
+                }
                 Toggle(isOn: $settings.torLastResort) {
                     Labelled(title: tr("lastResort"), detail: settings.ownServer.isEmpty ? "\(tr("lastResortDesc")) \(tr("lastResortAsks"))" : tr("lastResortOwnServer"))
                 }

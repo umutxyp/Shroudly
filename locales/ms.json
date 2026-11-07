@@ -976,5 +976,7 @@
   "reportPast": "Laporan yang anda hantar",
   "reportPastHint": "Disimpan hanya pada peranti ini, selama 60 hari.",
   "reportCopy": "Salin",
-  "reportCopied": "Disalin"
+  "reportCopied": "Disalin",
+  "macAllApps": "Semua apl melalui Shroudly (VPN)",
+  "macAllAppsDesc": "Mati: Shroudly ialah proksi Mac ini, seperti versi dari GitHub: pelayar dan apl yang menggunakan proksi sistem melaluinya, yang lain terus, dan Mac kekal pantas. Hidup: semua apl melalui Shroudly, termasuk yang mengabaikan proksi (apl Discord, permainan), tetapi Mac lebih perlahan."
 }

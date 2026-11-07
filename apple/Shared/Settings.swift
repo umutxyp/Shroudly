@@ -55,15 +55,30 @@ struct AppSettings: Equatable {
     // "When nothing else works: the Tor network" (Tunnel/TorRoute.swift): on
     // unless turned off; nothing to do on Apple TV, which has no Tor.
     var torLastResort = true
+    // The Mac: every app's connections through the tunnel (a VPN), or, by
+    // default, Shroudly as the Mac's proxy, as the desktop app from GitHub
+    // works: the apps that use the system's proxy (browsers and most others)
+    // go through it, the rest straight, much lighter than every packet of
+    // the Mac in the tunnel. Not on iPhone, iPad or Apple TV (always all).
+    var macAllApps = false
 
     var strategy: Strategy { Strategies.byId(strategyId) }
+
+    /* Shroudly as the Mac's proxy, no packets in the tunnel. */
+    var proxyOnly: Bool {
+        #if os(macOS)
+        return !macAllApps
+        #else
+        return false
+        #endif
+    }
 
     /* What the engine and the tunnel are started with; keepOn is the
      * system's business (on demand), not theirs. */
     func sameTunnel(as other: AppSettings) -> Bool {
         strategy == other.strategy && quicOff == other.quicOff && ipv6Off == other.ipv6Off && ownServer == other.ownServer
             && dnsKind == other.dnsKind && dnsServer == other.dnsServer && dnsStrict == other.dnsStrict
-            && torLastResort == other.torLastResort
+            && torLastResort == other.torLastResort && macAllApps == other.macAllApps
     }
 
     /* The own server in use, or nil (none, or a link that cannot be used). */
@@ -78,6 +93,7 @@ final class SettingsStore {
         static let keepOn = "keepOn"
         static let ownServer = "ownServer"
         static let torLastResort = "torLastResort"
+        static let macAllApps = "macAllApps"
     }
 
     private let defaults: UserDefaults
@@ -94,6 +110,7 @@ final class SettingsStore {
         s.keepOn = defaults.bool(forKey: Key.keepOn)
         s.ownServer = defaults.string(forKey: Key.ownServer) ?? ""
         s.torLastResort = defaults.object(forKey: Key.torLastResort) as? Bool ?? true
+        s.macAllApps = defaults.bool(forKey: Key.macAllApps)
         s.dnsKind = defaults.string(forKey: CustomDns.Key.kind) ?? "auto"
         s.dnsServer = defaults.string(forKey: CustomDns.Key.server) ?? ""
         s.dnsStrict = defaults.bool(forKey: CustomDns.Key.strict)
@@ -107,6 +124,7 @@ final class SettingsStore {
         defaults.set(s.keepOn, forKey: Key.keepOn)
         defaults.set(s.ownServer, forKey: Key.ownServer)
         defaults.set(s.torLastResort, forKey: Key.torLastResort)
+        defaults.set(s.macAllApps, forKey: Key.macAllApps)
         if s.dnsKind == "auto" || s.dnsServer.isEmpty {
             for k in [CustomDns.Key.kind, CustomDns.Key.server, CustomDns.Key.strict] { defaults.removeObject(forKey: k) }
         } else {

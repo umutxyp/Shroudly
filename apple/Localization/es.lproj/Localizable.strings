@@ -80,6 +80,8 @@
 "linkReleases" = "Notas de la versión";
 "linkSourceCode" = "Código fuente en GitHub";
 "linkWebsite" = "Sitio web de Codeshare";
+"macAllApps" = "Todas las apps por Shroudly (VPN)";
+"macAllAppsDesc" = "Desactivado: Shroudly es el proxy de este Mac, como la versión de GitHub: los navegadores y las apps que usan el proxy del sistema pasan por él, el resto va directo y el Mac sigue rápido. Activado: todas las apps pasan por Shroudly, también las que ignoran el proxy (la app de Discord, juegos), pero el Mac va más lento.";
 "madeBy" = "Un producto de Codeshare Technology Ltd";
 "nationalOnlyBody" = "La conexión con el resto del mundo está cortada; los sitios del país todavía abren. Ninguna app ni VPN puede saltarse eso. Shroudly seguirá por sí mismo cuando vuelva.";
 "nationalOnlyHelp" = "Lo que todavía puede ayudar";

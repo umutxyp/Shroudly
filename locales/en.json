@@ -976,5 +976,7 @@
   "reportPast": "Reports you sent",
   "reportPastHint": "Kept only on this device, for 60 days.",
   "reportCopy": "Copy",
-  "reportCopied": "Copied"
+  "reportCopied": "Copied",
+  "macAllApps": "All apps through Shroudly (VPN)",
+  "macAllAppsDesc": "Off: Shroudly is this Mac's proxy, like the version from GitHub: browsers and apps that use the system proxy go through it, the rest go straight, and the Mac stays fast. On: every app goes through Shroudly, including apps that ignore the proxy (the Discord app, games), but the Mac is slower."
 }

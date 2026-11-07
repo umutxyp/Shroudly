@@ -137,9 +137,15 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         v6 = !settings.ipv6Off && underlyingHasIPv6()
         try apply(networkSettings(v6: v6))
 
-        let fd = shroudly_tun_fd()
-        guard fd >= 0 else { throw StartError(message: "no tunnel descriptor") }
-        try startHev(fd: fd)
+        if settings.proxyOnly {
+            // The Mac's proxy points at the engine; nothing comes into the
+            // tunnel, so no hev.
+            log("Shroudly is the Mac's proxy on 127.0.0.1:\(port): apps that use the system proxy go through it, the others straight (Settings: all apps through Shroudly)")
+        } else {
+            let fd = shroudly_tun_fd()
+            guard fd >= 0 else { throw StartError(message: "no tunnel descriptor") }
+            try startHev(fd: fd)
+        }
 
         RatingStore().update { RatingSchedule.recordGoodStart(&$0, at: Date()) }
         startWatching()
@@ -241,7 +247,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 }
             }
             let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps, upstreamFile: upstreamPath,
-                                       fallbackFile: fallbackPath)
+                                       fallbackFile: fallbackPath, httpOpen: settings.proxyOnly)
             let ok = e.start(args: args)
             // Read once, at its start: the secrets are not left lying in a file.
             unlink(authPath)
@@ -394,7 +400,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let oldPort = port, oldAuth = auth
         do {
             port = try spawnEngine(keep: true)
-            if port != oldPort || auth != oldAuth {
+            if settings.proxyOnly {
+                // The Mac's proxy names the port: set again when it moved.
+                if port != oldPort { try apply(networkSettings(v6: v6)) }
+            } else if port != oldPort || auth != oldAuth {
                 // hev still sends to the old port with the old password.
                 restartHev()
             }
@@ -433,6 +442,27 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private func networkSettings(v6: Bool) -> NEPacketTunnelNetworkSettings {
         let s = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
         s.mtu = NSNumber(value: TunnelConfig.mtu)
+        if settings.proxyOnly {
+            // The Mac (AppSettings.proxyOnly): no route into the tunnel, the
+            // engine as the system's HTTP and HTTPS proxy, as the desktop app
+            // sets it; this Mac's own and local addresses go straight.
+            let v4 = NEIPv4Settings(addresses: [TunnelConfig.addressV4], subnetMasks: ["255.255.255.255"])
+            v4.includedRoutes = []
+            s.ipv4Settings = v4
+            let p = NEProxySettings()
+            let server = NEProxyServer(address: "127.0.0.1", port: port)
+            p.httpEnabled = true
+            p.httpServer = server
+            p.httpsEnabled = true
+            p.httpsServer = server
+            p.excludeSimpleHostnames = true
+            p.exceptionList = ["localhost", "*.local", "127.0.0.1", "::1", "169.254.0.0/16", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+            // Every name, not only some domains (the tunnel is not the
+            // default route here).
+            p.matchDomains = [""]
+            s.proxySettings = p
+            return s
+        }
         let v4 = NEIPv4Settings(addresses: [TunnelConfig.addressV4], subnetMasks: ["255.255.255.255"])
         v4.includedRoutes = [NEIPv4Route.default()]
         s.ipv4Settings = v4
@@ -556,7 +586,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             case .health:
                 let e = engine
                 reply["engine"] = e?.running == true && Date().timeIntervalSince(e?.lastOutputAt ?? .distantPast) < Self.hungAfter
-                reply["tunnel"] = hev?.running == true
+                reply["tunnel"] = settings.proxyOnly || hev?.running == true
             case .siteLog:
                 siteLock.lock(); reply["lines"] = sites; siteLock.unlock()
             case .conns:

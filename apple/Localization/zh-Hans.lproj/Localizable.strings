@@ -80,6 +80,8 @@
 "linkReleases" = "版本说明";
 "linkSourceCode" = "GitHub 上的源代码";
 "linkWebsite" = "Codeshare 网站";
+"macAllApps" = "所有应用都经过 Shroudly (VPN)";
+"macAllAppsDesc" = "关闭：Shroudly 作为这台 Mac 的代理，与 GitHub 上的版本相同：浏览器和使用系统代理的应用经过它，其余直接连接，Mac 保持快速。开启：所有应用都经过 Shroudly，包括忽略代理的应用（Discord 应用、游戏），但 Mac 会变慢。";
 "madeBy" = "Codeshare Technology Ltd 出品";
 "nationalOnlyBody" = "与世界其他地区的连接已被切断；国内网站仍可打开。任何应用或 VPN 都无法绕过。连接恢复后，Shroudly 会自动继续。";
 "nationalOnlyHelp" = "还有什么能帮上忙";

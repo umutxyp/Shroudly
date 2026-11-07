@@ -80,6 +80,8 @@
 "linkReleases" = "リリースノート";
 "linkSourceCode" = "GitHub のソースコード";
 "linkWebsite" = "Codeshare のウェブサイト";
+"macAllApps" = "すべてのアプリを Shroudly 経由に (VPN)";
+"macAllAppsDesc" = "オフ: Shroudly がこの Mac のプロキシになります (GitHub 版と同じ)。ブラウザとシステムのプロキシを使うアプリは Shroudly を通り、それ以外は直接つながるので Mac は速いままです。オン: プロキシを無視するアプリ (Discord アプリ、ゲーム) も含め、すべてのアプリが Shroudly を通りますが、Mac は遅くなります。";
 "madeBy" = "Codeshare Technology Ltd の製品";
 "nationalOnlyBody" = "世界のほかの地域との接続が切断されています。国内のサイトはまだ開けます。アプリや VPN でもこれは回避できません。接続が戻れば Shroudly は自動で続けます。";
 "nationalOnlyHelp" = "まだ役立つこと";

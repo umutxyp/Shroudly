@@ -976,5 +976,7 @@
   "reportPast": "Laporan yang Anda kirim",
   "reportPastHint": "Disimpan hanya di perangkat ini, selama 60 hari.",
   "reportCopy": "Salin",
-  "reportCopied": "Tersalin"
+  "reportCopied": "Tersalin",
+  "macAllApps": "Semua aplikasi lewat Shroudly (VPN)",
+  "macAllAppsDesc": "Mati: Shroudly menjadi proxy Mac ini, seperti versi dari GitHub: browser dan aplikasi yang memakai proxy sistem lewat Shroudly, sisanya langsung, dan Mac tetap cepat. Nyala: semua aplikasi lewat Shroudly, termasuk yang mengabaikan proxy (aplikasi Discord, game), tetapi Mac lebih lambat."
 }

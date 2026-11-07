@@ -976,5 +976,7 @@
   "reportPast": "Gönderdiğiniz raporlar",
   "reportPastHint": "Yalnızca bu cihazda, 60 gün saklanır.",
   "reportCopy": "Kopyala",
-  "reportCopied": "Kopyalandı"
+  "reportCopied": "Kopyalandı",
+  "macAllApps": "Tüm uygulamalar Shroudly'den (VPN)",
+  "macAllAppsDesc": "Kapalı: Shroudly bu Mac'in vekil sunucusu olur, GitHub'daki sürüm gibi: tarayıcılar ve sistem vekilini kullanan uygulamalar ondan geçer, diğerleri doğrudan gider ve Mac hızlı kalır. Açık: vekili dinlemeyen uygulamalar (Discord uygulaması, oyunlar) dahil her uygulama Shroudly'den geçer, ama Mac yavaşlar."
 }

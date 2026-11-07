@@ -976,5 +976,7 @@
   "reportPast": "Raporên ku te şandine",
   "reportPastHint": "Tenê li ser vê amûrê, 60 rojan tê parastin.",
   "reportCopy": "Kopî bike",
-  "reportCopied": "Hat kopîkirin"
+  "reportCopied": "Hat kopîkirin",
+  "macAllApps": "Hemû sepan bi Shroudly (VPN)",
+  "macAllAppsDesc": "Girtî: Shroudly proxyya vê Mac e, wekî guhertoya ji GitHub: gerok û sepanên ku proxyya pergalê bi kar tînin di wê re derbas dibin, yên din rasterast diçin û Mac bilez dimîne. Vekirî: hemû sepan, yên ku proxyyê paşguh dikin jî (sepana Discord, lîstik), di Shroudly re derbas dibin, lê Mac hêdîtir dibe."
 }

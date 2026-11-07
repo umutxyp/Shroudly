@@ -80,6 +80,8 @@
 "linkReleases" = "บันทึกประจำรุ่น";
 "linkSourceCode" = "ซอร์สโค้ดบน GitHub";
 "linkWebsite" = "เว็บไซต์ Codeshare";
+"macAllApps" = "ทุกแอปผ่าน Shroudly (VPN)";
+"macAllAppsDesc" = "ปิด: Shroudly เป็นพร็อกซีของ Mac เครื่องนี้ เหมือนเวอร์ชันจาก GitHub: เบราว์เซอร์และแอปที่ใช้พร็อกซีของระบบจะผ่าน Shroudly ส่วนที่เหลือไปตรง และ Mac ยังเร็ว เปิด: ทุกแอปผ่าน Shroudly รวมถึงแอปที่ไม่สนพร็อกซี (แอป Discord เกม) แต่ Mac จะช้าลง";
 "madeBy" = "ผลิตภัณฑ์ของ Codeshare Technology Ltd";
 "nationalOnlyBody" = "การเชื่อมต่อกับส่วนอื่นของโลกถูกตัด เว็บไซต์ในประเทศยังเปิดได้ ไม่มีแอปหรือ VPN ใดผ่านสิ่งนี้ได้ Shroudly จะทำงานต่อเองเมื่อการเชื่อมต่อกลับมา";
 "nationalOnlyHelp" = "อะไรยังช่วยได้บ้าง";

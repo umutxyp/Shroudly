@@ -976,5 +976,7 @@
   "reportPast": "Relatórios que você enviou",
   "reportPastHint": "Guardados só neste aparelho, por 60 dias.",
   "reportCopy": "Copiar",
-  "reportCopied": "Copiado"
+  "reportCopied": "Copiado",
+  "macAllApps": "Todos os apps pelo Shroudly (VPN)",
+  "macAllAppsDesc": "Desligado: o Shroudly é o proxy deste Mac, como a versão do GitHub: navegadores e apps que usam o proxy do sistema passam por ele, o resto vai direto e o Mac continua rápido. Ligado: todos os apps passam pelo Shroudly, inclusive os que ignoram o proxy (o app do Discord, jogos), mas o Mac fica mais lento."
 }

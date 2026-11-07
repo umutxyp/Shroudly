@@ -976,5 +976,7 @@
   "reportPast": "Iberen hasabatlaryňyz",
   "reportPastHint": "Diňe şu enjamda, 60 gün saklanýar.",
   "reportCopy": "Göçür",
-  "reportCopied": "Göçürildi"
+  "reportCopied": "Göçürildi",
+  "macAllApps": "Ähli programmalar Shroudly arkaly (VPN)",
+  "macAllAppsDesc": "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar."
 }

@@ -976,5 +976,7 @@
   "reportPast": "你发送过的报告",
   "reportPastHint": "仅保存在此设备上，保留 60 天。",
   "reportCopy": "复制",
-  "reportCopied": "已复制"
+  "reportCopied": "已复制",
+  "macAllApps": "所有应用都经过 Shroudly (VPN)",
+  "macAllAppsDesc": "关闭：Shroudly 作为这台 Mac 的代理，与 GitHub 上的版本相同：浏览器和使用系统代理的应用经过它，其余直接连接，Mac 保持快速。开启：所有应用都经过 Shroudly，包括忽略代理的应用（Discord 应用、游戏），但 Mac 会变慢。"
 }

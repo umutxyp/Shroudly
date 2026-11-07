@@ -80,6 +80,8 @@
 "linkReleases" = "የልቀት ማስታወሻዎች";
 "linkSourceCode" = "የምንጭ ኮድ በGitHub ላይ";
 "linkWebsite" = "የCodeshare ድረ-ገጽ";
+"macAllApps" = "ሁሉም መተግበሪያዎች በShroudly በኩል (VPN)";
+"macAllAppsDesc" = "ጠፍቷል፦ Shroudly የዚህ Mac ፕሮክሲ ነው፣ እንደ GitHub ስሪቱ፦ አሳሾች እና የስርዓቱን ፕሮክሲ የሚጠቀሙ መተግበሪያዎች በእሱ በኩል ያልፋሉ፣ ሌሎቹ በቀጥታ ይሄዳሉ፣ Mac ፈጣን ሆኖ ይቆያል። በርቷል፦ ፕሮክሲውን የማይከተሉትን (የDiscord መተግበሪያ፣ ጨዋታዎች) ጨምሮ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ፣ ግን Mac ይዘገያል።";
 "madeBy" = "የCodeshare Technology Ltd ምርት";
 "nationalOnlyBody" = "ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።";
 "nationalOnlyHelp" = "አሁንም ምን ሊረዳ ይችላል";

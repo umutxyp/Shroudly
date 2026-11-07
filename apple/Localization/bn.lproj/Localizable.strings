@@ -80,6 +80,8 @@
 "linkReleases" = "রিলিজ নোট";
 "linkSourceCode" = "GitHub-এ সোর্স কোড";
 "linkWebsite" = "Codeshare ওয়েবসাইট";
+"macAllApps" = "সব অ্যাপ Shroudly দিয়ে (VPN)";
+"macAllAppsDesc" = "বন্ধ: Shroudly এই Mac-এর প্রক্সি, GitHub-এর সংস্করণের মতো: ব্রাউজার ও সিস্টেম প্রক্সি ব্যবহারকারী অ্যাপ এর মধ্য দিয়ে যায়, বাকিগুলো সরাসরি, আর Mac দ্রুত থাকে। চালু: প্রক্সি উপেক্ষা করা অ্যাপসহ (Discord অ্যাপ, গেম) সব অ্যাপ Shroudly দিয়ে যায়, কিন্তু Mac ধীর হয়।";
 "madeBy" = "Codeshare Technology Ltd-এর একটি পণ্য";
 "nationalOnlyBody" = "বাকি বিশ্বের সাথে সংযোগ বিচ্ছিন্ন; দেশের ভেতরের সাইটগুলো এখনও খোলে। কোনো অ্যাপ বা VPN এটি পার হতে পারে না। সংযোগ ফিরলে Shroudly নিজে থেকেই চালিয়ে যাবে।";
 "nationalOnlyHelp" = "এখনও কী সাহায্য করতে পারে";

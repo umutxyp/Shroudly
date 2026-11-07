@@ -976,5 +976,7 @@
   "reportPast": "የላኳቸው ሪፖርቶች",
   "reportPastHint": "በዚህ መሣሪያ ላይ ብቻ፣ ለ60 ቀናት ይቀመጣሉ።",
   "reportCopy": "ቅዳ",
-  "reportCopied": "ተቀድቷል"
+  "reportCopied": "ተቀድቷል",
+  "macAllApps": "ሁሉም መተግበሪያዎች በShroudly በኩል (VPN)",
+  "macAllAppsDesc": "ጠፍቷል፦ Shroudly የዚህ Mac ፕሮክሲ ነው፣ እንደ GitHub ስሪቱ፦ አሳሾች እና የስርዓቱን ፕሮክሲ የሚጠቀሙ መተግበሪያዎች በእሱ በኩል ያልፋሉ፣ ሌሎቹ በቀጥታ ይሄዳሉ፣ Mac ፈጣን ሆኖ ይቆያል። በርቷል፦ ፕሮክሲውን የማይከተሉትን (የDiscord መተግበሪያ፣ ጨዋታዎች) ጨምሮ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ፣ ግን Mac ይዘገያል።"
 }

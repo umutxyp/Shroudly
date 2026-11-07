@@ -976,5 +976,7 @@
   "reportPast": "Yuborgan hisobotlaringiz",
   "reportPastHint": "Faqat shu qurilmada, 60 kun saqlanadi.",
   "reportCopy": "Nusxa olish",
-  "reportCopied": "Nusxa olindi"
+  "reportCopied": "Nusxa olindi",
+  "macAllApps": "Barcha ilovalar Shroudly orqali (VPN)",
+  "macAllAppsDesc": "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi."
 }

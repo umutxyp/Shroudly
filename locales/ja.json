@@ -976,5 +976,7 @@
   "reportPast": "送信したレポート",
   "reportPastHint": "この端末にのみ 60 日間保存されます。",
   "reportCopy": "コピー",
-  "reportCopied": "コピーしました"
+  "reportCopied": "コピーしました",
+  "macAllApps": "すべてのアプリを Shroudly 経由に (VPN)",
+  "macAllAppsDesc": "オフ: Shroudly がこの Mac のプロキシになります (GitHub 版と同じ)。ブラウザとシステムのプロキシを使うアプリは Shroudly を通り、それ以外は直接つながるので Mac は速いままです。オン: プロキシを無視するアプリ (Discord アプリ、ゲーム) も含め、すべてのアプリが Shroudly を通りますが、Mac は遅くなります。"
 }

@@ -80,6 +80,8 @@
 "linkReleases" = "Buraxılış qeydləri";
 "linkSourceCode" = "GitHub-da mənbə kodu";
 "linkWebsite" = "Codeshare saytı";
+"macAllApps" = "Bütün tətbiqlər Shroudly ilə (VPN)";
+"macAllAppsDesc" = "Söndürülüb: Shroudly bu Mac-in proksisidir, GitHub-dakı versiya kimi: brauzerlər və sistem proksisindən istifadə edən tətbiqlər onun üzərindən keçir, qalanları birbaşa gedir və Mac sürətli qalır. Yanılı: proksiyə məhəl qoymayanlar (Discord tətbiqi, oyunlar) daxil, bütün tətbiqlər Shroudly ilə keçir, amma Mac yavaşlayır.";
 "madeBy" = "Codeshare Technology Ltd məhsulu";
 "nationalOnlyBody" = "Dünyanın qalan hissəsi ilə bağlantı kəsilib; ölkə daxilindəki saytlar hələ açılır. Heç bir tətbiq və ya VPN bunu keçə bilməz. Bağlantı qayıdanda Shroudly özü davam edir.";
 "nationalOnlyHelp" = "Hələ nə kömək edə bilər";

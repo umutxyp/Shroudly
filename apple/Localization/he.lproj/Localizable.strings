@@ -80,6 +80,8 @@
 "linkReleases" = "הערות גרסה";
 "linkSourceCode" = "קוד המקור ב-GitHub";
 "linkWebsite" = "האתר של Codeshare";
+"macAllApps" = "כל היישומים דרך Shroudly (VPN)";
+"macAllAppsDesc" = "כבוי: Shroudly הוא הפרוקסי של ה-Mac הזה, כמו הגרסה מ-GitHub: דפדפנים ויישומים שמשתמשים בפרוקסי של המערכת עוברים דרכו, השאר ישירות, וה-Mac נשאר מהיר. מופעל: כל היישומים עוברים דרך Shroudly, כולל כאלה שמתעלמים מהפרוקסי (יישום Discord, משחקים), אבל ה-Mac איטי יותר.";
 "madeBy" = "מוצר של Codeshare Technology Ltd";
 "nationalOnlyBody" = "החיבור לשאר העולם מנותק; אתרים בתוך המדינה עדיין נפתחים. אף אפליקציה או VPN לא יכולים לעקוף את זה. Shroudly ימשיך מעצמו כשהחיבור יחזור.";
 "nationalOnlyHelp" = "מה עוד יכול לעזור";

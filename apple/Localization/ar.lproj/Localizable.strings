@@ -80,6 +80,8 @@
 "linkReleases" = "ملاحظات الإصدار";
 "linkSourceCode" = "الشيفرة المصدرية على GitHub";
 "linkWebsite" = "موقع Codeshare";
+"macAllApps" = "كل التطبيقات عبر Shroudly (VPN)";
+"macAllAppsDesc" = "معطّل: يكون Shroudly وكيل هذا الـMac، مثل النسخة من GitHub: تمر المتصفحات والتطبيقات التي تستخدم وكيل النظام عبره، ويذهب الباقي مباشرة، ويبقى الـMac سريعًا. مفعّل: تمر كل التطبيقات عبر Shroudly، بما فيها التي تتجاهل الوكيل (تطبيق Discord والألعاب)، لكن الـMac يصبح أبطأ.";
 "madeBy" = "منتج من Codeshare Technology Ltd";
 "nationalOnlyBody" = "الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.";
 "nationalOnlyHelp" = "ما الذي قد يساعد بعد";

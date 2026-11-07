@@ -976,5 +976,7 @@
   "reportPast": "Báo cáo bạn đã gửi",
   "reportPastHint": "Chỉ lưu trên thiết bị này, trong 60 ngày.",
   "reportCopy": "Sao chép",
-  "reportCopied": "Đã sao chép"
+  "reportCopied": "Đã sao chép",
+  "macAllApps": "Mọi ứng dụng qua Shroudly (VPN)",
+  "macAllAppsDesc": "Tắt: Shroudly là proxy của máy Mac này, giống bản trên GitHub: trình duyệt và ứng dụng dùng proxy hệ thống đi qua nó, phần còn lại đi thẳng, và máy Mac vẫn nhanh. Bật: mọi ứng dụng đi qua Shroudly, kể cả ứng dụng bỏ qua proxy (ứng dụng Discord, trò chơi), nhưng máy Mac chậm hơn."
 }

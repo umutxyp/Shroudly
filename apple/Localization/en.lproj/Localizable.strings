@@ -80,6 +80,8 @@
 "linkReleases" = "Release notes";
 "linkSourceCode" = "Source code on GitHub";
 "linkWebsite" = "Codeshare website";
+"macAllApps" = "All apps through Shroudly (VPN)";
+"macAllAppsDesc" = "Off: Shroudly is this Mac's proxy, like the version from GitHub: browsers and apps that use the system proxy go through it, the rest go straight, and the Mac stays fast. On: every app goes through Shroudly, including apps that ignore the proxy (the Discord app, games), but the Mac is slower.";
 "madeBy" = "A Codeshare Technology Ltd product";
 "nationalOnlyBody" = "The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.";
 "nationalOnlyHelp" = "What can still help";

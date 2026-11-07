@@ -80,6 +80,8 @@
 "linkReleases" = "Wersiýa bellikleri";
 "linkSourceCode" = "GitHub-daky çeşme kody";
 "linkWebsite" = "Codeshare web sahypasy";
+"macAllApps" = "Ähli programmalar Shroudly arkaly (VPN)";
+"macAllAppsDesc" = "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar.";
 "madeBy" = "Codeshare Technology Ltd önümi";
 "nationalOnlyBody" = "Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.";
 "nationalOnlyHelp" = "Ýene näme kömek edip biler";

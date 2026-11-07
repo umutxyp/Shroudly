@@ -27,6 +27,11 @@ typedef struct {
   int      raw_local;
   strategy strat;             /* active strategy (used when auto_probe is off,
                                  and as the first candidate when it is on) */
+  /* --http-open: HTTP proxy requests (CONNECT, plain http://) taken
+   * without the password that SOCKS still needs: the Mac App Store app
+   * as the system's proxy, for the apps of this Mac, while its own parts
+   * (hev, encrypted DNS) keep SOCKS with the password. */
+  int      http_open;
   /* SOCKS5 username/password (RFC 1929), from --auth-file. Empty: no
    * authentication, and SOCKS4 is taken as well. Set: every connection must
    * be SOCKS5 and give exactly these. */

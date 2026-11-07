@@ -80,6 +80,8 @@
 "linkReleases" = "Nota keluaran";
 "linkSourceCode" = "Kod sumber di GitHub";
 "linkWebsite" = "Laman web Codeshare";
+"macAllApps" = "Semua apl melalui Shroudly (VPN)";
+"macAllAppsDesc" = "Mati: Shroudly ialah proksi Mac ini, seperti versi dari GitHub: pelayar dan apl yang menggunakan proksi sistem melaluinya, yang lain terus, dan Mac kekal pantas. Hidup: semua apl melalui Shroudly, termasuk yang mengabaikan proksi (apl Discord, permainan), tetapi Mac lebih perlahan.";
 "madeBy" = "Produk Codeshare Technology Ltd";
 "nationalOnlyBody" = "Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.";
 "nationalOnlyHelp" = "Apa yang masih boleh membantu";
