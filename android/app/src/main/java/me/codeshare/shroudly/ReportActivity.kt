@@ -193,11 +193,19 @@ class ReportActivity : Activity() {
         val ctx = applicationContext
         val platform = if (Tv.isTv(this)) "android-tv" else "android"
         val lang = resources.configuration.locales[0].toLanguageTag()
-        // The Connections list, fresh: asked of the engine, read a moment later.
+        // The Connections list, fresh: asked of the engine, and read once it
+        // came (at most 3 s: a busy phone answered after the 800 ms once
+        // waited, and the report said "(none)" for a session of 28).
         val on = Protection.state == Protection.State.ON
+        val gen = Conns.rowsGen
         if (on) try { Protector.tell(this, ShroudlyVpnService.ACTION_CONNS, "CONNS") } catch (_: Exception) {}
         Thread({
-            if (on) try { Thread.sleep(800) } catch (_: InterruptedException) {}
+            if (on) {
+                val until = System.currentTimeMillis() + 3000
+                while (Conns.rowsGen == gen && System.currentTimeMillis() < until) {
+                    try { Thread.sleep(50) } catch (_: InterruptedException) { break }
+                }
+            }
             val log = try {
                 Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n" +
                     Report.connsSection(on, Conns.rows, Conns.lastSession, Conns.lastSessionEnded) + "\n"

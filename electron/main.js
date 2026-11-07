@@ -3699,7 +3699,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
     // What went through this session, by name (the Connections list); with
     // protection off, the last session's, kept until the next start.
     const on = !!(engine && engine.isActive());
-    const conns = on ? await engine.connsList().catch(() => []) : [];
+    const conns = on ? await engine.connsList(3000).catch(() => []) : [];
     const lastConns = !on && engine && engine.lastConns ? engine.lastConns : null;
     const body = Report.payload({
       fields,
