@@ -629,5 +629,12 @@ class LockdownHoldTest {
         assertFalse(PathWatch.sayRoutine(now - 120_000, now, 100))
         assertTrue(PathWatch.sayRoutine(now - 120_000, now, 2500))
         assertTrue(PathWatch.sayRoutine(now - PathWatch.ROUTINE_SAY_MS, now, 100))
+        // One asked for is not routine.
+        val w = PathWatch()
+        assertFalse(w.askedNow(now))
+        w.ask(now, 0)
+        assertTrue(w.askedNow(now))
+        w.started(now)
+        assertFalse(w.askedNow(now))
     }
 }

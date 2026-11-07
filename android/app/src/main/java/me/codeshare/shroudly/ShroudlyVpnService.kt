@@ -842,7 +842,9 @@ class ShroudlyVpnService : VpnService() {
         // callback asks for a check then). A locked phone with its network
         // off was checked every 10 seconds, for nothing.
         if (underlyingId != null && pathWatch.due(now)) {
-            val why = if (pathWatch.stalled(now)) "apps get nothing back" else "routine"
+            // Only the two-minute one is "routine" (said rarely, see onPath):
+            // one asked for after a new engine, tunnel or network has a reason.
+            val why = if (pathWatch.stalled(now)) "apps get nothing back" else if (pathWatch.askedNow(now)) "asked" else "routine"
             pathWatch.started(now)
             check {
                 val t0 = SystemClock.uptimeMillis()

@@ -247,6 +247,10 @@ class PathWatch(
     /* Apps keep sending and nothing comes back. */
     fun stalled(now: Long) = downAt >= 0 && packetsSinceDown >= STALL_PACKETS && now - downAt >= stallMs
 
+    /* A check asked for (a new engine, tunnel or network; a test) is due
+     * now: one with a reason, not a routine one. */
+    fun askedNow(now: Long) = askedAt != 0L && now >= askedAt
+
     /* Whether to start a check now. */
     fun due(now: Long): Boolean {
         if (checking) return false
