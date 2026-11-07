@@ -220,11 +220,17 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.torAskYes).setOnClickListener {
             TorRoute.setApproved(this, true)
             TorAsk.clear(this)
-            Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "torYes")
+            // Asked again with the last way out off (TorAsk.askAgain): on,
+            // and the engine started again with it.
+            if (!TorRoute.enabled(this)) {
+                TorRoute.setEnabled(this, true)
+                Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "torLastResort")
+            } else Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "torYes")
             render()
         }
         findViewById<View>(R.id.torAskNo).setOnClickListener {
             TorRoute.setEnabled(this, false)
+            TorAsk.rest(this)
             TorAsk.clear(this)
             Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "torLastResort")
             render()

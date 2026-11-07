@@ -50,7 +50,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
   const ask = main.slice(main.indexOf('function askTor('), main.indexOf('function torUsed('));
   t.ok(/const TOR_ASK_MS = 30 \* 60 \* 1000/.test(main) && /now - torAskedAt >= TOR_ASK_MS/.test(ask) && /notifyAuto\(text\)/.test(ask) && !/showWindow\(|new BrowserWindow|dialog\./.test(ask),
     'desktop: a notification at most every 30 minutes, no window of its own');
-  t.ok(/store\.set\('torApproved', true\)[\s\S]{0,200}engine\.tor\.need\(\)/.test(ask) && /store\.set\('torLastResort', false\)[\s\S]{0,200}scheduleEngineRestart\(\)/.test(ask),
+  t.ok(/store\.set\('torApproved', true\)[\s\S]{0,600}engine\.tor\.need\(\)/.test(ask) && /store\.set\('torLastResort', false\)[\s\S]{0,200}scheduleEngineRestart\(\)/.test(ask),
     'yes starts Tor and is kept; no turns the last way out off');
   t.ok(/if \(key === 'torLastResort'\) \{ store\.set\('torApproved', value === true\)/.test(main) && /onTorAsk: \(host\) => askTor\(host\)/.test(main) && /torAsk: \(engine && engine\.isActive\(\) && torAsk/.test(main),
     'the toggle by hand is the user\'s yes; the window is told what is asked');
@@ -69,10 +69,31 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
       `Android ${svc}: asks unless allowed, starts Tor on yes, asks again after a new start`);
   }
   const ma = read(...dir, 'MainActivity.kt');
-  t.ok(/R\.id\.torAskYes[\s\S]{0,200}TorRoute\.setApproved\(this, true\)[\s\S]{0,200}"torYes"/.test(ma) && /R\.id\.torAskNo[\s\S]{0,200}TorRoute\.setEnabled\(this, false\)/.test(ma)
+  t.ok(/R\.id\.torAskYes[\s\S]{0,200}TorRoute\.setApproved\(this, true\)[\s\S]{0,600}"torYes"/.test(ma) && /R\.id\.torAskNo[\s\S]{0,200}TorRoute\.setEnabled\(this, false\)/.test(ma)
     && /android:id="@\+id\/torAskCard"/.test(read('android', 'app', 'src', 'main', 'res', 'layout', 'activity_main.xml')),
     'Android: the main screen\'s card answers it');
   t.ok(/putBoolean\("torLastResort", on\)\.putBoolean\("torApproved", on\)/.test(read(...dir, 'TorRoute.kt')), 'Android: Settings\' switch is the user\'s yes');
+
+  // A "no" is kept, but not for ever: a site no technique opens, with the
+  // last way out off, asks again after a week (an Iranian report: X and
+  // YouTube shut, nothing said Tor was the one way left).
+  t.ok(em.torOffByUser() === false, 'desktop: the last way out on: nothing to ask again');
+  store.set('torLastResort', false);
+  t.ok(em.torOffByUser() === true, 'desktop: turned off by the user, Tor on this computer, no own server: asked again');
+  const em2 = new EngineManager(store, {});
+  t.ok(em2.torOffByUser() === false, 'desktop: no Tor on this computer: not asked');
+  store.set('torLastResort', true);
+  const again = main.slice(main.indexOf('function askTorAgain('), main.indexOf('function answerTor('));
+  t.ok(/const TOR_REST_MS = 7 \* 24 \* 60 \* 60 \* 1000/.test(main) && /now - rest < TOR_REST_MS\) return false/.test(again) && /store\.set\('torAskRest', now\)/.test(again) && /askTor\(host\)/.test(again),
+    'desktop: asked again at most once a week, the same card');
+  t.ok(/store\.get\('torLastResort', true\) === false\) \{ store\.set\('torLastResort', true\); scheduleEngineRestart\(\); \}/.test(ask)
+    && /store\.set\('torLastResort', false\);\s*store\.set\('torAskRest', Date\.now\(\)\)/.test(ask)
+    && /if \(value === false\) store\.set\('torAskRest', Date\.now\(\)\)/.test(main),
+    'desktop: yes turns the last way out on again; no, or off in Settings, rests a week');
+  t.ok(/askTorAgain\(host\)\) return;/.test(main.slice(main.indexOf('onSiteBlocked: (host) =>'))), 'desktop: a site no technique opens asks it');
+  t.ok(/fun restOver\(restAt: Long, now: Long\)/.test(ta) && /REST_MS = 7 \* 24 \* 60 \* 60 \* 1000L/.test(ta) && /LiteOffer\.lite/.test(read(...dir, 'ShroudlyVpnService.kt')) && /TorAsk\.askAgain\(this, ev\.host\)/.test(read(...dir, 'ShroudlyVpnService.kt')) && /TorAsk\.askAgain\(this, ev\.host\)/.test(read(...dir, 'ShroudlyProxyService.kt'))
+    && /if \(!TorRoute\.enabled\(this\)\) \{\s*TorRoute\.setEnabled\(this, true\)/.test(ma) && /TorAsk\.rest\(this\)/.test(ma) && /if \(!on\) TorAsk\.rest\(this@SettingsActivity\)/.test(read(...dir, 'SettingsActivity.kt')),
+    'Android: the same, asked again after a week; yes turns it on again');
 
   const tp = read('apple', 'Tunnel', 'PacketTunnelProvider.swift');
   const tc = read('apple', 'App', 'TunnelController.swift');
@@ -82,6 +103,14 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
     && /TorAskCard\(/.test(read('apple', 'App', 'ContentView.swift'))
     && /if old\.torLastResort != new\.torLastResort \{ AppGroup\.defaults\.set\(new\.torLastResort, forKey: "torApproved"\) \}/.test(read('apple', 'App', 'SettingsView.swift')),
     'Mac: the app\'s card answers it; Settings\' toggle is the user\'s yes');
+
+  const tr = read('apple', 'Tunnel', 'TorRoute.swift');
+  t.ok(/static let restFor: TimeInterval = 7 \* 24 \* 60 \* 60/.test(tr) && /static func askAgainDue\(\)/.test(tr)
+    && /if upstreamPath == nil && !settings\.torLastResort && TorRoute\.available \{\s*e\.onBlocked =/.test(tp) && /TorNotice\.askAgainDue\(\)/.test(tp)
+    && /case "blocked":[\s\S]{0,200}onBlocked\?\(host\)/.test(read('apple', 'Tunnel', 'Engine.swift'))
+    && /if !old\.torLastResort \{[\s\S]{0,120}new\.torLastResort = true/.test(tc) && /forKey: "torAskRest"/.test(tc)
+    && /if old\.torLastResort && !new\.torLastResort \{ AppGroup\.defaults\.set\(Date\(\)\.timeIntervalSince1970, forKey: "torAskRest"\) \}/.test(read('apple', 'App', 'SettingsView.swift')),
+    'Mac: the same, asked again after a week; yes turns it on again');
 
   const langs = fs.readdirSync(path.join(ROOT, 'locales')).filter((f) => f.endsWith('.json'));
   const bad = langs.filter((f) => {

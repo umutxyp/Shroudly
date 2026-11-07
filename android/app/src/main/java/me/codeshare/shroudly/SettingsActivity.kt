@@ -271,6 +271,7 @@ class SettingsActivity : Activity() {
             isChecked = TorRoute.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on ->
                 TorRoute.setEnabled(this@SettingsActivity, on)
+                if (!on) TorAsk.rest(this@SettingsActivity)
                 tell("torLastResort")
             }
         }

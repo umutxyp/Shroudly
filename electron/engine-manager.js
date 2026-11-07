@@ -478,6 +478,14 @@ class EngineManager {
     return NationalNet.decoyNames(NationalNet.homeCountry({ remembered }));
   }
 
+  /* The last way out turned off by the user (a "no" to Tor, or Settings),
+   * on a computer that has it and no own server: a site no technique opens
+   * has nothing left here, and the user is asked again now and then
+   * (main.js askTorAgain). */
+  torOffByUser() {
+    return !!this.tor && this.store.get('torLastResort', true) === false && !this.ownServer();
+  }
+
   /* The user's own server (Settings, "Your own server"), as stored and
    * read (own-server.js), or null. */
   ownServer() {

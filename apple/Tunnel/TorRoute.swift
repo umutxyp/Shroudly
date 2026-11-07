@@ -55,6 +55,27 @@ enum TorNotice {
 
     static func approved() -> Bool { AppGroup.defaults.bool(forKey: approvedKey) }
 
+    /* "No" (or the last way out turned off in Settings) is kept, but not for
+     * ever: a user in Iran who had said no once saw X and YouTube stay shut,
+     * and nothing said that Tor was the one way left. A site no technique
+     * opens asks again after `restFor` (the same card; "No" rests again);
+     * one said before this version (no time kept) asks at the next such site. */
+    static let restKey = "torAskRest"
+    static let restFor: TimeInterval = 7 * 24 * 60 * 60
+
+    static func restOver(restAt: TimeInterval, now: TimeInterval) -> Bool {
+        restAt == 0 || now - restAt < 0 || now - restAt >= restFor
+    }
+
+    static func rest() { AppGroup.defaults.set(Date().timeIntervalSince1970, forKey: restKey) }
+
+    /* Whether to ask again now; the rest starts over when it does. */
+    static func askAgainDue() -> Bool {
+        guard restOver(restAt: AppGroup.defaults.double(forKey: restKey), now: Date().timeIntervalSince1970) else { return false }
+        rest()
+        return true
+    }
+
     /* Whether to say it now (pure but for the clock, for the tests). */
     static func askDue(now: Date = Date()) -> Bool {
         lock.lock(); defer { lock.unlock() }

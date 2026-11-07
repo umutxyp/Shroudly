@@ -31,6 +31,32 @@ object TorAsk {
         return true
     }
 
+    /* "No" (or the last way out turned off in Settings) is kept, but not
+     * for ever: a user in Iran who had said no once saw X and YouTube stay
+     * shut, and nothing said that Tor was the one way left. A site no
+     * technique opens asks again after REST_MS (the same card; "No" rests
+     * again). Not in the lite APK (LiteOffer), nor with an own server. */
+    const val REST_MS = 7 * 24 * 60 * 60 * 1000L
+    private const val KEY_REST = "torAskRest"
+
+    /* Whether a "no" is old enough to ask again (pure, for the tests): one
+     * kept before this version (0) is. */
+    fun restOver(restAt: Long, now: Long): Boolean = restAt == 0L || now - restAt !in 0 until REST_MS
+
+    fun rest(ctx: Context) {
+        ctx.getSharedPreferences("ui", Context.MODE_PRIVATE).edit().putLong(KEY_REST, System.currentTimeMillis()).apply()
+    }
+
+    /* From the services: `host` stayed shut with the last way out off. */
+    fun askAgain(ctx: Context, host: String) {
+        if (host.isEmpty() || TorRoute.enabled(ctx) || !TorRoute.bundled(ctx) || Protection.torAsk != null) return
+        if (AppSettings.ownServerTyped(ctx).isNotBlank() || Protection.ownServerDown != null) return
+        if (!restOver(ctx.getSharedPreferences("ui", Context.MODE_PRIVATE).getLong(KEY_REST, 0L), System.currentTimeMillis())) return
+        rest(ctx)
+        ShroudlyVpnService.log("The last way out is off and $host stays shut; asking again whether to use Tor")
+        ask(ctx, host)
+    }
+
     /* Protection stopped: a new start asks again. */
     @Synchronized
     fun reset() { lastAt = 0L }

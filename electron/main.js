@@ -576,16 +576,36 @@ function askTor(host) {
   }
   toWindow('dpi:status-changed', !!(engine && engine.isActive()));
 }
+/* "No" (or the last way out turned off in Settings) is kept, but not for
+ * ever: a user in Iran who had said no once saw X and YouTube stay shut, and
+ * nothing said that Tor was the one way left. A site no technique opens asks
+ * again after TOR_REST_MS (the same card; "No" rests again); one said
+ * before this version (no time kept) asks at the next such site. */
+const TOR_REST_MS = 7 * 24 * 60 * 60 * 1000;
+function askTorAgain(host) {
+  if (!host || torAsk || !engine || !engine.isActive() || !engine.torOffByUser || !engine.torOffByUser()) return false;
+  const rest = Number(store.get('torAskRest', 0)) || 0;
+  const now = Date.now();
+  if (rest && now - rest >= 0 && now - rest < TOR_REST_MS) return false;
+  store.set('torAskRest', now);
+  addLog('info', `The last way out is off and ${host} stays shut; asking again whether to use Tor`);
+  askTor(host);
+  return true;
+}
 function answerTor(yes) {
   const host = torAsk ? torAsk.host : '';
   torAsk = null;
   if (yes) {
     store.set('torApproved', true);
     addLog('info', `The last way out: allowed by the user${host ? ` (for ${host})` : ''}; Tor starts and stays allowed`);
-    if (engine && engine.isActive() && engine.tor) engine.tor.need();
+    // Asked again with it off (askTorAgain): on, and the engine started
+    // again with it; Tor itself starts when a site needs it.
+    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    else if (engine && engine.isActive() && engine.tor) engine.tor.need();
   } else {
     store.set('torApproved', false);
     store.set('torLastResort', false);
+    store.set('torAskRest', Date.now());
     addLog('info', 'The last way out: the user said no; Tor stays off (Settings → Connection turns it on)');
     scheduleEngineRestart();
   }
@@ -1480,6 +1500,10 @@ app.whenReady().then(async () => {
       // after another site was told.
       const asked = !!(autopilot && autopilot.willAskAdvanced());
       if (asked) autopilot.needAdvanced(host).catch(() => {});
+      // Nothing else left (Advanced mode on, or not to be had) and the last
+      // way out turned off: the Tor question again, now and then, instead of
+      // "keeps trying" (askTorAgain).
+      if (!asked && (!(advanced && advanced.available()) || (advanced && advanced.active)) && askTorAgain(host)) return;
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
@@ -1978,7 +2002,7 @@ ipcMain.handle('dpi:status', () => ({
   // runs or has failed, else null.
   lastResort: (engine && engine.isActive() && engine.tor && engine.tor.status().state !== 'off') ? engine.tor.status() : null,
   // A site needs Tor and the user has not said yes yet (askTor): its name.
-  torAsk: (engine && engine.isActive() && torAsk && store.get('torLastResort', true) !== false) ? (torAsk.host || '') : null,
+  torAsk: (engine && engine.isActive() && torAsk) ? (torAsk.host || '') : null,
   // The user's own server is not carrying connections: { server, why }.
   ownServerDown: (engine && engine.isActive() && engine.advice && engine.advice.ownServerDown) || null,
   // ...and while it does, the address sites see through it: { server, ip }.
@@ -3474,7 +3498,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
   else store.set(key, value);
   // The Tor toggle turned on by hand is the user's yes to it (issue #77);
   // off, it asks again the next time it is turned on.
-  if (key === 'torLastResort') { store.set('torApproved', value === true); torAsk = null; }
+  if (key === 'torLastResort') { store.set('torApproved', value === true); if (value === false) store.set('torAskRest', Date.now()); torAsk = null; }
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
   if (key === 'adBlock' || key === 'adBlockAllow') {

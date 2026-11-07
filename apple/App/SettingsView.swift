@@ -207,6 +207,7 @@ struct SettingsView: View {
             guard old != new else { return }
             // The Tor toggle turned on by hand is the user's yes to it (issue #77).
             if old.torLastResort != new.torLastResort { AppGroup.defaults.set(new.torLastResort, forKey: "torApproved") }
+            if old.torLastResort && !new.torLastResort { AppGroup.defaults.set(Date().timeIntervalSince1970, forKey: "torAskRest") }
             store.save(new)
             Task { await controller.settingsChanged(from: old, to: new) }
         }

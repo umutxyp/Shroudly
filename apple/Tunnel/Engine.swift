@@ -43,6 +43,9 @@ final class Engine {
      * connections keep coming by address, none by name (dns_way in
      * core/src/engine.c). Once a run, naming a site. */
     var onDnsAround: ((String) -> Void)?
+    /* A site no technique opened (not one whose server turned the
+     * handshake down itself, not a raw address): its name. */
+    var onBlocked: ((String) -> Void)?
     /* The engine's verdict on a fetched ad list (ADBLOCK-CHECK): ok, error. */
     var onAdblockCheck: ((Bool, String?) -> Void)?
     private(set) var lastError: String?
@@ -224,8 +227,11 @@ final class Engine {
             let ok = (obj["ok"] as? NSNumber)?.intValue == 1
             if ok { logSite("engine: \(line)") } else { log("engine: last way out: \(obj["why"] as? String ?? "?")") }
             onFallback?(ok, ok ? (obj["host"] as? String ?? "") : (obj["why"] as? String ?? ""), obj["host"] as? String ?? "")
+        case "blocked":
+            logSite("engine: \(line)")
+            if obj["raw"] as? Bool != true, obj["alert"] as? Bool != true, let host = obj["host"] as? String, !host.isEmpty { onBlocked?(host) }
         default:
-            // Events about one site (bypass, blocked, seen...) name it.
+            // Events about one site (bypass, seen...) name it.
             logSite("engine: \(line)")
         }
     }

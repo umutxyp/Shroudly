@@ -187,10 +187,22 @@ final class TunnelController: ObservableObject {
         torAsk = nil
         if yes {
             AppGroup.defaults.set(true, forKey: "torApproved")
+            // Asked again with the last way out off (TorNotice.askAgainDue):
+            // on, and protection started again with it.
+            let store = SettingsStore()
+            let old = store.load()
+            if !old.torLastResort {
+                var new = old
+                new.torLastResort = true
+                store.save(new)
+                await settingsChanged(from: old, to: new)
+                return
+            }
             guard let session = manager?.connection as? NETunnelProviderSession else { return }
             try? session.sendProviderMessage(Data(ProviderMessage.torYes.rawValue.utf8)) { _ in }
         } else {
             AppGroup.defaults.set(false, forKey: "torApproved")
+            AppGroup.defaults.set(Date().timeIntervalSince1970, forKey: "torAskRest") // TorNotice.restKey: asked again after a week
             let store = SettingsStore()
             let old = store.load()
             var new = old

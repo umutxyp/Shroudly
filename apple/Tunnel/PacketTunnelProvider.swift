@@ -211,6 +211,20 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 self.queue.async { self.dnsAround = true }
                 TorNotice.post(key: TorNotice.dnsTextKey, id: "dns-around")
             }
+            // The last way out turned off by the user, on a Mac that has it:
+            // a site no technique opens asks again, now and then
+            // (TorNotice.askAgainDue); "Use Tor" turns it on again.
+            if upstreamPath == nil && !settings.torLastResort && TorRoute.available {
+                e.onBlocked = { [weak self] host in
+                    guard let self else { return }
+                    self.queue.async {
+                        guard self.torAsk == nil, TorNotice.askAgainDue() else { return }
+                        self.log("The last way out is off and a site stays shut; asking again whether to use Tor")
+                        self.torAsk = host.lowercased()
+                        TorNotice.ask(host)
+                    }
+                }
+            }
             e.onFallback = { [weak self] ok, what, host in
                 guard let self else { return }
                 if ok { self.logSite("\(what): no technique got through; opened through the last way out (Tor)"); TorNotice.used(what) }
