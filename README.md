@@ -1308,7 +1308,7 @@ The privacy policies of the services involved:
 [Cloudflare](https://www.cloudflare.com/privacypolicy/) (the live count's tunnel, and codeshare.me, which takes reports),
 [Amazon SES](https://aws.amazon.com/privacy/) (which carries our mail, a report's email included),
 [Google](https://policies.google.com/privacy) (Gmail, where the developer's mailbox is),
-[Team Cymru](https://www.team-cymru.com/privacy-policy) (which internet provider a report came from),
+[Team Cymru](https://www.team-cymru.com/privacy) (which internet provider a report came from),
 and the encrypted DNS resolvers:
 [Cloudflare 1.1.1.1](https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/),
 [Google Public DNS](https://developers.google.com/speed/public-dns/privacy),
@@ -1397,7 +1397,7 @@ MIT — see [LICENSE](LICENSE).
 - [Electron](https://www.electronjs.org/), [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
 - Desync techniques inspired by the research behind `goodbyeDPI` and `zapret` — reimplemented independently in `shroudly-core`.
 - Censorship fingerprints from [OONI](https://ooni.org/)'s open [blocking-fingerprints](https://github.com/ooni/blocking-fingerprints) data.
-- [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) (MIT) carries the Android app's VPN traffic to the engine; [WinDivert](https://reqrypt.org/windivert.html) (LGPL) is Advanced mode's packet driver on Windows.
+- [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) (MIT) carries the Android app's VPN traffic to the engine; [WinDivert](https://github.com/basil00/WinDivert) (LGPL) is Advanced mode's packet driver on Windows.
 
 ---
 
