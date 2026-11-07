@@ -125,6 +125,21 @@ sealed class EngineEvent {
 
 /* The log line for a NetDns event, as the desktop writes it (engine-manager.js). */
 object NetDnsText {
+    /* The same name, address and outcome again (each of a page's
+     * connections asks): said once in AGAIN_MS, as on the desktop. */
+    const val AGAIN_MS = 10 * 60 * 1000L
+    private val said = HashMap<String, Long>()
+
+    @Synchronized
+    fun once(ev: EngineEvent.NetDns, now: Long): Boolean {
+        val k = "${ev.stage} ${ev.host} ${ev.addr}"
+        val at = said[k]
+        if (at != null && now - at in 0 until AGAIN_MS) return false
+        if (said.size > 500) said.clear()
+        said[k] = now
+        return true
+    }
+
     fun line(ev: EngineEvent.NetDns): String = when (ev.stage) {
         "try" -> "${ev.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${ev.addr})"
         "ok" -> "${ev.host}: opened at the address this network's DNS gives (${ev.addr})"

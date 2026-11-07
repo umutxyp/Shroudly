@@ -197,6 +197,9 @@ const OPENED_RECENTLY_MS = 30 * 60 * 1000;
 
 const { coreBinaryPath } = require('./core-path');
 
+/* The same "the network's own DNS" line (netdns) at most once in this long. */
+const NETDNS_AGAIN_MS = 10 * 60 * 1000;
+
 class EngineManager {
   constructor(store, hooks = {}) {
     this.store = store;
@@ -1330,6 +1333,9 @@ class EngineManager {
         // names in the system's DNS cache are no sign of a program going
         // around Shroudly (around-watch.js).
         try { this.onHostEvent('netdns', msg.host, msg.stage || null); } catch {}
+        // The same name, address and outcome again (each of a page's
+        // connections asks): said once in NETDNS_AGAIN_MS.
+        if (!this._netdnsOnce(msg)) break;
         if (msg.stage === 'try') this.log('info', `${msg.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${msg.addr})`);
         else if (msg.stage === 'ok') this.log('success', `${msg.host}: opened at the address this network's DNS gives (${msg.addr})`);
         else if (msg.stage === 'same') this.log('info', `${msg.host}: this network's DNS gives the same addresses (${msg.addr}); they get nowhere here`);
@@ -1565,6 +1571,17 @@ class EngineManager {
     this._command('ALLOW-CLEAR');
     for (const d of cfg.adBlockAllow) this._command(`ALLOW ${d}`);
     return this._command(`ADBLOCK ${list}`);
+  }
+
+  /* A netdns line not said in the last NETDNS_AGAIN_MS: false to keep quiet. */
+  _netdnsOnce(msg, now = Date.now()) {
+    if (!this._netdnsSaid) this._netdnsSaid = new Map();
+    const k = `${msg.stage} ${msg.host} ${msg.addr}`;
+    const at = this._netdnsSaid.get(k);
+    if (at !== undefined && now - at >= 0 && now - at < NETDNS_AGAIN_MS) return false;
+    if (this._netdnsSaid.size > 500) this._netdnsSaid.clear();
+    this._netdnsSaid.set(k, now);
+    return true;
   }
 
   /* The Connections list (issue #74): what went through, by name, as the

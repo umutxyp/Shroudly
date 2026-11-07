@@ -291,7 +291,7 @@ class ShroudlyProxyService : Service() {
                 } catch (_: RejectedExecutionException) {}
             }
             is EngineEvent.Host -> onHost(ev)
-            is EngineEvent.NetDns -> ShroudlyVpnService.logSite(NetDnsText.line(ev))
+            is EngineEvent.NetDns -> if (NetDnsText.once(ev, android.os.SystemClock.elapsedRealtime())) ShroudlyVpnService.logSite(NetDnsText.line(ev))
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Stats -> {
                 // Carried traffic: a day protection worked (Usage), once a session.

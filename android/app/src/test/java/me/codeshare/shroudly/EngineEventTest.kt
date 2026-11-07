@@ -1,6 +1,7 @@
 package me.codeshare.shroudly
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -113,5 +114,15 @@ class EngineEventTest {
         assertEquals("googlevideo.com: opened at the address this network's DNS gives (5.160.12.34)", NetDnsText.line(e.copy(stage = "ok")))
         assertEquals("googlevideo.com: the address this network's DNS gives (5.160.12.34) gets nowhere either", NetDnsText.line(e.copy(stage = "bad")))
         assertEquals("googlevideo.com: this network's DNS gives the same addresses (5.160.12.34); they get nowhere here", NetDnsText.line(e.copy(stage = "same")))
+    }
+
+    @Test
+    fun theSameNetworkDnsLineOnceInTenMinutes() {
+        val ev = EngineEvent.NetDns("googleapis.com", "2001:4188:2:600:10:10:34:36", "bad")
+        val t = 5_000_000_000L
+        assertTrue(NetDnsText.once(ev, t))
+        assertFalse(NetDnsText.once(ev, t + 1_000))
+        assertTrue(NetDnsText.once(EngineEvent.NetDns("googleapis.com", "2001:4188:2:600:10:10:34:36", "try"), t + 1_000))
+        assertTrue(NetDnsText.once(ev, t + NetDnsText.AGAIN_MS))
     }
 }

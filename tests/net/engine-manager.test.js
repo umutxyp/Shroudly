@@ -604,6 +604,16 @@ const t = suite('engine-manager');
     t.ok(!off && on && !failed && !r.routing(),
       'M3: the administrator\'s proxy: "Not working yet" until Advanced mode is on; other proxy failures as before');
   }
+  // The same "network's own DNS" line: once in ten minutes, not once a connection.
+  {
+    const self = {};
+    const once = (m, at) => EngineManager.prototype._netdnsOnce.call(self, m, at);
+    const m = { host: 'googleapis.com', addr: '2001:4188:2:600:10:10:34:36', stage: 'bad' };
+    t.ok(once(m, 1000) && !once(m, 2000) && !once(m, 1000 + 9 * 60000), 'the same line again within ten minutes: quiet');
+    t.ok(once({ ...m, stage: 'try' }, 2000), 'another outcome: said');
+    t.ok(once(m, 1000 + 10 * 60000), 'ten minutes on: said again');
+  }
+
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -1290,7 +1290,7 @@ class ShroudlyVpnService : VpnService() {
             }
             is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Host -> onHost(ev)
-            is EngineEvent.NetDns -> logSite(NetDnsText.line(ev))
+            is EngineEvent.NetDns -> if (NetDnsText.once(ev, SystemClock.elapsedRealtime())) logSite(NetDnsText.line(ev))
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
