@@ -7,7 +7,7 @@ import Foundation
  * lines only while protection is on (the tunnel keeps them in memory alone).
  */
 enum Diagnostics {
-    static let lines = 300
+    static let lines = 3000
 
     static var version: String {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"

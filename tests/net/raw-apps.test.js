@@ -119,6 +119,20 @@ const t = suite('raw-apps');
   t.ok(await off.onEvent('unreachable', { host: '149.154.175.50', port: 443 }) === 'offline', 'nothing else comes back either (offline): not told');
   t.ok(told.length === 0, 'and no notification for any of these');
 
+  // Another app trying a list of servers: a few lines a minute, the rest
+  // counted in one line, so the log's other lines are not pushed out.
+  {
+    const lines = [];
+    const wb = new raw.RawWatch({ log: (l, m) => lines.push(m), tell: () => {}, owner: async () => null, now: () => now });
+    now += 3600 * 1000;
+    for (let i = 0; i < 20; i++) await wb.onEvent('unreachable', { host: `192.0.2.${i}`, port: 22 });
+    t.ok(lines.length === raw.BURST_LINES, `20 addresses in a minute: ${lines.length} lines, not 20`);
+    now += raw.BURST_MS;
+    await wb.onEvent('unreachable', { host: '192.0.2.200', port: 443 });
+    t.ok(lines.length === raw.BURST_LINES + 2 && /^17 more addresses .* could not be reached in the minute from /.test(lines[raw.BURST_LINES]) && lines[raw.BURST_LINES + 1].startsWith('192.0.2.200:443'),
+      'a minute on: the 17 others in one line, then the new address');
+  }
+
   console.log(`raw-apps: ${t.count} checks passed`);
   process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });

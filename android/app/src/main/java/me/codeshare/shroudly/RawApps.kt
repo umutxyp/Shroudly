@@ -95,26 +95,50 @@ class RawWatch(private val apps: RawApps, private val networkWorks: () -> Boolea
     data class Notice(val kind: Kind, val app: String, val addrs: List<String>)
     sealed class Outcome {
         data class Tell(val notice: Notice) : Outcome()
-        data class Log(val line: String) : Outcome()
+        /* before: a line to log first (the count of a minute's addresses
+         * that were not listed one by one). */
+        data class Log(val line: String, val before: String? = null) : Outcome()
         object Nothing : Outcome()
     }
 
     companion object {
         const val BLOCKED_AGAIN_MS = 9L * 60 * 1000
         const val BLOCKED_WINDOW_MS = 30L * 60 * 1000
+        /* Addresses no app is known for: at most BURST_LINES lines in
+         * BURST_MS, the rest in one line (electron/raw-apps.js the same). */
+        const val BURST_MS = 60_000L
+        const val BURST_LINES = 3
+        fun burstLine(n: Int, from: String) =
+            "$n more addresses that are not web connections could not be reached in the minute from $from (an app trying servers, most likely another VPN or proxy app); not listed one by one"
     }
 
     private val recent = HashMap<String, ArrayList<Pair<String, Long>>>()   // "kind app" -> (addr, at)
     private val told = HashSet<String>()
     private val logged = HashMap<String, Long>()
 
+    // This minute's lines about addresses no app is known for.
+    private var burstAt = Long.MIN_VALUE / 2
+    private var burstN = 0
+    private var burstOver = 0
+
     @Synchronized fun networkChanged() { recent.clear(); told.clear(); logged.clear() }
 
+    /* Once in 30 minutes an address; and, for many at once (another VPN or
+     * proxy app trying a list of servers through Shroudly), BURST_LINES
+     * lines a minute, the rest counted in one line, so they do not push
+     * the log's other lines out. */
     private fun logRarely(k: String, line: String, now: Long): Outcome {
         if (now - (logged[k] ?: Long.MIN_VALUE / 2) < 30 * 60 * 1000L) return Outcome.Nothing
         if (logged.size > 500) logged.clear()
         logged[k] = now
-        return Outcome.Log(line)
+        var before: String? = null
+        if (now - burstAt >= BURST_MS) {
+            if (burstOver > 0) before = burstLine(burstOver, java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date(burstAt)))
+            burstAt = now; burstN = 0; burstOver = 0
+        }
+        if (burstN >= BURST_LINES) { burstOver++; return Outcome.Nothing }
+        burstN++
+        return Outcome.Log(line, before)
     }
 
     @Synchronized fun onEvent(

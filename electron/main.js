@@ -161,6 +161,9 @@ let updater = null;
 let keeper = null;
 let watchdogOpts = null;   // the watchdog's options (watchdog.js), once ready
 let presence = null;
+/* The log's last lines (the window's Logs, and what a report sends): 3000,
+ * as on Android and the Apple app. */
+const LOG_LINES = 3000;
 let systemLogs = [];
 let exitInProgress = false;
 let discordRelay = null;
@@ -282,7 +285,7 @@ function iconAssetPath(file) {
 function addLog(level, message) {
   const entry = { timestamp: new Date().toISOString(), level, message };
   systemLogs.push(entry);
-  if (systemLogs.length > 500) systemLogs = systemLogs.slice(-500);
+  if (systemLogs.length > LOG_LINES) systemLogs = systemLogs.slice(-LOG_LINES);
   toWindow('log:new', entry);
 }
 // reg.exe that Windows will not start: said once, in the log (win-reg.js).

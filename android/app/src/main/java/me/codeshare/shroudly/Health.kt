@@ -166,6 +166,15 @@ class PathWatch(
     private val failuresToStop: Int = FAILURES,
 ) {
     companion object {
+        /* A routine check that found the way through is said in the log
+         * once after a start (saidAt 0), when it took SLOW_SAY_MS or more,
+         * and then once in ROUTINE_SAY_MS: every two minutes it was most of
+         * the log. One for any other reason is always said. */
+        const val ROUTINE_SAY_MS = 30 * 60 * 1000L
+        const val SLOW_SAY_MS = 2000L
+        fun sayRoutine(saidAt: Long, now: Long, ms: Long): Boolean =
+            saidAt == 0L || ms >= SLOW_SAY_MS || now - saidAt !in 0 until ROUTINE_SAY_MS
+
         const val INTERVAL_MS = 120_000L
         const val STALL_MS = 12_000L
         const val RETRY_MS = 3_000L

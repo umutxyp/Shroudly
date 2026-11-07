@@ -8,8 +8,8 @@ import Foundation
  * keepLines lines.
  */
 final class SharedLog {
-    static let maxBytes = 256 * 1024
-    static let keepLines = 1000
+    static let maxBytes = 1024 * 1024
+    static let keepLines = 3000
 
     let url: URL
     private let queue = DispatchQueue(label: "me.codeshare.shroudly.log")

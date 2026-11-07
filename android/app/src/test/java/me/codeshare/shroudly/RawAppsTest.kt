@@ -74,4 +74,16 @@ class RawAppsTest {
         assertEquals(RawWatch.Outcome.Nothing, w.onEvent(u, "149.154.175.50", 443, 0, now))
         assertTrue(w.onEvent(u, "149.154.167.51", 443, 0, now) is RawWatch.Outcome.Tell)
     }
+
+    @Test
+    fun anotherAppTryingServersIsCountedNotListed() {
+        val w = RawWatch(apps)
+        var now = 1_800_000_000_000L
+        val outs = (0 until 20).map { w.onEvent(RawWatch.Kind.UNREACHABLE, "192.0.2.$it", 22, 0, now) }
+        assertEquals(RawWatch.BURST_LINES, outs.count { it is RawWatch.Outcome.Log })
+        now += RawWatch.BURST_MS
+        val next = w.onEvent(RawWatch.Kind.UNREACHABLE, "192.0.2.200", 443, 0, now) as RawWatch.Outcome.Log
+        assertTrue(next.before!!.startsWith("17 more addresses"))
+        assertTrue(next.line.startsWith("192.0.2.200:443"))
+    }
 }

@@ -621,4 +621,13 @@ class LockdownHoldTest {
         Thread.sleep(1_200)
         assertEquals(2, ran.get())
     }
+
+    @Test
+    fun routinePathChecksAreSaidRarely() {
+        val now = 10_000_000L
+        assertTrue(PathWatch.sayRoutine(0L, now, 100))
+        assertFalse(PathWatch.sayRoutine(now - 120_000, now, 100))
+        assertTrue(PathWatch.sayRoutine(now - 120_000, now, 2500))
+        assertTrue(PathWatch.sayRoutine(now - PathWatch.ROUTINE_SAY_MS, now, 100))
+    }
 }

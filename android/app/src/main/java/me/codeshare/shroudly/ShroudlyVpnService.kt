@@ -240,6 +240,9 @@ class ShroudlyVpnService : VpnService() {
     // Tunnels started in this session (the first one, and any restart).
     private var tunnelStarts = 0
     private var pathRestartedAt = 0L
+    // When a routine path check that found the way through was last said
+    // (PathWatch.sayRoutine): 0 after a start.
+    private var routineSaidAt = 0L
     // Under lockdown, how long until everything is tried again (0: not held).
     private val hold = LockdownHold(HOLD_FIRST_MS, HOLD_MAX_MS) { ms, run -> work.schedule(run, ms, TimeUnit.MILLISECONDS) }
     private val hevWatch = HevWatch()
@@ -583,6 +586,7 @@ class ShroudlyVpnService : VpnService() {
                 pathRestartedAt = SystemClock.elapsedRealtime()
             }
             poll = work.scheduleWithFixedDelay({ tick() }, 1, 1, TimeUnit.SECONDS)
+            routineSaidAt = 0L
             log("Protection on: engine on 127.0.0.1:$port${if (auth != null) " (password)" else ""}, " +
                 "encrypted DNS on ${if (dohPort > 0) "127.0.0.1:$dohPort" else "none"}, IPv6 ${if (v6Routed) "routed" else "off"}; " +
                 "network: ${if (under == null) "none" else Net.describe(cm, under.first, under.second)}")
@@ -867,7 +871,13 @@ class ShroudlyVpnService : VpnService() {
         val now = SystemClock.uptimeMillis()
         when (pathWatch.result(now, reached != null, networkWorks)) {
             PathWatch.Verdict.HEALTHY -> {
-                log("Path check ($why): through the engine to $reached in ${ms}ms")
+                // Every two minutes, "all fine" was most of the log: a
+                // routine one is said once after a start, when slow, and then
+                // once in half an hour (PathWatch.sayRoutine).
+                if (why != "routine" || PathWatch.sayRoutine(routineSaidAt, now, ms)) {
+                    log("Path check ($why): through the engine to $reached in ${ms}ms")
+                    if (why == "routine") routineSaidAt = now
+                }
                 if (Protection.national != null) { Protection.national(null); log("The rest of the world answers again") }
                 // Under lockdown, a retry of everything planned because the
                 // way through was broken: not wanted now that it works, with
@@ -1338,7 +1348,7 @@ class ShroudlyVpnService : VpnService() {
     private fun onRaw(ev: EngineEvent.Host) {
         val kind = if (ev.kind == "blocked") RawWatch.Kind.BLOCKED else RawWatch.Kind.UNREACHABLE
         when (val o = rawWatch.onEvent(kind, ev.host, ev.port, ev.attempts, System.currentTimeMillis(), ev.stage, ev.note)) {
-            is RawWatch.Outcome.Log -> logSite { o.line }
+            is RawWatch.Outcome.Log -> { o.before?.let { b -> logSite { b } }; logSite { o.line } }
             is RawWatch.Outcome.Tell -> {
                 val n = o.notice
                 val addrs = n.addrs.joinToString(", ")

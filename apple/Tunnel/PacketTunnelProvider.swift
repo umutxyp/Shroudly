@@ -29,7 +29,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     /* An engine silent this long (it answers STATS every watchEvery) is hung. */
     static let hungAfter: TimeInterval = 50
     static let maxEngineRestarts = 5
-    static let siteLines = 300
+    static let siteLines = 3000
 
     private struct StartError: LocalizedError {
         let message: String

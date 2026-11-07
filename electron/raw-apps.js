@@ -151,6 +151,15 @@ const WINDOW_MS = 5 * 60 * 1000;
 const BLOCKED_AGAIN_MS = 9 * 60 * 1000;
 const BLOCKED_WINDOW_MS = 30 * 60 * 1000;
 
+/* Addresses no app is known for, that could not be reached: at most
+ * BURST_LINES lines in BURST_MS, the rest in one line (RawWatch.kt does the
+ * same). */
+const BURST_MS = 60 * 1000;
+const BURST_LINES = 3;
+function burstLine(n, from) {
+  return `${n} more addresses that are not web connections could not be reached in the minute from ${from} (an app trying servers, most likely another VPN or proxy app); not listed one by one`;
+}
+
 class RawWatch {
   /*
    * opts.log(level, msg)
@@ -200,6 +209,17 @@ class RawWatch {
     if (now - (this.logged.get(k) || -Infinity) < 30 * 60 * 1000) return 'quiet';
     if (this.logged.size > 500) this.logged.clear();
     this.logged.set(k, now);
+    // Many addresses at once (another VPN or proxy app trying a list of
+    // servers through Shroudly): BURST_LINES lines a minute, the rest
+    // counted and said in one line, so they do not push the log's other
+    // lines out.
+    const b = this.burst || (this.burst = { at: -Infinity, n: 0, over: 0 });
+    if (now - b.at >= BURST_MS) {
+      if (b.over > 0) this.log('info', burstLine(b.over, new Date(b.at).toISOString()));
+      b.at = now; b.n = 0; b.over = 0;
+    }
+    if (b.n >= BURST_LINES) { b.over++; return 'counted'; }
+    b.n++;
     this.log('info', line);
     return 'logged';
   }
@@ -257,4 +277,4 @@ class RawWatch {
   }
 }
 
-module.exports = { SERVICES, serviceOf, pacRanges, pacRanges6, programName, inCidr, v4Bytes, v6Bytes, RawWatch, NOTICE_MIN_ADDRS, AGAIN_MS, WINDOW_MS, BLOCKED_AGAIN_MS };
+module.exports = { SERVICES, serviceOf, pacRanges, pacRanges6, programName, inCidr, v4Bytes, v6Bytes, RawWatch, NOTICE_MIN_ADDRS, AGAIN_MS, WINDOW_MS, BLOCKED_AGAIN_MS, BURST_MS, BURST_LINES };

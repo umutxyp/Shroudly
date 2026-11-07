@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
  * not push the app's own lines out.
  */
 object AppLog {
-    const val CAPACITY = 300
+    const val CAPACITY = 3000
 
     private class Line(val seq: Long, val text: String)
 

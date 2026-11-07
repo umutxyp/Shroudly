@@ -38,7 +38,7 @@ export default function LogsPanel() {
     if (typeof window === 'undefined' || !window.electron?.getLogs) return undefined;
     let alive = true;
     window.electron.getLogs().then((l) => { if (alive) setLogs(Array.isArray(l) ? l : []); }).catch(() => {});
-    window.electron.onNewLog?.((log) => setLogs((p) => [...p.slice(-499), log]));
+    window.electron.onNewLog?.((log) => setLogs((p) => [...p.slice(-2999), log]));
     return () => { alive = false; window.electron.removeLogListener?.(); };
   }, []);
 
