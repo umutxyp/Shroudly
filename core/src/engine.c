@@ -4590,8 +4590,10 @@ static void handle(sock_t client) {
       int next = hs_on_refused(cw.host, used_cand);
       char h[256];
       json_host(h, sizeof(h), cw.host);
-      engine_printf("{\"type\":\"refused\",\"host\":\"%s\",\"strategy\":\"%s\",\"next\":\"%s\"}\n",
-                    h, strategy_preset(used_cand)->name, next >= 0 ? strategy_preset(next)->name : "");
+      /* avoid: the kinds now left out for it, for the app to keep and give
+       * back after a restart (AVOID), where this table starts empty. */
+      engine_printf("{\"type\":\"refused\",\"host\":\"%s\",\"strategy\":\"%s\",\"next\":\"%s\",\"avoid\":%u}\n",
+                    h, strategy_preset(used_cand)->name, next >= 0 ? strategy_preset(next)->name : "", av_get(cw.host));
     }
     if (!raw_done) {
       /* Any answer at all: it got through. Nothing, and the server ended it:
@@ -4891,6 +4893,27 @@ void engine_learn(const char *host, int preset) { hs_put(host, preset); }
  * works is replaced by the ladder like any other. 0, or -1 for a name that
  * is not a host, a technique this build does not have, or one that cannot
  * do anything here. */
+/* AVOID <host> <kinds> <seconds ago>: what an earlier run found this name's
+ * server cannot take (hs_on_refused), kept by the app across restarts; the
+ * same TTL from when it was found. 0, or -1 for a bad or stale line. */
+int engine_avoid(const char *host, unsigned mask, uint64_t age) {
+  size_t n = strlen(host);
+  if (n == 0 || n > 253 || ip_literal(host)) return -1;
+  for (size_t i = 0; i < n; i++) {
+    char c = host[i];
+    if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-')) return -1;
+  }
+  mask &= (TRAIT_TLSREC | TRAIT_FAKE);
+  if (!mask || age >= AV_TTL_MS) return -1;
+  uint64_t now = now_ms();
+  mutex_lock(&g_hs_mx);
+  av_add(host, mask);
+  for (int i = 0; i < AV_SIZE; i++)
+    if (g_av[i].used && strcmp(g_av[i].host, host) == 0) { g_av[i].t = now > age ? now - age : 0; break; }
+  mutex_unlock(&g_hs_mx);
+  return 0;
+}
+
 int engine_restore(const char *host, const char *technique, uint64_t age) {
   size_t n = strlen(host);
   if (n == 0 || n > 253) return -1;
@@ -4911,6 +4934,9 @@ int engine_restore(const char *host, const char *technique, uint64_t age) {
   int p = -1, np = strategy_preset_count();
   for (int i = 0; i < np; i++) if (strcmp(strategy_preset(i)->name, technique) == 0) { p = i; break; }
   if (p < 0 || !preset_usable(strategy_preset(p))) return -1;
+  /* Of a kind this name's server cannot take (AVOID, given first): not
+   * restored, so its first connection does not meet the same refusal. */
+  if (preset_traits(strategy_preset(p)) & av_get(host)) return -1;
   hs_put(host, p);
   uint64_t now = now_ms(), t = now > age ? now - age : 0;
   char site[256];

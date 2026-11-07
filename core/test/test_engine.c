@@ -623,6 +623,16 @@ int main(void) {
     CHECK(engine_restore("149.154.167.51", "raw-nonesuch", 0) == -1);
     CHECK(engine_restore("bad host", strategy_raw(0)->name, 0) == -1);
     CHECK(engine_restore("149.154.167.52", strategy_preset(0)->name, 0) == -1);   /* TLS ones: names only */
+    /* AVOID (what a server could not take, kept by the app across restarts):
+     * a technique of that kind is not restored for that name; another is;
+     * stale or bad lines are refused. */
+    CHECK(engine_avoid("cdn-avoid.example", TRAIT_TLSREC, 1000) == 0);
+    CHECK((av_get("cdn-avoid.example") & TRAIT_TLSREC) != 0);
+    CHECK(engine_restore("cdn-avoid.example", "tlsrec-sni-mid", 0) == -1);
+    CHECK(engine_restore("cdn-avoid.example", "split-sni", 0) == 0);
+    CHECK(engine_avoid("cdn-stale.example", TRAIT_TLSREC, AV_TTL_MS + 1000) == -1);
+    CHECK(engine_avoid("bad host", TRAIT_TLSREC, 0) == -1 && engine_avoid("1.2.3.4", TRAIT_TLSREC, 0) == -1);
+    CHECK(engine_avoid("cdn-none.example", 0, 0) == -1);
     /* addresses on this computer or its network are never told unreachable */
     dial_info di; memset(&di, 0, sizeof(di)); di.resolved = 1; di.tried = 1;
     CHECK(report_raw_unreachable("127.0.0.1", 9000, &di, 0) == 0);

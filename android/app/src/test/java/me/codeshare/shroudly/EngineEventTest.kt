@@ -125,4 +125,17 @@ class EngineEventTest {
         assertTrue(NetDnsText.once(EngineEvent.NetDns("googleapis.com", "2001:4188:2:600:10:10:34:36", "try"), t + 1_000))
         assertTrue(NetDnsText.once(ev, t + NetDnsText.AGAIN_MS))
     }
+
+    @Test
+    fun whatAServerCannotTakeIsKeptAndGivenBack() {
+        val ev = EngineEvent.parse("""{"type":"refused","host":"clientsettingscdn.roblox.com","strategy":"tlsrec-sni-mid","next":"split-sni","avoid":1}""") as EngineEvent.Refused
+        assertEquals("clientsettingscdn.roblox.com", ev.host)
+        assertEquals("split-sni", ev.next)
+        assertEquals(1, ev.avoid)
+        val now = 2_000_000_000_000L
+        var kept = Avoids.remember(null, ev.host, ev.avoid, now - 60_000)
+        kept = Avoids.remember(kept, "bad host", 1, now)
+        assertEquals(listOf("AVOID clientsettingscdn.roblox.com 1 60"), Avoids.commands(kept, now))
+        assertTrue(Avoids.commands(kept, now + Avoids.TTL_MS).isEmpty())
+    }
 }

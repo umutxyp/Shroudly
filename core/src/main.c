@@ -414,6 +414,12 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
       if (ended >= 0) engine_printf("{\"type\":\"block\",\"ok\":1,\"ended\":%d}\n", ended);
     }
     else if (!strncmp(line, "UNBLOCK ", 8)) conns_unblock(line + 8);
+    else if (!strncmp(line, "AVOID ", 6)) {
+      /* AVOID <host> <kinds> <seconds ago>: what a server could not take. */
+      char host[256]; unsigned mask = 0; unsigned long long secs = 0;
+      if (sscanf(line + 6, "%255s %u %llu", host, &mask, &secs) == 3)
+        engine_avoid(host, mask, (uint64_t)secs * 1000ull);
+    }
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
       char host[256], tech[64]; unsigned long long secs = 0;

@@ -119,6 +119,7 @@ void engine_fallback_forget(void);
 void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
 int  engine_restore(const char *host, const char *technique, uint64_t age);
+int  engine_avoid(const char *host, unsigned mask, uint64_t age);
 int  engine_is_running(void);
 const engine_stats *engine_get_stats(void);
 

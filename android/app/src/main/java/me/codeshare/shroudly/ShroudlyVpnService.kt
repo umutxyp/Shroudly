@@ -1292,10 +1292,12 @@ class ShroudlyVpnService : VpnService() {
                 log("Engine listening on 127.0.0.1:${ev.port} (${ev.techniques} techniques)")
                 // The names the user blocked in the Connections list.
                 Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
-                val cmds = learnedRaw.commands(System.currentTimeMillis()) + learned.commands(System.currentTimeMillis())
+                // What a server cannot take first: a technique of that kind is then not restored for it.
+                val cmds = Avoids.commands(getSharedPreferences(PREFS, MODE_PRIVATE).getString(Avoids.KEY, null), System.currentTimeMillis()) +
+                    learnedRaw.commands(System.currentTimeMillis()) + learned.commands(System.currentTimeMillis())
                 if (cmds.isNotEmpty()) {
                     engine?.send(cmds.joinToString("\n"))
-                    log("Techniques remembered for ${cmds.size} sites restored")
+                    log("Techniques remembered for ${cmds.count { it.startsWith("LEARN") }} sites restored")
                 }
                 // A session that has been up a while has earned a fresh restart budget.
                 later {
@@ -1315,6 +1317,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> if (NetDnsText.once(ev, SystemClock.elapsedRealtime())) logSite(NetDnsText.line(ev))
+            is EngineEvent.Refused -> onRefused(ev)
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
@@ -1364,6 +1367,20 @@ class ShroudlyVpnService : VpnService() {
             "cut" -> if (first) logSite { "${ev.host}: connects, then the network cuts it (${ev.strategy})" }
             else -> {}
         }
+    }
+
+    /* An app turned down what a technique produced: its next connection uses
+     * another kind; that, and the kinds to leave out, kept across restarts. */
+    private fun onRefused(ev: EngineEvent.Refused) {
+        if (ev.host.isEmpty()) return
+        val now = System.currentTimeMillis()
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        if (ev.next.isNotEmpty()) synchronized(learned) {
+            learned.remember(ev.host, ev.next, now)
+            prefs.edit().putString("learned", learned.encode()).apply()
+        }
+        if (ev.avoid > 0) prefs.edit().putString(Avoids.KEY, Avoids.remember(prefs.getString(Avoids.KEY, null), ev.host, ev.avoid, now)).apply()
+        logSite { "${ev.host}: the app refused the certificate the server sent after ${ev.strategy}; the next connection uses ${ev.next.ifEmpty { "no technique" }} instead" }
     }
 
     /* A connection that is not TLS or HTTP that no technique got through, or

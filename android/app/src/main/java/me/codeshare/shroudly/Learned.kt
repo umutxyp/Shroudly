@@ -50,3 +50,32 @@ class Learned(text: String?, private val max: Int = MAX) {
 
     fun encode(): String = entries.entries.joinToString("\n") { "${it.key} ${it.value.first} ${it.value.second}" }
 }
+
+/* Kinds of technique a name's server cannot take (the engine's "refused": it
+ * answered a ClientHello in two records with another certificate, #68),
+ * kept across restarts and given back before the techniques (AVOID), for
+ * as long as the engine keeps them; as the desktop (engine-manager.js). One
+ * line a name: "<host> <kinds> <found at>". Pure, for the tests. */
+object Avoids {
+    const val TTL_MS = 6 * 60 * 60 * 1000L
+    const val MAX = 200
+    const val KEY = "avoid"
+    private val NAME = Regex("^[A-Za-z0-9.-]{1,253}$")
+
+    private fun parse(text: String?, now: Long): List<Triple<String, Int, Long>> =
+        (text ?: "").lineSequence().mapNotNull { l ->
+            val p = l.trim().split(' ')
+            val m = p.getOrNull(1)?.toIntOrNull() ?: return@mapNotNull null
+            val t = p.getOrNull(2)?.toLongOrNull() ?: return@mapNotNull null
+            if (p.size != 3 || !NAME.matches(p[0]) || m <= 0 || now - t !in 0 until TTL_MS) null else Triple(p[0], m and 3, t)
+        }.toList()
+
+    fun remember(text: String?, host: String, mask: Int, now: Long): String {
+        if (!NAME.matches(host) || mask and 3 == 0) return text ?: ""
+        val keep = parse(text, now).filter { it.first != host }.takeLast(MAX - 1) + Triple(host, mask and 3, now)
+        return keep.joinToString("\n") { "${it.first} ${it.second} ${it.third}" }
+    }
+
+    fun commands(text: String?, now: Long): List<String> =
+        parse(text, now).map { "AVOID ${it.first} ${it.second} ${(now - it.third) / 1000}" }
+}

@@ -277,10 +277,12 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.Ready -> {
                 // What worked on sites before, as the VPN mode restores it.
                 val now = System.currentTimeMillis()
-                val cmds = synchronized(learnedRaw) { learnedRaw.commands(now) } + synchronized(learned) { learned.commands(now) }
+                // What a server cannot take first: a technique of that kind is then not restored for it.
+                val cmds = Avoids.commands(getSharedPreferences("engine", Context.MODE_PRIVATE).getString(Avoids.KEY, null), now) +
+                    synchronized(learnedRaw) { learnedRaw.commands(now) } + synchronized(learned) { learned.commands(now) }
                 if (cmds.isNotEmpty()) {
                     engine?.send(cmds.joinToString("\n"))
-                    log("Techniques remembered for ${cmds.size} sites restored")
+                    log("Techniques remembered for ${cmds.count { it.startsWith("LEARN") }} sites restored")
                 }
                 Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
                 // A session that has been up a while has earned a fresh restart budget.
@@ -293,6 +295,13 @@ class ShroudlyProxyService : Service() {
             }
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> if (NetDnsText.once(ev, android.os.SystemClock.elapsedRealtime())) ShroudlyVpnService.logSite(NetDnsText.line(ev))
+            is EngineEvent.Refused -> if (ev.host.isNotEmpty()) {
+                val now = System.currentTimeMillis()
+                val prefs = getSharedPreferences("engine", Context.MODE_PRIVATE)
+                if (ev.next.isNotEmpty()) synchronized(learned) { learned.remember(ev.host, ev.next, now); prefs.edit().putString("learned", learned.encode()).apply() }
+                if (ev.avoid > 0) prefs.edit().putString(Avoids.KEY, Avoids.remember(prefs.getString(Avoids.KEY, null), ev.host, ev.avoid, now)).apply()
+                ShroudlyVpnService.logSite("${ev.host}: the app refused the certificate the server sent after ${ev.strategy}; the next connection uses ${ev.next.ifEmpty { "no technique" }} instead")
+            }
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Stats -> {
                 // Carried traffic: a day protection worked (Usage), once a session.

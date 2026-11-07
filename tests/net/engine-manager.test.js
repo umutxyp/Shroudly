@@ -614,6 +614,23 @@ const t = suite('engine-manager');
     t.ok(once(m, 1000 + 10 * 60000), 'ten minutes on: said again');
   }
 
+  // What a server could not take (refused): kept, and given back first
+  // after a restart, before the techniques.
+  {
+    const m = {}; const written = [];
+    const self = { store: { get: (k) => m[k], set: (k, v) => { m[k] = v; } }, proc: { stdin: { write: (x) => written.push(x) } }, log: () => {},
+      _learned: () => [['clientsettingscdn.roblox.com', { s: 'split-sni', t: Date.now() - 1000 }]] };
+    Object.setPrototypeOf(self, EngineManager.prototype);
+    self._rememberAvoid('clientsettingscdn.roblox.com', 1, Date.now() - 60000);
+    self._rememberAvoid('bad host', 1);
+    self._restoreTechniques();
+    const out = written.join('');
+    t.ok(/^AVOID clientsettingscdn\.roblox\.com 1 6\d\n/.test(out) && out.indexOf('AVOID') < out.indexOf('LEARN') && !/bad host/.test(out),
+      'refused kinds are kept and given back before the techniques');
+    m.avoidTechniques['old.example'] = { m: 1, t: Date.now() - 7 * 3600 * 1000 };
+    t.ok(!self._avoids().some(([h]) => h === 'old.example'), 'older than the engine keeps them: dropped');
+  }
+
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -105,6 +105,13 @@ const CUT_SETTLE_MS = 10000;
  * failed while it did. Host -> { s: technique, t: when learned }. Sent to
  * the engine at each start with its age (see engine_restore), so one that
  * no longer works is checked and replaced, never trusted blindly. */
+/* Kinds of technique a name's server cannot take (the engine's "refused":
+ * it answered a ClientHello in two records with another certificate, #68),
+ * kept across restarts and given back before the techniques (AVOID), for as
+ * long as the engine keeps them (six hours). */
+const AVOID_KEY = 'avoidTechniques';
+const AVOID_MAX = 200;
+const AVOID_TTL_MS = 6 * 60 * 60 * 1000;
 const LEARNED_KEY = 'learnedTechniques';
 const LEARNED_MAX = 300;
 // Techniques for streams that are not TLS or HTTP (raw-*), per address: a
@@ -753,13 +760,32 @@ class EngineManager {
     try { this.store.set(key, Object.fromEntries(keep)); } catch {}
   }
 
-  /* Oldest first, so where two names of one site disagree, the newer wins. */
+  _avoids(now = Date.now()) {
+    const all = this.store.get(AVOID_KEY);
+    if (!all || typeof all !== 'object') return [];
+    return Object.entries(all)
+      .filter(([h, v]) => /^[A-Za-z0-9.-]{1,253}$/.test(h) && v && Number(v.m) > 0 && now - Number(v.t) < AVOID_TTL_MS && Number(v.t) <= now + 60000);
+  }
+
+  _rememberAvoid(host, mask, t = Date.now()) {
+    if (!host || !/^[A-Za-z0-9.-]{1,253}$/.test(host)) return;
+    const keep = this._avoids(t).filter(([h]) => h !== host).slice(-(AVOID_MAX - 1));
+    keep.push([host, { m: mask & 3, t }]);
+    try { this.store.set(AVOID_KEY, Object.fromEntries(keep)); } catch {}
+  }
+
+  /* Oldest first, so where two names of one site disagree, the newer wins.
+   * What a server cannot take goes first: a technique of that kind is then
+   * not restored for it (engine_restore). */
   _restoreTechniques(now = Date.now()) {
+    const avoid = this._avoids(now);
     const list = [...this._learned(now, LEARNED_RAW_KEY), ...this._learned(now)];
-    if (!list.length || !this.proc || !this.proc.stdin) return;
+    if ((!list.length && !avoid.length) || !this.proc || !this.proc.stdin) return;
     try {
-      this.proc.stdin.write(list.map(([h, v]) => `LEARN ${h} ${v.s} ${Math.max(0, Math.round((now - v.t) / 1000))}\n`).join(''));
+      this.proc.stdin.write(avoid.map(([h, v]) => `AVOID ${h} ${v.m} ${Math.max(0, Math.round((now - v.t) / 1000))}\n`).join('')
+        + list.map(([h, v]) => `LEARN ${h} ${v.s} ${Math.max(0, Math.round((now - v.t) / 1000))}\n`).join(''));
     } catch {}
+    if (!list.length) return;
     this.log('info', `Techniques remembered for ${list.length} sites restored`);
   }
 
@@ -1304,6 +1330,7 @@ class EngineManager {
       // with a technique of another kind, and that is what is kept.
       case 'refused':
         if (msg.next) this._rememberTechnique(msg.host, msg.next);
+        if (Number(msg.avoid) > 0) this._rememberAvoid(msg.host, Number(msg.avoid));
         this.log('warning', `${msg.host}: the browser refused the certificate the server sent after ${msg.strategy}; the next connection uses ${msg.next || 'no technique'} instead (reload the page)`);
         break;
       case 'cut':

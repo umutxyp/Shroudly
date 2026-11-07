@@ -61,6 +61,10 @@ sealed class EngineEvent {
      * once while it keeps carrying it), or nothing listening there (not ok:
      * Tor is started for the next connection). */
     data class Fallback(val ok: Boolean, val host: String, val why: String) : EngineEvent()
+    /* The app turned down the handshake a technique produced (the server sent
+     * another certificate, #68): the next connection uses `next`; `avoid`, the
+     * kinds now left out for the name (Avoids). */
+    data class Refused(val host: String, val strategy: String, val next: String, val avoid: Int) : EngineEvent()
     /* Apps' lookups go around the tunnel (a Private DNS server, a DNS app):
      * their connections keep coming by address, none by name (dns_way in
      * core/src/engine.c). Once a run. */
@@ -112,6 +116,7 @@ sealed class EngineEvent {
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
                 "fallback" -> Fallback(num("ok") != 0L, str("host") ?: "", str("why") ?: "")
+                "refused" -> Refused(str("host") ?: "", str("strategy") ?: "", str("next") ?: "", num("avoid").toInt())
                 "dns_around" -> DnsAround(str("host") ?: "")
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
                     str("route") ?: "direct", num("blocked") != 0L, num("refused")))
