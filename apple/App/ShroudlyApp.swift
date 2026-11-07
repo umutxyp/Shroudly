@@ -50,7 +50,15 @@ struct ShroudlyApp: App {
             .environmentObject(controller)
             .preferredColorScheme(.dark)
             .tint(Accent.color(accent))
-            .task { await controller.load() }
+            .task {
+                await controller.load()
+                #if DEBUG
+                // A test on a Mac (a debug build only): protection started at
+                // launch (-ShroudlyStart YES), or stopped (-ShroudlyStop YES), no click needed.
+                if UserDefaults.standard.bool(forKey: "ShroudlyStart") { await controller.start() }
+                if UserDefaults.standard.bool(forKey: "ShroudlyStop") { await controller.stop() }
+                #endif
+            }
     }
 
     /* The main screen; in a debug build, -ShroudlyScreen settings|about opens

@@ -66,6 +66,10 @@ object TorAsk {
         val had = Protection.torAsk
         Protection.torAsk = h.ifEmpty { had ?: "" }
         Protection.changed()
+        // Said in the log, as on the desktop: a report sent after the user
+        // turned protection off (which clears the question) could not tell
+        // whether Tor had been asked for at all (an Irancell YouTube report).
+        if (had == null) ShroudlyVpnService.logSite("The last way out: ${h.ifEmpty { "a site" }} needs Tor; asking before it starts")
         if (!due(System.currentTimeMillis())) return
         val text = ctx.text(R.string.torAskNotice, "host" to (Protection.torAsk ?: ""))
         if (Tv.isTv(ctx)) {
