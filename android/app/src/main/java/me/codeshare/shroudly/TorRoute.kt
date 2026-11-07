@@ -28,6 +28,17 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     companion object {
         private const val STALL_MS = 90_000L
         private const val IDLE_MS = 15 * 60_000L
+        /* Protection off: Tor is kept this long, so a quick Stop and Start
+         * goes on with the Tor that took minutes to get through (an Iranian
+         * report: a restart put it back at 10%). */
+        const val LINGER_MS = 5 * 60_000L
+
+        /* One Tor for the app, whichever service runs protection (the VPN
+         * or proxy only), and kept past a service that stopped (linger). */
+        @Volatile private var one: TorRoute? = null
+        fun shared(ctx: Context): TorRoute = synchronized(this) {
+            one ?: TorRoute(ctx.applicationContext, { ShroudlyVpnService.log(it) }) { Protection.changed() }.also { one = it }
+        }
         private const val RETRY_MS = 10 * 60_000L
         private const val FILE = "tor-route.txt"
         private val TRANSPORTS = listOf("snowflake", "meek", "obfs4", "webtunnel")
@@ -106,6 +117,7 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     private var usedAt = 0L
     private var stall: ScheduledFuture<*>? = null
     private var idle: ScheduledFuture<*>? = null
+    private var linger: ScheduledFuture<*>? = null
 
     fun available() = tor.exists() && lyrebird.exists()
 
@@ -113,7 +125,8 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
      * Tor starts later, when first needed. null where this build has none. */
     fun portFile(): File? {
         if (!available()) return null
-        synchronized(lock) { if (port == 0) port = Engine.freePort() }
+        // A Tor kept from a moment ago goes on, on the same port.
+        synchronized(lock) { linger?.cancel(false); linger = null; if (port == 0) port = Engine.freePort() }
         return File(ctx.filesDir, FILE).also { it.writeText("socks5://127.0.0.1:$port\n") }
     }
 
@@ -226,8 +239,22 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     }
 
     /* With protection: Tor too. The port is kept for the next start. */
-    fun stop() = synchronized(lock) { stopLocked() }
+    fun stop() = synchronized(lock) { linger?.cancel(false); linger = null; stopLocked() }
 
-    /* The service is gone for good. */
-    fun close() { stop(); timers.shutdownNow() }
+    /* Protection off: Tor stopped in LINGER_MS unless protection starts
+     * again first (portFile). One not running, or failed, stops at once. */
+    fun linger() = synchronized(lock) {
+        if (proc == null || state == "off" || state == "failed") { stopLocked(); return@synchronized }
+        linger?.cancel(false)
+        linger = timers.schedule({
+            synchronized(lock) {
+                linger = null
+                if (proc != null) log("The last way out: protection stayed off; Tor stopped")
+                stopLocked()
+            }
+        }, LINGER_MS, TimeUnit.MILLISECONDS)
+    }
+
+    /* The service is gone: Tor lingers a moment (one Tor for the app). */
+    fun close() = linger()
 }

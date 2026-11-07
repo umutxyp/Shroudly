@@ -70,6 +70,9 @@ function load(rel) {
     const NN = require(path.join(ROOT, 'electron', 'national-net.js'));
     const zones = N.NOT_FROM.flatMap((c) => NN.ZONES[c].map((z) => [z, c]));
     t.ok(zones.length > 30 && zones.every(([z]) => sw.includes(`"${z}"`)), `iPhone: every time zone of those countries, as the desktop has them (${zones.length})`);
+    // The same countries where helping others is not offered at all.
+    t.ok(NN.TOR_BLOCKED.join() === N.NOT_FROM.join() && NN.torBlocked('ir') && !NN.torBlocked('TR') && !NN.torBlocked(''),
+      'the main process hides helping others in the same countries');
   }
   {
     const WN = require(path.join(ROOT, 'electron', 'whats-new.js'));

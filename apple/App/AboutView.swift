@@ -58,6 +58,8 @@ struct AboutView: View {
             }
             // Help people in censored countries: an app made for it, which
             // keeps running on its own (Psiphon's Conduit).
+            // Not where Tor itself is blocked: the user there needs the help.
+            if !HelpNudge.torBlockedHere() {
             Section(tr("helpOthers")) {
                 #if !os(tvOS)
                 // Shroudly itself (Snowflake.swift), while it runs.
@@ -76,6 +78,7 @@ struct AboutView: View {
                 WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
                     Label(tr("helpOthersConduit"), systemImage: "person.2.wave.2")
                 }
+            }
             }
             #if !os(tvOS)
             Section {

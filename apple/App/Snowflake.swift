@@ -34,7 +34,8 @@ final class Snowflake: NSObject, ObservableObject, WKScriptMessageHandler {
     private var web: WKWebView?
     private var rules: WKContentRuleList?
 
-    var enabled: Bool { UserDefaults.standard.bool(forKey: Self.key) }
+    // Nor where Tor itself is blocked (HelpNudge.torBlockedHere).
+    var enabled: Bool { UserDefaults.standard.bool(forKey: Self.key) && !HelpNudge.torBlockedHere() }
 
     /* The desktop's pageConfig (electron/snowflake.js). */
     private func config() -> [String: Any] {

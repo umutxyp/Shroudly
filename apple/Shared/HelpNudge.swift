@@ -104,6 +104,17 @@ enum HelpNudge {
         d.set(s.accepted, forKey: Key.accepted)
     }
 
+    /* Where Tor itself is blocked: helping others is not offered at all
+     * (the card, the Snowflake switch, Conduit's link), and a Snowflake
+     * proxy left on does not run; the user is among those who need it. */
+    static func torBlocked(_ country: String?) -> Bool {
+        guard let country else { return false }
+        return notFrom.contains(country.uppercased())
+    }
+    static func torBlockedHere(_ d: UserDefaults = .standard) -> Bool {
+        torBlocked(country(remembered: d.string(forKey: homeCountryKey)))
+    }
+
     /* Due now, for this user; the first look starts the count. */
     static func due(_ d: UserDefaults = .standard, now: TimeInterval = Date().timeIntervalSince1970) -> Bool {
         let kept = load(d)

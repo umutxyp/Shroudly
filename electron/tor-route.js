@@ -38,6 +38,10 @@ const { spawn } = require('child_process');
 
 const STALL_MS = 90 * 1000;          // no progress this long: the next stage
 const IDLE_MS = 15 * 60 * 1000;      // nothing carried this long: stopped
+// Protection off: Tor kept this long, so a quick Stop and Start goes on
+// with the Tor that took minutes to get through (an Iranian report: a
+// restart put it back at 10%). TorRoute.kt the same.
+const LINGER_MS = 5 * 60 * 1000;
 const RETRY_MS = 10 * 60 * 1000;     // after it failed: not tried again before this
 
 /* Where Tor's files are: next to the app's code when run from source, in
@@ -194,6 +198,8 @@ class TorRoute {
    * first needed. null where Tor is not part of this build. */
   async prepare() {
     if (!this.available()) return null;
+    // A Tor kept from a moment ago goes on, on the same port.
+    clearTimeout(this._timers.linger);
     if (!this.port) this.port = await freePort();
     const file = path.join(this.dataDir, 'tor-route.txt');
     fs.writeFileSync(file, `socks5://127.0.0.1:${this.port}\n`, { mode: 0o600 });
@@ -339,8 +345,22 @@ class TorRoute {
     if (p) { try { p.kill(); } catch {} }
   }
 
+  /* Protection off: Tor stopped in `ms` unless protection starts again
+   * first (prepare). One not running, or failed, stops at once. Tor itself
+   * ends with Shroudly in any case (__OwningControllerProcess). */
+  linger(ms = LINGER_MS) {
+    if (!this.proc || this.state === 'off' || this.state === 'failed') { this.stop(); return; }
+    clearTimeout(this._timers.linger);
+    this._timers.linger = setTimeout(() => {
+      if (this.proc) this.log('info', 'The last way out: protection stayed off; Tor stopped');
+      this.stop();
+    }, ms);
+    if (this._timers.linger.unref) this._timers.linger.unref();
+  }
+
   /* With protection: Tor too. The port is kept for the next start. */
   stop() {
+    clearTimeout(this._timers.linger);
     const was = this.state !== 'off';
     this._kill();
     this.state = 'off';
@@ -358,6 +378,7 @@ class TorRoute {
 }
 
 module.exports = TorRoute;
+module.exports.LINGER_MS = LINGER_MS;
 module.exports.torDir = torDir;
 module.exports.files = files;
 module.exports.bridgesOf = bridgesOf;

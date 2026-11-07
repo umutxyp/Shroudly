@@ -135,7 +135,30 @@ function fakeSpawn(runs) {
 
   t.ok(Object.keys(TorRoute.bridgesOf('{"bridges":{"snowflake":["snowflake 1.2.3.4:1 X","x\\ny"],"evil":["a b"]}}')).join() === 'snowflake', 'only the known transports\' well-formed lines');
 
+  // Protection off for a moment: the same Tor goes on; off for longer: stopped.
+  {
+    const lruns = [];
+    const lg = new TorRoute({ dataDir: data, dir: bin, platform: 'darwin', spawn: fakeSpawn(lruns), ownerPid: 7, stallMs: 60000, idleMs: 60000 });
+    const f1 = await lg.prepare();
+    lg.need();
+    const p1 = lruns[0];
+    p1.say('[notice] Bootstrapped 40% (loading_status)');
+    lg.linger(150);
+    t.ok(!p1.killed && lg.status().state === 'starting', 'protection off: Tor kept for now, still getting through');
+    const f2 = await lg.prepare();
+    await H.sleep(250);
+    t.ok(!p1.killed && lruns.length === 1 && fs.readFileSync(f1, 'utf8') === fs.readFileSync(f2, 'utf8') && lg.status().progress === 40,
+      'protection on again soon: the same Tor on the same port, its progress kept');
+    lg.linger(100);
+    await H.sleep(200);
+    t.ok(p1.killed && lg.status().state === 'off', 'off for longer: Tor stopped');
+    const idle = new TorRoute({ dataDir: data, dir: bin, platform: 'darwin', spawn: fakeSpawn([]), ownerPid: 7 });
+    idle.linger(100000);
+    t.ok(idle.status().state === 'off' && !idle._timers.linger, 'nothing running: nothing kept');
+  }
+
   fs.rmSync(dir, { recursive: true, force: true });
+
   console.log(`tor-route: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

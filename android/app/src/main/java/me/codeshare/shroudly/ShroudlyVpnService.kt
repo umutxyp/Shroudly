@@ -1592,7 +1592,7 @@ class ShroudlyVpnService : VpnService() {
     // "Help people in censored countries" while on, charging, on Wi-Fi.
     private val snowflake by lazy { Snowflake(this) { log(it) } }
     // The last way out (TorRoute): Tor, for sites nothing else opened.
-    private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
+    private val torRoute by lazy { TorRoute.shared(this) }
     private val connsCollector = Conns.Collector()
 
     /* hev stopped and its thread waited for, then the VPN interface closed:
@@ -1607,7 +1607,8 @@ class ShroudlyVpnService : VpnService() {
         val wasActive = active
         active = false
         snowflake.stop()
-        torRoute.stop()
+        // Kept a few minutes: a quick Stop and Start goes on with it.
+        torRoute.linger()
         TorNotice.reset()
         TorAsk.reset()
         OnlineCount.stop(leave = false)

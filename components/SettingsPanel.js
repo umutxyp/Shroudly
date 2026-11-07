@@ -9,6 +9,7 @@ import {
   SpinnerIcon, XCircleIcon, ZapIcon,
 } from './icons';
 import Select from './Select';
+import { NOT_FROM } from './helpNudge';
 import { probeView } from './probeView';
 import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, maskLink, serverShown, abroadHint } from './ownServerText';
 
@@ -820,6 +821,15 @@ export default function SettingsPanel({ active = false }) {
   // the tour points at the site test (Onboarding.js).
   const tabsId = useId();
   const [tab, setTab] = useState('general');
+  // Where Tor itself is blocked the user is among those who need the help:
+  // helping others is not offered (helpNudge.js NOT_FROM, the main process
+  // does not run it there either).
+  const [helpHidden, setHelpHidden] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    window.electron?.getAppInfo?.().then((i) => { if (alive) setHelpHidden(NOT_FROM.includes(String(i?.homeCountry || '').toUpperCase())); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   // started: protection was just started for this test (the window's own
   // status may not have caught up yet).
@@ -1311,9 +1321,11 @@ export default function SettingsPanel({ active = false }) {
         <Section title={t('share')}>
           <ShareConnection onChange={(on) => setSettings((p) => ({ ...p, shareOn: on }))} />
         </Section>
+        {!helpHidden && (
         <Section title={t('snowflake')}>
           <SnowflakeHelp onChange={(on) => setSettings((p) => ({ ...p, snowflakeOn: on }))} />
         </Section>
+        )}
         </>
       )}
       {tab === 'app' && (

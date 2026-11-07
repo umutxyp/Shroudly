@@ -109,4 +109,10 @@ function decoyNames(country) {
   return country && DOMESTIC[country] ? DOMESTIC[country].slice(0, 8) : [];
 }
 
-module.exports = { domesticAnswers, DOMESTIC, ZONES, homeCountry, decoyNames };
+/* Where Tor itself is blocked (components/helpNudge.js NOT_FROM, HelpNudge.kt,
+ * HelpNudge.swift: the same list): helping others is not offered there and a
+ * Snowflake proxy left on does not run; the user is among those who need it. */
+const TOR_BLOCKED = ['BY', 'CN', 'IR', 'MM', 'RU', 'TM'];
+const torBlocked = (country) => !!country && TOR_BLOCKED.includes(String(country).toUpperCase());
+
+module.exports = { domesticAnswers, DOMESTIC, ZONES, homeCountry, decoyNames, TOR_BLOCKED, torBlocked };

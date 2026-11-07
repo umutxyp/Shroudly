@@ -104,4 +104,10 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertFalse(VpnErrors.missingPermission(domain: "NSURLErrorDomain", code: -1001, text: "timed out", reading: true))
         XCTAssertEqual(VpnErrors.installHelp.absoluteString, "https://github.com/umutxyp/Shroudly#iphone-and-ipad")
     }
+
+    func testNotOfferedWhereTorItselfIsBlocked() {
+        for c in ["IR", "ir", "RU", "CN", "BY", "TM", "MM"] { XCTAssertTrue(HelpNudge.torBlocked(c), c) }
+        for c in ["TR", "DE", "PK"] { XCTAssertFalse(HelpNudge.torBlocked(c), c) }
+        XCTAssertFalse(HelpNudge.torBlocked(nil))
+    }
 }

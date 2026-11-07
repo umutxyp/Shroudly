@@ -43,8 +43,11 @@ class Snowflake(private val ctx: Context, private val log: (String) -> Unit) {
         private const val BASE = "https://snowflake.shroudly.invalid/"
 
         // Never in the lite APK (issue #75), whatever an earlier copy kept.
+        // Nor where Tor itself is blocked (HelpNudge.torBlockedHere): the
+        // user there is among those who need the help.
         fun enabled(ctx: Context) = BuildConfig.APK_VARIANT != "lite" &&
-            ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, false)
+            ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, false) &&
+            !HelpNudge.torBlockedHere(ctx)
         fun setEnabled(ctx: Context, on: Boolean) =
             ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY, on).apply()
 

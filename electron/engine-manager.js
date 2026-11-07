@@ -1834,7 +1834,8 @@ class EngineManager {
     this.startedAt = 0;
     this.doh.stop(); this.dohPort = 0;
     this._closeUpstream();
-    if (this.tor) this.tor.stop();
+    // Kept a few minutes: a quick Stop and Start goes on with it.
+    if (this.tor) this.tor.linger();
     this._torFile = null;
     this.store.set('runtimeActive', false);
     this.onStatusChange(false);

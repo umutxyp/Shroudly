@@ -193,6 +193,8 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
         findViewById<View>(R.id.reportLink).setOnClickListener { startActivity(Intent(this, ReportActivity::class.java)) }
         findViewById<View>(R.id.helpOthers).setOnClickListener { showHelpOthers() }
+        // Not where Tor itself is blocked: the user there needs the help.
+        if (HelpNudge.torBlockedHere(this)) for (id in intArrayOf(R.id.helpOthers, R.id.helpOthersDivider)) findViewById<View>(id).visibility = View.GONE
         // "Share Shroudly": the APK to another phone, where there is one file to pass on.
         val apk = ApkShare.available(this)
         findViewById<View>(R.id.shareApp).apply { visibility = if (apk) View.VISIBLE else View.GONE; setOnClickListener { ApkShare.share(this@MainActivity) } }

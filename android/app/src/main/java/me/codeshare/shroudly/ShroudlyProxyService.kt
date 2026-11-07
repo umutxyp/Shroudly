@@ -496,12 +496,13 @@ class ShroudlyProxyService : Service() {
     }
 
     // The last way out (TorRoute): Tor, for sites nothing else opened.
-    private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
+    private val torRoute by lazy { TorRoute.shared(this) }
     private val connsCollector = Conns.Collector()
 
     private fun cleanup() {
         active = false
-        torRoute.stop()
+        // Kept a few minutes: a quick Stop and Start goes on with it.
+        torRoute.linger()
         TorNotice.reset()
         TorAsk.reset()
         Protection.trouble(0)

@@ -1518,7 +1518,10 @@ app.whenReady().then(async () => {
   let snowflakeTest = null;
   if (process.env.SHROUDLY_E2E === '1' && process.env.SHROUDLY_SNOWFLAKE_TEST) { try { snowflakeTest = JSON.parse(process.env.SHROUDLY_SNOWFLAKE_TEST); } catch {} }
   snowflake = new Snowflake({ store, log: addLog, test: snowflakeTest });
-  if (store.get('snowflakeOn') === true) snowflake.start().catch((e) => addLog('warning', `Helping people in censored countries could not start: ${e.message}`));
+  if (store.get('snowflakeOn') === true) {
+    if (helpHidden()) addLog('info', 'Helping people in censored countries: not run here, Tor itself is blocked in this country');
+    else snowflake.start().catch((e) => addLog('warning', `Helping people in censored countries could not start: ${e.message}`));
+  }
   advanced = new AdvancedMode(addLog);
   // The backend ended by itself: the window must not keep saying it is on.
   advanced.onExit = () => advancedState(false);
@@ -3346,10 +3349,17 @@ ipcMain.handle('share:set', async (e, on) => {
 ipcMain.handle('share:status', () => (share ? share.status() : { on: false }));
 ipcMain.handle('share:newLink', () => (share ? share.newLink() : { on: false }));
 
+/* Where Tor itself is blocked (national-net.js TOR_BLOCKED): helping others
+ * is not offered, and a proxy left on is not run. */
+function helpHidden() {
+  try { return NationalNet.torBlocked(NationalNet.homeCountry({ remembered: store.get('homeCountry') })); } catch { return false; }
+}
+
 /* Settings, "Help people in censored countries" (snowflake.js): on or off,
  * kept for the next start; how many are helped. */
 ipcMain.handle('snowflake:set', async (e, on) => {
   if (!snowflake) return { on: false, state: 'off', now: 0, total: 0 };
+  if (on === true && helpHidden()) return { on: false, state: 'off', now: 0, total: 0 };
   store.set('snowflakeOn', on === true);
   try {
     if (on === true) return await snowflake.start();

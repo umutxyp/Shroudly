@@ -66,4 +66,10 @@ class HelpNudgeTest {
         assertNull(OwnServer.traceIp("ip=<b>\n"))
         assertNull(OwnServer.traceIp("xip=1.2.3.4\n"))
     }
+
+    @Test
+    fun notOfferedWhereTorItselfIsBlocked() {
+        for (c in listOf("IR", "ir", "RU", "CN", "BY", "TM", "MM")) assertTrue(c, HelpNudge.torBlocked(c))
+        for (c in listOf("TR", "DE", "PK", null)) assertFalse("$c", HelpNudge.torBlocked(c))
+    }
 }

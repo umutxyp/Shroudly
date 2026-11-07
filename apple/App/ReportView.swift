@@ -145,7 +145,7 @@ struct ReportView: View {
     private func situation() async -> String {
         let s = SettingsStore().load()
         let set = Report.settings(s, adBlock: AdBlock.enabled(), countMeIn: OnlineCount.enabled(),
-                                  helpOthers: UserDefaults.standard.bool(forKey: "snowflakeOn"))  // Snowflake.key; no Snowflake on tvOS
+                                  helpOthers: UserDefaults.standard.bool(forKey: "snowflakeOn") && !HelpNudge.torBlockedHere())  // Snowflake.key; no Snowflake on tvOS
         var lines = [
             "== Situation now ==",
             "Protection: \(controller.phase)\(controller.notice.map { "; notice: \($0)" } ?? "")",

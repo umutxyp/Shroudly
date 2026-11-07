@@ -28,6 +28,15 @@ object HelpNudge {
 
     fun begin(state: State?, now: Long): State = state ?: State(now, now + FIRST_DAYS * DAY, 0)
 
+    /* Where Tor itself is blocked: helping others is not offered at all
+     * (the card, the main screen's row, the Snowflake switch), and a
+     * Snowflake proxy left on does not run. Pure, for the tests. */
+    fun torBlocked(country: String?): Boolean = country != null && country.uppercase() in NOT_FROM
+
+    /* The user's country is one of them (NationalNet.homeCountry). */
+    fun torBlockedHere(ctx: Context): Boolean =
+        torBlocked(NationalNet.homeCountry(AppSettings.homeCountry(ctx), TimeZone.getDefault().id))
+
     fun isDue(state: State?, now: Long, country: String?): Boolean {
         if (state == null) return false
         if (country != null && country.uppercase() in NOT_FROM) return false

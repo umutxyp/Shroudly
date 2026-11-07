@@ -251,9 +251,13 @@ class SettingsActivity : Activity() {
         // (issue #75). Its divider and the Tor toggle's go with them.
         val lite = BuildConfig.APK_VARIANT == "lite"
         for (id in intArrayOf(R.id.snowflakeDivider, R.id.torDivider)) findViewById<View>(id).visibility = if (lite) View.GONE else View.VISIBLE
+        // Where Tor itself is blocked the user is among those who need the
+        // help: the Snowflake switch is not shown (HelpNudge.torBlockedHere).
+        val helpHidden = lite || HelpNudge.torBlockedHere(this)
+        findViewById<View>(R.id.snowflakeDivider).visibility = if (helpHidden) View.GONE else View.VISIBLE
         // Inside Shroudly while on, charging, on Wi-Fi (Snowflake).
         findViewById<Switch>(R.id.snowflake).apply {
-            visibility = if (lite) View.GONE else View.VISIBLE
+            visibility = if (helpHidden) View.GONE else View.VISIBLE
             isChecked = Snowflake.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on ->
                 Snowflake.setEnabled(this@SettingsActivity, on)

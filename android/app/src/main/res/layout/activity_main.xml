@@ -1012,7 +1012,9 @@
                 android:drawableStart="@drawable/row_users"
                 android:text="@string/helpOthers" />
 
-            <View style="@style/Divider" />
+            <View
+                android:id="@+id/helpOthersDivider"
+                style="@style/Divider" />
 
             <!-- The recent log and the phone's details, to send to us. -->
             <TextView
