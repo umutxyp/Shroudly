@@ -138,6 +138,10 @@ const DEFAULT_PORT = 10808;
 // A site no technique opened is told after this long where Tor is ready to
 // carry it (the engine tries Tor right after; see _tellBlocked).
 const BLOCKED_HOLD_MS = 8000;
+// The engine's events about one site kept for a report (_noteSiteEvent): the
+// troubles, not each technique that worked (the Connections list has those).
+const SITE_EVENT_TYPES = new Set(['blocked', 'cut', 'unreachable', 'send_failed', 'fallback', 'refused', 'dns_around', 'upstream']);
+const SITE_EVENTS_MAX = 80;
 
 // Domains routed through the proxy in "listed" mode: the list built by
 // scripts/site-list/update.js from OONI measurements and curated service
@@ -476,6 +480,22 @@ class EngineManager {
     try { remembered = this.store && this.store.get ? this.store.get('homeCountry') : null; } catch {}
     const NationalNet = require('./national-net');
     return NationalNet.decoyNames(NationalNet.homeCountry({ remembered }));
+  }
+
+  /* The engine's last events about sites, as it sent them, for a report
+   * (main.js): the log says each kind once per site (logGate), so a site
+   * that kept being cut or kept failing said so once, and a report sent
+   * later could not tell whether it still did. Kept in memory only, the
+   * last SITE_EVENTS_MAX, across a stop (the report after "off"). */
+  _noteSiteEvent(msg) {
+    if (!msg || !SITE_EVENT_TYPES.has(msg.type)) return;
+    if (!this.siteEvents) this.siteEvents = [];
+    const keep = {};
+    for (const k of ['host', 'strategy', 'next', 'attempts', 'family', 'note', 'why', 'stage', 'raw', 'port', 'alert', 'site_ok', 'ok']) {
+      if (msg[k] !== undefined && msg[k] !== '') keep[k] = msg[k];
+    }
+    this.siteEvents.push({ at: Date.now(), type: msg.type, ...keep });
+    if (this.siteEvents.length > SITE_EVENTS_MAX) this.siteEvents.splice(0, this.siteEvents.length - SITE_EVENTS_MAX);
   }
 
   /* The last way out turned off by the user (a "no" to Tor, or Settings),
@@ -1186,6 +1206,7 @@ class EngineManager {
   _onLine(line, finishStart) {
     let msg;
     try { msg = JSON.parse(line); } catch { this.log('info', `engine: ${line}`); return; }
+    this._noteSiteEvent(msg);
     switch (msg.type) {
       case 'ready':
         this.techniques = Number(msg.techniques) || 0;

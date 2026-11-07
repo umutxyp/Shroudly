@@ -161,6 +161,23 @@ function isApp(host) {
   return APP_DOMAINS.some((d) => h === d || h.endsWith(`.${d}`));
 }
 const ROUTE_ORDER = { tor: 0, server: 1, technique: 2, direct: 3 };
+/* What a row says beyond its count, as the engine keeps it (core/src/
+ * conns.c): how many are open now, what went each way, and how long ago the
+ * name was last used. A connection that got nothing back ("down 0 B"), or
+ * one that sits open and silent, is what a report most often needs to see
+ * (a Discord stuck on "Starting" with one connection to each name). */
+function bytes(n) {
+  const v = Number(n) || 0;
+  return v >= 1048576 ? `${(v / 1048576).toFixed(1)} MB` : v >= 1024 ? `${Math.round(v / 1024)} KB` : `${v} B`;
+}
+function connDetail(r) {
+  const parts = [];
+  if (Number(r.active) > 0) parts.push(`${Number(r.active)} open`);
+  if (r.up != null || r.down != null) parts.push(`up ${bytes(r.up)}, down ${bytes(r.down)}`);
+  if (r.ago != null && Number.isFinite(Number(r.ago))) parts.push(`last ${Math.round(Number(r.ago) / 1000)} s ago`);
+  return parts.length ? `  ${parts.join(', ')}` : '';
+}
+
 function connsText(rows, max = 60, apps = isApp) {
   const list = (Array.isArray(rows) ? rows : []).filter((r) => r && typeof r.host === 'string' && r.host
     && ((r.route && r.route !== 'direct') || apps(r.host)));
@@ -168,7 +185,7 @@ function connsText(rows, max = 60, apps = isApp) {
   list.sort((a, b) => ((ROUTE_ORDER[a.route] ?? 3) - (ROUTE_ORDER[b.route] ?? 3)) || ((b.conns || 0) - (a.conns || 0)) || a.host.localeCompare(b.host));
   const lines = list.slice(0, max).map((r) => {
     const extra = [r.blocked ? 'blocked by the user' : '', r.refused ? `${r.refused} refused` : ''].filter(Boolean).join(', ');
-    return `${r.host.slice(0, 120)}  ${r.route || 'direct'}  ${r.conns || 0} conns${extra ? `  (${extra})` : ''}`;
+    return `${r.host.slice(0, 120)}  ${r.route || 'direct'}  ${r.conns || 0} conns${connDetail(r)}${extra ? `  (${extra})` : ''}`;
   });
   if (list.length > max) lines.push(`(+${list.length - max} more)`);
   return lines.join('\n');
@@ -182,4 +199,19 @@ function connsSection(on, rows, last) {
   return '== Connections ==\n(protection is off, and has not run since Shroudly started)';
 }
 
-module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };
+/* The engine's last events about sites (engine-manager.js siteEvents), one
+ * line each, newest last: when, what, the name, and what the engine said of
+ * it (technique, tries, the note). */
+function siteEventsSection(events, max = 80) {
+  const list = (Array.isArray(events) ? events : []).slice(-max);
+  if (!list.length) return '== Recent site events ==\n(none)';
+  const lines = list.map((e) => {
+    const t = new Date(e.at).toISOString().slice(11, 19);
+    const rest = Object.entries(e).filter(([k]) => !['at', 'type', 'host'].includes(k))
+      .map(([k, v]) => `${k}=${String(v).slice(0, 60)}`).join(' ');
+    return `${t} ${e.type} ${String(e.host || '').slice(0, 120)}${rest ? ` ${rest}` : ''}`;
+  });
+  return `== Recent site events ==\n${lines.join('\n')}`;
+}
+
+module.exports = { siteEventsSection, connDetail, URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };

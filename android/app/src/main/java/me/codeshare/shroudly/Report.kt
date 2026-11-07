@@ -300,10 +300,28 @@ object Report {
         if (list.isEmpty()) return "(none)"
         val lines = list.take(max).map { r ->
             val extra = listOfNotNull(if (r.blocked) "blocked by the user" else null, if (r.refused > 0) "${r.refused} refused" else null).joinToString(", ")
-            "${r.host.take(120)}  ${r.route}  ${r.conns} conns${if (extra.isNotEmpty()) "  ($extra)" else ""}"
+            "${r.host.take(120)}  ${r.route}  ${r.conns} conns${connDetail(r)}${if (extra.isNotEmpty()) "  ($extra)" else ""}"
         }.toMutableList()
         if (list.size > max) lines += "(+${list.size - max} more)"
         return lines.joinToString("\n")
+    }
+
+    /* What a row says beyond its count (electron/report.js connDetail): how
+     * many are open now, what went each way, and how long ago the name was
+     * last used. A connection that got nothing back ("down 0 B") is what a
+     * report most often needs to see. */
+    fun bytes(n: Long): String = when {
+        n >= 1048576 -> String.format(java.util.Locale.ROOT, "%.1f MB", n / 1048576.0)
+        n >= 1024 -> "${Math.round(n / 1024.0)} KB"
+        else -> "$n B"
+    }
+
+    fun connDetail(r: Conns.Row): String {
+        val parts = mutableListOf<String>()
+        if (r.active > 0) parts += "${r.active} open"
+        parts += "up ${bytes(r.up)}, down ${bytes(r.down)}"
+        if (r.ago >= 0) parts += "last ${Math.round(r.ago / 1000.0)} s ago"
+        return "  " + parts.joinToString(", ")
     }
 
     /* What the server's answer means. */

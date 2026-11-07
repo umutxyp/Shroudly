@@ -3657,6 +3657,32 @@ let reportSending = false;
  * the engine's counters, and the settings: switches, numbers and short
  * choices only. Nothing that can hold an address, a password, a server's
  * link or the user's own lists (those only by how many entries they have). */
+/* For a report: the Discord apps on this computer, whether each runs and
+ * whether its connections reach Shroudly (the engine or the updater relay),
+ * and what the relay served. A Discord stuck on "Starting" was otherwise
+ * read from the Connections list alone. At most 3 s; never throws. */
+async function reportApps() {
+  const out = {};
+  const work = (async () => {
+    const ports = [engine && engine.isActive() ? engine.port : null, discordRelay && discordRelay.port].filter(Boolean);
+    for (const v of DiscordApp.installed()) {
+      const pids = await DiscordApp.pids(v).catch(() => []);
+      const row = { running: pids.length > 0 };
+      if (pids.length && ports.length) row.reachesShroudly = await ProcNet.connectsTo(pids, ports).catch(() => null);
+      out[v.app || v.id] = row;
+    }
+    if (discordRelay) {
+      out.discordUpdaterRelay = {
+        on: !!discordRelay.server,
+        requests: discordRelay.requests || 0,
+        lastOkSecondsAgo: discordRelay.lastOkAt ? Math.round((Date.now() - discordRelay.lastOkAt) / 1000) : null,
+      };
+    }
+  })().catch((e) => { out.error = e.message; });
+  await Promise.race([work, new Promise((r) => setTimeout(r, 3000))]);
+  return out;
+}
+
 function reportSituation() {
   let all = {};
   try { all = { ...store.store }; } catch {}
@@ -3725,6 +3751,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
     const on = !!(engine && engine.isActive());
     const conns = on ? await engine.connsList(3000).catch(() => []) : [];
     const lastConns = !on && engine && engine.lastConns ? engine.lastConns : null;
+    const apps = await reportApps().catch(() => ({}));
     const body = Report.payload({
       fields,
       version: appVersion(),
@@ -3732,7 +3759,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
       os: st.os,
       device: process.arch,
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
-      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n`,
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n${Report.siteEventsSection(engine && engine.siteEvents)}\n== Apps ==\n${JSON.stringify(apps, null, 1)}\n`,
     });
     const r = await Report.send((o) => require('electron').net.request(o), body);
     if (r.ok) {

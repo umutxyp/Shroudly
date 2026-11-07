@@ -208,7 +208,8 @@ class ReportActivity : Activity() {
             }
             val log = try {
                 Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n" +
-                    Report.connsSection(on, Conns.rows, Conns.lastSession, Conns.lastSessionEnded) + "\n"
+                    Report.connsSection(on, Conns.rows, Conns.lastSession, Conns.lastSessionEnded) + "\n" +
+                    SiteEvents.section() + "\n"
             } catch (e: Exception) {
                 "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)"
             }

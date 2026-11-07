@@ -208,6 +208,7 @@ class Engine(
                     val line = raw.trim()
                     if (line.isEmpty()) return@forEachLine
                     val ev2 = EngineEvent.parse(line)
+                    SiteEvents.note(line)
                     when (ev2) {
                         is EngineEvent.Ready -> ready.countDown()
                         is EngineEvent.Error -> lastError = ev2.message

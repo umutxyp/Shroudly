@@ -14,6 +14,8 @@ object Conns {
     data class Row(
         val host: String, val active: Int, val conns: Long, val up: Long, val down: Long,
         val route: String, val blocked: Boolean, val refused: Long,
+        /* Since the name was last used, ms; -1 when the engine did not say. */
+        val ago: Long = -1L,
     )
 
     /* The names Shroudly itself uses (electron/system-hosts.js): marked, and

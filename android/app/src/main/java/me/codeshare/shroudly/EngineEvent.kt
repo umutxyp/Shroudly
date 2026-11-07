@@ -119,7 +119,7 @@ sealed class EngineEvent {
                 "refused" -> Refused(str("host") ?: "", str("strategy") ?: "", str("next") ?: "", num("avoid").toInt())
                 "dns_around" -> DnsAround(str("host") ?: "")
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
-                    str("route") ?: "direct", num("blocked") != 0L, num("refused")))
+                    str("route") ?: "direct", num("blocked") != 0L, num("refused"), if (m.containsKey("ago")) num("ago") else -1L))
                 "conns_end" -> ConnsEnd(num("n").toInt())
                 "stopped" -> Stopped
                 else -> Other(type)

@@ -64,7 +64,7 @@ class ReportTest {
         )
         val t = Report.connsText(rows).split("\n")
         assertEquals(3, t.size)
-        assertTrue(t[0].startsWith("pulsar.roblox.com  tor  1 conns  (2 refused)"))
+        assertEquals("pulsar.roblox.com  tor  1 conns  up 0 B, down 0 B  (2 refused)", t[0])
         assertTrue(t[1].startsWith("discord.com  technique"))
         assertTrue(t[2].startsWith("auth.riotgames.com  direct  9 conns"))
         assertEquals("(none)", Report.connsText(emptyList()))
@@ -72,6 +72,27 @@ class ReportTest {
         // The same list as the desktop's (electron/report.js).
         val js = java.io.File("../../electron/report.js").readText()
         for (d in Report.APP_DOMAINS) assertTrue(d, js.contains("'$d'"))
+    }
+
+    @Test
+    fun connectionsSayOpenBytesAndLastUse() {
+        val r = Conns.Row("gateway.discord.gg", 1, 1, 1500, 0, "technique", false, 0, 70_000)
+        assertEquals("gateway.discord.gg  technique  1 conns  1 open, up 1 KB, down 0 B, last 70 s ago", Report.connsText(listOf(r)))
+        assertEquals("2.2 MB", Report.bytes(2_300_000))
+    }
+
+    @Test
+    fun recentSiteEventsKeepTheTroublesOnly() {
+        SiteEvents.clear()
+        SiteEvents.note("""{"type":"bypass","host":"a.example","strategy":"x"}""")
+        for (i in 0 until 90) SiteEvents.note("""{"type":"cut","host":"h$i.example","note":"stall","attempts":2}""")
+        val lines = SiteEvents.section().split("\n")
+        assertEquals("== Recent site events ==", lines[0])
+        assertEquals(SiteEvents.MAX + 1, lines.size)
+        assertTrue(lines[1].endsWith("cut h10.example note=stall attempts=2"))
+        assertTrue(lines.none { it.contains("bypass") })
+        SiteEvents.clear()
+        assertTrue(SiteEvents.section().endsWith("(none)"))
     }
 
     @Test

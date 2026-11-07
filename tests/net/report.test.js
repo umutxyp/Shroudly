@@ -124,6 +124,24 @@ function server(reply) {
     'connections: Tor, then techniques, then the busiest untouched');
   t.ok(ct.length === 4 && !ct.some((l) => l.includes('news.example')), 'connections: other untouched names (the browsing) left out');
   t.ok(Report.connsText([]) === '(none)' && Report.connsText(null) === '(none)', 'connections: none');
+  // What each row says beyond its count: open now, bytes each way, last used.
+  const det = Report.connsText([{ host: 'gateway.discord.gg', route: 'technique', conns: 1, active: 1, up: 1500, down: 0, ago: 70000 },
+    { host: 'discord.com', route: 'technique', conns: 3, active: 0, up: 20480, down: 2300000, ago: 5000, refused: 1 }]).split('\n');
+  t.ok(det[0] === 'discord.com  technique  3 conns  up 20 KB, down 2.2 MB, last 5 s ago  (1 refused)'
+    && det[1] === 'gateway.discord.gg  technique  1 conns  1 open, up 1 KB, down 0 B, last 70 s ago',
+    'connections: open, up and down, last used');
+  const ev = Report.siteEventsSection([{ at: Date.UTC(2026, 10, 8, 1, 2, 3), type: 'cut', host: 'gateway.discord.gg', strategy: 'split-sni', note: 'stall', attempts: 2 }]);
+  t.ok(ev === '== Recent site events ==\n01:02:03 cut gateway.discord.gg strategy=split-sni note=stall attempts=2' && /\(none\)$/.test(Report.siteEventsSection(null)),
+    'recent site events: one line each, with what the engine said');
+  const EM = require('../../electron/engine-manager');
+  const em = new EM({ get: (k, d) => d, set: () => {} }, {});
+  em._noteSiteEvent({ type: 'bypass', host: 'a.example', strategy: 'x' });
+  for (let i = 0; i < 90; i++) em._noteSiteEvent({ type: 'blocked', host: `h${i}.example`, attempts: 5 });
+  t.ok(em.siteEvents.length === 80 && em.siteEvents[0].host === 'h10.example' && !em.siteEvents.some((e) => e.type === 'bypass'),
+    'recent site events: the troubles only, the last 80');
+  const mainJs = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  t.ok(/Report\.siteEventsSection\(engine && engine\.siteEvents\)/.test(mainJs) && /== Apps ==/.test(mainJs) && /async function reportApps\(\)/.test(mainJs),
+    'the report carries the recent site events and the Discord apps');
   const many = Report.connsText(Array.from({ length: 70 }, (_, i) => ({ host: `h${i}.example`, route: 'technique', conns: i })), 60).split('\n');
   t.ok(many.length === 61 && many[60] === '(+10 more)', 'connections: at most 60, the rest counted');
 

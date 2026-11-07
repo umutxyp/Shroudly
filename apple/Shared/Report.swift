@@ -106,6 +106,22 @@ enum Report {
     /* The Connections list as lines of the report, as the desktop's and
      * Android's: the names Shroudly did something to, and the apps' names
      * however they went; other untouched names (the browsing) left out. */
+    /* What a row says beyond its count (electron/report.js connDetail): how
+     * many are open now and what went each way; a connection that got
+     * nothing back ("down 0 B") is what a report most often needs to see. */
+    static func bytes(_ n: Int64) -> String {
+        if n >= 1_048_576 { return String(format: "%.1f MB", Double(n) / 1_048_576) }
+        if n >= 1024 { return "\(Int((Double(n) / 1024).rounded())) KB" }
+        return "\(n) B"
+    }
+
+    static func connDetail(_ r: ConnRow) -> String {
+        var parts: [String] = []
+        if r.active > 0 { parts.append("\(r.active) open") }
+        parts.append("up \(bytes(r.up)), down \(bytes(r.down))")
+        return "  " + parts.joined(separator: ", ")
+    }
+
     static func connsText(_ rows: [ConnRow], max: Int = 60) -> String {
         let order = ["tor": 0, "server": 1, "technique": 2, "direct": 3]
         let list = rows.filter { !$0.host.isEmpty && ($0.route != "direct" || isApp($0.host)) }.sorted {
@@ -117,7 +133,7 @@ enum Report {
         if list.isEmpty { return "(none)" }
         var lines = list.prefix(max).map { r -> String in
             let extra = [r.blocked ? "blocked by the user" : nil, r.refused > 0 ? "\(r.refused) refused" : nil].compactMap { $0 }.joined(separator: ", ")
-            return "\(String(r.host.prefix(120)))  \(r.route)  \(r.conns) conns\(extra.isEmpty ? "" : "  (\(extra))")"
+            return "\(String(r.host.prefix(120)))  \(r.route)  \(r.conns) conns\(connDetail(r))\(extra.isEmpty ? "" : "  (\(extra))")"
         }
         if list.count > max { lines.append("(+\(list.count - max) more)") }
         return lines.joined(separator: "\n")
