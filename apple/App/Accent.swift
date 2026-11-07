@@ -1,13 +1,12 @@
 import SwiftUI
 
-/* The accent colour, chosen in Settings: the logo's blue (the default) or one
- * of the desktop's and Android's accents (Accent.kt). Kept in the app's own
+/* The accent colour, chosen in Settings: the desktop app's nine
+ * (components/Appearance.js), sky by default as there. Kept in the app's own
  * defaults; the main screen, links and switches follow it. */
 enum Accent {
     static let key = "accent"
 
     static let options: [(id: String, color: Color)] = [
-        ("logo", Color("AccentColor")),
         ("sky", hex(0x38BDF8)),
         ("teal", hex(0x2DD4BF)),
         ("emerald", hex(0x34D399)),
@@ -19,7 +18,9 @@ enum Accent {
         ("indigo", hex(0x818CF8)),
     ]
 
-    /* An unknown or missing id is the logo's blue. */
+    static let defaultId = "sky"
+
+    /* An unknown or missing id (the logo's blue, chosen before 2.6.63) is sky. */
     static func color(_ id: String?) -> Color {
         options.first { $0.id == id }?.color ?? options[0].color
     }
@@ -33,7 +34,7 @@ enum Accent {
 
 /* Settings: the swatches in a row, the chosen one ringed. */
 struct AccentPicker: View {
-    @AppStorage(Accent.key) private var accent = "logo"
+    @AppStorage(Accent.key) private var accent = Accent.defaultId
 
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 12) {

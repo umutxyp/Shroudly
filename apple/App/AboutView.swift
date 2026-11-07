@@ -91,7 +91,9 @@ struct AboutView: View {
         .formStyle(.grouped)
         .listBackgroundHidden()
         .background(Theme.background)
+        #if os(tvOS)
         .navigationTitle(tr("navInfo"))
+        #endif
         .task { logs = await Diagnostics.text(sites: controller.siteLog()) }
         #if !os(tvOS)
         .onAppear { snowflake.sync(active: snowflakeOn) }
@@ -132,19 +134,81 @@ struct FollowView: View {
     ]
 
     var body: some View {
+        #if os(tvOS)
         Form {
             Section {
                 Text(tr("followDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                #if os(tvOS)
                 Text(tr("followTv")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                #endif
             }
             // The developer's first: news, new versions and urgent notices go there.
             Section(tr("followDeveloper")) { rows(Self.developer) }
             Section(tr("followCodeshare")) { rows(Self.codeshare) }
         }
         .navigationTitle(tr("followTitle"))
+        #else
+        // As the desktop's (components/InfoPanel.js): one card, its title and
+        // words, then each list two by two.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Label(tr("followTitle"), systemImage: "heart")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.text)
+                Text(tr("followDesc"))
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(tr("followDeveloper"))
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .foregroundStyle(Theme.faintText)
+                    .padding(.top, 2)
+                tiles(Self.developer)
+                Text(tr("followCodeshare"))
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .foregroundStyle(Theme.faintText)
+                    .padding(.top, 2)
+                tiles(Self.codeshare)
+            }
+            .padding(16)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line, lineWidth: 1))
+            .frame(maxWidth: 560)
+            .padding(16)
+            .frame(maxWidth: .infinity)
+        }
+        .macScrollBarHidden()
+        #endif
     }
+
+    #if !os(tvOS)
+    private func tiles(_ list: [Account]) -> some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+            ForEach(list) { a in
+                if let u = URL(string: a.url) {
+                    Link(destination: u) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(a.name).font(.system(size: 13.5, weight: .medium)).foregroundStyle(Theme.text)
+                                Text(a.handle).font(.system(size: 12)).foregroundStyle(Theme.faintText)
+                            }
+                            .lineLimit(1)
+                            Spacer(minLength: 4)
+                            Image(systemName: "arrow.up.right.square")
+                                .font(.system(size: 13))
+                                .foregroundStyle(Theme.faintText)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.background.opacity(0.6), in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
+                        .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(Theme.line, lineWidth: 1))
+                        .contentShape(RoundedRectangle(cornerRadius: Theme.radiusSmall))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+    #endif
 
     @ViewBuilder private func rows(_ list: [Account]) -> some View {
         ForEach(list) { a in

@@ -921,7 +921,7 @@
   "whatsNewOk": "知道了",
   "whatsNewDesktop": "Windows：即使你的 Windows 用户名使用其他文字（西里尔字母、土耳其字母、波斯文），Tor 现在也能正常工作。\nRoblox 和其他应用中的证书错误更少了；Shroudly 退出时会列出需要重新启动的程序。",
   "whatsNewAndroid": "被网络反复切断的应用（例如伊朗的 WhatsApp）现在会经过 Tor，快速停止再启动也不会再让 Tor 从头开始。\n“停止”总能关闭保护；“仅代理”在没有任何应用经过它时会直接说明，一键即可改用 VPN 模式。\nRoblox 和其他应用中的证书错误更少了。",
-  "whatsNewApple": "有什么用不了吗？直接在主界面告诉我们：你写的内容会连同应用日志一起发给开发者，你还会得到一个参考编号。",
+  "whatsNewApple": "全新外观，与电脑版 Shroudly 相同：底部六个标签页，统计页显示实时速度和按网站的连接，以及日志和关注。\n在 Mac 上，Shroudly 现在与电脑版一样作为 Mac 的代理：轻快得多。对于忽略代理的应用：设置 → 连接 → 所有应用都经过 Shroudly (VPN)。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",
   "appleInstallHelp": "安装方法",
   "snowflakeHow": "原理：他们通过 Tor 网络的 Snowflake 接入，所以他们打开的内容从 Tor 的服务器出去，而不是从你这里。",

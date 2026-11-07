@@ -28,15 +28,17 @@ struct ShroudlyApp: App {
     }
 
     // The accent chosen in Settings: the whole app follows it at once.
-    @AppStorage(Accent.key) private var accent = "logo"
+    @AppStorage(Accent.key) private var accent = Accent.defaultId
 
     var body: some Scene {
         #if os(macOS)
-        // A small Mac window the size of the desktop app's own width (480 by 680),
-        // never the whole height of the screen.
-        Window("Shroudly", id: "main") {
-            root.frame(width: 480, height: 680)
+        // The desktop app's window (electron/main.js, launch.js): 460 by 760
+        // with the title bar, resizable from 360 by 560 to 720 by 1100. Its id
+        // is new in 2.6.63, so the size an earlier version saved is not reused.
+        Window("Shroudly", id: "shroudly-window") {
+            root.frame(minWidth: 360, idealWidth: 460, maxWidth: 720, minHeight: 532, idealHeight: 732, maxHeight: 1072)
         }
+        .defaultSize(width: 460, height: 760)
         .windowResizability(.contentSize)
         #else
         WindowGroup {

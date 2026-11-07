@@ -5,9 +5,8 @@ import android.content.Context
 import android.util.TypedValue
 
 /*
- * The accent colour, chosen under Settings → Appearance: the logo's blue (the
- * default) or one of the desktop's accents (components/Appearance.js
- * ACCENTS). The theme holds it (res/values/attrs.xml, Accent.* in
+ * The accent colour, chosen under Settings → Appearance: the desktop's nine
+ * (components/Appearance.js ACCENTS), sky by default as there. The theme holds it (res/values/attrs.xml, Accent.* in
  * themes.xml), so every view and drawable follows; the greys, the status
  * colours and the logo itself stay as they are.
  */
@@ -15,12 +14,10 @@ object Accent {
     private const val PREFS = "settings"
     private const val KEY = "accent"
 
-    /* id, the swatch shown in Settings, and the style laid over the theme
-     * (0: none, the logo's blue). */
+    /* id, the swatch shown in Settings, and the style laid over the theme. */
     data class Option(val id: String, val swatch: Int, val style: Int)
 
     val OPTIONS = listOf(
-        Option("logo", 0xFF0A6CF5.toInt(), 0),
         Option("sky", 0xFF38BDF8.toInt(), R.style.Accent_Sky),
         Option("teal", 0xFF2DD4BF.toInt(), R.style.Accent_Teal),
         Option("emerald", 0xFF34D399.toInt(), R.style.Accent_Emerald),
@@ -34,6 +31,7 @@ object Accent {
 
     fun id(ctx: Context): String {
         val id = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)
+        // Unknown or missing (the logo's blue, chosen before 2.6.63): sky.
         return OPTIONS.firstOrNull { it.id == id }?.id ?: OPTIONS[0].id
     }
 

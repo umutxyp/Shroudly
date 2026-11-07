@@ -26,8 +26,77 @@ struct SettingsView: View {
     @State private var dnsResult: (ok: Bool, text: String)?
     @State private var dnsTesting = false
 
+    #if !os(tvOS)
+    // The desktop's four tabs of Settings (components/SettingsPanel.js).
+    enum Group: CaseIterable { case general, connection, sharing, app
+        var title: String {
+            switch self {
+            case .general: return tr("tabGeneral")
+            case .connection: return tr("tabConnection")
+            case .sharing: return tr("tabSharing")
+            case .app: return tr("tabApp")
+            }
+        }
+    }
+    @State private var group: Group = .general
+    #else
+    enum Group { case general, connection, sharing, app }
+    #endif
+
+    /* Apple TV: every section on one page, for the remote. */
+    private func show(_ g: Group) -> Bool {
+        #if os(tvOS)
+        return true
+        #else
+        return group == g
+        #endif
+    }
+
     var body: some View {
+        #if os(tvOS)
+        form
+        #else
+        VStack(spacing: 0) {
+            groupBar
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 2)
+            form
+        }
+        .background(Theme.background)
+        #endif
+    }
+
+    #if !os(tvOS)
+    /* The tabs in a rounded box, the chosen one tinted (the desktop's look). */
+    private var groupBar: some View {
+        HStack(spacing: 4) {
+            ForEach(Group.allCases, id: \.self) { g in
+                Button { group = g } label: {
+                    Text(g.title)
+                        .font(.system(size: 13, weight: .medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                        .foregroundStyle(group == g ? Theme.accent : Theme.secondaryText)
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                        .padding(.horizontal, 4)
+                        .background(group == g ? Theme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
+                        .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(group == g ? Theme.accent.opacity(0.38) : .clear, lineWidth: 1))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(4)
+        .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line, lineWidth: 1))
+    }
+    #endif
+
+    private var form: some View {
         Form {
+            if show(.connection) {
             Section {
                 Picker(tr("strategy"), selection: $settings.strategyId) {
                     ForEach(Strategies.all, id: \.id) { s in
@@ -35,11 +104,15 @@ struct SettingsView: View {
                     }
                 }
             }
+            }
+            if show(.app) {
             #if !os(tvOS)
             Section(tr("accentColour")) {
                 AccentPicker()
             }
             #endif
+            }
+            if show(.connection) {
             Section(tr("androidNetworkSection")) {
                 Toggle(isOn: $settings.quicOff) {
                     Labelled(title: tr("androidQuicOff"), detail: tr("androidQuicOffDesc"))
@@ -63,12 +136,16 @@ struct SettingsView: View {
                 }
                 #endif
             }
+            }
+            if show(.app) {
             Section {
                 Toggle(isOn: $countMe) {
                     Labelled(title: tr("shareOnlineCount"), detail: tr("shareOnlineCountDesc"))
                 }
                 .onChange(of: countMe) { _ in controller.countChanged() }
             }
+            }
+            if show(.connection) {
             Section {
                 Toggle(isOn: $adBlock) {
                     Labelled(title: tr("adBlock"), detail: tr("adBlockDesc"))
@@ -100,6 +177,8 @@ struct SettingsView: View {
                     #endif
                 }
             }
+            }
+            if show(.connection) {
             Section {
                 Text(tr("dnsServerDesc"))
                     .font(.footnote)
@@ -151,6 +230,8 @@ struct SettingsView: View {
             } header: {
                 Text(tr("dnsServer"))
             }
+            }
+            if show(.sharing) {
             Section {
                 Text(tr("ownServerDesc"))
                     .font(.footnote)
@@ -193,6 +274,8 @@ struct SettingsView: View {
             } header: {
                 Text(tr("ownServer"))
             }
+            }
+            if show(.general) {
             Section(tr("language")) {
                 Labelled(title: tr("languageSystem"), detail: tr("appleLanguageDesc"))
                 #if os(iOS)
@@ -201,11 +284,14 @@ struct SettingsView: View {
                 }
                 #endif
             }
+            }
         }
         .formStyle(.grouped)
         .listBackgroundHidden()
         .background(Theme.background)
+        #if os(tvOS)
         .navigationTitle(tr("navSettings"))
+        #endif
         .onChange(of: settings) { new in
             let store = SettingsStore()
             let old = store.load()

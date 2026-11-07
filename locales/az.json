@@ -921,7 +921,7 @@
   "whatsNewOk": "Aydındır",
   "whatsNewDesktop": "Windows: Windows istifadəçi adın başqa əlifbada (kiril, türk hərfləri, fars) yazılıbsa da, Tor artıq işləyir.\nRoblox və digər tətbiqlərdə daha az sertifikat xətası; Shroudly bağlananda yenidən başlatmalı olduğun proqramlar adı ilə deyilir.",
   "whatsNewAndroid": "Şəbəkənin daim kəsdiyi tətbiqlər (məsələn, İranda WhatsApp) artıq Tor-dan keçir, qısa bağla-aç isə Tor-u əvvəldən başlatmır.\nDayandır qorumanı həmişə söndürür, «Yalnız proksi» isə ondan heç bir tətbiq keçmirsə, bunu açıq deyir — VPN rejimi bir toxunuşla.\nRoblox və digər tətbiqlərdə daha az sertifikat xətası.",
-  "whatsNewApple": "Nəsə işləmir? Birbaşa əsas ekrandan bizə bildirin: yazdıqlarınız tətbiqin qeydləri ilə birlikdə tərtibatçıya gedir, sizə isə istinad nömrəsi verilir.",
+  "whatsNewApple": "Kompüterlər üçün Shroudly kimi yeni görünüş: aşağıda altı tab, canlı sürət və saytlar üzrə bağlantılarla Statistika, Jurnal və İzlə.\nMac-də Shroudly indi kompüter versiyası kimi Mac-in proksisidir: çox daha yüngül. Proksiyə məhəl qoymayan tətbiqlər üçün: Ayarlar → Bağlantı → Bütün tətbiqlər Shroudly ilə (VPN).",
   "appleVpnNotSigned": "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.",
   "appleInstallHelp": "Necə quraşdırılır",
   "snowflakeHow": "Necə işləyir: onlar Tor şəbəkəsinin Snowflake-i vasitəsilə gəlir, buna görə açdıqları sizin deyil, Tor-un serverlərindən çıxır.",

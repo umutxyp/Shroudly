@@ -4,11 +4,23 @@ import SwiftUI
  * icon's blue. */
 enum Theme {
     static let background = Color(red: 0x0B / 255, green: 0x0F / 255, blue: 0x17 / 255)
-    static let card = Color(red: 0x13 / 255, green: 0x19 / 255, blue: 0x26 / 255)
+    static let card = Color(red: 0x12 / 255, green: 0x18 / 255, blue: 0x26 / 255)
     /* The chosen accent (Settings, Accent.swift); the logo's blue by default. */
     static var accent: Color { Accent.current }
     static let off = Color(white: 0.35)
-    static let secondaryText = Color(white: 0.65)
+    static let secondaryText = Color(red: 0xA3 / 255, green: 0xAF / 255, blue: 0xC4 / 255)
+    // The desktop app's (app/globals.css): text, its quieter shades, lines,
+    // the raised surface, the states and the corner radii.
+    static let text = Color(red: 0xE8 / 255, green: 0xED / 255, blue: 0xF6 / 255)
+    static let faintText = Color(red: 0x7D / 255, green: 0x89 / 255, blue: 0xA1 / 255)
+    static let line = Color(red: 148 / 255, green: 163 / 255, blue: 184 / 255).opacity(0.12)
+    static let lineStrong = Color(red: 148 / 255, green: 163 / 255, blue: 184 / 255).opacity(0.22)
+    static let cardRaised = Color(red: 0x1D / 255, green: 0x26 / 255, blue: 0x38 / 255)
+    static let ok = Color(red: 0x34 / 255, green: 0xD3 / 255, blue: 0x99 / 255)
+    static let warn = Color(red: 0xFB / 255, green: 0xBF / 255, blue: 0x24 / 255)
+    static let danger = Color(red: 0xF8 / 255, green: 0x71 / 255, blue: 0x71 / 255)
+    static let radius: CGFloat = 16
+    static let radiusSmall: CGFloat = 11
 }
 
 extension Theme {

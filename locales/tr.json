@@ -921,7 +921,7 @@
   "whatsNewOk": "Tamam",
   "whatsNewDesktop": "Windows: Windows kullanıcı adın başka bir alfabeyle (Kiril, Türkçe harfler, Farsça) yazılıysa da Tor artık çalışıyor.\nRoblox ve diğer uygulamalarda daha az sertifika hatası; Shroudly kapanırken yeniden başlatman gereken programlar adıyla söyleniyor.",
   "whatsNewAndroid": "Ağın sürekli kestiği uygulamalar (İran'da WhatsApp gibi) artık Tor'dan geçiyor; kısa bir kapat-aç Tor'u baştan başlatmıyor.\nDurdur her zaman korumayı kapatıyor; Yalnızca proxy, hiçbir uygulama geçmiyorsa bunu açıkça söylüyor ve VPN modu tek dokunuşta.\nRoblox ve diğer uygulamalarda daha az sertifika hatası.",
-  "whatsNewApple": "Çalışmayan bir şey mi var? Doğrudan ana ekrandan bize bildirin: yazdıklarınız uygulamanın kayıtlarıyla birlikte geliştiriciye gider, size de bir referans numarası verilir.",
+  "whatsNewApple": "Bilgisayar sürümüyle aynı yeni görünüm: altta altı sekme, canlı hız ve siteye göre bağlantılarla İstatistik, Günlük ve Takip et.\nMac'te Shroudly artık bilgisayar sürümü gibi Mac'in vekil sunucusu: çok daha hafif. Vekili dinlemeyen uygulamalar için Ayarlar → Bağlantı → Tüm uygulamalar Shroudly'den (VPN).",
   "appleVpnNotSigned": "Bu Shroudly kopyası Apple'ın VPN izni olmadan imzalanmış; bu yüzden iOS onun VPN başlatmasına izin vermiyor ve hiç sormuyor. Ücretsiz bir Apple kimliğiyle imzalanan kopyalarda (AltStore, SideStore, Sideloadly ve benzerleri) bu izin hiç olmaz. TrollStore ile kur ya da ücretli bir Apple geliştirici hesabıyla imzala.",
   "appleInstallHelp": "Nasıl kurulur",
   "snowflakeHow": "Nasıl çalışır: Tor ağının Snowflake'i üzerinden gelirler; açtıkları şeyler senin değil, Tor'un sunucularından çıkar.",

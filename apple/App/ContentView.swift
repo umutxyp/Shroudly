@@ -1,5 +1,6 @@
 import StoreKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /* The main screen: the status, one big button, and the way to Settings and About. */
 struct ContentView: View {
@@ -20,10 +21,97 @@ struct ContentView: View {
     @State private var showNews = false
     // The engine's counters, asked every two seconds while on and in front.
     @State private var stats: EngineStats?
+    #if !os(tvOS)
+    // The tab shown (the desktop app's six, at the bottom).
+    @State private var tab: MainTab = .protection
+    #endif
     // Read so the switch takes a new accent at once.
-    @AppStorage(Accent.key) private var accentId = "logo"
+    @AppStorage(Accent.key) private var accentId = Accent.defaultId
 
     var body: some View {
+        layout
+        .sheet(isPresented: $showNotice) {
+            NoticeView {
+                noticeSeen = true
+                showNotice = false
+                Task { await controller.start() }
+            }
+        }
+        // Looked at while the screen is open and protection is on.
+        .task(id: controller.phase == .on && scenePhase == .active) {
+            while !Task.isCancelled {
+                await watch.refresh(protected: controller.phase == .on && scenePhase == .active)
+                guard controller.phase == .on && scenePhase == .active else { return }
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+            }
+        }
+        .task(id: controller.phase == .on && scenePhase == .active) {
+            guard controller.phase == .on, scenePhase == .active else { stats = nil; return }
+            while !Task.isCancelled {
+                if let s = await controller.stats() { stats = s }
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+            }
+        }
+        .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
+            #if !os(tvOS)
+            await RatingPrompt.maybeAsk(controller: controller, active: scenePhase == .active) { requestReview() }
+            #endif
+        }
+        // Each time the app comes to the front: the help card's turn, and,
+        // after an update, what changed.
+        .task(id: scenePhase == .active) {
+            #if os(iOS)
+            // Helping censored people runs while the app is in front.
+            Snowflake.shared.sync(active: scenePhase == .active)
+            #elseif os(macOS)
+            Snowflake.shared.sync(active: true)
+            #endif
+            guard scenePhase == .active else { return }
+            helpDue = HelpNudge.due()
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+            #if DEBUG
+            #if !os(tvOS)
+            // Screenshots of each tab (a debug build only): -ShroudlyTab stats|settings|logs|follow|about.
+            switch UserDefaults.standard.string(forKey: "ShroudlyTab") {
+            case "stats": tab = .stats
+            case "settings": tab = .settings
+            case "logs": tab = .logs
+            case "follow": tab = .follow
+            case "about": tab = .about
+            default: break
+            }
+            #endif
+            switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
+            case "help": helpDue = true
+            case "whatsnew": newsVersion = version; showNews = true; return
+            default: break
+            }
+            #endif
+            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen) {
+                newsVersion = v
+                showNews = true
+            }
+        }
+        .alert(tr("whatsNewTitle", ["version": newsVersion ?? ""]), isPresented: $showNews) {
+            Button(tr("whatsNewOk")) { WhatsNew.seen() }
+        } message: {
+            Text(WhatsNew.lines(tr("whatsNewApple")))
+        }
+    }
+
+    /* The Mac's small window: tighter spacing (Orb.size too). */
+    #if os(macOS)
+    static let compact = true
+    #else
+    static let compact = false
+    #endif
+
+    /* Apple TV: its own layout, for the remote's focus. iPhone, iPad and the
+     * Mac: the desktop app's (components/ControlPanel.js, app/page.js): the
+     * logo, name and status on top, the tab's page, and the six tabs under
+     * it with "A Codeshare product" below. */
+    @ViewBuilder private var layout: some View {
+        #if os(tvOS)
         NavigationStack {
             ZStack {
                 Theme.background.ignoresSafeArea()
@@ -68,69 +156,188 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
         }
-        .sheet(isPresented: $showNotice) {
-            NoticeView {
-                noticeSeen = true
-                showNotice = false
-                Task { await controller.start() }
+        #else
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    header
+                    Rectangle().fill(Theme.line).frame(height: 1)
+                    page
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    bottomBar
+                }
             }
-        }
-        // Looked at while the screen is open and protection is on.
-        .task(id: controller.phase == .on && scenePhase == .active) {
-            while !Task.isCancelled {
-                await watch.refresh(protected: controller.phase == .on && scenePhase == .active)
-                guard controller.phase == .on && scenePhase == .active else { return }
-                try? await Task.sleep(nanoseconds: 5_000_000_000)
-            }
-        }
-        .task(id: controller.phase == .on && scenePhase == .active) {
-            guard controller.phase == .on, scenePhase == .active else { stats = nil; return }
-            while !Task.isCancelled {
-                if let s = await controller.stats() { stats = s }
-                try? await Task.sleep(nanoseconds: 2_000_000_000)
-            }
-        }
-        .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
-            #if !os(tvOS)
-            await RatingPrompt.maybeAsk(controller: controller, active: scenePhase == .active) { requestReview() }
-            #endif
-        }
-        // Each time the app comes to the front: the help card's turn, and,
-        // after an update, what changed.
-        .task(id: scenePhase == .active) {
+            .navigationTitle("Shroudly")
             #if os(iOS)
-            // Helping censored people runs while the app is in front.
-            Snowflake.shared.sync(active: scenePhase == .active)
-            #elseif os(macOS)
-            Snowflake.shared.sync(active: true)
+            .toolbar(.hidden, for: .navigationBar)
             #endif
-            guard scenePhase == .active else { return }
-            helpDue = HelpNudge.due()
-            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-            #if DEBUG
-            switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
-            case "help": helpDue = true
-            case "whatsnew": newsVersion = version; showNews = true; return
-            default: break
-            }
-            #endif
-            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen) {
-                newsVersion = v
-                showNews = true
+        }
+        #endif
+    }
+
+    #if !os(tvOS)
+    /* The desktop app's tabs (app/page.js), in its order. */
+    enum MainTab: CaseIterable {
+        case protection, stats, settings, logs, follow, about
+
+        var icon: String {
+            switch self {
+            case .protection: return "shield"
+            case .stats: return "chart.bar"
+            case .settings: return "gearshape"
+            case .logs: return "list.bullet.rectangle"
+            case .follow: return "person.2"
+            case .about: return "info.circle"
             }
         }
-        .alert(tr("whatsNewTitle", ["version": newsVersion ?? ""]), isPresented: $showNews) {
-            Button(tr("whatsNewOk")) { WhatsNew.seen() }
-        } message: {
-            Text(WhatsNew.lines(tr("whatsNewApple")))
+
+        var title: String {
+            switch self {
+            case .protection: return tr("navProtection")
+            case .stats: return tr("navStats")
+            case .settings: return tr("navSettings")
+            case .logs: return tr("navLogs")
+            case .follow: return tr("navFollow")
+            case .about: return tr("navInfo")
+            }
         }
     }
 
-    /* The Mac's small window: tighter spacing (Orb.size too). */
-    #if os(macOS)
-    static let compact = true
-    #else
-    static let compact = false
+    /* The logo, the name and the tagline, and whether it is on. */
+    private var header: some View {
+        HStack(spacing: 12) {
+            Image("Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 34, height: 34)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Shroudly")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Theme.text)
+                Text(tr("tagline"))
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Theme.secondaryText)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 8)
+            StatusPill(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil)
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+    }
+
+    @ViewBuilder private var page: some View {
+        switch tab {
+        case .protection: home
+        case .stats:
+            StatsPage(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
+                      stats: watch.preview ? Self.previewStats : stats)
+        case .settings: SettingsView()
+        case .logs: LogsView()
+        case .follow: FollowView()
+        case .about: AboutView()
+        }
+    }
+
+    /* The Protection tab: the shield, what it says, the one button, and
+     * "Something not working?", as on the desktop. */
+    private var home: some View {
+        GeometryReader { screen in
+            ScrollView {
+                VStack(spacing: Self.compact ? 18 : 24) {
+                    Spacer(minLength: 0)
+                    ShieldDisc(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil)
+                    VStack(spacing: 6) {
+                        Text(title)
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(Theme.text)
+                            .multilineTextAlignment(.center)
+                        Text(controller.notice ?? homeSubtitle)
+                            .font(.system(size: 13.5))
+                            .foregroundStyle(controller.notice == nil ? Theme.secondaryText : Theme.warn)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                        if controller.vpnNotAllowed {
+                            Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
+                                .font(.callout.weight(.semibold))
+                        }
+                    }
+                    card
+                        .frame(maxWidth: 440)
+                        .padding(.horizontal, 16)
+                    MainButton(phase: controller.phase) { toggle() }
+                        .frame(maxWidth: 320)
+                        .padding(.horizontal, 24)
+                    NavigationLink { ReportView(watch: watch) } label: {
+                        Label(tr("reportLink"), systemImage: "ladybug")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Theme.text.opacity(0.85))
+                    }
+                    .buttonStyle(.plain)
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: screen.size.height)
+            }
+            .macScrollBarHidden()
+        }
+    }
+
+    /* Under the title: the desktop's words for the state, or what the
+     * engine is doing now (your own server, the last way out). */
+    private var homeSubtitle: String {
+        let s = subtitle
+        if s != tr("tagline") { return s }
+        return phase == .on ? tr("dpiBypassRunning") : tr("dpiBypassStopped")
+    }
+
+    private var bottomBar: some View {
+        VStack(spacing: 0) {
+            Rectangle().fill(Theme.line).frame(height: 1)
+            HStack(spacing: 0) {
+                ForEach(MainTab.allCases, id: \.self) { t in
+                    Button { tab = t } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: t == .protection && tab == t ? "shield.fill" : t.icon)
+                                .font(.system(size: 18, weight: .regular))
+                                .frame(height: 22)
+                            Text(t.title)
+                                .font(.system(size: 11, weight: .medium))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        .foregroundStyle(tab == t ? Theme.accent : Theme.faintText)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 9)
+                        .padding(.bottom, 7)
+                        .overlay(alignment: .top) {
+                            if tab == t {
+                                Capsule().fill(Theme.accent).frame(width: 30, height: 2.5)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(tab == t ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, 4)
+            Rectangle().fill(Theme.line).frame(height: 1)
+            footer
+        }
+        .background(Theme.background)
+    }
+
+    /* "A Codeshare product", as under the desktop's tabs. */
+    private var footer: some View {
+        let parts = tr("footerProduct").components(separatedBy: "{brand}")
+        return (Text(parts.first ?? "") + Text("Codeshare").fontWeight(.semibold).foregroundColor(Theme.text.opacity(0.85))
+                + Text(parts.count > 1 ? parts[1] : ""))
+            .font(.system(size: 12))
+            .foregroundStyle(Theme.faintText)
+            .padding(.vertical, 7)
+    }
     #endif
 
     /* The button and what it says. */
@@ -451,3 +658,266 @@ private struct Tab: View {
         .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
     }
 }
+
+#if !os(tvOS)
+/* The desktop's status pill (app/page.js): a dot and Active / Inactive. */
+private struct StatusPill: View {
+    let phase: TunnelController.Phase
+    var warn = false
+
+    private var color: Color {
+        switch phase {
+        case .on: return warn ? Theme.warn : Theme.ok
+        case .starting, .stopping: return Theme.warn
+        case .off: return Theme.danger
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Circle().fill(color).frame(width: 7, height: 7)
+            Text(phase == .on ? tr("active") : phase == .off ? tr("inactive") : (phase == .starting ? tr("starting") : tr("stopping")))
+                .font(.system(size: 13, weight: .medium))
+                .lineLimit(1)
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
+        .background(color.opacity(0.12), in: Capsule())
+    }
+}
+
+/* The desktop's shield (components/ControlPanel.js .power-disc): a round
+ * disc with the shield in it, lit in the accent while protected. */
+private struct ShieldDisc: View {
+    #if os(macOS)
+    static let size: CGFloat = 150
+    #else
+    static let size: CGFloat = 170
+    #endif
+    let phase: TunnelController.Phase
+    var warn = false
+
+    private var on: Bool { phase == .on }
+    private var tint: Color { on ? (warn ? Theme.warn : Theme.accent) : Theme.secondaryText }
+
+    var body: some View {
+        ZStack {
+            if on {
+                Circle()
+                    .fill(RadialGradient(colors: [tint.opacity(0.22), .clear], center: .center, startRadius: 0, endRadius: Self.size * 0.85))
+                    .frame(width: Self.size * 1.6, height: Self.size * 1.6)
+            }
+            Circle()
+                .fill(on ? tint.opacity(0.10) : Theme.card)
+                .overlay(Circle().stroke(on ? tint.opacity(0.45) : Theme.lineStrong, lineWidth: 1.5))
+                .frame(width: Self.size, height: Self.size)
+            if phase == .starting || phase == .stopping {
+                ProgressView().controlSize(.large).tint(Theme.text)
+            } else {
+                Image(systemName: on ? "checkmark.shield" : "shield")
+                    .font(.system(size: Self.size * 0.32, weight: .light))
+                    .foregroundStyle(tint)
+            }
+        }
+        .frame(width: Self.size * 1.2, height: Self.size * 1.2)
+        .animation(.easeInOut(duration: 0.4), value: phase)
+        .accessibilityHidden(true)
+    }
+}
+
+/* The desktop's one button: "Start protection" in the accent, "Stop
+ * protection" quieter once on. */
+private struct MainButton: View {
+    let phase: TunnelController.Phase
+    let action: () -> Void
+
+    private var on: Bool { phase == .on || phase == .starting }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                if phase == .starting || phase == .stopping {
+                    ProgressView().controlSize(.small).tint(on ? Theme.text : Theme.background)
+                } else {
+                    Image(systemName: "power").font(.system(size: 16, weight: .semibold))
+                }
+                Text(phase == .starting ? tr("starting") : phase == .stopping ? tr("stopping") : (on ? tr("stop") : tr("start")))
+                    .font(.system(size: 16, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(on ? Theme.text : Theme.background)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(on ? Theme.cardRaised : Theme.accent, in: RoundedRectangle(cornerRadius: Theme.radius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(on ? Theme.lineStrong : .clear, lineWidth: 1))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radius))
+        }
+        .buttonStyle(.plain)
+        .disabled(phase == .stopping)
+    }
+}
+
+/* The desktop's Logs tab (components/LogsPanel.js): the app's and the
+ * tunnel's last lines, newest last, with the desktop's filters (the level
+ * read from the words, as these lines carry none), the count, Copy, and
+ * Save to a file. */
+struct LogsView: View {
+    enum Level: String, CaseIterable { case all, info, success, warning, error
+        var title: String {
+            switch self {
+            case .all: return tr("logAll")
+            case .info: return tr("logInfo")
+            case .success: return tr("logSuccess")
+            case .warning: return tr("logWarning")
+            case .error: return tr("logError")
+            }
+        }
+        var color: Color {
+            switch self {
+            case .all: return Theme.secondaryText
+            case .info: return Theme.accent
+            case .success: return Theme.ok
+            case .warning: return Theme.warn
+            case .error: return Theme.danger
+            }
+        }
+
+        static func of(_ line: String) -> Level {
+            let l = line.lowercased()
+            if l.contains("error") || l.contains("failed") || l.contains("protection ends") || l.contains("could not") { return .error }
+            if l.contains("blocked") || l.contains("warning") || l.contains("not reachable") || l.contains("cannot") || l.contains("did not") { return .warning }
+            if l.contains("protection on") || l.contains("is ready") || l.contains("listening") || l.contains("opened") || l.contains("allowed") { return .success }
+            return .info
+        }
+    }
+
+    @State private var lines: [String] = []
+    @State private var level: Level = .all
+    @State private var copied = false
+    @State private var saving = false
+    @State private var saved: Bool?
+
+    private var shown: [String] { level == .all ? lines : lines.filter { Level.of($0) == level } }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ScrollView(.horizontal) {
+                HStack(spacing: 6) {
+                    ForEach(Level.allCases, id: \.self) { l in
+                        Button { level = l } label: {
+                            HStack(spacing: 6) {
+                                if l != .all { Circle().fill(l.color).frame(width: 6, height: 6) }
+                                Text(l.title)
+                            }
+                            .font(.system(size: 12.5, weight: .medium))
+                            .foregroundStyle(level == l ? Theme.accent : Theme.secondaryText)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(level == l ? Theme.accent.opacity(0.12) : Theme.card, in: Capsule())
+                            .overlay(Capsule().stroke(level == l ? Theme.accent.opacity(0.38) : Theme.line, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .scrollIndicators(.never)
+            Group {
+                if shown.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "list.bullet.rectangle").font(.system(size: 26, weight: .light))
+                        Text(lines.isEmpty ? tr("noLogs") : tr("noLogsFiltered")).font(.system(size: 13))
+                    }
+                    .foregroundStyle(Theme.faintText)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: 6) {
+                                ForEach(Array(shown.enumerated()), id: \.offset) { i, line in
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Circle().fill(Level.of(line).color).frame(width: 6, height: 6).padding(.top, 5)
+                                        Text(line)
+                                            .font(.system(size: 11.5, design: .monospaced))
+                                            .foregroundStyle(Theme.secondaryText)
+                                            .textSelection(.enabled)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .id(i)
+                                }
+                            }
+                            .padding(14)
+                        }
+                        .scrollIndicators(.never)
+                        .onChange(of: shown.count) { n in if n > 0 { reader.scrollTo(n - 1, anchor: .bottom) } }
+                        .onAppear { if !shown.isEmpty { reader.scrollTo(shown.count - 1, anchor: .bottom) } }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line, lineWidth: 1))
+            HStack(spacing: 8) {
+                Text(tr("logEntries", ["count": String(shown.count)]))
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Theme.faintText)
+                Spacer(minLength: 6)
+                small(copied ? tr("logsCopied") : tr("copyLogs"), icon: copied ? "checkmark" : "doc.on.doc") {
+                    copy(shown.joined(separator: "\n"))
+                    copied = true
+                }
+                small(saved == true ? tr("logsSaved") : saved == false ? tr("logsSaveFailed") : tr("saveLogs"), icon: "square.and.arrow.down") {
+                    saving = true
+                }
+            }
+        }
+        .padding(16)
+        .fileExporter(isPresented: $saving, document: LogFile(text: Diagnostics.text(sites: [])), contentType: .plainText,
+                      defaultFilename: "shroudly-log.txt") { result in
+            if case .success = result { saved = true } else { saved = false }
+        }
+        .task {
+            while !Task.isCancelled {
+                lines = Array((SharedLog(name: "app.log").tail(200) + SharedLog(name: "tunnel.log").tail(400)).sorted().suffix(500))
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+            }
+        }
+    }
+
+    private func small(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.system(size: 12.5, weight: .medium))
+                .foregroundStyle(Theme.secondaryText)
+                .padding(.horizontal, 11)
+                .padding(.vertical, 7)
+                .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
+                .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(Theme.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func copy(_ s: String) {
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(s, forType: .string)
+        #else
+        UIPasteboard.general.string = s
+        #endif
+    }
+}
+
+/* The log as a text file for Save logs. */
+struct LogFile: FileDocument {
+    static var readableContentTypes: [UTType] { [.plainText] }
+    var text: String
+    init(text: String) { self.text = text }
+    init(configuration: ReadConfiguration) throws {
+        text = configuration.file.regularFileContents.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+    }
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: Data(text.utf8))
+    }
+}
+#endif

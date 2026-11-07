@@ -921,7 +921,7 @@
   "whatsNewOk": "OK",
   "whatsNewDesktop": "Windows: Windows のユーザー名がほかの文字（キリル文字、トルコ語の文字、ペルシャ文字）で書かれていても、Tor が動くようになりました。\nRoblox などのアプリで証明書エラーが減り、Shroudly を終了するときに再起動が必要なプログラムを伝えます。",
   "whatsNewAndroid": "ネットワークに何度も切られるアプリ（イランの WhatsApp など）は Tor を通るようになり、すばやく停止・開始しても Tor が最初からやり直さなくなりました。\n「停止」は必ず保護をオフにし、「プロキシのみ」はどのアプリも通っていないときにはっきり伝え、ワンタップで VPN モードにできます。\nRoblox などのアプリで証明書エラーが減りました。",
-  "whatsNewApple": "うまく動かないものがありますか？メイン画面から直接お知らせください。書いた内容はアプリのログと一緒に開発者へ届き、参照番号が発行されます。",
+  "whatsNewApple": "パソコン版の Shroudly と同じ新しい見た目に: 下に 6 つのタブ、リアルタイムの速度とサイト別の接続がわかる統計、ログ、フォロー。\nMac では Shroudly がパソコン版と同じく Mac のプロキシになり、ずっと軽くなりました。プロキシを使わないアプリには: 設定 → 接続 → すべてのアプリを Shroudly 経由に (VPN)。",
   "appleVpnNotSigned": "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。",
   "appleInstallHelp": "インストール方法",
   "snowflakeHow": "仕組み：相手は Tor ネットワークの Snowflake を通って来るため、開いた内容はあなたではなく Tor のサーバーから出ていきます。",

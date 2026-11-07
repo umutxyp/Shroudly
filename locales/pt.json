@@ -921,7 +921,7 @@
   "whatsNewOk": "Entendi",
   "whatsNewDesktop": "Windows: o Tor agora funciona quando seu nome de usuário do Windows está escrito em outro alfabeto (cirílico, letras turcas, persa).\nMenos erros de certificado no Roblox e em outros apps, e os programas que você precisa reiniciar são nomeados quando o Shroudly fecha.",
   "whatsNewAndroid": "Apps que a rede corta sem parar (como o WhatsApp no Irã) agora passam pelo Tor, e parar e iniciar rápido não recomeça mais o Tor do zero.\nParar sempre desliga a proteção, e Somente proxy diz claramente quando nenhum app passa por ele, com o modo VPN a um toque.\nMenos erros de certificado no Roblox e em outros apps.",
-  "whatsNewApple": "Algo não está funcionando? Conte para a gente direto da tela principal: o que você escrever vai para o desenvolvedor com o registro do app, e você recebe um número de referência.",
+  "whatsNewApple": "Um visual novo, igual ao app do Shroudly para computadores: seis abas embaixo, Estatísticas com velocidade ao vivo e conexões por site, Registros e Seguir.\nNo Mac, o Shroudly agora é o proxy do Mac, como a versão para computadores: muito mais leve. Para apps que ignoram o proxy: Ajustes → Conexão → Todos os apps pelo Shroudly (VPN).",
   "appleVpnNotSigned": "Esta cópia do Shroudly foi assinada sem a permissão da Apple para VPNs, então o iOS não a deixa iniciar uma e nunca pergunta. Cópias assinadas com um Apple ID gratuito (AltStore, SideStore, Sideloadly e parecidos) nunca têm essa permissão. Instale com o TrollStore ou assine com uma conta de desenvolvedor da Apple paga.",
   "appleInstallHelp": "Como instalar",
   "snowflakeHow": "Como funciona: elas chegam pelo Snowflake da rede Tor, então o que abrem sai pelos servidores do Tor, não pelos seus.",

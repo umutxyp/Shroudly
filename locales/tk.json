@@ -921,7 +921,7 @@
   "whatsNewOk": "Düşnükli",
   "whatsNewDesktop": "Windows: Windows ulanyjy adyňyz başga elipbiýde (kiril, türk harplary, pars) ýazylan bolsa-da, Tor indi işleýär.\nRoblox we beýleki programmalarda şahadatnama ýalňyşlyklary azaldy, Shroudly ýapylanda bolsa täzeden açmaly programmalar atlandyrylýar.",
   "whatsNewAndroid": "Ulgamyň yzygiderli kesýän programmalary (meselem, Erandaky WhatsApp) indi Tor arkaly geçýär, çalt öçürip-açmak bolsa Tory başdan başlatmaýar.\n«Duruz» goragy elmydama öçürýär, «Diňe proksi» bolsa ondan hiç bir programma geçmese, muny aýdyň aýdýar — VPN tertibi bir basyşda.\nRoblox we beýleki programmalarda şahadatnama ýalňyşlyklary azaldy.",
-  "whatsNewApple": "Bir zat işlemeýärmi? Göni baş ekrandan bize habar beriň: ýazanlaryňyz programmanyň ýazgylary bilen öndürijä gidýär, size bolsa salgylanma belgisi berilýär.",
+  "whatsNewApple": "Kompýuterler üçin Shroudly ýaly täze görnüş: aşakda alty bölüm, göni tizlik we saýtlar boýunça birikmeler bilen Statistika, Žurnal we Yzarla.\nMac-da Shroudly indi kompýuter wersiýasy ýaly Mac-yň proksisi: has ýeňil. Proksini äsgermeýän programmalar üçin: Sazlamalar → Birikme → Ähli programmalar Shroudly arkaly (VPN).",
   "appleVpnNotSigned": "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.",
   "appleInstallHelp": "Nädip gurnamaly",
   "snowflakeHow": "Nädip işleýär: olar Tor ulgamynyň Snowflake-i arkaly gelýärler, şonuň üçin açýan zatlary siziň däl-de, Tor-uň serwerlerinden çykýar.",

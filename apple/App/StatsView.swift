@@ -7,13 +7,15 @@ struct EngineStats: Equatable {
     var up: Int64 = 0
     var down: Int64 = 0
     var blocked: Int64 = 0
+    /* Connections a technique got through (the desktop's "Bypassed"). */
+    var desync: Int64 = 0
     /* How many apps are online now (the live count), when counted. */
     var online: Int64?
 
     init(_ d: [String: Any]) {
         func n(_ k: String) -> Int64 { (d[k] as? NSNumber)?.int64Value ?? 0 }
         active = n("conns_active"); total = n("conns_total")
-        up = n("bytes_up"); down = n("bytes_down"); blocked = n("blocked")
+        up = n("bytes_up"); down = n("bytes_down"); blocked = n("blocked"); desync = n("desync")
         online = (d["online"] as? NSNumber)?.int64Value
     }
 }
