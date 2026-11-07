@@ -428,6 +428,14 @@ class ShroudlyProxyService : Service() {
         if (!active) { stopSelf(); return }
         val was = port
         Protection.set(Protection.State.STOPPING)
+        // A stop always ends (ShroudlyVpnService.STOP_DEADLINE_MS).
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            if (Protection.state == Protection.State.STOPPING) {
+                log("Stopping took more than ${ShroudlyVpnService.STOP_DEADLINE_MS / 1000} s; ending the app's process so protection is off")
+                AppLog.flush()
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }
+        }, ShroudlyVpnService.STOP_DEADLINE_MS)
         if (byUser) KeepOn.stoppedByUser(this) else KeepOn.endedByItself(this)
         OnlineCount.stop(leave = byUser, port = port, auth = null)
         cleanup()

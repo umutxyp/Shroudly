@@ -115,6 +115,8 @@ class ShroudlyVpnService : VpnService() {
         private const val RECHECK_MS = 35_000L
         // How long hev may take to stop.
         private const val TUNNEL_STOP_MS = 5_000L
+        /* A stop not through by then ends the process (requestStop). */
+        const val STOP_DEADLINE_MS = 15_000L
         private const val LOG_FILE = "log.txt"
 
         /* Only once the user has allowed the VPN (VpnService.prepare() gives
@@ -447,6 +449,16 @@ class ShroudlyVpnService : VpnService() {
     private fun requestStop(errorRes: Int, detail: String?) {
         if (Protection.state == Protection.State.OFF || Protection.state == Protection.State.STOPPING) return
         Protection.set(Protection.State.STOPPING)
+        // Whatever holds the work thread up, a stop always ends: not off
+        // after STOP_DEADLINE_MS, the process ends, and the VPN interface,
+        // which belongs to it, with it. Never "stopping" for good.
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            if (Protection.state == Protection.State.STOPPING) {
+                log("Stopping took more than ${STOP_DEADLINE_MS / 1000} s; ending the app's process so protection is off")
+                AppLog.flush()
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }
+        }, STOP_DEADLINE_MS)
         // Off by the user's choice (or another VPN's): it stays off. Ended by
         // itself: it comes back once a network is there (KeepOn).
         if (errorRes == 0 || errorRes == R.string.androidVpnRevoked) KeepOn.stoppedByUser(this)
@@ -1197,6 +1209,15 @@ class ShroudlyVpnService : VpnService() {
         }
         val old = tun
         stopTunnel()
+        // hev did not stop: it holds the old interface, and a new tunnel would
+        // wait on it for ever, this service's work thread with it (a Stop
+        // pressed then never came: protection stuck at "stopping", a
+        // Turkcell report while Wi-Fi and mobile data kept trading places).
+        if (restartProcess) {
+            try { fresh.close() } catch (_: Exception) {}
+            wedged("the tunnel did not stop when the VPN interface was renewed")
+            return
+        }
         // A new tunnel ends every connection apps had: none is kept anywhere.
         kept.clear()
         tun = fresh
