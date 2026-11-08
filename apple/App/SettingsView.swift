@@ -41,7 +41,12 @@ struct SettingsView: View {
             }
         }
     }
+    #if DEBUG
+    // Screenshots (a debug build only): -ShroudlyGroup connection|sharing|app.
+    @State private var group: Group = Group.allCases.first { "\($0)" == UserDefaults.standard.string(forKey: "ShroudlyGroup") } ?? .general
+    #else
     @State private var group: Group = .general
+    #endif
     #else
     enum Group { case general, connection, sharing, app }
     #endif
@@ -329,6 +334,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .topRoom(14)
         .listBackgroundHidden()
         .background(Theme.background)
         .onChange(of: settings) { new in

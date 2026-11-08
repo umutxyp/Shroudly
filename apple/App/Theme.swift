@@ -37,6 +37,21 @@ extension Theme {
 extension View {
     /* The list's own background hidden, so the theme's shows; Apple TV's
      * lists have none to hide (and no such modifier). */
+    /* Room above a form's first section. A tab whose first section has no
+     * title (Settings, Connection: the technique) otherwise starts right
+     * under the tabs above it, as if stuck to them. */
+    @ViewBuilder func topRoom(_ points: CGFloat) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        if #available(iOS 17.0, macOS 14.0, *) {
+            self.contentMargins(.top, points, for: .scrollContent)
+        } else {
+            self.safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: points) }
+        }
+        #endif
+    }
+
     @ViewBuilder func listBackgroundHidden() -> some View {
         #if os(tvOS)
         self
