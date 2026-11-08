@@ -133,8 +133,8 @@ object Chrome {
             clipToPadding = false
             clipChildren = false
         }
-        // Android TV: a short bar in the middle with the icons alone, each
-        // a clear target for the remote (its name is read out).
+        // Android TV: a short bar in the middle, each icon a clear target
+        // for the remote (its name is read out).
         val tv = Tv.isTv(a)
         val capsule = android.widget.FrameLayout(a).apply {
             background = GradientDrawable().apply {
@@ -156,13 +156,12 @@ object Chrome {
         capsule.addView(lens, android.widget.FrameLayout.LayoutParams(0, 0))
         val cells = ArrayList<LinearLayout>()
         val icons = ArrayList<ImageView>()
-        val labels = ArrayList<TextView>()
         val row = DragRow(a)
         for (t in shown) {
             val cell = LinearLayout(a).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
-                setPadding(0, dp(a, if (tv) 10f else 7f), 0, dp(a, if (tv) 10f else 6f))
+                setPadding(0, dp(a, 11f), 0, dp(a, 11f))
                 isClickable = true
                 isFocusable = true
                 contentDescription = a.getString(t.label)
@@ -173,28 +172,19 @@ object Chrome {
                 setImageResource(t.icon)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }
-            cell.addView(icon, LinearLayout.LayoutParams(dp(a, if (tv) 24f else 21f), dp(a, if (tv) 24f else 21f)))
-            val label = TextView(a).apply {
-                text = a.getString(t.label)
-                textSize = 10.5f
-                maxLines = 1
-                ellipsize = android.text.TextUtils.TruncateAt.END
-                gravity = Gravity.CENTER
-                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            }
-            if (!tv) cell.addView(label, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(a, 3f) })
+            cell.addView(icon, LinearLayout.LayoutParams(dp(a, 23f), dp(a, 23f)))
+            // The icons alone, the cleanest; the name is what TalkBack says
+            // (contentDescription) and the long-press tooltip.
+            cell.tooltipText = a.getString(t.label)
             row.addView(cell, if (tv) LinearLayout.LayoutParams(dp(a, 76f), ViewGroup.LayoutParams.WRAP_CONTENT)
                 else LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             cells += cell
             icons += icon
-            labels += label
         }
         fun paint(at: Int) {
             for (k in cells.indices) {
                 val c = if (k == at || shown[k] == lit) accent else faint
                 icons[k].imageTintList = android.content.res.ColorStateList.valueOf(c)
-                labels[k].setTextColor(c)
             }
         }
         fun place(at: Int, animate: Boolean) {

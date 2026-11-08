@@ -110,19 +110,19 @@ body { font-family: var(--font-sans); color: var(--text); background: var(--bg);
 /* Devanagari / Bengali / Urdu have tall vowel marks above and below the
    line: relax the tight Tailwind leadings so marks are never clipped or
    collide between lines (also inside truncate / line-clamp boxes). */
-:lang(hi) :is(.leading-none, .leading-tight, .leading-snug, .nav-label),
-:lang(bn) :is(.leading-none, .leading-tight, .leading-snug, .nav-label),
-:lang(ur) :is(.leading-none, .leading-tight, .leading-snug, .nav-label) { line-height: 1.55; }
+:lang(hi) :is(.leading-none, .leading-tight, .leading-snug),
+:lang(bn) :is(.leading-none, .leading-tight, .leading-snug),
+:lang(ur) :is(.leading-none, .leading-tight, .leading-snug) { line-height: 1.55; }
 /* Burmese stacks its vowel signs and asat far above and below the line, and
    the overflow of truncate and line-clamp boxes cut them off (the tabs, the
    status badge, the tagline, dropdown values): words then read wrongly.
    Thai and Amharic get a little more room too, and a single-line Arabic,
    Persian, Pashto or Urdu value keeps the mark over a shadda. */
 :lang(my) body { line-height: 1.8; }
-:lang(my) :is(.leading-none, .leading-tight, .leading-snug, .leading-normal, .nav-label, .truncate) { line-height: 1.9; }
+:lang(my) :is(.leading-none, .leading-tight, .leading-snug, .leading-normal, .truncate) { line-height: 1.9; }
 :lang(th) body, :lang(am) body { line-height: 1.6; }
-:lang(th) :is(.leading-none, .leading-tight, .leading-snug, .nav-label, .truncate),
-:lang(am) :is(.leading-none, .leading-tight, .leading-snug, .nav-label, .truncate) { line-height: 1.6; }
+:lang(th) :is(.leading-none, .leading-tight, .leading-snug, .truncate),
+:lang(am) :is(.leading-none, .leading-tight, .leading-snug, .truncate) { line-height: 1.6; }
 :lang(ar) .truncate, :lang(fa) .truncate, :lang(ps) .truncate, :lang(ur) .truncate { line-height: 1.7; }
 /* An element in another language (the language list's names) takes that
    language's font: Japanese in a Japanese font, not a Chinese one. */
@@ -260,8 +260,15 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
   pointer-events: none;
 }
 .nav-btn[aria-current='page'] { color: var(--accent); }
-/* Not by hue alone: the current tab's label is bolder and carries a bar. */
-.nav-btn[aria-current='page'] .nav-label { font-weight: 650; }
+/* Not by hue alone: the current tab's icon sits on a soft pill and carries a bar. */
+.nav-btn[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset: 6px 18%;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  pointer-events: none;
+}
 .nav-btn[aria-current='page']::after {
   content: '';
   position: absolute;
@@ -272,9 +279,6 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
   background: currentColor;
   pointer-events: none;
 }
-/* A word that does not fit breaks only then, and the label shrinks with a
-   narrow window first (360 px: Ukrainian, Belarusian, Malay). */
-.nav-label { overflow-wrap: break-word; word-break: normal; hyphens: auto; }
 .nav-btn:focus-visible { outline-offset: -3px; border-radius: 10px; }
 
 /* switch */
@@ -592,7 +596,7 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
   .switch-track[data-on='true'] { background: Highlight; border-color: Highlight; }
   .switch-knob { forced-color-adjust: none; background: CanvasText; box-shadow: none; }
   .switch-track[data-on='true'] .switch-knob { background: HighlightText; }
-  .nav-btn[aria-current='page'] .nav-label { text-decoration: underline; text-underline-offset: 3px; }
+  .nav-btn[aria-current='page']::before { forced-color-adjust: none; background: transparent; border: 2px solid Highlight; }
   .nav-btn[aria-current='page']::after { background: Highlight; }
   .option[data-active='true'] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
   .swatch, .dot { forced-color-adjust: none; border: 1px solid CanvasText; }

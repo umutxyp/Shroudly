@@ -221,12 +221,12 @@ export default function Home() {
               data-tour={`nav-${id}`}
               aria-current={on ? 'page' : undefined}
               title={label}
-              className="nav-btn flex min-w-0 flex-col items-center justify-start gap-1 px-1 pb-2 pt-2.5"
+              className="nav-btn flex min-w-0 flex-col items-center justify-center px-1 py-3.5"
             >
-              <Icon className="h-[22px] w-[22px]" />
-              <span className="nav-label line-clamp-2 w-full text-center text-[clamp(9px,2.6vw,10.5px)] font-medium leading-[1.25]">
-                {label}
-              </span>
+              {/* The icons alone, the cleanest; the name is the tooltip and
+                  what screen readers say. */}
+              <Icon className="h-[23px] w-[23px]" aria-hidden />
+              <span className="sr-only">{label}</span>
             </button>
           );
         })}

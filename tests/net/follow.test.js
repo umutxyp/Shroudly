@@ -58,7 +58,7 @@ const F = JSON.parse(read('components', 'follow.json'));
   // About; Apple TV: one of the system's tabs along the top, and it says to
   // open them elsewhere.
   t.ok(/case protection, stats, settings, logs, follow, about/.test(cv) && /case \.follow: FollowView\(\)/.test(cv)
-    && /NavigationStack \{ FollowView\(\) \}\s*\.tabItem \{ Label\(tr\("navFollow"\), systemImage: "person\.2"\) \}/.test(cv)
+    && /NavigationStack \{ FollowView\(\)[^}]*\}\s*\.tabItem \{ Image\(systemName: "person\.2"\)\.accessibilityLabel\(tr\("navFollow"\)\) \}/.test(cv)
     && /#if os\(tvOS\)[\s\S]{0,200}Text\(tr\("followTv"\)\)/.test(sw),
     'Apple: a tab of its own beside About; Apple TV says to open them elsewhere');
 

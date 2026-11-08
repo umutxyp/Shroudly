@@ -2,7 +2,7 @@ import SwiftUI
 
 #if !os(tvOS)
 /*
- * The desktop's six tabs (app/page.js) in a bar of Liquid Glass (iOS and
+ * The desktop's tabs (app/page.js), icons only, in a bar of Liquid Glass (iOS and
  * macOS 26; frosted material before), floating over the page.
  *
  * As the system's tab bar on iPhone: a press lifts a lens over the tab under
@@ -45,7 +45,7 @@ struct GlassTabBar: View {
                     }
             )
         }
-        .frame(height: 58)
+        .frame(height: 52)
         .modifier(GlassBackground())
         .accessibilityElement(children: .contain)
     }
@@ -62,15 +62,10 @@ struct GlassTabBar: View {
     private func item(_ t: ContentView.MainTab) -> some View {
         let shown = pressed ?? tab
         let on = t == shown
-        return VStack(spacing: 3) {
-            Image(systemName: t == .protection && t == tab ? "shield.fill" : t.icon)
-                .font(.system(size: 17, weight: on ? .semibold : .regular))
-                .frame(height: 21)
-            Text(t.title)
-                .font(.system(size: 10.5, weight: .medium))
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
-        }
+        // The icons alone, the cleanest; the name is what VoiceOver says.
+        return Image(systemName: t == .protection && t == tab ? "shield.fill" : t.icon)
+            .font(.system(size: 20, weight: on ? .semibold : .regular))
+            .frame(height: 24)
         .foregroundStyle(t == tab || on ? Theme.accent : Theme.secondaryText)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 2)
@@ -81,7 +76,8 @@ struct GlassTabBar: View {
             }
         }
         .scaleEffect(on && pressed != nil ? 1.08 : 1)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(t.title)
         .accessibilityAddTraits(t == tab ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction { tab = t }
     }
