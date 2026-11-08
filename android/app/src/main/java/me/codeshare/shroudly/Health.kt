@@ -369,7 +369,13 @@ class Liveness(private val everyMs: Long = LIVENESS_MS, private val failuresToGi
  * seconds, twice in ten minutes, lost its protection: "the tunnel keeps
  * failing: it takes apps' packets and gives nothing back". So datagrams
  * reaching the engine (`handedOn`, EngineNative.udpIn) count as hev
- * working, as packets coming out do. And
+ * working, as packets coming out do. So do new connections reaching the
+ * engine (`connsIn`, EngineNative.connsIn): hev hands an app's TCP on only
+ * when it works. Without them, a phone on Iran's mobile data lost its
+ * protection again and again while hundreds of connections went through
+ * ("Tunnel takes apps' packets and gives nothing back, again; giving up"):
+ * packets hev has nothing to give back for (ICMP, a game's pings) are not
+ * hev stuck. And
  * with the engine holding nearly as many connections as hev may open, for
  * CAP_MS, new connections are refused: the tunnel is full.
  */
@@ -388,16 +394,18 @@ class HevWatch(
 
     private var lastRx = -1L
     private var lastHandedOn = -1L
+    private var lastConnsIn = -1L
     private var rxMovedAt = 0L
     private var txAtRxMove = 0L
     private var fullSince = -1L
 
     /* hev's counters now, and the datagrams the engine got from it (-1 when
      * not known); true when hev takes packets and does nothing with them. */
-    fun stuck(now: Long, tx: Long, rx: Long, handedOn: Long = -1): Boolean {
+    fun stuck(now: Long, tx: Long, rx: Long, handedOn: Long = -1, connsIn: Long = -1): Boolean {
         if (tx < 0 || rx < 0) return false
-        val handed = handedOn >= 0 && handedOn != lastHandedOn
+        val handed = (handedOn >= 0 && handedOn != lastHandedOn) || (connsIn >= 0 && lastConnsIn >= 0 && connsIn != lastConnsIn)
         if (handedOn >= 0) lastHandedOn = handedOn
+        if (connsIn >= 0) lastConnsIn = connsIn
         if (rx != lastRx || lastRx < 0 || handed) {
             lastRx = rx
             rxMovedAt = now
@@ -421,6 +429,7 @@ class HevWatch(
     fun reset() {
         lastRx = -1
         lastHandedOn = -1
+        lastConnsIn = -1
         fullSince = -1
     }
 }

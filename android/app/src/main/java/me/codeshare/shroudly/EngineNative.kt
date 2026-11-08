@@ -38,4 +38,10 @@ object EngineNative {
     @JvmStatic private external fun udpIn(): Long
 
     fun udpInOrNone(): Long = try { udpIn() } catch (_: Throwable) { -1L }
+
+    /* Connections the engine was asked for this run, or -1: read directly,
+     * as udpIn. */
+    @JvmStatic private external fun connsIn(): Long
+
+    fun connsInOrNone(): Long = try { connsIn() } catch (_: Throwable) { -1L }
 }

@@ -228,6 +228,22 @@ class HevWatchTest {
     }
 
     @Test
+    fun connectionsTheEngineGotAreNotStuck() {
+        val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        h.stuck(0, 100, 50, 0, 10)
+        // Packets hev gives nothing back for (pings), while apps' connections
+        // keep reaching the engine: hev works.
+        for (t in 1..60) assertFalse(h.stuck(t * 1_000L, 100L + t * 5, 50, 0, 10L + t))
+        // No new connection any more either: now it is stuck.
+        var t = 60_000L
+        var tx = 400L
+        var stuck = false
+        while (t < 100_000 && !stuck) { t += 1_000; tx += 5; stuck = h.stuck(t, tx, 50, 0, 70) }
+        assertTrue(stuck)
+        assertEquals(70_000, t)
+    }
+
+    @Test
     fun udpTheEngineGotIsNotStuck() {
         val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
         h.stuck(0, 100, 50, 0)
