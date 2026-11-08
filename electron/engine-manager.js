@@ -1705,6 +1705,19 @@ class EngineManager {
     this.log('info', `Connections: ${list.length} site${list.length === 1 ? '' : 's'} you send through Tor go there first`);
   }
 
+  /* For a moment, a name through Tor while it is ready, without keeping it
+   * (a report that could not reach codeshare.me the usual way: Russia's
+   * networks slow Cloudflare's addresses down until nothing gets through).
+   * Returns what puts it back, or null when Tor is not ready. A name the
+   * user sends through Tor anyway stays there. */
+  torForNow(host) {
+    const h = String(host || '').trim().toLowerCase();
+    if (!this.isActive() || !this.tor || this.tor.state !== 'ready' || !/^[a-z0-9.-]{1,253}$/.test(h)) return null;
+    if (!this._command(`TOR ${h}`)) return null;
+    const kept = new Set(this.store.get('torSites', []));
+    return () => { if (!kept.has(h) && !new Set(this.store.get('torSites', [])).has(h)) this._command(`UNTOR ${h}`); };
+  }
+
   /* A name sent through Tor, or back the usual way, from the Connections
    * list: kept, and into the running engine at once (its open connections
    * end, so the next ones take the new way). */

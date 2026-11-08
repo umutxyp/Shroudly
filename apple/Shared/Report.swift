@@ -19,6 +19,7 @@ import CryptoKit
  */
 enum Report {
     static let url = URL(string: "https://codeshare.me/api/shroudly/report")!
+    static let host = "codeshare.me"
     static let hour: TimeInterval = 3600
     static let day: TimeInterval = 24 * 3600
     static let historySpan: TimeInterval = 60 * 24 * 3600
@@ -261,9 +262,9 @@ enum Report {
 
     /* POST it, with the app's header ("<platform>/<version>") and the proof
      * of work, worked off the main thread. */
-    static func send(_ body: String, app: String) async -> Outcome {
+    static func send(_ body: String, app: String, timeout: TimeInterval = 45) async -> Outcome {
         let pow = await Task.detached(priority: .userInitiated) { proofOfWork(body) }.value
-        var req = URLRequest(url: url, timeoutInterval: 45)
+        var req = URLRequest(url: url, timeoutInterval: timeout)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "content-type")
         req.setValue(app, forHTTPHeaderField: "x-shroudly-app")

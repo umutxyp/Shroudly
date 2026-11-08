@@ -631,6 +631,23 @@ const t = suite('engine-manager');
     t.ok(!self._avoids().some(([h]) => h === 'old.example'), 'older than the engine keeps them: dropped');
   }
 
+  {
+    // A report codeshare.me would not take the usual way: through Tor for a
+    // moment while Tor is ready, then back; never when Tor is not ready, and
+    // a name the user sends through Tor anyway stays there.
+    const m = { torSites: ['kept.example'] }; const cmds = [];
+    const self = { store: { get: (k, d) => (k in m ? m[k] : d), set: (k, v) => { m[k] = v; } }, _command: (x) => { cmds.push(x); return true; },
+      isActive: () => true, tor: { state: 'ready' } };
+    Object.setPrototypeOf(self, EngineManager.prototype);
+    let back = self.torForNow('codeshare.me');
+    back();
+    t.ok(cmds.join('|') === 'TOR codeshare.me|UNTOR codeshare.me', `a report goes through Tor for a moment, then back (${cmds.join('|')})`);
+    cmds.length = 0; back = self.torForNow('kept.example'); back();
+    t.ok(cmds.join('|') === 'TOR kept.example', 'a name the user sends through Tor stays there');
+    self.tor.state = 'starting'; cmds.length = 0;
+    t.ok(self.torForNow('codeshare.me') === null && !cmds.length, 'Tor not ready: the usual way only');
+  }
+
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

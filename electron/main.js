@@ -3769,7 +3769,17 @@ ipcMain.handle('report:send', async (_e, fields) => {
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
       log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n${Report.siteEventsSection(engine && engine.siteEvents)}\n== Apps ==\n${JSON.stringify(apps, null, 1)}\n`,
     });
-    const r = await Report.send((o) => require('electron').net.request(o), body);
+    let r = await Report.send((o) => require('electron').net.request(o), body);
+    // Not through the usual way, with Tor ready: once more through Tor
+    // (Russia's networks slow Cloudflare, where codeshare.me is, down until
+    // nothing gets through, and other VPNs there with it).
+    if (!r.ok && r.error === 'network' && engine) {
+      const back = engine.torForNow(new URL(Report.URL_REPORT).hostname);
+      if (back) {
+        addLog('info', 'Report: not through the usual way; sending it through Tor');
+        try { r = await Report.send((o) => require('electron').net.request(o), body, { timeoutMs: 90000 }); } finally { back(); }
+      }
+    }
     if (r.ok) {
       store.set('reports', Report.history([{ ref: r.ref, at: Date.now() }, ...past]));
       addLog('info', `Report sent to the developer: ${r.ref}`);

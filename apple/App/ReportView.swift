@@ -175,7 +175,23 @@ struct ReportView: View {
                                      lang: Bundle.main.preferredLocalizations.first ?? "en", log: log) else {
             failure = tr("reportFailed"); sending = false; return
         }
-        let outcome = await Report.send(body, app: "\(platform)/\(version)")
+        var outcome = await Report.send(body, app: "\(platform)/\(version)")
+        #if os(macOS)
+        // Not through the usual way, with Tor ready: once more through Tor
+        // (Russia's networks slow Cloudflare, where codeshare.me is, down
+        // until nothing gets through, other VPNs there with it).
+        if case .failed(let e, _) = outcome, e == "network", controller.lastResort?.state == "ready" {
+            let kept = Conns.torSites().contains(Report.host)
+            Conns.set(Report.host, tor: true)
+            controller.blocksChanged()
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            outcome = await Report.send(body, app: "\(platform)/\(version)", timeout: 90)
+            if !kept {
+                Conns.set(Report.host, tor: false)
+                controller.blocksChanged()
+            }
+        }
+        #endif
         sending = false
         switch outcome {
         case .sent(let ref):

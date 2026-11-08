@@ -215,7 +215,21 @@ class ReportActivity : Activity() {
             }
             val body = Report.body(f, BuildConfig.VERSION_NAME, platform,
                 "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})", "${Build.MANUFACTURER} ${Build.MODEL}", lang, log)
-            val r = Report.send(body, "$platform/${BuildConfig.VERSION_NAME}", Protection.socksPort, Protection.socksAuth)
+            var r = Report.send(body, "$platform/${BuildConfig.VERSION_NAME}", Protection.socksPort, Protection.socksAuth)
+            // Not through the usual way, with Tor ready: once more through
+            // Tor (Russia's networks slow Cloudflare, where codeshare.me is,
+            // down until nothing gets through, other VPNs there with it).
+            if (!r.ok && r.error == "network" && Protection.socksPort > 0 && TorRoute.state == "ready") {
+                val kept = Report.HOST in Conns.torSites(ctx)
+                Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "TOR ${Report.HOST}")
+                AppLog.add("Report: not through the usual way; sending it through Tor")
+                try {
+                    try { Thread.sleep(800) } catch (_: InterruptedException) {}
+                    r = Report.send(body, "$platform/${BuildConfig.VERSION_NAME}", Protection.socksPort, Protection.socksAuth, timeoutMs = 90_000)
+                } finally {
+                    if (!kept) Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "UNTOR ${Report.HOST}")
+                }
+            }
             if (r.ok && r.ref != null) Report.record(ctx, r.ref)
             AppLog.add(if (r.ok) "Report sent to the developer: ${r.ref}" else "Report not sent (${r.error})")
             runOnUiThread {
