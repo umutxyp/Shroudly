@@ -32,13 +32,15 @@ struct ShroudlyApp: App {
 
     var body: some Scene {
         #if os(macOS)
-        // The desktop app's window (electron/main.js, launch.js): 460 by 760
-        // with the title bar, resizable from 360 by 560 to 720 by 1100. Its id
-        // is new in 2.6.63, so the size an earlier version saved is not reused.
-        Window("Shroudly", id: "shroudly-window") {
-            root.frame(minWidth: 360, idealWidth: 460, maxWidth: 720, minHeight: 532, idealHeight: 732, maxHeight: 1072)
+        // The desktop app's window (electron/main.js, launch.js): its page 460
+        // by 760, with the system's sidebar of tabs beside it on macOS 15 and
+        // later. The id is new with the sidebar, so a size an earlier version
+        // saved is not reused.
+        Window("Shroudly", id: "shroudly-window-2") {
+            // The width: ContentView's, with the sidebar or without it.
+            root.frame(minHeight: 532, idealHeight: 732, maxHeight: 1072)
         }
-        .defaultSize(width: 460, height: 760)
+        .defaultSize(width: 460 + (MacWindowFit.hasSidebar ? 220 : 0), height: 760)
         .windowResizability(.contentSize)
         #else
         WindowGroup {

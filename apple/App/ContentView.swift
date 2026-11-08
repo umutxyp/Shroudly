@@ -28,11 +28,20 @@ struct ContentView: View {
     // Apple TV's tab along the top.
     @State private var tvTab = 0
     #endif
+    #if os(macOS)
+    // The window following the system's sidebar of tabs (macOS 15 and later).
+    @State private var fit = MacWindowFit()
+    #endif
     // Read so the switch takes a new accent at once.
     @AppStorage(Accent.key) private var accentId = Accent.defaultId
 
     var body: some View {
         layout
+        #if os(macOS)
+        // The page as the desktop's window, with room for the sidebar.
+        .frame(minWidth: 360, idealWidth: 460 + (MacWindowFit.hasSidebar ? 220 : 0),
+               maxWidth: 720 + (MacWindowFit.hasSidebar ? 220 : 0))
+        #endif
         .sheet(isPresented: $showNotice) {
             NoticeView {
                 noticeSeen = true
@@ -120,9 +129,8 @@ struct ContentView: View {
     #endif
 
     /* Apple TV: its own layout, for the remote's focus. iPhone, iPad and the
-     * Mac: the desktop app's (components/ControlPanel.js, app/page.js): the
-     * logo, name and status on top, the tab's page, and the six tabs under
-     * it with "A Codeshare product" below. */
+     * Mac: the desktop app's pages (components/ControlPanel.js, app/page.js),
+     * the logo, name and status over each, in the system's own tabs. */
     @ViewBuilder private var layout: some View {
         #if os(tvOS)
         // Apple TV: the system's tabs along the top, as Apple TV apps have
@@ -141,23 +149,25 @@ struct ContentView: View {
                 .tabItem { Image(systemName: "info.circle").accessibilityLabel(tr("navInfo")) }.tag(4)
         }
         #else
-        NavigationStack {
-            ZStack {
-                Theme.background.ignoresSafeArea()
-                VStack(spacing: 0) {
-                    header
-                    Rectangle().fill(Theme.line).frame(height: 1)
-                    pages
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        // The tabs float over the page on glass; the page
-                        // scrolls on under them.
-                        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+        // iPhone, iPad and the Mac: the system's own tabs, Liquid Glass on
+        // iOS, iPadOS and macOS 26: along the bottom on iPhone (icons only,
+        // press and slide along them as in Apple's apps), a bar that turns
+        // into a sidebar on iPad, the sidebar on the Mac. Each tab keeps
+        // the desktop's header over its page.
+        if #available(iOS 18.0, macOS 15.0, *) {
+            TabView(selection: $tab) {
+                ForEach(MainTab.shown, id: \.self) { t in
+                    Tab(value: t) { tabScreen(t) } label: { tabLabel(t) }
                 }
             }
-            .navigationTitle("Shroudly")
-            #if os(iOS)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .tabViewStyle(.sidebarAdaptable)
+            .modifier(TabBarMinimize())
+        } else {
+            TabView(selection: $tab) {
+                ForEach(MainTab.shown, id: \.self) { t in
+                    tabScreen(t).tabItem { tabLabel(t) }.tag(t)
+                }
+            }
         }
         #endif
     }
@@ -260,18 +270,43 @@ struct ContentView: View {
         .padding(.vertical, 12)
     }
 
-    /* The tab's page. On iPhone and iPad a swipe goes to the tab beside it,
-     * as the pages of an iPhone app do; the Mac's window changes on a click. */
-    @ViewBuilder private var pages: some View {
-        #if os(iOS)
-        TabView(selection: $tab) {
-            ForEach(MainTab.shown, id: \.self) { t in
-                page(t).tag(t)
+    /* One tab: the header, a line, and its page, in a stack of its own
+     * (what a page opens stays in its tab). */
+    private func tabScreen(_ t: MainTab) -> some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    header
+                    Rectangle().fill(Theme.line).frame(height: 1)
+                    page(t).frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
+            .navigationTitle("Shroudly")
+            #if os(iOS)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
+            #if os(macOS)
+            // The window follows the sidebar (MacWindowFit), once it is there.
+            .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { fit.attach() } }
+            #endif
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+
+    /* A tab's icon and name: the icon alone in the iPhone's bar (VoiceOver
+     * says the name), both in the iPad's bar and in a sidebar. */
+    @ViewBuilder private func tabLabel(_ t: MainTab) -> some View {
+        #if os(iOS)
+        // Protection is Shroudly's own logo, in one colour (TabMark, made by
+        // scripts/logo/make-tab.py), tinted by the bar as the symbols are.
+        let label = Label { Text(t.title) } icon: { t == .protection ? Image("TabMark") : Image(systemName: t.icon) }
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            label.labelStyle(.iconOnly)
+        } else {
+            label
+        }
         #else
-        page(tab)
+        Label(t.title, systemImage: t.icon)
         #endif
     }
 
@@ -344,6 +379,7 @@ struct ContentView: View {
                     }
                     .buttonStyle(.plain)
                     Spacer(minLength: 0)
+                    footer
                 }
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: screen.size.height)
@@ -360,24 +396,8 @@ struct ContentView: View {
         return phase == .on ? tr("dpiBypassRunning") : tr("dpiBypassStopped")
     }
 
-    /* The six tabs on glass, and "A Codeshare product" under them. */
-    private var bottomBar: some View {
-        VStack(spacing: 2) {
-            GlassTabBar(tab: $tab)
-                .padding(.horizontal, Self.compact ? 10 : 12)
-            footer
-        }
-        .padding(.top, 6)
-        .background(alignment: .bottom) {
-            // The page fades out under the tabs instead of showing through
-            // the words under them.
-            LinearGradient(colors: [Theme.background.opacity(0), Theme.background.opacity(0.92), Theme.background],
-                           startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea(edges: .bottom)
-        }
-    }
-
-    /* "A Codeshare product", as under the desktop's tabs. */
+    /* "A Codeshare product", as under the desktop's tabs: here at the foot
+     * of Protection, the system's tabs having no room under them. */
     private var footer: some View {
         let parts = tr("footerProduct").components(separatedBy: "{brand}")
         return (Text(parts.first ?? "") + Text("Codeshare").fontWeight(.semibold).foregroundColor(Theme.text.opacity(0.85))
@@ -829,6 +849,89 @@ struct LogFile: FileDocument {
     }
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: Data(text.utf8))
+    }
+}
+#endif
+
+#if !os(tvOS)
+/* iOS 26: the tab bar draws in to one button while a page scrolls down, as
+ * in Apple's own apps, and comes back on the way up. */
+private struct TabBarMinimize: ViewModifier {
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            content.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
+        }
+        #else
+        content
+        #endif
+    }
+}
+#endif
+
+#if os(macOS)
+/* The Mac's window follows the sidebar: hidden with its button, the window
+ * narrows by the sidebar's width instead of the page widening; shown again,
+ * it widens back as the sidebar slides in, the page staying as it was. The
+ * sidebar is AppKit's (NSSplitViewItem), watched as it collapses. A sidebar
+ * that folds away because the user drags the window narrower is left so. */
+final class MacWindowFit {
+    static var hasSidebar: Bool {
+        if #available(macOS 15.0, *) { return true }
+        return false
+    }
+
+    private var watch: NSKeyValueObservation?
+    private var width: CGFloat = 0
+
+    /* Find the window's sidebar and follow it (once, when it is there). */
+    func attach() {
+        guard Self.hasSidebar, watch == nil else { return }
+        guard let win = NSApp.windows.first(where: { $0.identifier?.rawValue.hasPrefix("shroudly-window") == true && $0.isVisible }) ?? NSApp.mainWindow,
+              let root = win.contentView, let item = Self.sidebarItem(in: root) else { return }
+        if !item.isCollapsed { width = item.viewController.view.frame.width }
+        watch = item.observe(\.isCollapsed, options: [.new]) { [weak self, weak win] item, change in
+            guard let self, let win, let collapsed = change.newValue else { return }
+            DispatchQueue.main.async { self.follow(win, item, collapsed) }
+        }
+    }
+
+    private func follow(_ win: NSWindow, _ item: NSSplitViewItem, _ collapsed: Bool) {
+        // Folded by a narrower window: nothing to follow.
+        guard !win.inLiveResize else { return }
+        if collapsed {
+            if width <= 0 { width = 220 }
+        } else {
+            let w = item.viewController.view.frame.width
+            if w > 60 { width = w } else if width <= 0 { width = 220 }
+        }
+        var frame = win.frame
+        frame.size.width += collapsed ? -width : width
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.25
+            ctx.allowsImplicitAnimation = true
+            win.animator().setFrame(frame, display: true)
+        }
+        // The width it settles at, for the next time.
+        if !collapsed {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                let w = item.viewController.view.frame.width
+                if w > 60 { self?.width = w }
+            }
+        }
+    }
+
+    private static func sidebarItem(in view: NSView) -> NSSplitViewItem? {
+        if let split = view as? NSSplitView, let vc = split.delegate as? NSSplitViewController,
+           let item = vc.splitViewItems.first(where: { $0.behavior == .sidebar }) {
+            return item
+        }
+        for sub in view.subviews {
+            if let item = sidebarItem(in: sub) { return item }
+        }
+        return nil
     }
 }
 #endif

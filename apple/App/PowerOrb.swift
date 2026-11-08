@@ -42,11 +42,21 @@ struct PowerOrb: View {
 
     private var orb: some View {
         ZStack {
-            // A soft, still light under the disc while protected.
-            Circle()
-                .fill(RadialGradient(colors: [tint.opacity(lit ? 0.30 : 0), tint.opacity(0)],
-                                     center: .center, startRadius: size * 0.35, endRadius: size * 0.72))
-                .frame(width: size * 1.44, height: size * 1.44)
+            // A soft, still light round the disc while protected, as from a
+            // lamp behind it: blurred discs, so it fades out with no edge and
+            // no rings (a radial gradient on the dark background showed both).
+            ZStack {
+                Circle()
+                    .fill(tint.opacity(0.30))
+                    .frame(width: size * 1.02, height: size * 1.02)
+                    .blur(radius: size * 0.14)
+                Circle()
+                    .fill(tint.opacity(0.16))
+                    .frame(width: size * 1.3, height: size * 1.3)
+                    .blur(radius: size * 0.26)
+            }
+            .opacity(lit ? 1 : 0)
+            .allowsHitTesting(false)
             disc
             if look == .busy { Turning(tint: tint, size: size) }
             Mark(look: look, tint: tint)
