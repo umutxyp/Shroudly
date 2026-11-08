@@ -3085,6 +3085,20 @@ static int udp_dns_blocked(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
   return 1;
 }
 
+/* A STUN binding request (RFC 5389): type 0x0001, its length, the magic
+ * cookie. */
+static int stun_binding(const uint8_t *p, size_t n) {
+  if (n < 20 || p[0] != 0x00 || p[1] != 0x01) return 0;
+  if (p[4] != 0x21 || p[5] != 0x12 || p[6] != 0xa4 || p[7] != 0x42) return 0;
+  return (size_t)(((unsigned)p[2] << 8) | p[3]) + 20 == n;
+}
+
+/* The destination is on this device's network (an address, private). */
+static int udp_dst_lan(const sudp_dst *d) {
+  struct sockaddr_storage to; socklen_t tl;
+  return d->atyp != 3 && sudp_dst_addr(d, &to, &tl) == 0 && udp_dst_private(&to);
+}
+
 /* Datagrams from the client: each one, unwrapped, goes to its destination. */
 static void udp_from_client(udp_assoc *u) {
   for (int i = 0; i < UDP_DRAIN; i++) {
@@ -3126,6 +3140,13 @@ static void udp_from_client(udp_assoc *u) {
      * would leave from this device's own address (issue #67), so it is
      * dropped and browsers and apps use TCP. */
     if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) continue;
+    /* With the user's own server, a STUN binding request to the internet:
+     * dropped. Its answer says the address it came from, and a web page
+     * reads that through WebRTC: this device's own address, beside the
+     * server's (issues #58, #59, #67, browserleaks.com/webrtc). WebRTC then
+     * goes through a TURN relay over TCP, through the server; games and
+     * calls on their own UDP go on as before. */
+    if (g_cfg.upstream_kind && stun_binding(payload, plen) && !udp_dst_lan(&d)) continue;
     if (g_cfg.ipv4_only && d.atyp == 4) continue;
     if (d.port != 53) u->other = 1;
     if (d.port == 53 && udp_dns_blocked(u, &d, u->buf, payload, plen)) continue;

@@ -580,6 +580,16 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     const cg = await client();
     r = await roundTrip(cg, g.port, LAN4, e4.port, Buffer.from('game'));
     t.ok(r && r.data.toString() === 'game', 'own server: UDP that is not DNS or QUIC still goes (games, calls)');
+    // A STUN binding request to the internet: its answer would give a web
+    // page (WebRTC) this device's own address beside the server's (#58, #59).
+    const stun = Buffer.concat([Buffer.from([0x00, 0x01, 0x00, 0x00, 0x21, 0x12, 0xa4, 0x42]), Buffer.alloc(12, 7)]);
+    let sb = (await eng4.stats()).bytes_up;
+    for (let i = 0; i < 5; i++) cg.s.send(Buffer.concat([header('192.0.2.1', 19302), stun]), g.port, '127.0.0.1');
+    await sleep(600);
+    let sa = (await eng4.stats()).bytes_up;
+    t.ok(sa - sb === 0, `own server: a STUN binding request to the internet is dropped, so WebRTC shows no device address (${sa - sb} bytes)`);
+    r = await roundTrip(cg, g.port, LAN4, e4.port, stun);
+    t.ok(r && r.data.equals(stun), 'own server: STUN on the LAN still goes');
     let before = (await eng4.stats()).bytes_up;
     for (let i = 0; i < 10; i++) cg.s.send(Buffer.concat([header('192.0.2.1', 443), Buffer.alloc(1000, 0xc3)]), g.port, '127.0.0.1');
     await sleep(600);
