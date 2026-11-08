@@ -413,6 +413,27 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
   t.ok(r.ok && first === remembered && (told === null || told === f.preferredId), `route remembered from the last run is used first (${remembered})`);
   f.stop();
 
+  {
+    // Google's own names ask Google's resolver first (its answers follow the
+    // user's subnet, ECS); other names keep the remembered route, and a
+    // Google name's answer does not move it.
+    const g = new F(() => {}, { preferredId: 'cloudflare-1' });
+    const asked = [];
+    g.ask = async (r, msg) => { asked.push(r.id); const a = Buffer.from(msg); a[2] = 0x81; a[3] = 0x80; return a; };
+    await g.resolveRoutes(F.buildQuery('docs.google.com', 1));
+    const firstG = asked[0];
+    asked.length = 0;
+    await g.resolveRoutes(F.buildQuery('example.org', 1));
+    t.ok(/^google-/.test(firstG) && asked[0] === 'cloudflare-1' && g.preferredId === 'cloudflare-1'
+      && F.googleName('lh7-rt.googleusercontent.com') && F.googleName('i.ytimg.com.') && !F.googleName('google.com.evil.example')
+      && F.questionName(F.buildQuery('docs.google.com', 1)) === 'docs.google.com',
+    `a Google name asks Google's resolver first (${firstG}); others the remembered route (${asked[0]})`);
+    for (const r of g.routes) if (r.op === 'google') r.restUntil = Date.now() + 60000;
+    asked.length = 0;
+    await g.resolveRoutes(F.buildQuery('docs.google.com', 1));
+    t.ok(asked[0] === 'cloudflare-1', `Google's resolver resting (blocked here): the usual order (${asked[0]})`);
+  }
+
   // Impostors: an on-path attacker with its own certificate, and a real
   // certificate that belongs to a different resolver.
   const fake = http2.createSecureServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (req, res) => {

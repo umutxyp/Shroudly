@@ -30,6 +30,18 @@ final class DohForwarderTests: XCTestCase {
         XCTAssertEqual(plan.count, all.count)
     }
 
+    func testGoogleNamesAskGoogleFirst() {
+        for n in ["docs.google.com", "lh7-rt.googleusercontent.com", "i.ytimg.com", "www.gstatic.com."] { XCTAssertTrue(DohForwarder.googleName(n), n) }
+        for n in ["notgoogle.com", "google.com.evil.example", "roblox.com"] { XCTAssertFalse(DohForwarder.googleName(n), n) }
+        let q = Dns.query("docs.google.com", type: 1, id: 7)
+        XCTAssertEqual(DohForwarder.questionName(q), "docs.google.com")
+        var all = DohForwarder.routes()
+        let first = DohForwarder.googleFirst(all, now: now)
+        XCTAssertEqual(DohForwarder.plan(all, preferred: first, now: now).first?.op, "google")
+        for i in all.indices where all[i].op == "google" { all[i].restUntil = now.addingTimeInterval(60) }
+        XCTAssertNil(DohForwarder.googleFirst(all, now: now))
+    }
+
     func testRestingRoutesAreLeftOut() {
         var all = DohForwarder.routes()
         all[0].restUntil = now.addingTimeInterval(60)

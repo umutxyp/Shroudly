@@ -95,6 +95,35 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
      * (untried counts as average), resting routes last; then the best of
      * another operator moves up to second. Everything resting: the three
      * that wake soonest. */
+    /* Google's own names: images in Google Docs, YouTube's videos and
+     * thumbnails, Google's static files. Google's resolver sends the asking
+     * network's subnet on to Google's name servers (ECS), so they answer with
+     * the servers close to the user; the others answer for wherever their own
+     * server stands. As the desktop (electron/doh-forwarder.js) and Android. */
+    static let googleDomains = ["google.com", "googleusercontent.com", "gstatic.com", "googleapis.com", "ggpht.com",
+                         "googlevideo.com", "ytimg.com", "youtube.com", "youtu.be", "gvt1.com", "gvt2.com", "1e100.net"]
+    static func googleName(_ name: String) -> Bool {
+        var n = name.lowercased()
+        if n.hasSuffix(".") { n.removeLast() }
+        return !n.isEmpty && googleDomains.contains { n == $0 || n.hasSuffix("." + $0) }
+    }
+
+    /* The question's name in a DNS message, or "". */
+    static func questionName(_ m: [UInt8]) -> String {
+        var labels: [String] = []
+        var p = 12
+        while p < m.count, m[p] > 0, m[p] < 64, p + 1 + Int(m[p]) <= m.count {
+            labels.append(String(decoding: m[(p + 1)..<(p + 1 + Int(m[p]))], as: UTF8.self))
+            p += 1 + Int(m[p])
+        }
+        return labels.joined(separator: ".")
+    }
+
+    /* The quickest Google route that is not resting, to go first. */
+    static func googleFirst(_ all: [Route], now: Date) -> String? {
+        all.filter { $0.op == "google" && $0.restUntil <= now }.min { ($0.ewma > 0 ? $0.ewma : 0.4) < ($1.ewma > 0 ? $1.ewma : 0.4) }?.id
+    }
+
     static func plan(_ all: [Route], preferred: String?, now: Date) -> [Route] {
         func score(_ r: Route) -> TimeInterval {
             r.restUntil > now ? 1_000_000 + r.restUntil.timeIntervalSince(now) : (r.ewma > 0 ? r.ewma : 0.4)
@@ -262,9 +291,12 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
 
     private enum Outcome { case answer([UInt8], String), failed, deadline }
 
-    private func currentPlan() -> [Route] {
+    private func currentPlan(google: Bool = false) -> [Route] {
         lock.lock(); defer { lock.unlock() }
-        let plan = DohForwarder.plan(routes, preferred: preferred, now: Date())
+        let now = Date()
+        let usable = carried ? routes.filter { !$0.ip.contains(":") } : routes
+        let first = google ? (DohForwarder.googleFirst(usable, now: now) ?? preferred) : preferred
+        let plan = DohForwarder.plan(routes, preferred: first, now: now)
         // Through the engine: the IPv4 routes, which its SOCKS5 port takes.
         return carried ? plan.filter { !$0.ip.contains(":") } : plan
     }
@@ -291,7 +323,8 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
         let waiting = carried && engine == nil
         lock.unlock()
         if waiting { return noRoute }
-        let plan = currentPlan()
+        let google = DohForwarder.googleName(DohForwarder.questionName(query))
+        let plan = currentPlan(google: google)
         // RFC 8484: ID 0, so caches along the way can share the answer.
         var wire = query
         wire[0] = 0; wire[1] = 0
@@ -317,7 +350,9 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
                 switch outcome {
                 case .answer(let a, let id):
                     group.cancelAll()
-                    remember(id)
+                    // A Google name answered by Google says nothing about
+                    // the best route for every other name.
+                    if !google { remember(id) }
                     return a
                 case .failed:
                     failed += 1

@@ -178,6 +178,26 @@ class DohForwarder(
          * all of that kind. */
         /* throughEngine: every route through the engine (the user's own
          * server, issue #67): none at all until it is up, IPv4 only. */
+        /* Google's own names: images in Google Docs, YouTube's videos and
+         * thumbnails, Google's static files. Google's resolver sends the
+         * asking network's subnet on to Google's name servers (ECS), so they
+         * answer with the servers close to the user, often inside the user's
+         * provider; the others answer for wherever their own server stands.
+         * A user on Türk Telekom saw Google Docs' images load slowly or not
+         * at all with Shroudly on, and almost all of them load with Google's
+         * resolver. */
+        private val GOOGLE = listOf("google.com", "googleusercontent.com", "gstatic.com", "googleapis.com", "ggpht.com",
+            "googlevideo.com", "ytimg.com", "youtube.com", "youtu.be", "gvt1.com", "gvt2.com", "1e100.net")
+        fun googleName(name: String): Boolean {
+            val n = name.lowercase().trimEnd('.')
+            return GOOGLE.any { n == it || n.endsWith(".$it") }
+        }
+
+        /* The quickest Google route that is not resting, to go first. */
+        fun googleFirst(all: List<DohRoute>, now: Long, engineReady: Boolean, throughEngine: Boolean = false): String? =
+            all.filter { it.op == "google" && it.restUntil <= now && (if (throughEngine) engineReady && !it.v6 else !it.viaEngine || engineReady) }
+                .minByOrNull { if (it.ewma > 0) it.ewma else 400L }?.id
+
         fun plan(all: List<DohRoute>, preferredId: String?, now: Long, engineReady: Boolean, throughEngine: Boolean = false): List<DohRoute> {
             // The clock set back since a route failed: it rests at most the
             // longest rest from now, not until the clock catches up.
@@ -411,13 +431,19 @@ class DohForwarder(
         return resolveRoutes(msg, answerBy)
     }
 
-    /* Through the built-in routes, raced (a server failure as FailureVote says). */
+    /* Through the built-in routes, raced (a server failure as FailureVote says).
+     * Google's own names ask Google's resolver first (googleFirst). */
     fun resolveRoutes(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
-        val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0, throughEngine)
+        val now = System.currentTimeMillis()
+        val google = Dns.question(msg)?.first?.let { googleName(it) } == true
+        val first = if (google) googleFirst(all, now, socksPort > 0, throughEngine) ?: preferredId else preferredId
+        val plan = plan(all, first, now, socksPort > 0, throughEngine)
         val vote = FailureVote()
         val won = race(plan, queries, answerBy = answerBy) { r -> vote.take(r, query(r, msg)) } ?: return vote.held
         if (Dns.serverFailed(won.second)) return won.second
-        if (preferredId != won.first.id) {
+        // A Google name answered by Google says nothing about the best route
+        // for every other name.
+        if (!google && preferredId != won.first.id) {
             preferredId = won.first.id
             onPreferred(won.first.id)
         }

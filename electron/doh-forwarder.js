@@ -270,6 +270,33 @@ function answerTtlSeconds(msg) {
   } catch { return null; }
 }
 
+/* Google's own names: images in Google Docs, YouTube's videos and
+ * thumbnails, Google's static files. Google's resolver sends the asking
+ * network's subnet on to Google's name servers (ECS), so they answer with the
+ * servers close to the user, often inside the user's provider; the others
+ * answer for wherever their own server stands. A user on Türk Telekom saw
+ * Google Docs' images load slowly or not at all with Shroudly on, and almost
+ * all of them load with Google's resolver. The same list on Android
+ * (DohForwarder.kt) and Apple (DohForwarder.swift). */
+const GOOGLE = ['google.com', 'googleusercontent.com', 'gstatic.com', 'googleapis.com', 'ggpht.com',
+  'googlevideo.com', 'ytimg.com', 'youtube.com', 'youtu.be', 'gvt1.com', 'gvt2.com', '1e100.net'];
+function googleName(name) {
+  const n = String(name || '').toLowerCase().replace(/\.$/, '');
+  return !!n && GOOGLE.some((d) => n === d || n.endsWith(`.${d}`));
+}
+
+/* The question's name in a DNS message, or '' (a pointer or a bad length
+ * ends it: a query carries neither). */
+function questionName(m) {
+  const labels = [];
+  let p = 12;
+  while (m && p < m.length && m[p] > 0 && m[p] < 64 && p + 1 + m[p] <= m.length) {
+    labels.push(m.subarray(p + 1, p + 1 + m[p]).toString('latin1'));
+    p += 1 + m[p];
+  }
+  return labels.join('.');
+}
+
 class DohForwarder {
   /* opts.preferredId: the route that worked last time (remembered by the
    *   caller across restarts); opts.onPreferred(id) is told when it changes.
@@ -556,7 +583,13 @@ class DohForwarder {
   resolveRoutes(dnsMsg) {
     return new Promise((resolve, reject) => {
       const now = Date.now();
-      const order = this.ordered();
+      let order = this.ordered();
+      // Google's own names ask Google's resolver first (googleName).
+      const google = googleName(questionName(dnsMsg));
+      if (google) {
+        const g = order.filter((r) => r.op === 'google' && r.restUntil <= now).sort((a, b) => (a.ewma || 400) - (b.ewma || 400))[0];
+        if (g) order = [g, ...order.filter((r) => r !== g)];
+      }
       let awake = order.filter((r) => r.restUntil <= now);
       // The resting routes come after the awake ones, soonest to wake first:
       // a lookup the awake routes cannot answer still asks them, in the same
@@ -600,7 +633,9 @@ class DohForwarder {
             return;
           }
           settled = true; finish();
-          if (this.preferredId !== r.id) {
+          // A Google name answered by Google says nothing about the best
+          // route for every other name.
+          if (!google && this.preferredId !== r.id) {
             this.preferredId = r.id;
             if (typeof this.opts.onPreferred === 'function') this.opts.onPreferred(r.id);
           }
@@ -839,3 +874,5 @@ module.exports.noRouteReply = noRouteReply;
 module.exports.NOROUTE_OPT = NOROUTE_OPT;
 module.exports.socksConnect = socksConnect;
 module.exports.certCoversIp = certCoversIp;
+module.exports.googleName = googleName;
+module.exports.questionName = questionName;

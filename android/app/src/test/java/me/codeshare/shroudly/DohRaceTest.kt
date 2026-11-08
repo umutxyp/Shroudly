@@ -14,6 +14,24 @@ class DohRaceTest {
      * it earned on the old one, and its new verifier keeps the old network's
      * pooled connections from being used again; its speed is kept. */
     @Test
+    fun googleNamesAskGoogleFirst() {
+        // Docs' images, YouTube, Google's static files: Google's resolver
+        // answers with the servers near the user (ECS); the others do not.
+        for (n in listOf("docs.google.com", "lh7-rt.googleusercontent.com", "rr3---sn-x.googlevideo.com", "i.ytimg.com", "www.gstatic.com."))
+            assertTrue(n, DohForwarder.googleName(n))
+        for (n in listOf("notgoogle.com", "google.com.evil.example", "roblox.com"))
+            assertTrue(n, !DohForwarder.googleName(n))
+        val cf = DohRoute("cloudflare-1", "cloudflare", "1.1.1.1", listOf("x")).apply { ewma = 10 }
+        val g1 = DohRoute("google-1", "google", "8.8.8.8", listOf("x")).apply { ewma = 50 }
+        val g2 = DohRoute("google-2", "google", "8.8.4.4", listOf("x")).apply { ewma = 30 }
+        assertEquals("google-2", DohForwarder.googleFirst(listOf(cf, g1, g2), 1000, engineReady = true))
+        assertEquals("google-2", DohForwarder.plan(listOf(cf, g1, g2), DohForwarder.googleFirst(listOf(cf, g1, g2), 1000, true), 1000, true)[0].id)
+        // Google's routes resting (blocked on this network): the usual order.
+        g1.restUntil = 5000; g2.restUntil = 5000
+        assertNull(DohForwarder.googleFirst(listOf(cf, g1, g2), 1000, engineReady = true))
+    }
+
+    @Test
     fun anotherNetworkStartsAfresh() {
         val r = DohRoute("t-1", "t", "192.0.2.1", listOf("dns.example"))
         val before = r.verifier
