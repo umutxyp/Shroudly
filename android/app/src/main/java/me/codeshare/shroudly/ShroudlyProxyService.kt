@@ -452,10 +452,14 @@ class ShroudlyProxyService : Service() {
         }, ShroudlyVpnService.STOP_DEADLINE_MS)
         if (byUser) KeepOn.stoppedByUser(this) else KeepOn.endedByItself(this)
         OnlineCount.stop(leave = byUser, port = port, auth = null)
+        // How many went through, as Protection off says it: a report can
+        // tell an app that never came (a VPN app not pointed at Shroudly)
+        // from one that did.
+        val total = Protection.stats?.connsTotal
         cleanup()
         Protection.set(Protection.State.OFF)
         if (!byUser) Protection.fail(R.string.androidProxyOnlyLost, why ?: "the engine kept stopping")
-        log("Proxy only: off")
+        log("Proxy only: off${if (total != null) "; $total connections relayed" else ""}")
         stopForeground(STOP_FOREGROUND_REMOVE)
         if (byUser) remindNetworkProxy(was) else notifyStopped()
         stopSelf()

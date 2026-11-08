@@ -178,9 +178,16 @@ function connDetail(r) {
   return parts.length ? `  ${parts.join(', ')}` : '';
 }
 
+/* An address rather than a name: an app that connects by address (a VPN
+ * client chained through Shroudly, a game, a messenger's fallback), whose
+ * connection the browsing filter below must not hide. */
+function isAddress(host) {
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || (host.includes(':') && /^[0-9a-f:.]+$/i.test(host));
+}
+
 function connsText(rows, max = 60, apps = isApp) {
   const list = (Array.isArray(rows) ? rows : []).filter((r) => r && typeof r.host === 'string' && r.host
-    && ((r.route && r.route !== 'direct') || apps(r.host)));
+    && ((r.route && r.route !== 'direct') || apps(r.host) || isAddress(r.host) || r.refused > 0));
   if (!list.length) return '(none)';
   list.sort((a, b) => ((ROUTE_ORDER[a.route] ?? 3) - (ROUTE_ORDER[b.route] ?? 3)) || ((b.conns || 0) - (a.conns || 0)) || a.host.localeCompare(b.host));
   const lines = list.slice(0, max).map((r) => {
@@ -214,4 +221,5 @@ function siteEventsSection(events, max = 80) {
   return `== Recent site events ==\n${lines.join('\n')}`;
 }
 
-module.exports = { siteEventsSection, connDetail, URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };
+module.exports = {
+  isAddress, siteEventsSection, connDetail, URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };

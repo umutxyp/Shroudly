@@ -273,6 +273,12 @@ object Report {
         "spotifycdn.com", "reddit.com", "redd.it", "redditmedia.com", "redditstatic.com", "tiktok.com", "tiktokcdn.com", "tiktokv.com",
         "signal.org", "whispersystems.org",
     )
+    /* An address rather than a name: an app that connects by address (a VPN
+     * client chained through Proxy only, a game, a messenger's fallback),
+     * whose connection the browsing filter must not hide. */
+    fun isAddress(host: String): Boolean =
+        Regex("^\\d{1,3}(\\.\\d{1,3}){3}$").matches(host) || (host.contains(':') && Regex("^[0-9a-fA-F:.]+$").matches(host))
+
     fun isApp(host: String): Boolean {
         val h = host.lowercase().trimEnd('.')
         return APP_DOMAINS.any { h == it || h.endsWith(".$it") }
@@ -291,11 +297,12 @@ object Report {
 
     /* The Connections list as lines of the report, as the desktop's
      * (electron/report.js connsText): the names Shroudly did something to,
-     * and the apps' names however they went; other untouched names (the
-     * user's browsing) left out. Tor first, then techniques, then the
+     * the apps' names and the addresses apps connect to however they went,
+     * and anything refused; other untouched names (the user's browsing)
+     * left out. Tor first, then techniques, then the
      * busiest; at most `max`. */
     fun connsText(rows: List<Conns.Row>, max: Int = 60): String {
-        val list = rows.filter { it.host.isNotEmpty() && (it.route != "direct" || isApp(it.host)) }
+        val list = rows.filter { it.host.isNotEmpty() && (it.route != "direct" || isApp(it.host) || isAddress(it.host) || it.refused > 0) }
             .sortedWith(compareBy<Conns.Row>({ ROUTE_ORDER[it.route] ?: 3 }, { -it.conns }, { it.host }))
         if (list.isEmpty()) return "(none)"
         val lines = list.take(max).map { r ->

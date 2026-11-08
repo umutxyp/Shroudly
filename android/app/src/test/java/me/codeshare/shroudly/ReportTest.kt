@@ -68,6 +68,16 @@ class ReportTest {
         assertTrue(t[1].startsWith("discord.com  technique"))
         assertTrue(t[2].startsWith("auth.riotgames.com  direct  9 conns"))
         assertEquals("(none)", Report.connsText(emptyList()))
+        // An app that connects by address (a VPN app chained through Proxy
+        // only) and anything refused stay in the list; browsing does not.
+        val byAddr = Report.connsText(listOf(
+            Conns.Row("185.12.3.4", 0, 3, 0, 0, "direct", false, 0),
+            Conns.Row("news.example", 0, 9, 0, 0, "direct", false, 0),
+            Conns.Row("shop.example", 0, 2, 0, 0, "direct", false, 2),
+        )).split("\n")
+        assertEquals(2, byAddr.size)
+        assertTrue(byAddr.any { it.startsWith("185.12.3.4  direct  3 conns") } && byAddr.any { it.contains("shop.example") && it.contains("2 refused") })
+        assertTrue(Report.isAddress("10.0.0.1") && Report.isAddress("fe80::1") && !Report.isAddress("example.com") && !Report.isAddress("cafe.example"))
         assertTrue(Report.isApp("edge-mqtt.facebook.com") && Report.isApp("G.WhatsApp.NET.") && !Report.isApp("notwhatsapp.net"))
         // The same list as the desktop's (electron/report.js).
         val js = java.io.File("../../electron/report.js").readText()

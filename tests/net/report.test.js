@@ -124,6 +124,15 @@ function server(reply) {
     'connections: Tor, then techniques, then the busiest untouched');
   t.ok(ct.length === 4 && !ct.some((l) => l.includes('news.example')), 'connections: other untouched names (the browsing) left out');
   t.ok(Report.connsText([]) === '(none)' && Report.connsText(null) === '(none)', 'connections: none');
+  // An app that connects by address (a VPN client chained through Proxy
+  // only, a game) and anything refused stay in the list; browsing does not.
+  const byAddr = Report.connsText([{ host: '185.12.3.4', route: 'direct', conns: 3 }, { host: '2001:db8::1', route: 'direct', conns: 1 },
+    { host: 'news.example', route: 'direct', conns: 9 }, { host: 'shop.example', route: 'direct', conns: 2, refused: 2 }]).split('\n');
+  t.ok(byAddr.length === 3 && byAddr.some((l) => l.startsWith('185.12.3.4  direct  3 conns')) && byAddr.some((l) => l.startsWith('2001:db8::1'))
+    && byAddr.some((l) => l.includes('shop.example') && l.includes('2 refused')) && !byAddr.some((l) => l.includes('news.example')),
+    'connections: addresses apps connect to and refused names are kept, the browsing left out');
+  t.ok(Report.isAddress('10.0.0.1') && Report.isAddress('fe80::1') && !Report.isAddress('example.com') && !Report.isAddress('cafe.example'),
+    'an address told from a name');
   // What each row says beyond its count: open now, bytes each way, last used.
   const det = Report.connsText([{ host: 'gateway.discord.gg', route: 'technique', conns: 1, active: 1, up: 1500, down: 0, ago: 70000 },
     { host: 'discord.com', route: 'technique', conns: 3, active: 0, up: 20480, down: 2300000, ago: 5000, refused: 1 }]).split('\n');
