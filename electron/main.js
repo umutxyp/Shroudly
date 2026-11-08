@@ -3657,6 +3657,10 @@ async function reportApps() {
       const pids = await DiscordApp.pids(v).catch(() => []);
       const row = { running: pids.length > 0 };
       if (pids.length && ports.length) row.reachesShroudly = await ProcNet.connectsTo(pids, ports).catch(() => null);
+      // Discord's own last words (a build stuck on "Starting" says why there).
+      try { row.updaterThroughShroudly = DiscordApp.hasOurs(v); } catch {}
+      const log = DiscordApp.logTail(v);
+      if (log) row.log = log;
       out[v.app || v.id] = row;
     }
     if (discordRelay) {

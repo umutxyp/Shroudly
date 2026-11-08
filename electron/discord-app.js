@@ -83,6 +83,52 @@ function installed() {
   return present();
 }
 
+/* For a report: the last lines of the newest log this Discord build wrote
+ * in the last day (its updater's, in its settings folder, its logs folder,
+ * or next to Update.exe), with the home folder and the user's name taken
+ * out. A Discord stuck on its "Starting" screen says there why; Shroudly's
+ * own log cannot. null when there is none. */
+function logTail(v, lines = 15, now = Date.now()) {
+  const dirs = [v.settingsDir, path.join(v.settingsDir, 'logs')];
+  if (v.updateExe) dirs.push(path.dirname(v.updateExe));
+  let best = null;
+  for (const d of dirs) {
+    let names = [];
+    try { names = fs.readdirSync(d); } catch { continue; }
+    for (const n of names) {
+      if (!/\.log$/i.test(n)) continue;
+      const f = path.join(d, n);
+      try {
+        const st = fs.statSync(f);
+        if (!st.isFile() || now - st.mtimeMs > 24 * 3600 * 1000) continue;
+        if (!best || st.mtimeMs > best.t) best = { f, t: st.mtimeMs, size: st.size };
+      } catch {}
+    }
+  }
+  if (!best) return null;
+  let text = '';
+  try {
+    const fd = fs.openSync(best.f, 'r');
+    const len = Math.min(best.size, 16384);
+    const buf = Buffer.alloc(len);
+    fs.readSync(fd, buf, 0, len, best.size - len);
+    fs.closeSync(fd);
+    text = buf.toString('utf8');
+  } catch { return null; }
+  const home = os.homedir();
+  const user = path.basename(home);
+  const clean = (l) => {
+    let x = l.split(home).join('~');
+    if (user.length > 2) x = x.split(user).join('<user>');
+    return x.replace(/[\u0000-\u0008\u000b-\u001f]/g, '').slice(0, 300);
+  };
+  return {
+    file: clean(best.f),
+    ageMin: Math.round((now - best.t) / 60000),
+    lines: text.split(/\r?\n/).filter((l) => l.trim()).slice(-lines).map(clean),
+  };
+}
+
 function readJson(text, file) {
   if (!text.trim()) return {};
   try {
@@ -389,5 +435,5 @@ function setDroverAside(d, backupDir, fsx = fs) {
   return moved;
 }
 
-module.exports = { sessionPids, KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, hasOursIn, isRunning, anyRunning, pids, restart, healNote,
+module.exports = { logTail, sessionPids, KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, hasOursIn, isRunning, anyRunning, pids, restart, healNote,
   startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS, drover, proxyHostPort, byAppVersion, setDroverAside };
