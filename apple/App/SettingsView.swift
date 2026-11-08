@@ -297,9 +297,6 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .listBackgroundHidden()
         .background(Theme.background)
-        #if os(tvOS)
-        .navigationTitle(tr("navSettings"))
-        #endif
         .onChange(of: settings) { new in
             let store = SettingsStore()
             let old = store.load()

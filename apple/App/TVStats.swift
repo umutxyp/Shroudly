@@ -107,4 +107,57 @@ struct TVStats: View {
         }
     }
 }
+
+/*
+ * Apple TV's pages that are lists (Settings, Follow, About), laid out as the
+ * TV's own Settings app: on the left a large picture, the page's name and a
+ * few words about it; on the right the list, not stretched across the TV.
+ */
+struct TVPage<Content: View>: View {
+    let title: String
+    var symbol: String? = nil
+    var text: String? = nil
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            HStack(alignment: .center, spacing: 90) {
+                VStack(spacing: 30) {
+                    Group {
+                        if let symbol {
+                            Image(systemName: symbol)
+                                .font(.system(size: 120, weight: .light))
+                                .foregroundStyle(Theme.accent)
+                                .frame(width: 260, height: 260)
+                                .background(Theme.card, in: RoundedRectangle(cornerRadius: 56))
+                                .overlay(RoundedRectangle(cornerRadius: 56).stroke(Theme.line, lineWidth: 1))
+                        } else {
+                            Image("Mark")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 260, height: 260)
+                        }
+                    }
+                    .accessibilityHidden(true)
+                    Text(title)
+                        .font(.system(size: 46, weight: .semibold))
+                        .foregroundStyle(Theme.text)
+                        .multilineTextAlignment(.center)
+                    if let text {
+                        Text(text)
+                            .font(.system(size: 25))
+                            .foregroundStyle(Theme.secondaryText)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(width: 620)
+                content
+                    .frame(maxWidth: 1000, maxHeight: .infinity)
+            }
+            .padding(.horizontal, 80)
+        }
+    }
+}
 #endif

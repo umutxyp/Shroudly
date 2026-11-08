@@ -16,6 +16,8 @@ struct AboutView: View {
 
     var body: some View {
         Form {
+            #if !os(tvOS)
+            // Apple TV shows it beside the list (TVPage).
             Section {
                 HStack(spacing: 14) {
                     Image("Logo")
@@ -29,8 +31,11 @@ struct AboutView: View {
                     }
                 }
             }
-            Section(tr("openSourceTitle")) {
+            #endif
+            Section {
+                #if !os(tvOS)
                 Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                #endif
                 WebLink(url: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
                 WebLink(url: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
                 WebLink(url: Ids.releasesURL) { Label(tr("linkReleases"), systemImage: "doc.text") }
@@ -55,12 +60,19 @@ struct AboutView: View {
                 } label: {
                     Label(tr("openSourceTitle"), systemImage: "doc.plaintext")
                 }
+            } header: {
+                Text(tr("openSourceTitle"))
+            } footer: {
+                // Apple TV: words under the list, not a row the remote stops on.
+                #if os(tvOS)
+                Text(tr("openSourceDesc"))
+                #endif
             }
             // Help people in censored countries: an app made for it, which
             // keeps running on its own (Psiphon's Conduit).
             // Not where Tor itself is blocked: the user there needs the help.
             if !HelpNudge.torBlockedHere() {
-            Section(tr("helpOthers")) {
+            Section {
                 #if !os(tvOS)
                 // Shroudly itself (Snowflake.swift), while it runs.
                 Toggle(isOn: Binding(get: { snowflakeOn }, set: { on in
@@ -73,11 +85,17 @@ struct AboutView: View {
                     Text(line).font(.footnote).foregroundStyle(snowflake.state == .unreachable ? .orange : Theme.secondaryText)
                 }
                 Text(tr("snowflakeHow")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                #endif
                 Text(tr("helpOthersBodyConduit")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                #endif
                 WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
                     Label(tr("helpOthersConduit"), systemImage: "person.2.wave.2")
                 }
+            } header: {
+                Text(tr("helpOthers"))
+            } footer: {
+                #if os(tvOS)
+                Text(tr("helpOthersBodyConduit"))
+                #endif
             }
             }
             #if !os(tvOS)
@@ -97,9 +115,6 @@ struct AboutView: View {
         .formStyle(.grouped)
         .listBackgroundHidden()
         .background(Theme.background)
-        #if os(tvOS)
-        .navigationTitle(tr("navInfo"))
-        #endif
         .task { logs = await Diagnostics.text(sites: controller.siteLog()) }
         #if !os(tvOS)
         .onAppear { snowflake.sync(active: snowflakeOn) }
@@ -141,16 +156,12 @@ struct FollowView: View {
 
     var body: some View {
         #if os(tvOS)
+        // What it is and how to open them are beside the list (TVPage).
         Form {
-            Section {
-                Text(tr("followDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                Text(tr("followTv")).font(.footnote).foregroundStyle(Theme.secondaryText)
-            }
             // The developer's first: news, new versions and urgent notices go there.
             Section(tr("followDeveloper")) { rows(Self.developer) }
             Section(tr("followCodeshare")) { rows(Self.codeshare) }
         }
-        .navigationTitle(tr("followTitle"))
         #else
         // As the desktop's (components/InfoPanel.js): one card, its title and
         // words, then each list two by two.

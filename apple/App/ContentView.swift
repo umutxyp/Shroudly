@@ -133,11 +133,11 @@ struct ContentView: View {
                 .tabItem { Image(systemName: "shield").accessibilityLabel(tr("navProtection")) }.tag(0)
             NavigationStack { tvStats }
                 .tabItem { Image(systemName: "chart.bar").accessibilityLabel(tr("navStats")) }.tag(1)
-            NavigationStack { SettingsView().background(Theme.background.ignoresSafeArea()) }
+            NavigationStack { TVPage(title: tr("navSettings"), symbol: "gearshape") { SettingsView() } }
                 .tabItem { Image(systemName: "gearshape").accessibilityLabel(tr("navSettings")) }.tag(2)
-            NavigationStack { FollowView().background(Theme.background.ignoresSafeArea()) }
+            NavigationStack { TVPage(title: tr("followTitle"), symbol: "person.2", text: "\(tr("followDesc"))\n\n\(tr("followTv"))") { FollowView() } }
                 .tabItem { Image(systemName: "person.2").accessibilityLabel(tr("navFollow")) }.tag(3)
-            NavigationStack { AboutView().background(Theme.background.ignoresSafeArea()) }
+            NavigationStack { TVPage(title: "Shroudly", text: "\(tr("versionLabel", ["version": Diagnostics.version]))\n\(tr("madeBy"))") { AboutView() } }
                 .tabItem { Image(systemName: "info.circle").accessibilityLabel(tr("navInfo")) }.tag(4)
         }
         #else
