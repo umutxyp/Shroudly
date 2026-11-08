@@ -132,12 +132,34 @@ async function latestTag() {
   return tag ? { tag, version: tag.replace(/^v/, '') } : null;
 }
 
-async function assetExists(url) {
-  // github.com answers an existing asset with a redirect to its storage.
-  return (await cached(`asset:${url}`, async () => {
-    const s = (await head(url)).status;
-    return s === 302 || s === 200 ? '1' : null;
-  })) === '1';
+/* What github.com says about an asset: 'ok' (a redirect to its storage),
+ * 'down' (a 5xx: GitHub's download address failing for everyone, as on
+ * 2026-11-08, while the file is there), or null. Only 'ok' is kept. */
+async function assetState(url) {
+  let state = null;
+  try {
+    return await cached(`asset:${url}`, async () => {
+      const s = (await head(url)).status;
+      if (s >= 500) state = 'down';
+      return s === 302 || s === 200 ? 'ok' : null;
+    }) || state;
+  } catch { return 'down'; }   // no answer in time: the same
+}
+
+/* The same file by its asset id, through GitHub's API, which sends to the
+ * same storage: the way round github.com's download address while that
+ * fails. Only an asset of the given release, by a name already checked. */
+const API = 'https://api.github.com/repos/umutxyp/Shroudly';
+async function apiAssetUrl(tag, name) {
+  const ids = await cached(`assets:${tag}`, async () => {
+    const r = await fetch(`${API}/releases/tags/${encodeURIComponent(tag)}`, {
+      headers: { 'user-agent': 'shroudly-dl', accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return Object.fromEntries((j.assets || []).map((a) => [a.name, a.id]));
+  });
+  const id = ids && ids[name];
+  return Number.isInteger(id) ? `${API}/releases/assets/${id}` : null;
 }
 
 async function download(pathname) {
@@ -148,8 +170,12 @@ async function download(pathname) {
   try {
     const latest = await latestTag();
     if (latest) {
-      const url = `${REPO}/releases/download/${latest.tag}/${file(latest.version)}`;
-      if (await assetExists(url)) return url;
+      const name = file(latest.version);
+      const url = `${REPO}/releases/download/${latest.tag}/${name}`;
+      const state = await assetState(url);
+      if (state === 'ok') return url;
+      // github.com's downloads failing: the file from here, by the API.
+      if (state === 'down') return `/dl/${name}`;
     }
   } catch { /* github.com unreachable: the release page is still the right answer */ }
   return RELEASES_LATEST;
@@ -185,6 +211,16 @@ async function mirror(req, res, url) {
   let up;
   try {
     up = await fetch(url, { method: req.method, headers: { 'user-agent': 'shroudly-dl' }, signal: ctl.signal });
+    // github.com's download address failing (a 5xx for every file, every
+    // repository, 2026-11-08): the same file by its asset id, through the API.
+    if (up.status >= 500) {
+      const tag = url.split('/releases/download/')[1]?.split('/')[0];
+      const alt = tag && await apiAssetUrl(decodeURIComponent(tag), name);
+      if (alt) {
+        if (up.body) up.body.cancel().catch(() => {});
+        up = await fetch(alt, { method: req.method, headers: { 'user-agent': 'shroudly-dl', accept: 'application/octet-stream' }, signal: ctl.signal });
+      }
+    }
   } finally {
     clearTimeout(slow);
   }
