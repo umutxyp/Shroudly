@@ -122,15 +122,21 @@ async function cached(name, produce) {
 }
 
 async function head(url) {
-  return fetch(url, { method: 'HEAD', redirect: 'manual', headers: { 'user-agent': 'shroudly-dl' }, signal: AbortSignal.timeout(10000) });
+  return fetch(url, { method: 'HEAD', redirect: 'manual', headers: { 'user-agent': 'shroudly-dl' }, signal: AbortSignal.timeout(6000) });
 }
 
 /* The newest release's tag, from github.com's redirect, else GitHub's API;
  * while neither answers, the last one known (a release is not taken back),
- * so the links keep naming the right files. */
+ * so the links keep naming the right files. It is kept next to the state
+ * file, for a restart while GitHub is down, and a failed ask is not repeated
+ * for a minute, so a visitor does not wait on it each time. */
+const TAG_FILE = STATE ? path.join(path.dirname(STATE), 'latest-tag.txt') : '';
 let lastTag = null;
+try { if (TAG_FILE) lastTag = (fs.readFileSync(TAG_FILE, 'utf8').trim().match(/^v?\d+\.\d+\.\d+[\w.-]*$/) || [null])[0]; } catch { /* none yet */ }
+let tagFailedUntil = 0;
 async function latestTag() {
   let tag = null;
+  if (lastTag && Date.now() < tagFailedUntil) return { tag: lastTag, version: lastTag.replace(/^v/, '') };
   try {
     tag = await cached('latest-tag', async () => {
       try {
@@ -138,12 +144,16 @@ async function latestTag() {
         if (m) return m[1];
       } catch { /* the API next */ }
       const r = await fetch(`${API}/releases/latest`, {
-        headers: { 'user-agent': 'shroudly-dl', accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(10000) });
+        headers: { 'user-agent': 'shroudly-dl', accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(5000) });
       const t = r.ok ? (await r.json()).tag_name : null;
       return typeof t === 'string' && /^v?\d+\.\d+\.\d+/.test(t) ? t : null;
     });
   } catch { /* neither answered */ }
-  if (tag) lastTag = tag;
+  if (tag && tag !== lastTag) {
+    lastTag = tag;
+    if (TAG_FILE) fs.writeFile(TAG_FILE, `${tag}\n`, () => {});
+  }
+  if (!tag) tagFailedUntil = Date.now() + 60000;
   tag = tag || lastTag;
   return tag ? { tag, version: tag.replace(/^v/, '') } : null;
 }
