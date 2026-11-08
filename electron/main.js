@@ -3232,6 +3232,15 @@ const SERVICE_NAME = { discord: 'Discord', roblox: 'Roblox' };
 const reachTold = new Set();
 let lastSiteReach = 0;
 const reachBusy = new Set();
+/* Another name of the service got answers through Shroudly in the last ten
+ * minutes (the engine's Connections list): at least 16 KB came back. Pure,
+ * for the tests. */
+function serviceWorks(family, host, rows) {
+  const h = String(host || '').toLowerCase();
+  return (rows || []).some((r) => r && typeof r.host === 'string' && r.host.toLowerCase() !== h
+    && Autopilot.familyOf(r.host) === family && Number(r.down) >= 16 * 1024 && Number(r.ago) < 10 * 60 * 1000);
+}
+
 async function checkServiceReach(host) {
   const family = Autopilot.familyOf(host);
   const service = family && SERVICE_NAME[family];
@@ -3252,6 +3261,13 @@ async function checkServiceReach(host) {
   }
   reachBusy.add(id);
   try {
+    // The service's other names working through Shroudly right now: then it
+    // is one name of it that the network blocks by address (Roblox's
+    // silver.roblox.com on Turkish networks, while its game servers and
+    // every API opened), not the service. Said as a block of the whole
+    // service, it told people in the middle of a game that Roblox does not
+    // work on this network and only a VPN gets there.
+    if (service && serviceWorks(family, host, await engine.connsList().catch(() => []))) return;
     const [ours, theirs] = await Promise.all([AroundWatch.addrsVia(engine.dohPort)(host), Diagnostics.systemResolve(host).then((a) => a || [])]);
     // Both kinds in what is tried (it tries the first eight).
     const other = theirs.filter((ip) => !Diagnostics.looksForged(ip));

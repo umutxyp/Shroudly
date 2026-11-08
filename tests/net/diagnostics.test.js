@@ -82,9 +82,25 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
     // window (not only for Discord and Roblox), without a notification, and
     // checked at most once a minute and once per site and network.
     const main = require('fs').readFileSync(require('path').join(ROOT, 'electron', 'main.js'), 'utf8');
-    const fn = main.slice(main.indexOf('async function checkServiceReach'), main.indexOf('async function checkServiceReach') + 3000);
+    const fn = main.slice(main.indexOf('async function checkServiceReach'), main.indexOf('async function checkServiceReach') + 4500);
     t.ok(/ServiceCheck\.isMainName\(host\)/.test(fn) && /lastSiteReach < 60000/.test(fn) && /autoTell\('autoSiteUnreachable', \{ host: site \}\)/.test(fn)
       && /WINDOW_ONLY = \[[^\]]*'autoSiteUnreachable'/.test(main), 'a blocked site of any kind is explained in the window, without a notification, rate-limited');
+  }
+  {
+    // One name of a service blocked by address while its other names work
+    // (Roblox's silver.roblox.com on Turkish networks, with every game
+    // server and API open): not told as the whole service blocked.
+    const main = require('fs').readFileSync(require('path').join(ROOT, 'electron', 'main.js'), 'utf8');
+    const Autopilot = require(require('path').join(ROOT, 'electron', 'autopilot.js'));
+    const src = main.match(/function serviceWorks[\s\S]*?\n}\n/)[0];
+    const serviceWorks = new Function('Autopilot', `return (${src.replace('function serviceWorks', 'function')})`)(Autopilot);
+    const dead = { host: 'silver.roblox.com', down: 0, ago: 1000 };
+    t.ok(serviceWorks('roblox', 'silver.roblox.com', [dead, { host: 'c0.rbxcdn.com', down: 900000, ago: 3000 }])
+      && !serviceWorks('roblox', 'silver.roblox.com', [dead, { host: 'apis.roblox.com', down: 2000, ago: 3000 }])
+      && !serviceWorks('roblox', 'silver.roblox.com', [dead, { host: 'apis.roblox.com', down: 900000, ago: 11 * 60 * 1000 }])
+      && !serviceWorks('discord', 'discord.com', [{ host: 'apis.roblox.com', down: 900000, ago: 1 }])
+      && /if \(service && serviceWorks\(family, host, await engine\.connsList\(\)/.test(main),
+    'a service whose other names work through Shroudly is not told as blocked by address');
   }
   r = await D.runningTools({ details: true, probe: { processes: '"ZSATunnel.exe","30"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(r.active.join() === 'Zscaler', 'Zscaler steers traffic whenever it runs');
