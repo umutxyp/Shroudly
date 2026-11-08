@@ -59,7 +59,9 @@ class Learned(text: String?, private val max: Int = MAX) {
 object Avoids {
     const val TTL_MS = 6 * 60 * 60 * 1000L
     const val MAX = 200
-    const val KEY = "avoid"
+    /* "avoid2": the ones kept before 2.6.67 were mostly the engine mistaking
+     * an app closing a connection for a refusal; they are not given back. */
+    const val KEY = "avoid2"
     private val NAME = Regex("^[A-Za-z0-9.-]{1,253}$")
 
     private fun parse(text: String?, now: Long): List<Triple<String, Int, Long>> =

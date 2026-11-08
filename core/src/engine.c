@@ -444,7 +444,7 @@ static int fb_put(const char *h) {
     if (g_fb[i].t < g_fb[slot].t) slot = i;   /* else the oldest (or an empty one) */
   }
   snprintf(g_fb[slot].host, sizeof(g_fb[slot].host), "%s", h);
-  if (!site_of(h, g_fb[slot].site, sizeof(g_fb[slot].site))) g_fb[slot].site[0] = 0;
+  if (!site_reg(h, g_fb[slot].site, sizeof(g_fb[slot].site))) g_fb[slot].site[0] = 0;
   g_fb[slot].t = now;
   mutex_unlock(&g_fb_mx);
   return !had;
@@ -505,7 +505,11 @@ static void cuts_forget(void) {
  * reaching it. Each still tries the techniques first: never straight to it. */
 static int fb_site_is(const char *h) {
   char site[256];
-  if (!site_of(h, site, sizeof(site))) return 0;
+  /* By the registrable domain, never SITE_FAMILY (as ok_key, #79): since
+   * 2.6.58 one Roblox name the last way out carried (a stats server that
+   * does not answer) gave every rbxcdn.com name the short ladder too, and
+   * the game's maps and items went to Tor after 6 s, where they crawl. */
+  if (!site_reg(h, site, sizeof(site))) return 0;
   int yes = 0;
   mutex_lock(&g_fb_mx);
   uint64_t now = now_ms();

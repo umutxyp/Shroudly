@@ -63,7 +63,9 @@ async function get(P, host, port, timeoutMs = 40000) {
   await new Promise((r) => silent.listen({ port: 0, host: '::1', ipv6Only: true }, r));
   const silentPort = silent.address().port;
 
-  const dns = await H.dnsStub({ 'dropped.example': { AAAA: ['::1'] }, 'cdn.dropped.example': { AAAA: ['::1'] } });
+  // gone.example: encrypted DNS never answers for it (its lookup refused).
+  const dns = await H.dnsStub({ 'dropped.example': { AAAA: ['::1'] }, 'cdn.dropped.example': { AAAA: ['::1'] }, 'gone.example': { silent: true },
+    'www.roblox.com': { AAAA: ['::1'] }, 'c0.rbxcdn.com': { AAAA: ['::1'] } });
   const base = ['--auto', '--doh', '--doh-port', String(dns.port), '--ipv6'];
 
   {
@@ -76,6 +78,15 @@ async function get(P, host, port, timeoutMs = 40000) {
       `a name with no address to be reached comes back through the last way out, asked by name (${a}, ${JSON.stringify(tor.asked)})`);
     await H.sleep(200);
     t.ok((eng.out.match(/"type":"fallback","ok":1,"host":"gone\.example"/g) || []).length === 1, 'and the engine says so once');
+
+    /* A name encrypted DNS says does not exist (NXDOMAIN): Tor cannot reach
+     * it either, so it is not started for it (OPPO's retired telemetry name
+     * started Tor at every Start). */
+    const asked = tor.asked.length;
+    const nx = await get(P, 'nosuch.example', 443, 8000);
+    await H.sleep(200);
+    t.ok(nx !== 'HTTP/1.1 200 OK' && tor.asked.length === asked && !/"type":"fallback"[^\n]*nosuch\.example/.test(eng.out),
+      `a name that does not exist is not sent to the last way out (${nx}, ${tor.asked.length - asked} asked)`);
 
     // Silent to every technique: the ladder gives up, then the last way out.
     const t0 = Date.now();
@@ -128,6 +139,15 @@ async function get(P, host, port, timeoutMs = 40000) {
     const sibLadder = /"type":"blocked","host":"cdn\.dropped\.example"/.test(eng.out);
     t.ok(b === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 2 && sibLadder && sib < 12000 && sib < first,
       `another name of that site: the techniques first, briefly, then Tor (${sib} ms against ${first} ms)`);
+    /* Another domain of the same service (SITE_FAMILY: roblox.com and
+     * rbxcdn.com) is not "that site": it keeps its whole ladder. Since 2.6.58
+     * the family was taken for one site here, and the game's maps and items
+     * on rbxcdn.com went to Tor after 6 s because a roblox.com name had. */
+    await get(P, 'www.roblox.com', silentPort, 60000);
+    const t2 = Date.now();
+    await get(P, 'c0.rbxcdn.com', silentPort, 60000);
+    const fam = Date.now() - t2;
+    t.ok(fam > 12000, `another domain of the same service keeps its whole ladder (${fam} ms against ${sib} ms)`);
     eng.stop();
   }
 

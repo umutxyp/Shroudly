@@ -109,7 +109,9 @@ const CUT_SETTLE_MS = 10000;
  * it answered a ClientHello in two records with another certificate, #68),
  * kept across restarts and given back before the techniques (AVOID), for as
  * long as the engine keeps them (six hours). */
-const AVOID_KEY = 'avoidTechniques';
+/* "2": the ones kept before 2.6.67 were mostly the engine mistaking an app
+ * closing a connection for a refusal; they are not given back. */
+const AVOID_KEY = 'avoidTechniques2';
 const AVOID_MAX = 200;
 const AVOID_TTL_MS = 6 * 60 * 60 * 1000;
 const LEARNED_KEY = 'learnedTechniques';

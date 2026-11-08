@@ -627,7 +627,7 @@ const t = suite('engine-manager');
     const out = written.join('');
     t.ok(/^AVOID clientsettingscdn\.roblox\.com 1 6\d\n/.test(out) && out.indexOf('AVOID') < out.indexOf('LEARN') && !/bad host/.test(out),
       'refused kinds are kept and given back before the techniques');
-    m.avoidTechniques['old.example'] = { m: 1, t: Date.now() - 7 * 3600 * 1000 };
+    m.avoidTechniques2['old.example'] = { m: 1, t: Date.now() - 7 * 3600 * 1000 };
     t.ok(!self._avoids().some(([h]) => h === 'old.example'), 'older than the engine keeps them: dropped');
   }
 

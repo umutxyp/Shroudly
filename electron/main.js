@@ -3593,7 +3593,7 @@ ipcMain.handle('app:repair', () => Repair.repair({
     if (code === 'files_missing') for (const f of advanced._files()) list.push({ name: path.basename(f), path: f });
     return list;
   },
-  forgetLearned: () => { store.delete('learnedTechniques'); store.delete('learnedRawTechniques'); store.delete('avoidTechniques'); },
+  forgetLearned: () => { store.delete('learnedTechniques'); store.delete('learnedRawTechniques'); store.delete('avoidTechniques'); store.delete('avoidTechniques2'); },
   engineOn: () => !!(engine && engine.isActive()),
   restartEngine: async () => {
     if (engine.doh && engine.doh.networkChanged) engine.doh.networkChanged();

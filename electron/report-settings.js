@@ -42,7 +42,7 @@ const DEFAULTS = {
 };
 
 /* Lists and texts that are the user's own: how many, or whether set. */
-const COUNTED = ['siteList', 'userBlocked', 'torSites', 'adBlockAllow', 'storeAppsOurs', 'learnedTechniques', 'learnedRawTechniques', 'avoidTechniques'];
+const COUNTED = ['siteList', 'userBlocked', 'torSites', 'adBlockAllow', 'storeAppsOurs', 'learnedTechniques', 'learnedRawTechniques', 'avoidTechniques2'];
 const SET_OR_NOT = ['ownServer', 'customDns'];
 
 const PRIVATE = /server|pass|token|auth|key|secret|link|url|dns|proxy|host|ip|addr|path|dir|file|id$|ids$|reports/i;
