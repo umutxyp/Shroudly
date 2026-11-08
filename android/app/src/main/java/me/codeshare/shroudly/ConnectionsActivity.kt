@@ -119,6 +119,8 @@ class ConnectionsActivity : Activity() {
         "tor" -> getString(R.string.connsRouteTor)
         "server" -> getString(R.string.connsRouteServer)
         "technique" -> getString(R.string.connsRouteTechnique)
+        // Datagrams (QUIC, games, calls): no technique works on them.
+        "udp" -> "UDP"
         else -> null
     }
 

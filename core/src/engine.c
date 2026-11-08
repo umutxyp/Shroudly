@@ -2716,6 +2716,8 @@ typedef struct {
   uint8_t  q[UDP_DNS_Q_MAX];             /* as the app sent it, its own id included */
 } udp_dns_q;
 
+#define UDP_FLOWS 8
+
 /* The association's state: its sockets, the client's endpoint, and the last
  * name it sent to. Lives on the connection thread's stack; buf on the heap. */
 typedef struct {
@@ -2731,6 +2733,10 @@ typedef struct {
   uint8_t *buf;
   uint64_t last;                         /* last datagram either way */
   int other;                             /* a datagram went to a port other than 53 */
+  /* Where its datagrams went (not DNS), for the Connections list: the name
+   * or address, the address replies come from, its row (conns). */
+  struct { char host[256]; uint16_t port; struct sockaddr_storage sa; int slot; } flow[UDP_FLOWS];
+  int nflow;
 } udp_assoc;
 
 /* Private and link-local ranges (a LAN's own resolver lives there): IPv4
@@ -2808,6 +2814,52 @@ static int dns_query_parse(const uint8_t *q, size_t n, char *name, size_t cap,
 /* A datagram from the client, without its header, to where the header says:
  * a name through our resolver (the last one is remembered), never into this
  * machine nor to a stand-in address. 0 when it went. */
+/* An address as text (no port); 0 when it cannot be written. */
+static int sa_text(const struct sockaddr_storage *sa, char *out, size_t n) {
+  const void *a = sa->ss_family == AF_INET6 ? (const void *)&((const struct sockaddr_in6 *)sa)->sin6_addr
+                                            : (const void *)&((const struct sockaddr_in *)sa)->sin_addr;
+  return inet_ntop(sa->ss_family, a, out, (socklen_t)n) != NULL;
+}
+
+/* The same address and port. */
+static int sa_same(const struct sockaddr_storage *a, const struct sockaddr_storage *b) {
+  if (a->ss_family != b->ss_family) return 0;
+  if (a->ss_family == AF_INET) {
+    const struct sockaddr_in *x = (const struct sockaddr_in *)a, *y = (const struct sockaddr_in *)b;
+    return x->sin_port == y->sin_port && x->sin_addr.s_addr == y->sin_addr.s_addr;
+  }
+  const struct sockaddr_in6 *x = (const struct sockaddr_in6 *)a, *y = (const struct sockaddr_in6 *)b;
+  return x->sin6_port == y->sin6_port && memcmp(&x->sin6_addr, &y->sin6_addr, sizeof(x->sin6_addr)) == 0;
+}
+
+/* A datagram out to d (at `to`): counted under its name or address in the
+ * Connections list, a row per destination while the association lives. */
+static void udp_flow_note(udp_assoc *u, const sudp_dst *d, const struct sockaddr_storage *to, size_t plen) {
+  char host[256];
+  if (d->atyp == 3) snprintf(host, sizeof(host), "%s", d->host);
+  else if (!sa_text(to, host, sizeof(host))) return;
+  for (int i = 0; i < u->nflow; i++) {
+    if (u->flow[i].port == d->port && strcmp(u->flow[i].host, host) == 0) { conns_bytes(u->flow[i].slot, plen, 0); return; }
+  }
+  if (u->nflow >= UDP_FLOWS) return;
+  int slot = conns_begin(host);
+  if (slot < 0) return;
+  conns_route(slot, CONN_UDP);
+  conns_bytes(slot, plen, 0);
+  int k = u->nflow++;
+  snprintf(u->flow[k].host, sizeof(u->flow[k].host), "%s", host);
+  u->flow[k].port = d->port;
+  u->flow[k].sa = *to;
+  u->flow[k].slot = slot;
+}
+
+/* A datagram back from `from`: counted under the destination it answers. */
+static void udp_flow_back(udp_assoc *u, const struct sockaddr_storage *from, size_t n) {
+  for (int i = 0; i < u->nflow; i++) {
+    if (sa_same(&u->flow[i].sa, from)) { conns_bytes(u->flow[i].slot, 0, n); return; }
+  }
+}
+
 static int udp_send_out(udp_assoc *u, const sudp_dst *d, const uint8_t *payload, size_t plen) {
   struct sockaddr_storage to; socklen_t tl;
   if (sudp_dst_addr(d, &to, &tl) != 0) {
@@ -2832,6 +2884,7 @@ static int udp_send_out(udp_assoc *u, const sudp_dst *d, const uint8_t *payload,
   if (sendto(*os, (const char *)payload, (int)plen, 0, (struct sockaddr *)&to, tl) < 0) return -1;
   u->last = now_ms();
   atomic_fetch_add(&g_stats.bytes_up, (uint64_t)plen);
+  if (d->port != 53) udp_flow_note(u, d, &to, plen);
   return 0;
 }
 
@@ -3056,6 +3109,8 @@ static void udp_from_client(udp_assoc *u) {
     /* To a name on the ad and tracker list: dropped (an app then tries TCP,
      * which ends the same way). A lookup of one is answered here. */
     if (d.atyp == 3 && adblock_blocked(d.host)) continue;
+    /* A name the user blocked in the Connections list: its datagrams too. */
+    if (d.atyp == 3 && conns_blocked(d.host)) continue;
     /* QUIC turned off (--drop-quic): the app falls back to TCP. An
      * association that only ever carried it ends like a DNS one. */
     /* With the user's own server every site goes through it over TCP; QUIC
@@ -3091,6 +3146,7 @@ static void udp_to_client(udp_assoc *u, sock_t s) {
                (struct sockaddr *)&u->client, sizeof(u->client)) < 0) continue;
     u->last = now_ms();
     atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
+    udp_flow_back(u, &from, (size_t)n);
   }
 }
 
@@ -3175,6 +3231,7 @@ static void udp_associate(sock_t client, const socks_req *rq) {
   }
 
 out:
+  for (int i = 0; i < u.nflow; i++) conns_end(u.flow[i].slot);
   sock_close(u.relay); sock_close(u.out4); sock_close(u.out6); sock_close(u.dns);
   free(u.dq);
   free(u.buf);

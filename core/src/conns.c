@@ -328,7 +328,7 @@ int conns_only_skip(const char *host) {
 }
 
 static const char *route_name(int r) {
-  return r == CONN_TECHNIQUE ? "technique" : r == CONN_SERVER ? "server" : r == CONN_TOR ? "tor" : "direct";
+  return r == CONN_TECHNIQUE ? "technique" : r == CONN_SERVER ? "server" : r == CONN_TOR ? "tor" : r == CONN_UDP ? "udp" : "direct";
 }
 
 static int by_last(const void *a, const void *b) {

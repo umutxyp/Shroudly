@@ -38,7 +38,7 @@ final class TunnelConfigTests: XCTestCase {
         var a = EngineArgs.make(port: 5555, dohPort: 6666, settings: s, authFile: "/tmp/a", blockIps: ["1.2.3.4", "5.6.7.8"])
         XCTAssertEqual(Array(a.prefix(7)), ["--listen", "127.0.0.1", "--port", "5555", "--strategy", "split(sni)", "--auto"])
         XCTAssertTrue(a.joined(separator: " ").contains("--doh --doh-port 6666 --auth-file /tmp/a --fake-net 198.18.0.0/15 --block-ip 1.2.3.4 --block-ip 5.6.7.8"))
-        XCTAssertFalse(a.contains("--drop-quic"))
+        XCTAssertTrue(a.contains("--drop-quic"), "QUIC off by default (2.6.65)")
         XCTAssertFalse(a.contains("--ipv4-only"))
         XCTAssertFalse(a.contains("--adblock"), "no ad blocking in store copies")
 

@@ -144,7 +144,7 @@ function Connections({ active }) {
     && !(data.ownNames || []).some((n) => needle === n || needle.endsWith(`.${n}`));
   const canTorTyped = canBlockTyped && data.torOk && !viaTor(needle);
   const torOnly = torSites.filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
-  const route = (r) => (r.route === 'tor' ? t('connsRouteTor') : r.route === 'server' ? t('connsRouteServer') : r.route === 'technique' ? t('connsRouteTechnique') : null);
+  const route = (r) => (r.route === 'tor' ? t('connsRouteTor') : r.route === 'server' ? t('connsRouteServer') : r.route === 'technique' ? t('connsRouteTechnique') : r.route === 'udp' ? 'UDP' : null);
   const badge = (text, color) => (
     <span className="shrink-0 rounded-full px-1.5 py-[1px] text-[10.5px] font-semibold" style={{ background: 'var(--surface-2)', color }}>{text}</span>
   );

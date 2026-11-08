@@ -18,16 +18,28 @@ final class SettingsTests: XCTestCase {
         XCTAssertEqual(s, AppSettings())
         XCTAssertEqual(s.strategy.id, "auto")
         XCTAssertTrue(s.strategy.auto)
-        XCTAssertFalse(s.quicOff)
+        // QUIC off by default (2.6.65): over QUIC no technique works.
+        XCTAssertTrue(s.quicOff)
         XCTAssertFalse(s.ipv6Off)
         XCTAssertFalse(s.keepOn)
     }
 
     func testRoundTrip() {
         let store = SettingsStore(defaults: defaults)
-        let s = AppSettings(strategyId: "disorder-sni", quicOff: true, ipv6Off: true, keepOn: true)
+        let s = AppSettings(strategyId: "disorder-sni", quicOff: false, ipv6Off: true, keepOn: true)
         store.save(s)
         XCTAssertEqual(store.load(), s)
+    }
+
+    /* The old key held false for anyone whose settings were ever saved: that
+     * is not a choice, so QUIC goes off; turning it back on is kept. */
+    func testQuicOffFromTheOldKeyGoesOn() {
+        defaults.set(false, forKey: "quicOff")
+        XCTAssertTrue(SettingsStore(defaults: defaults).load().quicOff)
+        var s = SettingsStore(defaults: defaults).load()
+        s.quicOff = false
+        SettingsStore(defaults: defaults).save(s)
+        XCTAssertFalse(SettingsStore(defaults: defaults).load().quicOff)
     }
 
     func testUnknownStrategyIsAutomatic() {
@@ -48,7 +60,7 @@ final class SettingsTests: XCTestCase {
         var b = a
         b.keepOn = true
         XCTAssertTrue(a.sameTunnel(as: b))
-        b.quicOff = true
+        b.quicOff = false
         XCTAssertFalse(a.sameTunnel(as: b))
         a.strategyId = "split2"
         XCTAssertFalse(a.sameTunnel(as: AppSettings()))

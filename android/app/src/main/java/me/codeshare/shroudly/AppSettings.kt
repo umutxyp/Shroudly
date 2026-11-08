@@ -103,7 +103,12 @@ object AppSettings {
 
     /* QUIC off (#59): apps' UDP to port 443 is dropped, so they use TCP,
      * which the techniques get through (engine --drop-quic). */
-    fun quicOff(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_QUIC_OFF, false)
+    /* On unless the user turned it off (2.6.65): over QUIC no technique
+     * works and censors slow it down (a Turkish report: YouTube thumbnails
+     * crawling), while over TCP Shroudly can do its work; the cost is the
+     * one round trip QUIC saves on a new connection. Only the user's own
+     * choice is ever stored (setQuicOff). */
+    fun quicOff(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_QUIC_OFF, true)
 
     fun setQuicOff(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_QUIC_OFF, on).apply()

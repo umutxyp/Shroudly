@@ -34,7 +34,9 @@
 #define CONNS_ACTIVE 1024
 #define CONNS_BLOCK  512
 
-enum { CONN_DIRECT = 0, CONN_TECHNIQUE = 1, CONN_SERVER = 2, CONN_TOR = 3 };
+/* CONN_UDP: datagrams (QUIC, games, calls), as they are: no technique works
+ * on them, so a slow app over UDP shows here (--drop-quic moves QUIC to TCP). */
+enum { CONN_DIRECT = 0, CONN_TECHNIQUE = 1, CONN_SERVER = 2, CONN_TOR = 3, CONN_UDP = 4 };
 
 void conns_init(void);
 /* A new connection for `host`: its slot, or -1 when the table is full

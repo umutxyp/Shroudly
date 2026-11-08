@@ -374,6 +374,7 @@ struct ConnectionsSection: View {
         case "tor": parts.append(tr("connsRouteTor"))
         case "server": parts.append(tr("connsRouteServer"))
         case "technique": parts.append(tr("connsRouteTechnique"))
+        case "udp": parts.append("UDP")
         default: break
         }
         if Conns.isSystem(r.host, own: own) { parts.append(tr("connsSystem")) }

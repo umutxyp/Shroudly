@@ -246,6 +246,18 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
   c.s.send(Buffer.concat([header(LAN4, 0), Buffer.from('port 0')]), a.port, '127.0.0.1');
   await sleep(500);
   t.ok(e4.got === got, 'a fragment (FRAG != 0) and malformed headers are dropped');
+  // The Connections list shows where datagrams went (QUIC, games, calls), as
+  // "udp" rows with the bytes each way: a slow app over UDP shows in a report.
+  {
+    const before = eng.out.length;
+    eng.proc.stdin.write('CONNS\n');
+    for (let w = 0; w < 3000 && !eng.out.slice(before).includes('conns_end'); w += 50) await sleep(50);
+    const rows = eng.out.slice(before).split('\n').filter((l) => l.includes('"type":"conn"')).map((l) => JSON.parse(l));
+    const ip = rows.find((r) => r.host === LAN4 && r.route === 'udp');
+    t.ok(ip && ip.up > 0 && ip.down > 0 && ip.conns >= 1, `datagrams by address: a "udp" row with bytes up and down (${JSON.stringify(ip)})`);
+    const named = rows.find((r) => r.host === 'udp-echo.example');
+    t.ok(!named || named.route === 'udp', 'by name: listed under the name, as udp');
+  }
   r = await roundTrip(c, a.port, LAN4, e4.port, Buffer.from('still here'));
   t.ok(r && r.data.toString() === 'still here', 'and the association goes on working after them');
 
