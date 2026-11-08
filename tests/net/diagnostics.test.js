@@ -92,7 +92,7 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
     // server and API open): not told as the whole service blocked.
     const main = require('fs').readFileSync(require('path').join(ROOT, 'electron', 'main.js'), 'utf8');
     const Autopilot = require(require('path').join(ROOT, 'electron', 'autopilot.js'));
-    const src = main.match(/function serviceWorks[\s\S]*?\n}\n/)[0];
+    const src = main.match(/function serviceWorks[\s\S]*?\r?\n}\r?\n/)[0]; // CRLF on Windows checkouts
     const serviceWorks = new Function('Autopilot', `return (${src.replace('function serviceWorks', 'function')})`)(Autopilot);
     const dead = { host: 'silver.roblox.com', down: 0, ago: 1000 };
     t.ok(serviceWorks('roblox', 'silver.roblox.com', [dead, { host: 'c0.rbxcdn.com', down: 900000, ago: 3000 }])
