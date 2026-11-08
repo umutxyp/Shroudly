@@ -20,6 +20,14 @@ function wrap(Lucide, strokeWidth = 1.75) {
 }
 
 export const ShieldIcon = wrap(Shield);
+
+/* Shroudly's logo in one colour (public/tab-mark.png, made by
+ * scripts/logo/make-tab.py), for the Protection tab: a mask over currentColor,
+ * so it takes the colour the other icons beside it take. */
+export function LogoIcon({ className = 'h-4 w-4', style, ...rest }) {
+  const mask = "url('./tab-mark.png') center / contain no-repeat";
+  return <span className={`inline-block shrink-0 bg-current ${className}`} style={{ WebkitMask: mask, mask, ...style }} aria-hidden {...rest} />;
+}
 export const ShieldCheckIcon = wrap(ShieldCheck);
 export const ShieldAlertIcon = wrap(ShieldAlert);
 export const ChartIcon = wrap(ChartColumn);

@@ -138,7 +138,7 @@ struct ContentView: View {
         TabView(selection: $tvTab) {
             // The icons alone along the top, their names read out.
             NavigationStack { tvHome }
-                .tabItem { Image(systemName: "shield").accessibilityLabel(tr("navProtection")) }.tag(0)
+                .tabItem { Image("TabMark").accessibilityLabel(tr("navProtection")) }.tag(0)
             NavigationStack { tvStats }
                 .tabItem { Image(systemName: "chart.bar").accessibilityLabel(tr("navStats")) }.tag(1)
             NavigationStack { TVPage(title: tr("navSettings"), symbol: "gearshape") { SettingsView() } }
@@ -306,7 +306,16 @@ struct ContentView: View {
             label
         }
         #else
-        Label(t.title, systemImage: t.icon)
+        // The Mac's sidebar: the logo at a sidebar icon's size.
+        Label {
+            Text(t.title)
+        } icon: {
+            if t == .protection {
+                Image("TabMark").resizable().scaledToFit().frame(width: 17, height: 17)
+            } else {
+                Image(systemName: t.icon)
+            }
+        }
         #endif
     }
 

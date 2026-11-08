@@ -15,7 +15,7 @@ import { SupportBanner, useSupport } from '../components/Support';
 import { HelpBanner, useHelpNudge } from '../components/HelpBanner';
 import { WhatsNewBanner, useWhatsNew } from '../components/WhatsNew';
 import { useUpdate } from '../components/useUpdate';
-import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon, UsersIcon } from '../components/icons';
+import { ChartIcon, InfoIcon, LogoIcon, LogsIcon, SettingsIcon, UsersIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 /* Relative path: the exported app is loaded from file://, where "/logo.png"
@@ -128,7 +128,7 @@ export default function Home() {
   const helpCard = activeTab === 'control' && active && !notRouting && !offline && !ownServerDown;
 
   const nav = [
-    { id: 'control',  label: t('navProtection'), Icon: ShieldIcon },
+    { id: 'control',  label: t('navProtection'), Icon: LogoIcon },
     { id: 'stats',    label: t('navStats'),      Icon: ChartIcon },
     { id: 'settings', label: t('navSettings'),   Icon: SettingsIcon },
     { id: 'logs',     label: t('navLogs'),       Icon: LogsIcon },

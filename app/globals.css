@@ -354,9 +354,13 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
     linear-gradient(180deg, color-mix(in srgb, var(--tint) 20%, var(--surface)), var(--surface));
   box-shadow: inset 0 0 0 1.2px color-mix(in srgb, var(--tint) 50%, transparent), 0 12px 30px rgba(0, 0, 0, 0.45);
 }
+/* A soft light round the disc while protected, as from a lamp behind it:
+ * blurred shadows, which fade out with no edge and no rings (a radial
+ * gradient on the dark background showed both). */
 .power-glow {
-  inset: -15%; opacity: 0; transition: opacity 0.5s ease;
-  background: radial-gradient(circle, color-mix(in srgb, var(--tint) 30%, transparent) 48%, transparent 70%);
+  inset: 2%; opacity: 0; transition: opacity 0.5s ease;
+  box-shadow: 0 0 calc(var(--shield) * 0.22) calc(var(--shield) * 0.05) color-mix(in srgb, var(--tint) 34%, transparent),
+              0 0 calc(var(--shield) * 0.5) calc(var(--shield) * 0.12) color-mix(in srgb, var(--tint) 15%, transparent);
 }
 .power-shield:is([data-look='on'], [data-look='warn']) .power-glow { opacity: 1; }
 .power-mark { width: 56%; height: 56%; object-fit: contain; transition: opacity 0.5s ease; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }

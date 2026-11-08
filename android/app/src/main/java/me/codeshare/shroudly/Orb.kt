@@ -12,6 +12,7 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import kotlin.math.exp
 import kotlin.math.min
 
 /* The main column: the whole width on a phone, at most content_max_width
@@ -58,14 +59,16 @@ class Orb(private val halo: View, private val ring: View, private val closed: Im
             shaderFactory = object : ShapeDrawable.ShaderFactory() {
                 override fun resize(width: Int, height: Int): Shader {
                     val r = min(width, height) / 2f
-                    // Under the switch, strongest at its edge (172 of 212dp:
-                    // 0.81), gone at the view's.
-                    return RadialGradient(
-                        width / 2f, height / 2f, r,
-                        intArrayOf(a(0x30), a(0x30), a(0x40), a(0x14), a(0)),
-                        floatArrayOf(0f, 0.72f, 0.81f, 0.92f, 1f),
-                        Shader.TileMode.CLAMP,
-                    )
+                    // Under the switch (172 of 212dp: 0.81), then fading as a
+                    // lamp's light does (a bell curve, in many steps), so no
+                    // edge or ring shows on the dark background.
+                    val steps = 24
+                    val stops = FloatArray(steps + 1) { it / steps.toFloat() }
+                    val colors = IntArray(steps + 1) { i ->
+                        val past = maxOf(0f, stops[i] - 0.70f)
+                        a((0x40 * exp(-(past * past) / (2 * 0.11f * 0.11f))).toInt())
+                    }
+                    return RadialGradient(width / 2f, height / 2f, r, colors, stops, Shader.TileMode.CLAMP)
                 }
             }
         }

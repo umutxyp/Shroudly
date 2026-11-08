@@ -26,7 +26,7 @@ import android.widget.TextView
  */
 object Chrome {
     enum class Tab(val icon: Int, val label: Int) {
-        PROTECTION(R.drawable.ic_shield, R.string.navProtection),
+        PROTECTION(R.drawable.ic_tab_logo, R.string.navProtection),
         STATS(R.drawable.ic_gauge_accent, R.string.navStats),
         SETTINGS(R.drawable.ic_settings_accent, R.string.navSettings),
         LOGS(R.drawable.ic_file_text, R.string.navLogs),
