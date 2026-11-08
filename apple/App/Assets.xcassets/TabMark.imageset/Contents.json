@@ -1,19 +1,39 @@
 {
   "images": [
     {
-      "filename": "tabmark.png",
+      "filename": "tabmark-universal@1x.png",
       "idiom": "universal",
       "scale": "1x"
     },
     {
-      "filename": "tabmark@2x.png",
+      "filename": "tabmark-universal@2x.png",
       "idiom": "universal",
       "scale": "2x"
     },
     {
-      "filename": "tabmark@3x.png",
+      "filename": "tabmark-universal@3x.png",
       "idiom": "universal",
       "scale": "3x"
+    },
+    {
+      "filename": "tabmark-mac@1x.png",
+      "idiom": "mac",
+      "scale": "1x"
+    },
+    {
+      "filename": "tabmark-mac@2x.png",
+      "idiom": "mac",
+      "scale": "2x"
+    },
+    {
+      "filename": "tabmark-tv@1x.png",
+      "idiom": "tv",
+      "scale": "1x"
+    },
+    {
+      "filename": "tabmark-tv@2x.png",
+      "idiom": "tv",
+      "scale": "2x"
     }
   ],
   "info": {

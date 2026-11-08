@@ -1,7 +1,6 @@
 # The Protection tab's icon everywhere (each app tints it as its other tab
 # icons): Shroudly's logo in one colour, as make-mono.py makes it for
-# Android's status bar. Apple's TabMark at the tab bar's 25 pt with a point of
-# air; Android's ic_tab_logo at 24 dp; the desktop's public/tab-mark.png.
+# Android's status bar. Apple's TabMark as tall as the system's symbols; Android's ic_tab_logo at 24 dp; the desktop's public/tab-mark.png.
 # Run from the repo root: python3 scripts/logo/make-tab.py
 import json, os
 from PIL import Image, ImageFilter, ImageChops
@@ -24,29 +23,35 @@ mono = Image.new('RGBA', sq.size, (0, 0, 0, 0))
 mono.putalpha(alpha)
 out = 'apple/App/Assets.xcassets/TabMark.imageset'
 os.makedirs(out, exist_ok=True)
+for f in os.listdir(out):
+    if f.endswith('.png'): os.remove(f'{out}/{f}')
 images = []
-for scale in (1, 2, 3):
-    px = 25 * scale
-    icon = Image.new('RGBA', (px, px), (0, 0, 0, 0))
-    inner = round(px * 23 / 25)
-    icon.alpha_composite(mono.resize((inner, inner), Image.LANCZOS), ((px - inner) // 2, (px - inner) // 2))
-    name = f'tabmark@{scale}x.png' if scale > 1 else 'tabmark.png'
-    icon.save(f'{out}/{name}')
-    images.append({'filename': name, 'idiom': 'universal', 'scale': f'{scale}x'})
+# As tall as the system's symbols beside it: 28 pt in the iPhone's and iPad's
+# bar, 16 in the Mac's sidebar, 46 in Apple TV's bar.
+for idiom, pt, scales in (('universal', 28, (1, 2, 3)), ('mac', 16, (1, 2)), ('tv', 46, (1, 2))):
+    for scale in scales:
+        px = pt * scale
+        icon = Image.new('RGBA', (px, px), (0, 0, 0, 0))
+        inner = round(px * 27 / 28)
+        icon.alpha_composite(mono.resize((inner, inner), Image.LANCZOS), ((px - inner) // 2, (px - inner) // 2))
+        name = f'tabmark-{idiom}@{scale}x.png'
+        icon.save(f'{out}/{name}')
+        images.append({'filename': name, 'idiom': idiom, 'scale': f'{scale}x'})
 json.dump({'images': images, 'info': {'author': 'xcode', 'version': 1}, 'properties': {'template-rendering-intent': 'template'}},
           open(f'{out}/Contents.json', 'w'), indent=2)
 
 # Android: the bottom bar's 24 dp (Chrome.kt), tinted there.
 for d, px in (('mdpi', 24), ('hdpi', 36), ('xhdpi', 48), ('xxhdpi', 72), ('xxxhdpi', 96)):
     icon = Image.new('RGBA', (px, px), (255, 255, 255, 0))
-    inner = round(px * 22 / 24)
+    inner = round(px * 21 / 24)
     white = Image.new('RGBA', (inner, inner), (255, 255, 255, 0))
     white.putalpha(mono.getchannel('A').resize((inner, inner), Image.LANCZOS))
     icon.alpha_composite(white, ((px - inner) // 2, (px - inner) // 2))
     icon.save(f'android/app/src/main/res/drawable-{d}/ic_tab_logo.png')
-# The desktop: a mask over currentColor (components/icons.js), 4x its 24 px.
+# The desktop: a mask over currentColor (components/icons.js), 4x its 24 px,
+# within the 20 of 24 the Lucide icons beside it fill.
 desk = Image.new('RGBA', (96, 96), (255, 255, 255, 0))
-white = Image.new('RGBA', (90, 90), (255, 255, 255, 0))
-white.putalpha(mono.getchannel('A').resize((90, 90), Image.LANCZOS))
-desk.alpha_composite(white, (3, 3))
+white = Image.new('RGBA', (80, 80), (255, 255, 255, 0))
+white.putalpha(mono.getchannel('A').resize((80, 80), Image.LANCZOS))
+desk.alpha_composite(white, (8, 8))
 desk.save('public/tab-mark.png', optimize=True)

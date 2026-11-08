@@ -306,16 +306,9 @@ struct ContentView: View {
             label
         }
         #else
-        // The Mac's sidebar: the logo at a sidebar icon's size.
-        Label {
-            Text(t.title)
-        } icon: {
-            if t == .protection {
-                Image("TabMark").resizable().scaledToFit().frame(width: 17, height: 17)
-            } else {
-                Image(systemName: t.icon)
-            }
-        }
+        // The Mac's sidebar: the logo at a sidebar icon's size (TabMark's
+        // own Mac image).
+        Label { Text(t.title) } icon: { t == .protection ? Image("TabMark") : Image(systemName: t.icon) }
         #endif
     }
 
