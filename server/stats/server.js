@@ -18,6 +18,7 @@
  *   GET  /v1/online                     -> {"online": n, "interval": s}
  *   GET  /dl                            -> 302 to the latest release page
  *   GET  /dl/<key>                      -> 302 to that installer in the latest release
+ *   GET  /dl/<key>?mirror               -> 302 to /dl/<its file name>: served from here
  *                                          (HEAD too: download managers and link checkers ask first)
  *   GET  /dl/<latest release file name> -> that file itself, served from here: the
  *                                          updater's mirror where github.com is blocked
@@ -124,11 +125,26 @@ async function head(url) {
   return fetch(url, { method: 'HEAD', redirect: 'manual', headers: { 'user-agent': 'shroudly-dl' }, signal: AbortSignal.timeout(10000) });
 }
 
+/* The newest release's tag, from github.com's redirect, else GitHub's API;
+ * while neither answers, the last one known (a release is not taken back),
+ * so the links keep naming the right files. */
+let lastTag = null;
 async function latestTag() {
-  const tag = await cached('latest-tag', async () => {
-    const m = ((await head(RELEASES_LATEST)).headers.get('location') || '').match(TAG_RE);
-    return m ? m[1] : null;
-  });
+  let tag = null;
+  try {
+    tag = await cached('latest-tag', async () => {
+      try {
+        const m = ((await head(RELEASES_LATEST)).headers.get('location') || '').match(TAG_RE);
+        if (m) return m[1];
+      } catch { /* the API next */ }
+      const r = await fetch(`${API}/releases/latest`, {
+        headers: { 'user-agent': 'shroudly-dl', accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(10000) });
+      const t = r.ok ? (await r.json()).tag_name : null;
+      return typeof t === 'string' && /^v?\d+\.\d+\.\d+/.test(t) ? t : null;
+    });
+  } catch { /* neither answered */ }
+  if (tag) lastTag = tag;
+  tag = tag || lastTag;
   return tag ? { tag, version: tag.replace(/^v/, '') } : null;
 }
 
@@ -162,7 +178,10 @@ async function apiAssetUrl(tag, name) {
   return Number.isInteger(id) ? `${API}/releases/assets/${id}` : null;
 }
 
-async function download(pathname) {
+/* own: the file from here (the mirror below) instead of GitHub's address,
+ * as codeshare.me's download buttons ask (?mirror): GitHub is blocked on
+ * some of the networks Shroudly is for, and the visitor stays on our host. */
+async function download(pathname, own = false) {
   const key = pathname.replace(/^\/dl\/?/, '');
   if (!key) return RELEASES_LATEST;
   const file = DL_FILES[key];
@@ -171,6 +190,7 @@ async function download(pathname) {
     const latest = await latestTag();
     if (latest) {
       const name = file(latest.version);
+      if (own) return `/dl/${name}`;
       const url = `${REPO}/releases/download/${latest.tag}/${name}`;
       const state = await assetState(url);
       if (state === 'ok') return url;
@@ -210,7 +230,9 @@ async function mirror(req, res, url) {
   res.on('close', () => ctl.abort());
   let up;
   try {
-    up = await fetch(url, { method: req.method, headers: { 'user-agent': 'shroudly-dl' }, signal: ctl.signal });
+    // No answer at all from github.com counts as its 5xx.
+    up = await fetch(url, { method: req.method, headers: { 'user-agent': 'shroudly-dl' }, signal: ctl.signal })
+      .catch((e) => { if (ctl.signal.aborted) throw e; return new Response(null, { status: 502 }); });
     // github.com's download address failing (a 5xx for every file, every
     // repository, 2026-11-08): the same file by its asset id, through the API.
     if (up.status >= 500) {
@@ -263,13 +285,13 @@ function readId(req) {
 }
 
 const server = http.createServer(async (req, res) => {
-  const { pathname } = new URL(req.url, 'http://x');
+  const { pathname, searchParams } = new URL(req.url, 'http://x');
   const route = `${req.method} ${pathname}`;
   try {
     if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/dl' || pathname.startsWith('/dl/'))) {
       const from = await mirrorUrl(pathname);
       if (from) { await mirror(req, res, from); return; }
-      const to = await download(pathname);
+      const to = await download(pathname, searchParams.has('mirror'));
       if (!to) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('unknown download key'); return; }
       res.writeHead(302, { location: to, 'cache-control': 'no-store' });
       res.end();
