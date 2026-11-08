@@ -44,6 +44,9 @@ int  doh_strict(void);
  * gives is taken (a known block page still is not). */
 int  doh_local_name(const char *name);
 
+/* Encrypted DNS said lately that this name does not exist (NXDOMAIN). */
+int  doh_no_such_name(const char *name);
+
 /* Add an ISP block-page / sinkhole IPv4 (dotted). Such answers are rejected
  * like bogons. Turk Telekom's 195.175.254.2 is built in. */
 void doh_add_block_ip(const char *ip);

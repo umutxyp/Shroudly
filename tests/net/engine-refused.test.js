@@ -57,6 +57,7 @@ const RECORD_CUT = ['sni+1', 'mid', 'end'];
 const SERVER_HELLO = Buffer.from([0x16, 0x03, 0x03, 0x00, 0x04, 0x02, 0x00, 0x00, 0x00]);
 const ALERT_12 = Buffer.from([0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x30]);              // unknown_ca
 const CCS = Buffer.from([0x14, 0x03, 0x03, 0x00, 0x01, 0x01]);
+const rec = (type, n) => Buffer.concat([Buffer.from([type, 0x03, 0x03, n >> 8, n & 255]), Buffer.alloc(n, 0x5a)]);
 const record23 = (n) => Buffer.concat([Buffer.from([0x17, 0x03, 0x03, n >> 8, n & 255]), Buffer.alloc(n, 0xa5)]);
 
 (async () => {
@@ -76,7 +77,8 @@ const record23 = (n) => Buffer.concat([Buffer.from([0x17, 0x03, 0x03, n >> 8, n 
       if (!k) { c.destroy(); return; }
       done = true;
       if (k === 'one' && chunks === 1) { c.resetAndDestroy(); return; }     // untouched: blocked
-      seen.push({ name, shape: k });
+      if (name.startsWith('tcp-') && RECORD_CUT.includes(k)) { c.resetAndDestroy(); return; } // only a TCP cut gets through
+      seen.push({ name, shape: k, chunks });
       c.write(SERVER_HELLO);
     });
   }).listen(0, '127.0.0.1');
@@ -102,6 +104,8 @@ const record23 = (n) => Buffer.concat([Buffer.from([0x17, 0x03, 0x03, n >> 8, n 
         if (got.length < SERVER_HELLO.length) return;
         if (then === 'refuse12') s.end(ALERT_12);
         else if (then === 'refuse13') s.end(Buffer.concat([CCS, record23(19)]));
+        else if (then === 'unused12') s.end(Buffer.concat([CCS, rec(0x16, 40), rec(0x15, 26)]));  // Finished, then close_notify
+        else if (then === 'unused13') s.end(Buffer.concat([CCS, record23(53), record23(19)]));   // Finished, then close_notify
         else s.end(Buffer.concat([CCS, record23(53), record23(40)]));      // Finished, then a request
         resolve();
       });
@@ -124,6 +128,30 @@ const record23 = (n) => Buffer.concat([Buffer.from([0x17, 0x03, 0x03, n >> 8, n 
     t.ok(r.answered && r.shapes.length >= 1 && r.shapes.every((k) => !RECORD_CUT.includes(k)),
       `${how}: the next connection keeps the ClientHello in one record (${r.shapes.join(',')})`);
     t.ok(!r.refused.length, `${how}: a browser that goes on is no refusal`);
+  }
+
+  /* A connection the app opened and closed unused (a preconnect, a pooled
+   * one): its Finished, then close_notify, and no request. No refusal: in TLS
+   * 1.2 the close_notify is an alert record too, and was taken for one, so
+   * every unused connection left the technique out of its name for hours. */
+  for (const [how, name] of [['unused12', 'unused-12.example.test'], ['unused13', 'unused-13.example.test']]) {
+    let r = await visit(name, how);
+    t.ok(r.answered && RECORD_CUT.includes(r.shapes[0]) && !r.refused.length, `${how}: closed unused after its Finished, no refusal (${JSON.stringify(r.refused[0] || null)})`);
+    r = await visit(name, 'go on');
+    t.ok(r.answered && RECORD_CUT.includes(r.shapes[0]), `${how}: the technique is kept for the next connection (${r.shapes.join(',')})`);
+  }
+
+  /* The same alert after a technique that only cuts the TCP stream: the
+   * server got the very bytes it would have, so the certificate was its own.
+   * Not the technique's doing: no refusal, and the technique stays. */
+  {
+    const name = 'tcp-only.tcp-cut.test';
+    let r = await visit(name, 'refuse13');
+    const first = seen.filter((x) => x.name === name)[0] || {};
+    t.ok(r.answered && first.shape === 'one' && first.chunks > 1 && !r.refused.length,
+      `an alert after a TCP-only cut is not the technique's refusal (${first.shape}/${first.chunks} chunks, ${JSON.stringify(r.refused[0] || null)})`);
+    r = await visit(name, 'go on');
+    t.ok(r.answered && !r.refused.length, 'and the next connection opens as before');
   }
 
   // A browser that goes on after the record cut: the technique is kept.

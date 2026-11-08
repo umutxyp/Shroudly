@@ -109,6 +109,10 @@ typedef struct {
 
 static cache_entry g_cache[CACHE_SETS][CACHE_WAYS];
 static mutex_t     g_cache_mx;
+/* Names encrypted DNS said do not exist: see doh_no_such_name. */
+#define NX_SLOTS 64
+#define NX_TTL_MS (10 * 60 * 1000)
+static struct { char name[256]; uint64_t t; } g_nx[NX_SLOTS];
 static int         g_init = 0;
 static uint64_t    g_plain_dead_until = 0;   /* under g_cache_mx */
 static uint64_t    g_fwd_dead_until = 0;     /* under g_cache_mx (fwd_heard) */
@@ -125,6 +129,7 @@ void doh_clear_cache(void) {
   memset(g_cache, 0, sizeof(g_cache));
   g_plain_dead_until = 0;   /* a new network: its resolvers are asked again */
   g_fwd_dead_until = 0;     /* and encrypted DNS waited for again */
+  memset(g_nx, 0, sizeof(g_nx));
   mutex_unlock(&g_cache_mx);
 }
 
@@ -323,6 +328,37 @@ void doh_set_local(const char *ip, int port) {
 static _Atomic int g_strict = 0;
 void doh_set_strict(int on) { atomic_store(&g_strict, on ? 1 : 0); }
 int doh_strict(void) { return atomic_load(&g_strict) && g_fwd_port; }
+
+/* Names encrypted DNS said do not exist (NXDOMAIN), for a while. Nobody on
+ * the path can forge that answer, so the last way out has nothing to add for
+ * such a name: Tor would only be started for it (a phone maker's telemetry
+ * name, retired a while ago, started Tor at every Start on OPPO phones). The
+ * plaintext resolvers' "no such name" is not kept: that is what an injector
+ * forges to make a site vanish. */
+
+static void nx_put(const char *name) {
+  if (!name || strlen(name) >= sizeof(g_nx[0].name)) return;
+  mutex_lock(&g_cache_mx);
+  int slot = 0;
+  for (int i = 0; i < NX_SLOTS; i++) {
+    if (g_nx[i].name[0] && strcmp(g_nx[i].name, name) == 0) { slot = i; break; }
+    if (g_nx[i].t < g_nx[slot].t) slot = i;
+  }
+  snprintf(g_nx[slot].name, sizeof(g_nx[slot].name), "%s", name);
+  g_nx[slot].t = now_ms();
+  mutex_unlock(&g_cache_mx);
+}
+
+int doh_no_such_name(const char *name) {
+  if (!name || !name[0]) return 0;
+  int yes = 0;
+  uint64_t now = now_ms();
+  mutex_lock(&g_cache_mx);
+  for (int i = 0; i < NX_SLOTS; i++)
+    if (g_nx[i].name[0] && strcmp(g_nx[i].name, name) == 0) { yes = now - g_nx[i].t < NX_TTL_MS; break; }
+  mutex_unlock(&g_cache_mx);
+  return yes;
+}
 
 int doh_local_addr(struct sockaddr_in *out) {
   if (!g_fwd_port) return -1;
@@ -838,6 +874,7 @@ static int resolve_fresh(const char *name, uint16_t port, int want6,
      * signatures: a forged answer passed as good, and each of them saw the
      * name, after a 4 s wait. */
     if (fr == DNS_NODATA || fr == DNS_PRIVATE || fr == DNS_SERVFAIL) { udp_ask_close(&fwd); return -1; }
+    if (fr == DNS_NXDOMAIN) nx_put(name);
     if (fr == -1 && !dead) {
       /* No answer in time. The forwarder goes on looking, and may only now
        * be getting its routes back (a network that has just returned, its

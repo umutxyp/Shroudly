@@ -1899,7 +1899,7 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
 
 /* apps: application-data records; alerts: plaintext alert records; app1: the
  * length of the first application-data record (see client_refused). */
-typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; uint32_t apps; uint32_t alerts; uint32_t app1; } tls_track;
+typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; uint32_t apps; uint32_t alerts; uint32_t app1; uint32_t ccs; } tls_track;
 
 /* Follow the server's TLS record boundaries. */
 static void tls_follow(tls_track *t, const uint8_t *p, int n) {
@@ -1917,6 +1917,7 @@ static void tls_follow(tls_track *t, const uint8_t *p, int n) {
           t->apps++;
         }
         if (t->hdr[0] == 21) t->alerts++;
+        if (t->hdr[0] == 20) t->ccs++;
       }
     } else {
       uint32_t take = t->left < (uint32_t)n ? t->left : (uint32_t)n;
@@ -1951,14 +1952,18 @@ typedef struct {
 
 /* The client turned the server's handshake down: the server answered, and
  * before any request the client's only word was an alert. In TLS 1.2 that is
- * a plaintext alert record; in TLS 1.3 an encrypted one, a single record of
+ * a plaintext alert record before its ChangeCipherSpec (a client that took
+ * the certificate sends that and its Finished first; an alert after them is
+ * its close_notify, sent when it closes a connection it never used, which is
+ * no refusal: so taken, every unused TLS 1.2 connection left a technique out
+ * of its name for hours); in TLS 1.3 an encrypted one, a single record of
  * 19 bytes (two bytes of alert, its type, a 16-byte tag), where a client that
  * goes on sends its Finished (53 bytes or more) first. A browser does this
  * when the certificate is not the site's (#68: DDoS-Guard, given a
  * ClientHello in two records, answered with its own certificate). */
 static int client_refused(const cut_watch *cw) {
   if (cw->down == 0 || cw->answered || cw->ct.lost) return 0;
-  if (cw->ct.alerts > 0 && cw->ct.apps == 0) return 1;
+  if (cw->ct.alerts > 0 && cw->ct.apps == 0 && cw->ct.ccs == 0) return 1;
   return cw->ct.alerts == 0 && cw->ct.apps == 1 && cw->ct.app1 == 19;
 }
 
@@ -4310,8 +4315,11 @@ static void handle(sock_t client) {
       /* No answer in time: still ND_TRY, so the next connection asks again. */
     }
     /* No address of it reachable at all (a site blocked by its addresses):
-     * the last way out, where there is one. */
-    if (up == SOCK_INVALID && !rq.blockpage && fallback_ok(rq.host) && via_fallback(client, &rq) == 0) goto done;
+     * the last way out, where there is one. Not for a name encrypted DNS
+     * says does not exist: Tor cannot reach it either, and would only be
+     * started for nothing. */
+    if (up == SOCK_INVALID && !rq.blockpage && fallback_ok(rq.host) && !(di.resolved == 0 && doh_no_such_name(rq.host))
+        && via_fallback(client, &rq) == 0) goto done;
     if (up == SOCK_INVALID) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not
        * where nobody could look (--auth-file: the tunnel on Android). */
@@ -4666,7 +4674,15 @@ static void handle(sock_t client) {
     cw.cand = used_cand;
     if (rlen > 0) tls_follow(&cw.tt, rbuf, rlen);
     relay(client, up, &cw);
-    if (cw.host && used_cand >= 0 && used_cand < strategy_preset_count() && client_refused(&cw)) {
+    /* Only a technique that changes what the server is given can be the
+     * cause: a ClientHello in records (TLSREC) or a decoy (FAKE). One that
+     * only cuts the TCP stream hands the server the very same bytes, so the
+     * certificate is the site's own whatever the app did next; taking such an
+     * app's alert for a refusal (the Roblox app, closing connections it no
+     * longer wants) threw away a technique that worked, one after another,
+     * and with it parts of the game. */
+    if (cw.host && used_cand >= 0 && used_cand < strategy_preset_count()
+        && preset_traits(strategy_preset(used_cand)) && client_refused(&cw)) {
       int next = hs_on_refused(cw.host, used_cand);
       char h[256];
       json_host(h, sizeof(h), cw.host);
