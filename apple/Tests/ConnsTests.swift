@@ -16,12 +16,30 @@ final class ConnsTests: XCTestCase {
         XCTAssertNil(Conns.clean("bad name;"))
         let d = UserDefaults(suiteName: "ConnsTests")!
         d.removePersistentDomain(forName: "ConnsTests")
-        XCTAssertEqual(Conns.commands(d), ["BLOCK-CLEAR"])
+        // Each list cleared first, so sending it all again is safe.
+        let empty = ["BLOCK-CLEAR", "TOR-CLEAR", "ONLY-CLEAR", "ONLY-MODE 0"]
+        XCTAssertEqual(Conns.commands(d), empty)
         Conns.set("b.example", blocked: true, d)
         Conns.set("a.example", blocked: true, d)
-        XCTAssertEqual(Conns.commands(d), ["BLOCK-CLEAR", "BLOCK a.example", "BLOCK b.example"])
+        XCTAssertEqual(Conns.commands(d), ["BLOCK-CLEAR", "BLOCK a.example", "BLOCK b.example", "TOR-CLEAR", "ONLY-CLEAR", "ONLY-MODE 0"])
         Conns.set("a.example", blocked: false, d)
         XCTAssertEqual(Conns.blocked(d), ["b.example"])
+    }
+
+    /* Through Tor (a site that turns the country away) and only listed sites. */
+    func testTorSitesAndOnlyListed() {
+        let d = UserDefaults(suiteName: "ConnsTests2")!
+        d.removePersistentDomain(forName: "ConnsTests2")
+        Conns.set("Build.NVIDIA.com.", tor: true, d)
+        XCTAssertEqual(Conns.torSites(d), ["build.nvidia.com"])
+        XCTAssertEqual(Conns.viaTor("api.build.nvidia.com", Conns.torSites(d)), "build.nvidia.com")
+        XCTAssertNil(Conns.viaTor("nvidia.com", Conns.torSites(d)))
+        Conns.setOnly(mode: true, text: "https://YouTube.com/watch\nyoutube.com\nnot a site\nx.com", d)
+        XCTAssertEqual(Conns.onlySites(d), ["youtube.com", "x.com"])
+        XCTAssertEqual(Conns.commands(d), ["BLOCK-CLEAR", "TOR-CLEAR", "TOR build.nvidia.com",
+                                           "ONLY-CLEAR", "ONLY youtube.com", "ONLY x.com", "ONLY-MODE 1"])
+        Conns.set("build.nvidia.com", tor: false, d)
+        XCTAssertEqual(Conns.torSites(d), [])
     }
 
     func testShroudlysOwnNames() {
