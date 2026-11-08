@@ -366,7 +366,7 @@ class ShroudlyVpnService : VpnService() {
             }
             ACTION_CONNS -> {
                 val what = intent.getStringExtra("what") ?: "CONNS"
-                if (active && Regex("^(CONNS|BLOCK [a-z0-9._:-]{1,253}|UNBLOCK [a-z0-9._:-]{1,253})$").matches(what)) later { engine?.send(what) }
+                if (active && Conns.COMMAND.matches(what)) later { engine?.send(what) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return stickyWhileOn()
             }
@@ -1293,7 +1293,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Ready -> {
                 log("Engine listening on 127.0.0.1:${ev.port} (${ev.techniques} techniques)")
                 // The names the user blocked in the Connections list.
-                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
+                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log(Conns.summary(this)) }
                 // What a server cannot take first: a technique of that kind is then not restored for it.
                 val cmds = Avoids.commands(getSharedPreferences(PREFS, MODE_PRIVATE).getString(Avoids.KEY, null), System.currentTimeMillis()) +
                     learnedRaw.commands(System.currentTimeMillis()) + learned.commands(System.currentTimeMillis())

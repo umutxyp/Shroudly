@@ -17,6 +17,9 @@ struct SettingsView: View {
     // the running engine at once, no restart.
     @AppStorage(AdBlock.Key.on, store: AppGroup.defaults) private var adBlock = false
     @State private var allowText = AdBlock.allow().joined(separator: "\n")
+    // Only the listed sites through Shroudly's ways (Shared/Conns.swift).
+    @State private var onlyMode = Conns.onlyMode()
+    @State private var onlyText = AppGroup.defaults.string(forKey: Conns.onlyKey) ?? ""
     // "Count me in the live total" (Shared/OnlineCount.swift): on by default.
     @AppStorage(OnlineCount.key, store: AppGroup.defaults) private var countMe = true
     // "DNS server": the kind and address being typed, and the test's result.
@@ -102,6 +105,11 @@ struct SettingsView: View {
     }
     #endif
 
+    private func saveOnly() {
+        Conns.setOnly(mode: onlyMode, text: onlyText)
+        controller.blocksChanged()
+    }
+
     private var form: some View {
         Form {
             if show(.connection) {
@@ -153,6 +161,32 @@ struct SettingsView: View {
                 .onChange(of: countMe) { _ in controller.countChanged() }
             }
             }
+            #if !os(tvOS)
+            if show(.connection) {
+            // Which sites Shroudly works on: all, or only the listed ones,
+            // every other going out as it is (the desktop's "Only listed
+            // sites"); into the running tunnel at once.
+            Section {
+                Toggle(isOn: $onlyMode) {
+                    Labelled(title: tr("routeListed"), detail: onlyMode ? tr("routeListedDesc") : tr("routeAllDesc"))
+                }
+                .onChange(of: onlyMode) { _ in saveOnly() }
+                if onlyMode {
+                    TextEditor(text: $onlyText)
+                        .font(.system(size: 13, design: .monospaced))
+                        .frame(minHeight: 110)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        #endif
+                        .onChange(of: onlyText) { _ in saveOnly() }
+                    Text(tr("siteListHint")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                }
+            } header: {
+                Text(tr("siteListLabel"))
+            }
+            }
+            #endif
             if show(.connection) {
             Section {
                 Toggle(isOn: $adBlock) {

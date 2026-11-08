@@ -43,6 +43,11 @@
 "connsSearch" = "Axtar və ya bloklamaq üçün sayt yaz";
 "connsSystem" = "Shroudly istifadə edir";
 "connsTitle" = "Saytlara görə bağlantılar";
+"connsTor" = "Tor ilə";
+"connsTorBack" = "Adi yol";
+"connsTorChosen" = "Tor ilə göndərilir";
+"connsTorDesc" = "Ölkəni özü bloklayan sayt (olduğun yerdə əlçatan olmadığını deyən) Tor ilə açılır: yanındakı Tor ilə düyməsinə bas.";
+"connsTorName" = "{host} saytını Tor ilə göndər";
 "copyLogs" = "Qeydləri köçür";
 "dataTransferred" = "Ötürülən məlumat";
 "dnsAroundApple" = "Bu cihazdakı DNS profili və ya tətbiqi (AdGuard, NextDNS, 1.1.1.1, məktəb və ya iş profili) ad sorğularına Shroudly-dən əvvəl cavab verir, ona görə bloklanmış tətbiqlər açılmaya bilər. Onu Ayarlar → Ümumi → VPN və Cihaz İdarəetməsi bölməsində söndürün (Mac: Sistem Ayarları → Şəbəkə → VPN və Filtrlər), sonra Shroudly-ni yenidən başladın.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Nəsə işləmir?";
 "reportWhat" = "Nə işləmir və o vaxt nə edirdiniz?";
 "reportWhatHint" = "Ən azı 50 simvol: nə işləmir, harada və bu baş verəndə nə edirdiniz.";
+"routeAllDesc" = "Hər sayt Shroudly üzərindən keçir və onun şifrələnmiş DNS-ini istifadə edir, beləliklə bloklanmış sayt adını əvvəlcədən yazmağına ehtiyac olmadan işləyir. Bloklanmayan bağlantılar heç toxunulmadan birbaşa ötürülür, ona görə sürətin dəyişmir.";
+"routeListed" = "Yalnız siyahıdakı saytlar";
+"routeListedDesc" = "Yalnız aşağıdakı saytlar Shroudly üzərindən keçir; qalan hər şey birbaşa qoşulur və provayderinin DNS-ini istifadə edir. Mümkün qədər az iz qoymaq istəyirsənsə, bunu seç.";
 "saveLogs" = "Qeydləri saxla";
 "shareOnlineCount" = "Məni də canlı saya əlavə et";
 "shareOnlineCountDesc" = "Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.";
+"siteListHint" = "Hər sətirdə bir domen. Alt domenlər avtomatik daxil edilir (discord.com həm də cdn.discord.com-u əhatə edir).";
+"siteListLabel" = "Shroudly üzərindən keçən saytlar";
 "snowflakeCounts" = "İndi kömək edilən: {now} · Açılandan bəri: {total}";
 "snowflakeDevice" = "Bu cihaz vasitəsilə kömək et";
 "snowflakeFailed" = "Başlamaq mümkün olmadı: {error}";

@@ -108,7 +108,7 @@ const NAME = /^(?=.{3,253}$)[a-z0-9-]+(\.[a-z0-9-]+)+$/;
  * itself uses are marked, and blocking one asks first. */
 function Connections({ active }) {
   const { t } = useLanguage();
-  const [data, setData] = useState({ rows: [], blocked: [] });
+  const [data, setData] = useState({ rows: [], blocked: [], torSites: [] });
   const [q, setQ] = useState('');
   useEffect(() => {
     const e = typeof window !== 'undefined' ? window.electron : null;
@@ -127,11 +127,23 @@ function Connections({ active }) {
       if (r && r.ok) setData((d) => ({ ...d, blocked: r.blocked, rows: d.rows.map((x) => (x.host === host || x.host.endsWith(`.${host}`) ? { ...x, blocked: on ? 1 : 0, active: on ? 0 : x.active } : x)) }));
     } catch {}
   };
+  // Through Tor (the last way out): for a site that turns the user's
+  // country away itself; choosing it is the consent to Tor (main.js).
+  const torSite = async (host, on) => {
+    try {
+      const r = await window.electron.setTorSite(host, on);
+      if (r && r.ok) setData((d) => ({ ...d, torSites: r.torSites }));
+    } catch {}
+  };
+  const torSites = data.torSites || [];
+  const viaTor = (h) => torSites.some((n) => h === n || h.endsWith(`.${n}`));
   const needle = q.trim().toLowerCase();
   const rows = data.rows.filter((r) => !needle || r.host.includes(needle)).slice(0, 100);
   const blockedOnly = (data.blocked || []).filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
   const canBlockTyped = NAME.test(needle) && !(data.blocked || []).includes(needle) && !data.rows.some((r) => r.host === needle)
     && !(data.ownNames || []).some((n) => needle === n || needle.endsWith(`.${n}`));
+  const canTorTyped = canBlockTyped && data.torOk && !viaTor(needle);
+  const torOnly = torSites.filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
   const route = (r) => (r.route === 'tor' ? t('connsRouteTor') : r.route === 'server' ? t('connsRouteServer') : r.route === 'technique' ? t('connsRouteTechnique') : null);
   const badge = (text, color) => (
     <span className="shrink-0 rounded-full px-1.5 py-[1px] text-[10.5px] font-semibold" style={{ background: 'var(--surface-2)', color }}>{text}</span>
@@ -142,6 +154,7 @@ function Connections({ active }) {
       <div>
         <p className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{t('connsTitle')}</p>
         <p className="mt-0.5 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsDesc')}</p>
+        {data.torOk && <p className="mt-1 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsTorDesc')}</p>}
       </div>
       <label className="flex items-center gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
         <SearchIcon className="h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
@@ -149,9 +162,12 @@ function Connections({ active }) {
                className="min-w-0 flex-1 bg-transparent text-[12.5px] outline-none" style={{ color: 'var(--text)' }} />
       </label>
       {canBlockTyped && (
-        <button type="button" onClick={() => { block(needle, true); setQ(''); }} className={`${btn} self-start`}>{t('connsBlockName', { host: needle })}</button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => { block(needle, true); setQ(''); }} className={btn}>{t('connsBlockName', { host: needle })}</button>
+          {canTorTyped && <button type="button" onClick={() => { torSite(needle, true); setQ(''); }} className={btn}>{t('connsTorName', { host: needle })}</button>}
+        </div>
       )}
-      {!rows.length && !blockedOnly.length && !canBlockTyped && (
+      {!rows.length && !blockedOnly.length && !torOnly.length && !canBlockTyped && (
         <p className="py-2 text-[12px]" style={{ color: 'var(--text-faint)' }}>{active ? t('connsEmpty') : t('statsInactiveHint')}</p>
       )}
       <div className="flex flex-col divide-y" style={{ borderColor: 'var(--line)' }}>
@@ -163,6 +179,7 @@ function Connections({ active }) {
                 <span className="truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }} title={r.host}>{r.host}</span>
                 {r.system && badge(t('connsSystem'), 'var(--accent)')}
                 {route(r) && badge(route(r), 'var(--text-dim)')}
+                {viaTor(r.host) && r.route !== 'tor' && badge(t('connsTorChosen'), 'var(--accent)')}
               </div>
               <div className="num mt-0.5 flex flex-wrap gap-x-2.5 text-[11px]" dir="ltr" style={{ color: 'var(--text-faint)', justifyContent: 'flex-start' }}>
                 {r.blocked
@@ -173,9 +190,20 @@ function Connections({ active }) {
                     </>}
               </div>
             </div>
+            {!r.blocked && !r.system && data.torOk && (viaTor(r.host)
+              ? <button type="button" onClick={() => torSite(torSites.find((n) => r.host === n || r.host.endsWith(`.${n}`)), false)} className={btn} style={{ color: 'var(--accent)' }}>{t('connsTorBack')}</button>
+              : <button type="button" onClick={() => torSite(r.host, true)} className={btn}>{t('connsTor')}</button>)}
             {r.blocked
               ? <button type="button" onClick={() => block(r.host, false)} className={btn}>{t('connsAllow')}</button>
               : !r.system && <button type="button" onClick={() => block(r.host, true)} className={btn}>{t('connsBlock')}</button>}
+          </div>
+        ))}
+        {torOnly.map((h) => (
+          <div key={`t-${h}`} className="flex min-w-0 items-center gap-2 py-2">
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--accent)' }} />
+            <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }}>{h}</span>
+            <span className="text-[11px]" style={{ color: 'var(--accent)' }}>{t('connsTorChosen')}</span>
+            <button type="button" onClick={() => torSite(h, false)} className={btn}>{t('connsTorBack')}</button>
           </div>
         ))}
         {blockedOnly.map((h) => (

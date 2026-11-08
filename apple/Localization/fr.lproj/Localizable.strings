@@ -43,6 +43,11 @@
 "connsSearch" = "Rechercher ou saisir un site à bloquer";
 "connsSystem" = "utilisé par Shroudly";
 "connsTitle" = "Connexions par site";
+"connsTor" = "Par Tor";
+"connsTorBack" = "Voie normale";
+"connsTorChosen" = "Envoyé par Tor";
+"connsTorDesc" = "Un site qui refuse lui-même ton pays (il dit ne pas être disponible là où tu es) s'ouvre par Tor : choisis Par Tor à côté.";
+"connsTorName" = "Envoyer {host} par Tor";
 "copyLogs" = "Copier le journal";
 "dataTransferred" = "Données transférées";
 "dnsAroundApple" = "Un profil ou une appli DNS sur cet appareil (AdGuard, NextDNS, 1.1.1.1, un profil d’école ou de travail) répond aux recherches de noms avant Shroudly : les applis bloquées peuvent ne pas s’ouvrir. Désactivez-le dans Réglages → Général → VPN et gestion de l’appareil (Mac : Réglages Système → Réseau → VPN et filtres), puis relancez Shroudly.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Quelque chose ne marche pas ?";
 "reportWhat" = "Qu'est-ce qui ne marche pas, et que faisiez-vous ?";
 "reportWhatHint" = "Au moins 50 caractères : ce qui ne marche pas, où, et ce que vous faisiez à ce moment-là.";
+"routeAllDesc" = "Tous les sites passent par Shroudly et profitent de son DNS chiffré : un site bloqué s’ouvre sans que vous ayez à l’ajouter. Les connexions qui ne sont pas bloquées passent telles quelles, votre débit reste identique.";
+"routeListed" = "Uniquement les sites listés";
+"routeListedDesc" = "Seuls les sites ci-dessous passent par Shroudly ; le reste se connecte directement et utilise le DNS de votre opérateur. À choisir si vous voulez l’intervention la plus discrète possible.";
 "saveLogs" = "Enregistrer le journal";
 "shareOnlineCount" = "Me compter dans le total en direct";
 "shareOnlineCountDesc" = "Envoie un nombre aléatoire, différent à chaque lancement, pour que l’app puisse indiquer combien d’exemplaires tournent. Il n’est envoyé que lorsque la protection est active, et emprunte donc le même chemin protégé que le reste de votre trafic. Désactivez-le si vous préférez que votre réseau ne voie rien de Shroudly.";
+"siteListHint" = "Un domaine par ligne. Les sous-domaines sont inclus automatiquement (discord.com couvre aussi cdn.discord.com).";
+"siteListLabel" = "Sites passant par Shroudly";
 "snowflakeCounts" = "Aidées en ce moment : {now} · Depuis l'activation : {total}";
 "snowflakeDevice" = "Aider depuis cet appareil";
 "snowflakeFailed" = "Impossible de démarrer : {error}";

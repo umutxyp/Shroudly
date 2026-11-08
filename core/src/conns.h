@@ -15,6 +15,14 @@
  * (as the ad and tracker list does) and ends the open ones at once. The list
  * is the app's to keep: it gives it again at every start. UNBLOCK lifts one,
  * BLOCK-CLEAR all.
+ *
+ * TOR <name> sends that name and every name under it through the last way
+ * out (Tor) when it is set and may be used, for a site that turns the
+ * user's country away itself (a geo-block no technique changes); the open
+ * connections end so the next ones go there. UNTOR lifts one, TOR-CLEAR
+ * all. ONLY <name> (with ONLY-MODE 1) makes Shroudly work on the listed
+ * names alone: every other one goes out as it is, untouched, with the
+ * network's DNS. ONLY-CLEAR empties the list, ONLY-MODE 0 ends the mode.
  */
 #ifndef SHROUDLY_CONNS_H
 #define SHROUDLY_CONNS_H
@@ -46,6 +54,18 @@ int  conns_blocked(const char *host);
 int  conns_block(const char *host);
 int  conns_unblock(const char *host);
 void conns_block_clear(void);
+
+/* 1 if the user sends this name (or one above it) through Tor. */
+int  conns_tor(const char *host);
+int  conns_tor_add(const char *host);
+int  conns_tor_del(const char *host);
+void conns_tor_clear(void);
+/* Only listed names worked on: 1 if this one is left as it is. */
+int  conns_only_skip(const char *host);
+int  conns_only_add(const char *host);
+int  conns_only_del(const char *host);
+void conns_only_clear(void);
+void conns_only_mode(int on);
 
 /* The list as JSON lines: {"type":"conn",...} per name, most recent first,
  * then {"type":"conns_end","n":N}. */

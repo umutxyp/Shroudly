@@ -4074,6 +4074,20 @@ static void via_upstream(sock_t client, socks_req *rq, uint8_t *first) {
   sock_close(up);
 }
 
+/* A name left as it is (ONLY): connected where the network's own DNS says,
+ * no technique, nothing changed. */
+static void via_plain(sock_t client, socks_req *rq) {
+  int fam = 0;
+  dial_info di;
+  sock_t up = dial(rq->host, rq->port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
+  if (up == SOCK_INVALID) { socks_reply(client, rq, 0); return; }
+  if (socks_reply(client, rq, 1) != 0) { sock_close(up); return; }
+  if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return; }
+  conns_route(t_conn, CONN_DIRECT);
+  relay(client, up, NULL);
+  sock_close(up);
+}
+
 /* ── the last way out (--fallback-file) ──────────────────────────────────
  * Only where it may be used: set, the user's own server not (that one
  * carries everything already), and a destination off this computer and its
@@ -4146,8 +4160,17 @@ static void handle(sock_t client) {
   /* A name the user blocked in the Connections list. */
   if (!ip_literal(rq.host) && conns_blocked(rq.host)) { user_refuse(client, &rq, first, -1); goto done; }
 
+  /* Only listed names are worked on, and this is not one: out as it is. */
+  if (!rq.blockpage && conns_only_skip(rq.host)) { via_plain(client, &rq); goto done; }
+
   /* The user's own server carries it (see via_upstream). */
   if (g_cfg.upstream_kind && upstream_carries(rq.host)) { via_upstream(client, &rq, first); goto done; }
+
+  /* A name the user sends through Tor (the Connections list): the last way
+   * out first, for a site that turns the user's country away itself. Not
+   * running yet, that is said with the name (proxy_report), which starts it
+   * or asks the user, and the usual way goes on meanwhile. */
+  if (!rq.blockpage && fallback_ok(rq.host) && conns_tor(rq.host) && via_fallback(client, &rq) == 0) goto done;
 
   /* The last way out carries this name already (see fb_put). */
   if (!rq.blockpage && fallback_ok(rq.host) && fb_is(rq.host) && via_fallback(client, &rq) == 0) goto done;
@@ -4732,6 +4755,24 @@ void engine_fallback_forget(void) {
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
   cuts_forget();
+}
+
+/* UNTOR: the name and every name under it leave the last way out's list
+ * too, so their next connections take the usual way at once. */
+void engine_fallback_drop(const char *name) {
+  char n[256];
+  size_t nl = 0;
+  while (name && *name == ' ') name++;
+  for (; name && name[nl] && nl + 1 < sizeof(n); nl++) n[nl] = (char)tolower((unsigned char)name[nl]);
+  n[nl] = 0;
+  if (!nl) return;
+  mutex_lock(&g_fb_mx);
+  for (int i = 0; i < FB_SLOTS; i++) {
+    size_t hl = strlen(g_fb[i].host);
+    if (hl < nl || strcmp(g_fb[i].host + hl - nl, n) != 0) continue;
+    if (hl == nl || g_fb[i].host[hl - nl - 1] == '.') memset(&g_fb[i], 0, sizeof(g_fb[i]));
+  }
+  mutex_unlock(&g_fb_mx);
 }
 
 /* Everything an engine has learned about hosts and resolvers: a start is a

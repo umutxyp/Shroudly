@@ -1180,6 +1180,12 @@ class SettingsActivity : Activity() {
             findViewById<View>(R.id.torDivider)?.let { d -> d.layoutParams = d.layoutParams.apply { height = 0 } }
             connection.addView(c, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(20f) })
         }
+        // Which sites Shroudly works on: all (as by default), or only the
+        // listed ones, every other going out as it is (as the desktop's
+        // "Only listed sites"; Conns.setOnly tells the engine at once).
+        connection.addView(TextView(this, null, 0, R.style.SectionTitle).apply { setText(R.string.siteListLabel) },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        connection.addView(sitesCard(), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         val names = listOf(R.string.tabGeneral, R.string.tabConnection, R.string.tabSharing, R.string.tabApp)
         val accent = Accent.color(this, R.attr.accentLight)
         val buttons = names.map { n ->
@@ -1215,6 +1221,57 @@ class SettingsActivity : Activity() {
         }
         col.addView(bar, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(14f) })
         pick(getSharedPreferences("ui", MODE_PRIVATE).getInt("settingsTab", 0).coerceIn(0, 3))
+    }
+
+    /* "Only listed sites": a switch, what it means, and the list (one site
+     * per line, a site covering every name under it), kept as it is typed. */
+    private fun sitesCard(): View {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = getDrawable(R.drawable.card)
+            setPadding(dpx(14f), dpx(6f), dpx(12f), dpx(12f))
+        }
+        val desc = TextView(this).apply {
+            textSize = 13f
+            setTextColor(getColor(R.color.text_dim))
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+        }
+        val box = EditText(this).apply {
+            setText(Conns.onlySites(this@SettingsActivity).joinToString("\n"))
+            setHint(R.string.siteListHint)
+            textDirection = View.TEXT_DIRECTION_LTR
+            textSize = 14f
+            minLines = 3
+            maxLines = 10
+            gravity = android.view.Gravity.TOP or android.view.Gravity.START
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            setTextColor(getColor(R.color.text))
+            setHintTextColor(getColor(R.color.text_faint))
+        }
+        val sw = Switch(this).apply {
+            setText(R.string.routeListed)
+            textSize = 15f
+            setTextColor(getColor(R.color.text))
+            minHeight = dpx(52f)
+            isChecked = Conns.onlyMode(this@SettingsActivity)
+        }
+        fun show() {
+            desc.setText(if (sw.isChecked) R.string.routeListedDesc else R.string.routeAllDesc)
+            box.visibility = if (sw.isChecked) View.VISIBLE else View.GONE
+        }
+        val main = android.os.Handler(android.os.Looper.getMainLooper())
+        val save = Runnable { Conns.setOnly(this, sw.isChecked, box.text.toString().split('\n')) }
+        sw.setOnCheckedChangeListener { _, _ -> show(); main.removeCallbacks(save); save.run() }
+        box.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(t: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(t: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun afterTextChanged(e: android.text.Editable?) { main.removeCallbacks(save); main.postDelayed(save, 800) }
+        })
+        show()
+        card.addView(sw)
+        card.addView(desc)
+        card.addView(box, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(8f) })
+        return card
     }
 
     private fun dpx(v: Float): Int = android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics).toInt()

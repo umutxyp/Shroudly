@@ -294,7 +294,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         guard !stopping, let e = engine else { return }
         let cmds = Conns.commands()
         e.send(cmds.joined(separator: "\n"))
-        if cmds.count > 1 { log("Connections: \(cmds.count - 1) names you blocked are refused") }
+        var said: [String] = []
+        let b = Conns.blocked().count, t = Conns.torSites().count
+        if b > 0 { said.append("\(b) name\(b == 1 ? "" : "s") you blocked are refused") }
+        if t > 0 { said.append("\(t) site\(t == 1 ? "" : "s") you send through Tor go there first") }
+        if Conns.onlyMode() { said.append("only the \(Conns.onlySites().count) listed sites are worked on, the rest go out as they are") }
+        if !said.isEmpty { log("Connections: " + said.joined(separator: "; ")) }
     }
 
     // MARK: block ads and trackers

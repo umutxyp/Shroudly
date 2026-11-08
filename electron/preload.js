@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('electron', {
   // A site needs Tor: the user's yes (true) or no (false) (issue #77).
   answerTor: (yes) => ipcRenderer.invoke('tor:answer', yes === true),
   setBlocked: (host, on) => ipcRenderer.invoke('conns:block', host, on),
+  setTorSite: (host, on) => ipcRenderer.invoke('conns:tor', host, on),
   // Where Shroudly keeps its data (data-dir.js, issue #72).
   getDataDir: () => ipcRenderer.invoke('datadir:get'),
   pickDataDir: () => ipcRenderer.invoke('datadir:pick'),

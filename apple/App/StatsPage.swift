@@ -255,7 +255,17 @@ struct ConnectionsSection: View {
     @EnvironmentObject private var controller: TunnelController
     @State private var rows: [ConnRow] = []
     @State private var blocked: [String] = Conns.blocked()
+    @State private var torSites: [String] = Conns.torSites()
     @State private var query = ""
+
+    /* Through Tor (the Mac, which has Tor; not with your own server). */
+    private var torOk: Bool {
+        #if os(macOS)
+        return SettingsStore().load().ownServer.isEmpty
+        #else
+        return false
+        #endif
+    }
 
     private var needle: String { query.trimmingCharacters(in: .whitespaces).lowercased() }
     private var own: String? { SettingsStore().load().ownServerLink?.host }
@@ -265,6 +275,10 @@ struct ConnectionsSection: View {
             Text(tr("connsTitle")).font(.system(size: 13.5, weight: .semibold)).foregroundStyle(Theme.text)
             Text(tr("connsDesc")).font(.system(size: 12)).foregroundStyle(Theme.faintText)
                 .fixedSize(horizontal: false, vertical: true)
+            if torOk {
+                Text(tr("connsTorDesc")).font(.system(size: 12)).foregroundStyle(Theme.faintText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.faintText)
                 TextField(tr("connsSearch"), text: $query)
@@ -285,9 +299,17 @@ struct ConnectionsSection: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.danger)
             }
+            if torOk, let typed = Conns.clean(needle), typed.contains("."), Conns.viaTor(typed, torSites) == nil,
+               !rows.contains(where: { $0.host == typed }), !Conns.isSystem(typed, own: own) {
+                Button(tr("connsTorName", ["host": typed])) { tor(typed, true); query = "" }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.accent)
+            }
             let shown = rows.filter { needle.isEmpty || $0.host.contains(needle) }.prefix(100)
             let only = blocked.filter { b in !rows.contains { $0.host == b } && (needle.isEmpty || b.contains(needle)) }
-            if shown.isEmpty && only.isEmpty {
+            let torOnly = torOk ? torSites.filter { t in !rows.contains { $0.host == t } && (needle.isEmpty || t.contains(needle)) } : []
+            if shown.isEmpty && only.isEmpty && torOnly.isEmpty {
                 Text(on ? tr("connsEmpty") : tr("statsInactiveHint"))
                     .font(.system(size: 12.5))
                     .foregroundStyle(Theme.faintText)
@@ -296,6 +318,7 @@ struct ConnectionsSection: View {
             VStack(spacing: 0) {
                 ForEach(Array(shown)) { r in row(r.host, meta(r), r.blocked) }
                 ForEach(only, id: \.self) { h in row(h, tr("connsBlocked"), true) }
+                ForEach(torOnly, id: \.self) { h in row(h, tr("connsTorChosen"), false) }
             }
         }
         .padding(16)
@@ -305,6 +328,7 @@ struct ConnectionsSection: View {
             while !Task.isCancelled {
                 rows = on ? await controller.conns() : []
                 blocked = Conns.blocked()
+                torSites = Conns.torSites()
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
@@ -317,6 +341,16 @@ struct ConnectionsSection: View {
                 Text(sub).font(.system(size: 11.5)).foregroundStyle(isBlocked ? Theme.warn : Theme.faintText).lineLimit(1)
             }
             Spacer(minLength: 8)
+            if torOk && !isBlocked && !Conns.isSystem(host, own: own) {
+                let by = Conns.viaTor(host, torSites)
+                Button(by != nil ? tr("connsTorBack") : tr("connsTor")) { if let by { tor(by, false) } else { tor(host, true) } }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(by != nil ? Theme.accent : Theme.text)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Theme.cardRaised, in: RoundedRectangle(cornerRadius: 8))
+            }
             if isBlocked || !Conns.isSystem(host, own: own) {
                 Button(isBlocked ? tr("connsAllow") : tr("connsBlock")) { block(host, !isBlocked) }
                     .buttonStyle(.plain)
@@ -343,7 +377,14 @@ struct ConnectionsSection: View {
         default: break
         }
         if Conns.isSystem(r.host, own: own) { parts.append(tr("connsSystem")) }
+        if r.route != "tor", torOk, Conns.viaTor(r.host, torSites) != nil { parts.append(tr("connsTorChosen")) }
         return parts.joined(separator: " · ")
+    }
+
+    private func tor(_ host: String, _ on: Bool) {
+        guard let now = Conns.set(host, tor: on) else { return }
+        torSites = now
+        Task { await controller.torSiteChanged(on: on) }
     }
 
     private func block(_ host: String, _ on: Bool) {

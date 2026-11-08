@@ -3514,6 +3514,10 @@ ipcMain.handle('conns:list', async () => {
   return {
     rows: rows.map((r) => ({ ...r, system: SystemHosts.isSystemHost(r.host, [own]) })),
     blocked: store.get('userBlocked', []),
+    torSites: store.get('torSites', []),
+    // Whether a site can be sent through Tor here (not on Windows 7/8 or a
+    // processor with no Tor, not while your own server carries everything).
+    torOk: !torUnsupported() && !store.get('ownServer'),
     // The names Shroudly needs: never offered for blocking (typed ones neither).
     ownNames: [...SystemHosts.SYSTEM_HOSTS, ...(own ? [own] : [])],
   };
@@ -3548,6 +3552,24 @@ ipcMain.handle('conns:block', (e, host, on) => {
     if (SystemHosts.isSystemHost(host, [own])) return { ok: false, why: 'system' };
   }
   return engine.setBlocked(host, on === true);
+});
+
+/* "Send through Tor" in the Connections list: choosing it is the user's
+ * consent to Tor, so the last way out is turned on (the engine starts again
+ * with it) and allowed; Tor itself starts when the site is next opened. */
+ipcMain.handle('conns:tor', (e, host, on) => {
+  if (!engine) return { ok: false };
+  if (on === true && torUnsupported()) return { ok: false, why: 'unsupported' };
+  const r = engine.setTorSite(host, on === true);
+  if (r.ok && on === true) {
+    if (!store.get('torApproved', false)) {
+      store.set('torApproved', true);
+      addLog('info', `The last way out: allowed by the user (sending ${String(host)} through Tor); Tor starts when it is needed`);
+    }
+    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    else if (engine.isActive() && engine.tor) engine.tor.need();
+  }
+  return r;
 });
 
 ipcMain.handle('update:getState', () => (updater ? updater.state : { status: 'unsupported' }));

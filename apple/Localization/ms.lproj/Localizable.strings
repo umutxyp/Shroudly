@@ -43,6 +43,11 @@
 "connsSearch" = "Cari atau taip laman untuk disekat";
 "connsSystem" = "digunakan Shroudly";
 "connsTitle" = "Sambungan mengikut laman";
+"connsTor" = "Melalui Tor";
+"connsTorBack" = "Laluan biasa";
+"connsTorChosen" = "Dihantar melalui Tor";
+"connsTorDesc" = "Laman yang menyekat negara anda sendiri (mengatakan ia tidak tersedia di tempat anda) dibuka melalui Tor: pilih Melalui Tor di sebelahnya.";
+"connsTorName" = "Hantar {host} melalui Tor";
 "copyLogs" = "Salin log";
 "dataTransferred" = "Data dipindahkan";
 "dnsAroundApple" = "Profil atau aplikasi DNS pada peranti ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kerja) menjawab carian nama sebelum Shroudly, jadi aplikasi yang disekat mungkin tidak dibuka. Matikannya dalam Tetapan → Umum → VPN & Pengurusan Peranti (Mac: Tetapan Sistem → Rangkaian → VPN & Penapis), kemudian mulakan semula Shroudly.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Ada yang tidak berfungsi?";
 "reportWhat" = "Apa yang tidak berfungsi, dan apa yang sedang anda lakukan?";
 "reportWhatHint" = "Sekurang-kurangnya 50 aksara: apa yang tidak berfungsi, di mana, dan apa yang anda lakukan ketika ia berlaku.";
+"routeAllDesc" = "Setiap laman melalui Shroudly dan menggunakan DNS tersulitnya, jadi laman yang disekat dapat dibuka tanpa anda perlu menamakannya terlebih dahulu. Sambungan yang tidak disekat diteruskan secara terus tanpa diubah, jadi kelajuan anda kekal sama.";
+"routeListed" = "Hanya laman tersenarai";
+"routeListedDesc" = "Hanya laman di bawah yang melalui Shroudly; selebihnya bersambung secara terus dan menggunakan DNS pembekal internet anda. Pilih ini jika anda mahu kesan yang sekecil mungkin.";
 "saveLogs" = "Simpan log";
 "shareOnlineCount" = "Kira saya dalam jumlah pengguna dalam talian";
 "shareOnlineCountDesc" = "Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.";
+"siteListHint" = "Satu domain bagi setiap baris. Subdomain disertakan secara automatik (discord.com juga merangkumi cdn.discord.com).";
+"siteListLabel" = "Laman yang dihalakan melalui Shroudly";
 "snowflakeCounts" = "Sedang dibantu: {now} · Sejak dihidupkan: {total}";
 "snowflakeDevice" = "Bantu melalui peranti ini";
 "snowflakeFailed" = "Tidak dapat bermula: {error}";

@@ -43,6 +43,11 @@
 "connsSearch" = "検索、またはブロックするサイトを入力";
 "connsSystem" = "Shroudly が使用";
 "connsTitle" = "サイト別の接続";
+"connsTor" = "Tor 経由";
+"connsTorBack" = "通常の経路";
+"connsTorChosen" = "Tor 経由で送信中";
+"connsTorDesc" = "あなたの国を自ら拒むサイト（お住まいの地域では利用できないと表示される）は Tor 経由で開けます：横の「Tor 経由」を選んでください。";
+"connsTorName" = "{host} を Tor 経由で送る";
 "copyLogs" = "ログをコピー";
 "dataTransferred" = "転送データ量";
 "dnsAroundApple" = "このデバイスの DNS プロファイルやアプリ（AdGuard、NextDNS、1.1.1.1、学校や職場のプロファイル）が Shroudly より先に名前の問い合わせに答えているため、ブロックされたアプリが開かないことがあります。設定 → 一般 → VPN とデバイス管理 でオフにし（Mac：システム設定 → ネットワーク → VPN とフィルタ）、Shroudly を起動し直してください。";
@@ -157,9 +162,14 @@
 "reportTitle" = "うまく動かないものがありますか？";
 "reportWhat" = "何が動かず、そのとき何をしていましたか？";
 "reportWhatHint" = "50 文字以上で：何が、どこで動かないか、起きたとき何をしていたか。";
+"routeAllDesc" = "すべてのサイトが Shroudly を経由し、暗号化 DNS を使います。そのため、あらかじめ登録しなくてもブロックされたサイトが開きます。ブロックされていない通信はそのまま素通りするので、速度は変わりません。";
+"routeListed" = "リストのサイトのみ";
+"routeListedDesc" = "下のサイトだけが Shroudly を経由し、その他は直接接続してプロバイダーの DNS を使います。介入を最小限にしたい場合はこちらを選んでください。";
 "saveLogs" = "ログを保存";
 "shareOnlineCount" = "オンライン人数に自分を含める";
 "shareOnlineCountDesc" = "起動ごとに変わるランダムな番号を送り、何台が動いているかを表示できるようにします。保護がオンのときだけ送られるので、ほかの通信と同じ保護された経路を通ります。ネットワークに Shroudly の通信を一切見せたくない場合はオフにしてください。";
+"siteListHint" = "1 行に 1 つのドメイン。サブドメインは自動的に含まれます（discord.com は cdn.discord.com も対象）。";
+"siteListLabel" = "Shroudly を経由するサイト";
 "snowflakeCounts" = "いま助けている人：{now} · オンにしてから：{total}";
 "snowflakeDevice" = "このデバイスで手伝う";
 "snowflakeFailed" = "起動できませんでした：{error}";

@@ -43,6 +43,11 @@
 "connsSearch" = "Tìm hoặc nhập trang để chặn";
 "connsSystem" = "Shroudly dùng";
 "connsTitle" = "Kết nối theo trang";
+"connsTor" = "Qua Tor";
+"connsTorBack" = "Đường thường";
+"connsTorChosen" = "Đang gửi qua Tor";
+"connsTorDesc" = "Trang tự chặn quốc gia của bạn (báo không khả dụng ở nơi bạn ở) sẽ mở qua Tor: chọn Qua Tor bên cạnh nó.";
+"connsTorName" = "Gửi {host} qua Tor";
 "copyLogs" = "Sao chép nhật ký";
 "dataTransferred" = "Dữ liệu đã truyền";
 "dnsAroundApple" = "Một hồ sơ hoặc ứng dụng DNS trên thiết bị này (AdGuard, NextDNS, 1.1.1.1, hồ sơ trường học hoặc công ty) trả lời việc tra cứu tên trước Shroudly, nên ứng dụng bị chặn có thể không mở được. Hãy tắt nó trong Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị (Mac: Cài đặt hệ thống → Mạng → VPN & Bộ lọc), rồi khởi động lại Shroudly.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Có gì đó không hoạt động?";
 "reportWhat" = "Điều gì không hoạt động, và lúc đó bạn đang làm gì?";
 "reportWhatHint" = "Ít nhất 50 ký tự: điều gì không hoạt động, ở đâu, và bạn đang làm gì khi chuyện xảy ra.";
+"routeAllDesc" = "Mọi trang đều đi qua Shroudly và dùng DNS mã hóa của nó, nên một trang bị chặn vẫn hoạt động mà bạn không cần thêm tên trang đó trước. Các kết nối không bị chặn được chuyển thẳng đi, không bị thay đổi gì, nên tốc độ của bạn vẫn như cũ.";
+"routeListed" = "Chỉ các trang trong danh sách";
+"routeListedDesc" = "Chỉ các trang bên dưới đi qua Shroudly; mọi thứ khác kết nối trực tiếp và dùng DNS của nhà mạng. Hãy chọn mục này nếu bạn muốn Shroudly can thiệp ít nhất có thể.";
 "saveLogs" = "Lưu nhật ký";
 "shareOnlineCount" = "Tính tôi vào tổng số trực tuyến";
 "shareOnlineCountDesc" = "Gửi một số ngẫu nhiên thay đổi sau mỗi lần mở ứng dụng, để ứng dụng có thể hiển thị số bản đang chạy. Số này chỉ được gửi khi đang bật bảo vệ, nên nó đi qua cùng đường truyền được bảo vệ như phần còn lại trong lưu lượng của bạn. Hãy tắt tùy chọn này nếu bạn không muốn mạng của mình thấy bất cứ thứ gì từ Shroudly.";
+"siteListHint" = "Mỗi dòng một tên miền. Tên miền con được tự động bao gồm (discord.com bao gồm cả cdn.discord.com).";
+"siteListLabel" = "Các trang đi qua Shroudly";
 "snowflakeCounts" = "Đang giúp: {now} · Từ khi bật: {total}";
 "snowflakeDevice" = "Giúp qua thiết bị này";
 "snowflakeFailed" = "Không thể khởi động: {error}";

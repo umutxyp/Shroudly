@@ -233,6 +233,8 @@ object Report {
         .safe("torInThisApk") { TorRoute.bundled(ctx) }
         .safe("torLastResort") { TorRoute.enabled(ctx) }
         .safe("torAllowed") { TorRoute.approved(ctx) }
+        .safe("torSites") { Conns.torSites(ctx).size }
+        .safe("onlyListedSites") { if (Conns.onlyMode(ctx)) Conns.onlySites(ctx).size else "off" }
         .safe("helpOthers") { Snowflake.enabled(ctx) }
         .safe("countMeIn") { OnlineCount.enabled(ctx) }
         .safe("startAtBoot") { AppSettings.startAtBoot(ctx) }

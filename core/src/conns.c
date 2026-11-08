@@ -20,6 +20,13 @@ static host_row g_h[CONNS_HOSTS];
 static struct { int used; int h; sock_t a, b; } g_act[CONNS_ACTIVE];
 static char g_block[CONNS_BLOCK][256];
 static int g_nblock;
+/* Names the user sends through Tor (TOR), and the only names Shroudly
+ * works on when that is chosen (ONLY, with ONLY-MODE 1). */
+static char g_tor[CONNS_BLOCK][256];
+static int g_ntor;
+static char g_only[CONNS_BLOCK][256];
+static int g_nonly;
+static int g_only_mode;
 static mutex_t g_mx;
 static atomic_int g_ready;
 
@@ -206,6 +213,120 @@ void conns_block_clear(void) {
   mutex_unlock(&g_mx);
 }
 
+/* ── lists of names the user keeps (TOR, ONLY) ───────────────────────────
+ * As the blocked names: a name covers every name under it; the app gives
+ * the lists again at every start. */
+static int list_has(char (*list)[256], int n, const char *host) {
+  for (int i = 0; i < n; i++) if (under(host, list[i])) return 1;
+  return 0;
+}
+
+static int list_add(char (*list)[256], int *n, const char *host) {
+  if (!atomic_load(&g_ready)) conns_init();
+  char h[256];
+  while (host && *host == ' ') host++;
+  lower(h, sizeof(h), host);
+  if (!name_ok(h)) return -1;
+  mutex_lock(&g_mx);
+  int have = 0;
+  for (int i = 0; i < *n; i++) if (!strcmp(list[i], h)) have = 1;
+  if (!have && *n < CONNS_BLOCK) snprintf(list[(*n)++], 256, "%s", h);
+  mutex_unlock(&g_mx);
+  return 0;
+}
+
+static int list_del(char (*list)[256], int *n, const char *host) {
+  char h[256];
+  while (host && *host == ' ') host++;
+  lower(h, sizeof(h), host);
+  if (!atomic_load(&g_ready)) return 0;
+  int found = 0;
+  mutex_lock(&g_mx);
+  for (int i = 0; i < *n; i++) {
+    if (strcmp(list[i], h) != 0) continue;
+    memmove(list[i], list[i + 1], (size_t)(*n - i - 1) * 256);
+    (*n)--; found = 1; break;
+  }
+  mutex_unlock(&g_mx);
+  return found;
+}
+
+/* Open connections to the name end now, so the app's next ones take the
+ * new way (through Tor, or back). */
+static int end_open(const char *host) {
+  char h[256];
+  lower(h, sizeof(h), host);
+  int ended = 0;
+  mutex_lock(&g_mx);
+  for (int i = 0; i < CONNS_ACTIVE; i++) {
+    if (!g_act[i].used || !under(g_h[g_act[i].h].host, h)) continue;
+    if (g_act[i].a != SOCK_INVALID) shutdown(g_act[i].a, SHUT_RDWR_C);
+    if (g_act[i].b != SOCK_INVALID) shutdown(g_act[i].b, SHUT_RDWR_C);
+    ended++;
+  }
+  mutex_unlock(&g_mx);
+  return ended;
+}
+
+int conns_tor(const char *host) {
+  if (!atomic_load(&g_ready) || !host || !host[0]) return 0;
+  char h[256];
+  lower(h, sizeof(h), host);
+  mutex_lock(&g_mx);
+  int yes = list_has(g_tor, g_ntor, h);
+  mutex_unlock(&g_mx);
+  return yes;
+}
+
+int conns_tor_add(const char *host) {
+  if (list_add(g_tor, &g_ntor, host) != 0) return -1;
+  while (host && *host == ' ') host++;
+  return end_open(host);
+}
+
+int conns_tor_del(const char *host) {
+  int found = list_del(g_tor, &g_ntor, host);
+  while (host && *host == ' ') host++;
+  if (found) end_open(host);
+  return found;
+}
+
+void conns_tor_clear(void) {
+  if (!atomic_load(&g_ready)) return;
+  mutex_lock(&g_mx);
+  g_ntor = 0;
+  mutex_unlock(&g_mx);
+}
+
+int conns_only_add(const char *host) { return list_add(g_only, &g_nonly, host); }
+int conns_only_del(const char *host) { return list_del(g_only, &g_nonly, host); }
+
+void conns_only_clear(void) {
+  if (!atomic_load(&g_ready)) return;
+  mutex_lock(&g_mx);
+  g_nonly = 0;
+  mutex_unlock(&g_mx);
+}
+
+void conns_only_mode(int on) {
+  if (!atomic_load(&g_ready)) conns_init();
+  mutex_lock(&g_mx);
+  g_only_mode = on ? 1 : 0;
+  mutex_unlock(&g_mx);
+}
+
+/* 1 when only listed names are worked on and this one is not among them:
+ * it goes out as it is, untouched. */
+int conns_only_skip(const char *host) {
+  if (!atomic_load(&g_ready) || !host || !host[0]) return 0;
+  char h[256];
+  lower(h, sizeof(h), host);
+  mutex_lock(&g_mx);
+  int skip = g_only_mode && !list_has(g_only, g_nonly, h);
+  mutex_unlock(&g_mx);
+  return skip;
+}
+
 static const char *route_name(int r) {
   return r == CONN_TECHNIQUE ? "technique" : r == CONN_SERVER ? "server" : r == CONN_TOR ? "tor" : "direct";
 }
@@ -234,11 +355,12 @@ void conns_emit(void) {
     h[o] = 0;
     int blocked = 0;
     for (int i = 0; i < g_nblock && !blocked; i++) if (under(r->host, g_block[i])) blocked = 1;
+    int tor = list_has(g_tor, g_ntor, r->host);
     engine_printf("{\"type\":\"conn\",\"host\":\"%s\",\"active\":%d,\"conns\":%llu,\"up\":%llu,\"down\":%llu,"
-                  "\"route\":\"%s\",\"blocked\":%d,\"refused\":%llu,\"ago\":%llu}\n",
+                  "\"route\":\"%s\",\"blocked\":%d,\"refused\":%llu,\"ago\":%llu,\"tor\":%d}\n",
                   h, r->active, (unsigned long long)r->conns, (unsigned long long)atomic_load(&r->up),
                   (unsigned long long)atomic_load(&r->down), route_name(r->route), blocked,
-                  (unsigned long long)r->blocked, (unsigned long long)(now > r->last ? now - r->last : 0));
+                  (unsigned long long)r->blocked, (unsigned long long)(now > r->last ? now - r->last : 0), tor);
   }
   mutex_unlock(&g_mx);
   engine_printf("{\"type\":\"conns_end\",\"n\":%d}\n", n);

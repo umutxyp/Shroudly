@@ -43,6 +43,11 @@
 "connsSearch" = "Bigere an ji bo astengkirinê malperekê binivîse";
 "connsSystem" = "Shroudly bi kar tîne";
 "connsTitle" = "Girêdan li gorî malperê";
+"connsTor" = "Bi Tor";
+"connsTorBack" = "Riya asayî";
+"connsTorChosen" = "Bi Tor tê şandin";
+"connsTorDesc" = "Malpera ku bi xwe welatê te qebûl nake (dibêje li cihê te ne berdest e) bi Tor vedibe: li kêlekê wê «Bi Tor» hilbijêre.";
+"connsTorName" = "{host} bi Tor bişîne";
 "copyLogs" = "Tomaran kopî bike";
 "dataTransferred" = "Daneyên veguhestî";
 "dnsAroundApple" = "Profîl an sepaneke DNS li ser vê amûrê (AdGuard, NextDNS, 1.1.1.1, profîlek dibistanê an karê) berî Shroudly bersiva lêgerînên navan dide, ji ber vê yekê dibe ku sepanên astengkirî venebin. Wê di Mîheng → Giştî → VPN û Rêveberiya Amûrê de bigire (Mac: Mîhengên Pergalê → Tor → VPN û Parzûn), paşê Shroudly dîsa bide destpêkirin.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Tiştek naxebite?";
 "reportWhat" = "Çi naxebite, û wê demê te çi dikir?";
 "reportWhatHint" = "Herî kêm 50 tîp: çi naxebite, li ku derê û dema ku qewimî te çi dikir.";
+"routeAllDesc" = "Her malper di ser Shroudly re diçe û DNS-a wê ya şîfrekirî distîne, ji ber vê yekê malpereke astengkirî dixebite bêyî ku tu pêşî navê wê binivîsî. Girêdanên ku ne astengkirî ne bêyî destwerdanê rasterast derbas dibin, ji ber vê yekê leza te wekî xwe dimîne.";
+"routeListed" = "Tenê malperên di lîsteyê de";
+"routeListedDesc" = "Tenê malperên li jêr di ser Shroudly re diçin; yên din hemû rasterast girê didin û DNS-a pêşkêşkerê te bi kar tînin. Heke tu şopa herî biçûk dixwazî, vê hilbijêre.";
 "saveLogs" = "Tomaran tomar bike";
 "shareOnlineCount" = "Min jî têxe hejmara zindî";
 "shareOnlineCountDesc" = "Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.";
+"siteListHint" = "Di her rêzê de domainek. Binedomain bi xweber tê de ne (discord.com cdn.discord.com jî dihewîne).";
+"siteListLabel" = "Malperên ku di ser Shroudly re diçin";
 "snowflakeCounts" = "Niha alîkarî tê kirin: {now} · Ji dema vekirinê ve: {total}";
 "snowflakeDevice" = "Bi rêya vê amûrê alîkarî bike";
 "snowflakeFailed" = "Dest pê nekir: {error}";

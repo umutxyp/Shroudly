@@ -415,6 +415,16 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
       if (ended >= 0) engine_printf("{\"type\":\"block\",\"ok\":1,\"ended\":%d}\n", ended);
     }
     else if (!strncmp(line, "UNBLOCK ", 8)) conns_unblock(line + 8);
+    else if (!strcmp(line, "TOR-CLEAR")) conns_tor_clear();
+    else if (!strncmp(line, "TOR ", 4)) {
+      int ended = conns_tor_add(line + 4);
+      if (ended >= 0) engine_printf("{\"type\":\"tor_site\",\"ok\":1,\"ended\":%d}\n", ended);
+    }
+    else if (!strncmp(line, "UNTOR ", 6)) { conns_tor_del(line + 6); engine_fallback_drop(line + 6); }
+    else if (!strcmp(line, "ONLY-CLEAR")) conns_only_clear();
+    else if (!strncmp(line, "ONLY-MODE ", 10)) conns_only_mode(line[10] == '1');
+    else if (!strncmp(line, "ONLY ", 5)) conns_only_add(line + 5);
+    else if (!strncmp(line, "UNONLY ", 7)) conns_only_del(line + 7);
     else if (!strncmp(line, "AVOID ", 6)) {
       /* AVOID <host> <kinds> <seconds ago>: what a server could not take. */
       char host[256]; unsigned mask = 0; unsigned long long secs = 0;

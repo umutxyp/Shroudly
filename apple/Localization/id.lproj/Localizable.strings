@@ -43,6 +43,11 @@
 "connsSearch" = "Cari atau ketik situs untuk diblokir";
 "connsSystem" = "dipakai Shroudly";
 "connsTitle" = "Koneksi per situs";
+"connsTor" = "Lewat Tor";
+"connsTorBack" = "Jalur biasa";
+"connsTorChosen" = "Dikirim lewat Tor";
+"connsTorDesc" = "Situs yang memblokir negaramu sendiri (bilang tidak tersedia di tempatmu) terbuka lewat Tor: pilih Lewat Tor di sebelahnya.";
+"connsTorName" = "Kirim {host} lewat Tor";
 "copyLogs" = "Salin log";
 "dataTransferred" = "Data ditransfer";
 "dnsAroundApple" = "Profil atau aplikasi DNS di perangkat ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kantor) menjawab pencarian nama sebelum Shroudly, jadi aplikasi yang diblokir mungkin tidak terbuka. Matikan di Pengaturan → Umum → VPN & Manajemen Perangkat (Mac: Pengaturan Sistem → Jaringan → VPN & Filter), lalu mulai Shroudly lagi.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Ada yang tidak berfungsi?";
 "reportWhat" = "Apa yang tidak berfungsi, dan apa yang sedang Anda lakukan?";
 "reportWhatHint" = "Minimal 50 karakter: apa yang tidak berfungsi, di mana, dan apa yang sedang Anda lakukan saat itu terjadi.";
+"routeAllDesc" = "Semua situs melewati Shroudly dan memakai DNS terenkripsinya, jadi situs yang diblokir terbuka tanpa perlu Anda daftarkan dulu. Koneksi yang tidak diblokir diteruskan apa adanya, sehingga kecepatan tetap sama.";
+"routeListed" = "Hanya situs dalam daftar";
+"routeListedDesc" = "Hanya situs di bawah yang melewati Shroudly; selebihnya terhubung langsung dan memakai DNS penyedia Anda. Pilih ini jika Anda ingin campur tangan sekecil mungkin.";
 "saveLogs" = "Simpan log";
 "shareOnlineCount" = "Hitung saya dalam jumlah pengguna online";
 "shareOnlineCountDesc" = "Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.";
+"siteListHint" = "Satu domain per baris. Subdomain otomatis termasuk (discord.com juga mencakup cdn.discord.com).";
+"siteListLabel" = "Situs yang melewati Shroudly";
 "snowflakeCounts" = "Sedang dibantu: {now} · Sejak diaktifkan: {total}";
 "snowflakeDevice" = "Bantu lewat perangkat ini";
 "snowflakeFailed" = "Tidak bisa dimulai: {error}";

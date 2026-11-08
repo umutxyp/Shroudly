@@ -43,6 +43,11 @@
 "connsSearch" = "搜索,或输入要屏蔽的网站";
 "connsSystem" = "Shroudly 使用";
 "connsTitle" = "按网站的连接";
+"connsTor" = "经由 Tor";
+"connsTorBack" = "常规路径";
+"connsTorChosen" = "经由 Tor 发送";
+"connsTorDesc" = "自行拒绝你所在国家的网站（提示在你所在地区不可用）可以经由 Tor 打开：点它旁边的“经由 Tor”。";
+"connsTorName" = "让 {host} 经由 Tor";
 "copyLogs" = "复制日志";
 "dataTransferred" = "已传输数据";
 "dnsAroundApple" = "此设备上的 DNS 描述文件或应用（AdGuard、NextDNS、1.1.1.1、学校或工作描述文件）先于 Shroudly 回答域名查询，因此被封锁的应用可能打不开。请在 设置 → 通用 → VPN 与设备管理 中关闭它（Mac：系统设置 → 网络 → VPN 与过滤器），然后重新启动 Shroudly。";
@@ -157,9 +162,14 @@
 "reportTitle" = "有什么用不了吗？";
 "reportWhat" = "什么用不了？当时你在做什么？";
 "reportWhatHint" = "至少 50 个字：什么用不了、在哪里，以及出问题时你在做什么。";
+"routeAllDesc" = "所有网站都经过 Shroudly 并使用其加密 DNS，因此被封网站无需事先添加即可打开。未被封锁的连接原样直通，速度不受影响。";
+"routeListed" = "仅列表中的网站";
+"routeListedDesc" = "只有下列网站经过 Shroudly，其余直接连接并使用运营商的 DNS。如果希望干预最小，请选择此项。";
 "saveLogs" = "保存日志";
 "shareOnlineCount" = "将我计入在线人数";
 "shareOnlineCountDesc" = "发送一个每次启动都会变化的随机编号，以便应用显示有多少副本正在运行。它只在保护开启时发送，因此与你的其他流量走同一条受保护的路径。如果你不希望网络看到来自 Shroudly 的任何内容，请关闭。";
+"siteListHint" = "每行一个域名。子域名自动包含（discord.com 也涵盖 cdn.discord.com）。";
+"siteListLabel" = "通过 Shroudly 的网站";
 "snowflakeCounts" = "正在帮助：{now} · 开启以来：{total}";
 "snowflakeDevice" = "通过此设备帮助";
 "snowflakeFailed" = "无法启动：{error}";

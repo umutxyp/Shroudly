@@ -120,7 +120,7 @@ class ShroudlyProxyService : Service() {
             }
             ShroudlyVpnService.ACTION_CONNS -> {
                 val what = intent.getStringExtra("what") ?: "CONNS"
-                if (Regex("^(CONNS|BLOCK [a-z0-9._:-]{1,253}|UNBLOCK [a-z0-9._:-]{1,253})$").matches(what)) work.execute { if (active) engine?.send(what) }
+                if (Conns.COMMAND.matches(what)) work.execute { if (active) engine?.send(what) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return if (active) START_STICKY else START_NOT_STICKY
             }
@@ -286,7 +286,7 @@ class ShroudlyProxyService : Service() {
                     engine?.send(cmds.joinToString("\n"))
                     log("Techniques remembered for ${cmds.count { it.startsWith("LEARN") }} sites restored")
                 }
-                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
+                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log(Conns.summary(this)) }
                 // A session that has been up a while has earned a fresh restart budget.
                 try {
                     work.execute {

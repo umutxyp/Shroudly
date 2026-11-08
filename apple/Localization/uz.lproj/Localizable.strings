@@ -43,6 +43,11 @@
 "connsSearch" = "Qidiring yoki bloklash uchun sayt yozing";
 "connsSystem" = "Shroudly ishlatadi";
 "connsTitle" = "Saytlar bo'yicha ulanishlar";
+"connsTor" = "Tor orqali";
+"connsTorBack" = "Odatiy yo‘l";
+"connsTorChosen" = "Tor orqali yuboriladi";
+"connsTorDesc" = "Mamlakatingizni o‘zi kiritmaydigan sayt (siz turgan joyda mavjud emasligini aytadigan) Tor orqali ochiladi: yonidagi «Tor orqali» tugmasini bosing.";
+"connsTorName" = "{host} saytini Tor orqali yuborish";
 "copyLogs" = "Jurnalni nusxalash";
 "dataTransferred" = "Uzatilgan maʼlumotlar";
 "dnsAroundApple" = "Bu qurilmadagi DNS profili yoki ilovasi (AdGuard, NextDNS, 1.1.1.1, maktab yoki ish profili) nom soʻrovlariga Shroudly’dan oldin javob beradi, shuning uchun bloklangan ilovalar ochilmasligi mumkin. Uni Sozlamalar → Umumiy → VPN va qurilma boshqaruvi boʻlimida oʻchiring (Mac: Tizim sozlamalari → Tarmoq → VPN va filtrlar), soʻng Shroudly’ni qayta ishga tushiring.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Nimadir ishlamayaptimi?";
 "reportWhat" = "Nima ishlamayapti va oʻsha paytda nima qilayotgan edingiz?";
 "reportWhatHint" = "Kamida 50 belgi: nima ishlamayapti, qayerda va bu sodir boʻlganda nima qilayotgan edingiz.";
+"routeAllDesc" = "Har bir sayt Shroudly orqali oʻtadi va uning shifrlangan DNS xizmatidan foydalanadi, shuning uchun bloklangan sayt uni oldindan koʻrsatmasangiz ham ishlaydi. Bloklanmagan ulanishlar hech qanday oʻzgarishsiz toʻgʻridan-toʻgʻri oʻtkaziladi, shuning uchun tezligingiz oʻzgarmaydi.";
+"routeListed" = "Faqat roʻyxatdagi saytlar";
+"routeListedDesc" = "Faqat quyidagi saytlar Shroudly orqali oʻtadi; qolgan hammasi toʻgʻridan-toʻgʻri ulanadi va provayderingizning DNS xizmatidan foydalanadi. Imkon qadar kam iz qoldirishni istasangiz, shuni tanlang.";
 "saveLogs" = "Jurnalni saqlash";
 "shareOnlineCount" = "Meni jonli hisobga qoʻshish";
 "shareOnlineCountDesc" = "Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.";
+"siteListHint" = "Har bir qatorga bitta domen. Subdomenlar avtomatik qoʻshiladi (discord.com yozilsa, cdn.discord.com ham kiradi).";
+"siteListLabel" = "Shroudly orqali oʻtadigan saytlar";
 "snowflakeCounts" = "Hozir yordam berilmoqda: {now} · Yoqilgandan beri: {total}";
 "snowflakeDevice" = "Shu qurilma orqali yordam berish";
 "snowflakeFailed" = "Ishga tushmadi: {error}";

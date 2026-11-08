@@ -44,6 +44,18 @@ const store = { get: (k, d) => (k in mem ? mem[k] : d), set: (k, v) => { mem[k] 
   em._applyBlocks();
   t.ok(sent[0] === 'BLOCK-CLEAR' && sent.includes('BLOCK tracker.example'), 'after a start the blocks are given to the engine again');
 
+  // Through Tor (a site that turns the user's country away itself): kept,
+  // sent at once, taken back, given again after a start.
+  r = em.setTorSite('Geo.Example.', true);
+  t.ok(r.ok && sent.at(-1) === 'TOR geo.example' && mem.torSites.includes('geo.example'), 'a site sent through Tor is kept and sent at once');
+  em.setTorSite('other.example', true);
+  r = em.setTorSite('other.example', false);
+  t.ok(r.ok && sent.at(-1) === 'UNTOR other.example' && !mem.torSites.includes('other.example'), 'back the usual way: dropped and sent');
+  t.ok(!em.setTorSite('bad name;rm', true).ok, 'a malformed name is refused');
+  sent.length = 0;
+  em._applyTorSites();
+  t.ok(sent[0] === 'TOR-CLEAR' && sent.includes('TOR geo.example'), 'after a start the Tor sites are given to the engine again');
+
   // Not running: nothing asked, an empty list.
   em.proc = null;
   t.ok((await em.connsList()).length === 0, 'not running: an empty list');

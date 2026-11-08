@@ -229,6 +229,25 @@ final class TunnelController: ObservableObject {
 
     /* The blocked names changed (Shared/Conns.swift): the running tunnel
      * gives them to the engine again. */
+    /* A site sent through Tor from the Connections list (the Mac): the
+     * user's consent to Tor, so the last way out is allowed, and turned on
+     * (protection started again with it) if it was off. */
+    func torSiteChanged(on: Bool) async {
+        if on {
+            AppGroup.defaults.set(true, forKey: "torApproved")
+            let store = SettingsStore()
+            let old = store.load()
+            if !old.torLastResort {
+                var new = old
+                new.torLastResort = true
+                store.save(new)
+                await settingsChanged(from: old, to: new)
+                return
+            }
+        }
+        blocksChanged()
+    }
+
     func blocksChanged() {
         guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return }
         try? session.sendProviderMessage(Data(ProviderMessage.blocks.rawValue.utf8)) { _ in }

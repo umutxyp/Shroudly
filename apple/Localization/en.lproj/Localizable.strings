@@ -43,6 +43,11 @@
 "connsSearch" = "Search or type a site to block";
 "connsSystem" = "used by Shroudly";
 "connsTitle" = "Connections by site";
+"connsTor" = "Through Tor";
+"connsTorBack" = "Usual way";
+"connsTorChosen" = "Sent through Tor";
+"connsTorDesc" = "A site that turns your country away itself (it says it is not available where you are) opens through Tor: choose Through Tor beside it.";
+"connsTorName" = "Send {host} through Tor";
 "copyLogs" = "Copy logs";
 "dataTransferred" = "Data transferred";
 "dnsAroundApple" = "A DNS profile or app on this device (AdGuard, NextDNS, 1.1.1.1, a school or work profile) answers apps' name lookups before Shroudly, so blocked apps may not open. Turn it off in Settings → General → VPN & Device Management (Mac: System Settings → Network → VPN & Filters), then start Shroudly again.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Something not working?";
 "reportWhat" = "What doesn't work, and what were you doing?";
 "reportWhatHint" = "At least 50 characters: what doesn't work, where, and what you were doing when it happened.";
+"routeAllDesc" = "Every site goes through Shroudly and gets its encrypted DNS, so a blocked site works without you having to name it first. Connections that are not blocked are passed straight through untouched, so your speed stays the same.";
+"routeListed" = "Only listed sites";
+"routeListedDesc" = "Only the sites below go through Shroudly; everything else connects directly and uses your provider’s DNS. Choose this if you want the smallest possible footprint.";
 "saveLogs" = "Save logs";
 "shareOnlineCount" = "Count me in the live total";
 "shareOnlineCountDesc" = "Sends a random number that changes every launch, so the app can show how many copies are running. It is only sent while protection is on, so it travels the same protected path as the rest of your traffic. Turn it off if you would rather your network saw nothing from Shroudly at all.";
+"siteListHint" = "One domain per line. Subdomains are included automatically (discord.com also covers cdn.discord.com).";
+"siteListLabel" = "Sites routed through Shroudly";
 "snowflakeCounts" = "Helping now: {now} · Since it was turned on: {total}";
 "snowflakeDevice" = "Help through this device";
 "snowflakeFailed" = "It could not start: {error}";

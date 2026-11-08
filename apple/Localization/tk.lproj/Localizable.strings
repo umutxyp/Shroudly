@@ -43,6 +43,11 @@
 "connsSearch" = "Gözläň ýa-da bloklamak üçin saýt ýazyň";
 "connsSystem" = "Shroudly ulanýar";
 "connsTitle" = "Saýtlar boýunça birikmeler";
+"connsTor" = "Tor arkaly";
+"connsTorBack" = "Adaty ýol";
+"connsTorChosen" = "Tor arkaly iberilýär";
+"connsTorDesc" = "Ýurduňyzy özi goýbermeýän saýt (siziň ýeriňizde elýeterli däl diýýän) Tor arkaly açylýar: ýanyndaky «Tor arkaly» düwmesine basyň.";
+"connsTorName" = "{host} saýtyny Tor arkaly ibermek";
 "copyLogs" = "Ýazgylary göçüriň";
 "dataTransferred" = "Geçirilen maglumat";
 "dnsAroundApple" = "Bu enjamdaky DNS profili ýa-da programmasy (AdGuard, NextDNS, 1.1.1.1, mekdep ýa-da iş profili) at soraglaryna Shroudly-den öň jogap berýär, şonuň üçin petiklenen programmalar açylman biler. Ony Sazlamalar → Umumy → VPN we enjamy dolandyrmak bölüminde öçüriň (Mac: Ulgam sazlamalary → Tor → VPN we süzgüçler), soňra Shroudly-ni täzeden başladyň.";
@@ -157,9 +162,14 @@
 "reportTitle" = "Bir zat işlemeýärmi?";
 "reportWhat" = "Näme işlemeýär we şol wagt näme edýärdiňiz?";
 "reportWhatHint" = "Iň azyndan 50 nyşan: näme işlemeýär, nirede we bu bolanda näme edýärdiňiz.";
+"routeAllDesc" = "Her bir saýt Shroudly arkaly geçýär we onuň şifrlenen DNS-ini ulanýar, şonuň üçin petiklenen saýt siz ony öňünden görkezmeseňiz hem işleýär. Petiklenmedik birikmeler hiç üýtgedilmän göni geçirilýär, şonuň üçin tizligiňiz öňküsi ýaly galýar.";
+"routeListed" = "Diňe sanawdaky saýtlar";
+"routeListedDesc" = "Diňe aşakdaky saýtlar Shroudly arkaly geçýär; galan ähli zat göni birikýär we üpjün edijiňiziň DNS-ini ulanýar. Mümkin boldugyça az yz galdyrmak isleseňiz, şuny saýlaň.";
 "saveLogs" = "Ýazgylary sakla";
 "shareOnlineCount" = "Meni onlaýn sana goşmak";
 "shareOnlineCountDesc" = "Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.";
+"siteListHint" = "Her setirde bir domen. Kiçi domenler awtomatik goşulýar (discord.com cdn.discord.com-y hem öz içine alýar).";
+"siteListLabel" = "Shroudly arkaly geçýän saýtlar";
 "snowflakeCounts" = "Häzir kömek edilýän: {now} · Açylaly bäri: {total}";
 "snowflakeDevice" = "Şu enjam arkaly kömek et";
 "snowflakeFailed" = "Başlap bolmady: {error}";

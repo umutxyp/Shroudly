@@ -1214,6 +1214,7 @@ class EngineManager {
         this._restoreTechniques();
         // The names the user blocked in the Connections list (issue #74).
         this._applyBlocks();
+        this._applyTorSites();
         // Encrypted DNS routes that go through the engine can start now.
         this.doh.setSocksPort(msg.port);
         clearTimeout(this._dohReport);
@@ -1689,6 +1690,31 @@ class EngineManager {
     this._command('BLOCK-CLEAR');
     for (const h of list) this._command(`BLOCK ${h}`);
     this.log('info', `Connections: ${list.length} name${list.length === 1 ? '' : 's'} you blocked are refused`);
+  }
+
+  /* The names the user sends through Tor (Settings key torSites; the
+   * Connections list), into a running engine: a site that turns the user's
+   * country away itself goes straight through the last way out. */
+  _applyTorSites() {
+    const list = this.store.get('torSites', []);
+    if (!Array.isArray(list) || !list.length) return;
+    this._command('TOR-CLEAR');
+    for (const h of list) this._command(`TOR ${h}`);
+    this.log('info', `Connections: ${list.length} site${list.length === 1 ? '' : 's'} you send through Tor go there first`);
+  }
+
+  /* A name sent through Tor, or back the usual way, from the Connections
+   * list: kept, and into the running engine at once (its open connections
+   * end, so the next ones take the new way). */
+  setTorSite(host, on) {
+    const h = String(host || '').trim().toLowerCase().replace(/\.$/, '');
+    if (!/^[a-z0-9._:-]{1,253}$/.test(h)) return { ok: false };
+    const now = new Set(this.store.get('torSites', []));
+    if (on) now.add(h); else now.delete(h);
+    this.store.set('torSites', [...now].sort());
+    this._command(on ? `TOR ${h}` : `UNTOR ${h}`);
+    this.log('info', on ? `Connections: ${h} goes through Tor (the last way out) from now on` : `Connections: ${h} goes the usual way again`);
+    return { ok: true, torSites: [...now] };
   }
 
   /* A name blocked or allowed again in the Connections list: kept, and into
