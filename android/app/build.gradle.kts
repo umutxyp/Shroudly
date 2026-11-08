@@ -154,6 +154,10 @@ dependencies {
     // source): the bundle for Play only. Not app-update-ktx, which brings
     // coroutines and newer AndroidX for nothing this app uses.
     if (playBuild) implementation("com.google.android.play:app-update:2.1.0")
+    // Play flagged the androidx.fragment 1.0.0 that app-update brings through
+    // play-services-basement as outdated ("consider 1.2.1+", release 20661):
+    // a newer one for the bundle, still without coroutines.
+    if (playBuild) implementation("androidx.fragment:fragment:1.3.6")
     testImplementation("junit:junit:4.13.2")
 }
 
