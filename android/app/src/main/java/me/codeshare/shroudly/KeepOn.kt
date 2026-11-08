@@ -178,7 +178,7 @@ object KeepOn {
             )
             val body = ctx.getString(R.string.androidKeepOnOffer)
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.getString(R.string.app_name))
                 .setContentText(body)
                 .setStyle(Notification.BigTextStyle().bigText(body))

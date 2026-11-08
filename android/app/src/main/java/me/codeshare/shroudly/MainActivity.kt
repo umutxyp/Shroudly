@@ -60,13 +60,24 @@ class MainActivity : Activity() {
     private lateinit var detailMore: TextView
     private lateinit var hint: View
     private lateinit var hintLabel: TextView
+    private lateinit var tapHint: TextView
+    // The state the phone last ticked for (render).
+    private var lastFelt: Protection.State? = null
     // The desktop's frame (Chrome): the status pill on top, the tab shown.
     private lateinit var pill: TextView
     private var tab = Chrome.Tab.PROTECTION
     private lateinit var connections: TextView
     private lateinit var connectionsTotal: TextView
-    private lateinit var upload: TextView
-    private lateinit var download: TextView
+    private lateinit var rateUp: TextView
+    private lateinit var rateDown: TextView
+    private lateinit var sparkUp: Spark
+    private lateinit var sparkDown: Spark
+    private lateinit var bypassed: TextView
+    private lateinit var transferred: TextView
+    private lateinit var onlineCard: View
+    // The last counters the speeds were worked out from.
+    private var rateAt = 0L
+    private var rateBytes = longArrayOf(-1, -1)
     private lateinit var uptime: TextView
     private lateinit var statsHint: View
     private lateinit var onlineNow: TextView
@@ -161,18 +172,25 @@ class MainActivity : Activity() {
         Tv.rings(window)
 
         toggle = findViewById(R.id.toggle)
-        orb = Orb(findViewById(R.id.halo), findViewById(R.id.ring), findViewById(R.id.toggleIcon))
+        orb = Orb(findViewById(R.id.halo), findViewById(R.id.ring), findViewById(R.id.toggleIconClosed), findViewById(R.id.toggleIcon))
         status = findViewById(R.id.status)
         detail = findViewById(R.id.detail)
         detailMore = findViewById(R.id.detailMore)
         hint = findViewById(R.id.hint)
         hintLabel = findViewById(R.id.hintLabel)
+        tapHint = findViewById(R.id.tapHint)
         connections = findViewById(R.id.connections)
         // Connections by site, with blocking (issue #74).
         findViewById<View>(R.id.connectionsTile).setOnClickListener { startActivity(android.content.Intent(this, ConnectionsActivity::class.java)) }
         connectionsTotal = findViewById(R.id.connectionsTotal)
-        upload = findViewById(R.id.upload)
-        download = findViewById(R.id.download)
+        rateUp = findViewById(R.id.rateUp)
+        rateDown = findViewById(R.id.rateDown)
+        sparkUp = findViewById(R.id.sparkUp)
+        sparkDown = findViewById(R.id.sparkDown)
+        sparkUp.color = getColor(R.color.text_dim)
+        bypassed = findViewById(R.id.bypassed)
+        transferred = findViewById(R.id.transferred)
+        onlineCard = findViewById(R.id.onlineCard)
         uptime = findViewById(R.id.uptime)
         statsHint = findViewById(R.id.statsHint)
         onlineNow = findViewById(R.id.onlineNow)
@@ -201,6 +219,13 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.website).setOnClickListener { open("https://codeshare.me") }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        // Logs from About (not a tab: Chrome.tabs).
+        val logsTab = Chrome.Tab.LOGS in Chrome.tabs(this)
+        findViewById<View>(R.id.logsRow).apply {
+            visibility = if (logsTab) View.GONE else View.VISIBLE
+            setOnClickListener { showTab(Chrome.Tab.LOGS) }
+        }
+        findViewById<View>(R.id.logsRowDivider).visibility = if (logsTab) View.GONE else View.VISIBLE
         findViewById<View>(R.id.reportLink).setOnClickListener { startActivity(Intent(this, ReportActivity::class.java)) }
         findViewById<View>(R.id.helpOthers).setOnClickListener { showHelpOthers() }
         // Not where Tor itself is blocked: the user there needs the help.
@@ -843,10 +868,24 @@ class MainActivity : Activity() {
             }
         }
 
-        // Under the status, the one button; nothing while it works. Filled in
-        // the accent to start, quieter to stop (the desktop's).
+        // Phones and tablets: the round switch is the button ("Tap to start"
+        // under it), with a tick of the phone as it comes on or goes off.
+        // Android TV keeps the desktop's one button under the status, for
+        // the remote; nothing while it works. Filled in the accent to start,
+        // quieter to stop.
+        val tv = Tv.isTv(this)
+        tapHint.visibility = if (tv) View.GONE else View.VISIBLE
+        tapHint.text = if (busy) " " else getString(if (on) R.string.tapToStop else R.string.tapToStart)
+        if (!tv && lastFelt != null && lastFelt != Protection.state && (on || Protection.state == Protection.State.OFF)) {
+            toggle.performHapticFeedback(
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    if (on) android.view.HapticFeedbackConstants.CONFIRM else android.view.HapticFeedbackConstants.REJECT
+                } else android.view.HapticFeedbackConstants.VIRTUAL_KEY,
+            )
+        }
+        lastFelt = Protection.state
         if (!busy) hintLabel.show(getString(if (on) R.string.stop else R.string.start))
-        hint.visibility = if (busy) View.INVISIBLE else View.VISIBLE
+        hint.visibility = if (!tv) View.GONE else if (busy) View.INVISIBLE else View.VISIBLE
         hint.setBackgroundResource(if (on) R.drawable.card else R.drawable.button_accent)
         val onButton = getColor(if (on) R.color.text else R.color.on_accent)
         hintLabel.setTextColor(onButton)
@@ -862,19 +901,44 @@ class MainActivity : Activity() {
             val total = text(R.string.totalCount, "count" to n.format(s.connsTotal))
             // With "Block ads and trackers": how many it ended, beside it.
             connectionsTotal.show(if (s.blocked > 0) "$total · ${getString(R.string.adsBlocked)}: ${n.format(s.blocked)}" else total)
-            upload.show(Format.bytes(s.bytesUp))
-            download.show(Format.bytes(s.bytesDown))
+            bypassed.show(n.format(s.desync))
+            transferred.show(Format.bytes(s.bytesUp + s.bytesDown))
             uptime.show(Format.duration(android.os.SystemClock.elapsedRealtime() - Protection.startedAt))
+            // The speeds: what the counters grew by since the last look.
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (rateBytes[0] < 0) {
+                rateBytes = longArrayOf(s.bytesDown, s.bytesUp)
+                rateAt = now
+                rateDown.show("0 B/s")
+                rateUp.show("0 B/s")
+            } else if (now - rateAt >= 900) {
+                val dt = (now - rateAt) / 1000f
+                val down = maxOf(0L, s.bytesDown - rateBytes[0]) / dt
+                val up = maxOf(0L, s.bytesUp - rateBytes[1]) / dt
+                rateBytes = longArrayOf(s.bytesDown, s.bytesUp)
+                rateAt = now
+                rateDown.show("${Format.bytes(down.toLong())}/s")
+                rateUp.show("${Format.bytes(up.toLong())}/s")
+                sparkDown.push(down)
+                sparkUp.push(up)
+            }
             statsHint.visibility = View.GONE
             // The live total this phone is counted in ("Count me in", Settings).
             val online = OnlineCount.online()
-            if (online != null) onlineNow.show("${getString(R.string.onlineNow)}: ${n.format(online)}")
-            onlineNow.visibility = if (online != null) View.VISIBLE else View.GONE
+            if (online != null) onlineNow.show(n.format(online))
+            onlineCard.visibility = if (online != null) View.VISIBLE else View.GONE
         } else {
             // Set only when it changes: the window redraws every second, and a
             // text set again is announced to accessibility services again.
-            for (v in listOf(connections, upload, download, uptime)) v.show("–")
-            onlineNow.visibility = View.GONE
+            for (v in listOf(connections, bypassed, transferred, uptime)) v.show("–")
+            rateDown.show("0 B/s")
+            rateUp.show("0 B/s")
+            if (rateBytes[0] >= 0) {
+                rateBytes = longArrayOf(-1, -1)
+                sparkDown.clear()
+                sparkUp.clear()
+            }
+            onlineCard.visibility = View.GONE
             connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
             // "Start protection to see live traffic": while it is off, not
             // while it starts or stops.
@@ -1164,8 +1228,27 @@ class MainActivity : Activity() {
      * up in a public issue. */
     /* A tab of the bottom bar: Protection, Stats, Logs and About are pages
      * here; Settings and Follow are screens of their own (Chrome.go). */
+    // A sideways swipe goes to the tab beside it (Chrome.Swipe).
+    private val swipe by lazy { Chrome.Swipe(this, { tab }) { showTab(it) } }
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        swipe.feed(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
     private fun showTab(t: Chrome.Tab) {
         if (t == Chrome.Tab.SETTINGS || t == Chrome.Tab.FOLLOW) { Chrome.go(this, t); return }
+        // The new page slides in a little from the side it is on.
+        val from = Chrome.Tab.values().indexOf(tab)
+        val to = Chrome.Tab.values().indexOf(t)
+        val page = findViewById<View>(R.id.root)
+        if (from != to && android.animation.ValueAnimator.areAnimatorsEnabled()) {
+            val rtl = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+            val side = (if (to > from) 1 else -1) * (if (rtl) -1 else 1)
+            page.translationX = side * 28 * resources.displayMetrics.density
+            page.alpha = 0.5f
+            page.animate().translationX(0f).alpha(1f).setDuration(200).start()
+        }
         tab = t
         findViewById<View>(R.id.pageHome).visibility = if (t == Chrome.Tab.PROTECTION) View.VISIBLE else View.GONE
         findViewById<View>(R.id.pageStats).visibility = if (t == Chrome.Tab.STATS) View.VISIBLE else View.GONE

@@ -32,7 +32,7 @@ final class NetworkWatch: ObservableObject {
         case "warn-server": ownServerDown = Down(server: "SOCKS5 203.0.113.5:1080", why: "noAnswer"); preview = true
         case "warn-national": national = "IR"; preview = true
         case "exit": exit = "203.0.113.7"; preview = true
-        case "help", "whatsnew": preview = true
+        case "help", "whatsnew", "on": preview = true
         default: break
         }
         #endif

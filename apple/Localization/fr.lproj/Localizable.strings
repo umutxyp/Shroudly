@@ -188,6 +188,8 @@
 "tabGeneral" = "Général";
 "tabSharing" = "Serveur et partage";
 "tagline" = "Invisible. Imparable.";
+"tapToStart" = "Touchez pour démarrer";
+"tapToStop" = "Touchez pour arrêter";
 "torAskCard" = "Aucune technique n'a ouvert {host} sur ce réseau. Shroudly peut l'ouvrir via le réseau Tor : beaucoup plus lent (les pages et les vidéos chargent lentement), et certains sites demandent un captcha. Ta réponse est gardée ; tu peux la changer dans les Réglages.";
 "torAskNo" = "Non";
 "torAskNotice" = "Aucune technique n'a ouvert {host} sur ce réseau. Shroudly peut l'ouvrir via le réseau Tor, son dernier recours, mais beaucoup plus lentement. Ouvre Shroudly pour l'autoriser ou refuser.";
@@ -198,6 +200,6 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Une nouvelle apparence, comme l'app Shroudly pour ordinateurs : six onglets en bas, Statistiques avec débit en direct et connexions par site, Journaux et Suivre.\nSur Mac, Shroudly est désormais le proxy du Mac, comme la version pour ordinateurs : bien plus léger. Pour les apps qui ignorent le proxy : Réglages → Connexion → Toutes les apps via Shroudly (VPN).";
+"whatsNewApple" = "Touchez l'interrupteur rond pour démarrer ou arrêter : le logo de Shroudly, œil fermé à l'arrêt et ouvert une fois activé.\nOnglets en Liquid Glass en bas : appuyez et glissez dessus, ou balayez la page. Les journaux sont maintenant dans À propos.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

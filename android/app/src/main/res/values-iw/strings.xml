@@ -109,6 +109,7 @@
     <string name="appSection">אפליקציה</string>
     <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליח לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="autoRawUnreachable">אפליקציית {app} לא מצליחה להגיע לשרתים שלה: הרשת הזו חוסמת את הכתובות שלהם, ו-Shroudly לא יכול לעקוף את זה בלי שרת במקום אחר. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
+    <string name="bypassed">נעקפו</string>
     <string name="connections">חיבורים</string>
     <string name="connsAllow">אישור</string>
     <string name="connsBlock">חסימה</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">בשימוש Shroudly</string>
     <string name="connsTitle">חיבורים לפי אתר</string>
     <string name="copyLogs">להעתיק יומנים</string>
+    <string name="dataTransferred">נתונים שהועברו</string>
     <string name="dnsAroundAndroid">משהו אחר במכשיר הזה עונה לבדיקות השמות של האפליקציות (DNS פרטי או אפליקציית DNS), ולכן אפליקציות חסומות עלולות לא להיפתח. בהגדרות ← רשת ← DNS פרטי בחרו כבוי או אוטומטי, סגרו אפליקציות DNS והפעילו את Shroudly מחדש.</string>
     <string name="dnsErrorEmpty">הקלידו את כתובת השרת, למשל {example}.</string>
     <string name="dnsErrorHost">זו לא כתובת IP וגם לא שם שרת; הקלידו אותה כמו {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">אין עדיין רשומות ביומן</string>
     <string name="notProtected">לא מוגן</string>
     <string name="onlineNow">מחוברים עכשיו</string>
+    <string name="onlineNowDesc">אנשים שמשתמשים ב-Shroudly ברגע זה, בכל העולם</string>
     <string name="openSourceDesc">Shroudly הוא תוכנה חינמית בקוד פתוח ברישיון MIT: כל אחד יכול לקרוא, לבדוק ולבנות את הקוד שלו.</string>
     <string name="openSourceTitle">קוד פתוח</string>
     <string name="ownServer">שרת משלכם</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">כללי</string>
     <string name="tabSharing">שרת ושיתוף</string>
     <string name="tagline">בלתי נראה. בלתי ניתן לעצירה.</string>
+    <string name="tapToStart">הקישו כדי להתחיל</string>
+    <string name="tapToStop">הקישו כדי לעצור</string>
     <string name="testing">בודק…</string>
     <string name="torAskCard">אף שיטה לא פתחה את {host} ברשת הזו. Shroudly יכול לפתוח אותו דרך רשת Tor: איטי הרבה יותר (דפים וסרטונים נטענים לאט), ויש אתרים שמבקשים captcha. התשובה שלכם נשמרת; אפשר לשנות אותה בהגדרות.</string>
     <string name="torAskNo">לא</string>
@@ -305,7 +310,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">אפליקציות שהרשת מנתקת שוב ושוב (כמו וואטסאפ באיראן) עוברות עכשיו דרך Tor, ועצירה והפעלה מהירות כבר לא מתחילות את Tor מההתחלה.\n\"עצירה\" תמיד מכבה את ההגנה, ו\"פרוקסי בלבד\" אומר בבירור כשאף אפליקציה לא עוברת דרכו, עם מצב VPN בנגיעה אחת.\nפחות שגיאות אישור ב-Roblox ובאפליקציות אחרות.</string>
+    <string name="whatsNewAndroid">מראה חדש: המתג העגול הוא הלוגו של Shroudly, והעין עצומה כשהוא כבוי. הקישו עליו כדי להפעיל או לעצור.\nלשוניות צפות בתחתית (לחצו והחליקו לאורכן או החליקו את הדף), סטטיסטיקה עם מהירויות בזמן אמת ולשוניות הגדרות שלעולם לא נדחסות. היומנים נמצאים עכשיו ב«אודות».</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

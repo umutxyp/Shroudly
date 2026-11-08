@@ -109,6 +109,7 @@
     <string name="appSection">Sepan</string>
     <string name="autoRawBlocked">Ev tor girêdanên sepana {app} radiwestîne, û ti teknîkeke Shroudly nikarîbû derbas bibe. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="autoRawUnreachable">Sepana {app} nikare bigihîje rajekarên xwe: ev tor navnîşanên wan asteng dike, û Shroudly bêyî rajekarekî li cihekî din nikare vê derbas bike. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
+    <string name="bypassed">Derbaskirî</string>
     <string name="connections">Girêdan</string>
     <string name="connsAllow">Destûr bide</string>
     <string name="connsBlock">Asteng bike</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly bi kar tîne</string>
     <string name="connsTitle">Girêdan li gorî malperê</string>
     <string name="copyLogs">Tomaran kopî bike</string>
+    <string name="dataTransferred">Daneyên veguhestî</string>
     <string name="dnsAroundAndroid">Li ser vê amûrê tiştekî din bersiva lêgerînên navan ên sepanan dide (DNS-a taybet an sepaneke DNS), ji ber vê yekê dibe ku sepanên astengkirî venebin. Di Mîheng → Tor → DNS-a taybet de Girtî an Xweber hilbijêre, sepanên DNS bigire, paşê Shroudly dîsa bide destpêkirin.</string>
     <string name="dnsErrorEmpty">Navnîşana pêşkêşkarê binivîse, wekî {example}.</string>
     <string name="dnsErrorHost">Ev ne navnîşana IP ye û ne navê pêşkêşkarê ye; wê wekî {example} binivîse.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Hîn tomar tune ne</string>
     <string name="notProtected">Ne parastî</string>
     <string name="onlineNow">Niha serhêl</string>
+    <string name="onlineNowDesc">Kesên ku niha li seranserê cîhanê Shroudly bi kar tînin</string>
     <string name="openSourceDesc">Shroudly belaş e û bi lîsansa MIT çavkaniya vekirî ye: her kes dikare koda wê bixwîne, kontrol bike û ava bike.</string>
     <string name="openSourceTitle">Çavkaniya vekirî</string>
     <string name="ownServer">Pêşkêşkara te ya xwe</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Giştî</string>
     <string name="tabSharing">Pêşkêşkar û parvekirin</string>
     <string name="tagline">Nayê dîtin. Nayê rawestandin.</string>
+    <string name="tapToStart">Ji bo destpêkirinê bitikîne</string>
+    <string name="tapToStop">Ji bo rawestandinê bitikîne</string>
     <string name="testing">Tê ceribandin…</string>
     <string name="torAskCard">Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor veke: pir hêdîtir (rûpel û vîdyo hêdî bar dibin), û hin malper captcha dixwazin. Bersiva te tê parastin; tu dikarî di Mîhengan de biguherînî.</string>
     <string name="torAskNo">Na</string>
@@ -305,7 +310,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Sepanên ku tor wan dîsa û dîsa qut dike (wek WhatsApp li Îranê) niha di Tor re derbas dibin, û rawestandin û destpêkirina bilez êdî Tor ji nû ve dest pê nake.\n«Rawestîne» her tim parastinê digire, û «Tenê proksî» bi zelalî dibêje dema ku tu sepan di wî re derbas nabe, bi moda VPN bi yek tikandinê.\nDi Roblox û sepanên din de kêmtir xeletiyên sertîfîkayê.</string>
+    <string name="whatsNewAndroid">Xuyangeke nû: bişkoka girover logoya Shroudly ye, dema girtî ye çav girtî ye. Ji bo destpêkirin an rawestandinê lê bitikîne.\nTabên ku li jêr diherikin (bigire û li ser wan bişemitîne an rûpelê bişemitîne), Statîstîk bi leza zindî û tabên Mîhengan ku qet teng nabin. Tomar niha di «Derbarê» de ne.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

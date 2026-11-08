@@ -188,6 +188,8 @@
 "tabGeneral" = "Umumy";
 "tabSharing" = "Serwer we paýlaşmak";
 "tagline" = "Görünmez. Saklanmaz.";
+"tapToStart" = "Başlamak üçin basyň";
+"tapToStop" = "Togtatmak üçin basyň";
 "torAskCard" = "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony Tor ulgamy arkaly açyp biler: has haýal (sahypalar we wideolar haýal ýüklenýär), käbir saýtlar captcha soraýar. Jogabyňyz ýatda saklanýar; ony Sazlamalarda üýtgedip bilersiňiz.";
 "torAskNo" = "Ýok";
 "torAskNotice" = "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony iň soňky ýoly bolan Tor ulgamy arkaly açyp biler, ýöne has haýal. Rugsat bermek ýa-da ret etmek üçin Shroudly-ni açyň.";
@@ -198,6 +200,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Kompýuterler üçin Shroudly ýaly täze görnüş: aşakda alty bölüm, göni tizlik we saýtlar boýunça birikmeler bilen Statistika, Žurnal we Yzarla.\nMac-da Shroudly indi kompýuter wersiýasy ýaly Mac-yň proksisi: has ýeňil. Proksini äsgermeýän programmalar üçin: Sazlamalar → Birikme → Ähli programmalar Shroudly arkaly (VPN).";
+"whatsNewApple" = "Başlatmak ýa-da togtatmak üçin tegelek düwmä basyň: Shroudly logotipi, öçükkä gözi ýumuk, açykka açyk.\nAşakda Liquid Glass bölümleri: basyp durup olaryň üstünden süýşüriň ýa-da sahypany süýşüriň. Ýazgylar indi «Programma barada» bölüminde.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

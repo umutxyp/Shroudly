@@ -188,6 +188,8 @@
 "tabGeneral" = "Allgemein";
 "tabSharing" = "Server und Teilen";
 "tagline" = "Unsichtbar. Unaufhaltsam.";
+"tapToStart" = "Zum Starten tippen";
+"tapToStop" = "Zum Beenden tippen";
 "torAskCard" = "Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen: deutlich langsamer (Seiten und Videos laden langsam), und manche Seiten verlangen ein Captcha. Deine Antwort wird gespeichert; du kannst sie in den Einstellungen ändern.";
 "torAskNo" = "Nein";
 "torAskNotice" = "Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen, seinen letzten Ausweg, aber deutlich langsamer. Öffne Shroudly, um es zu erlauben oder abzulehnen.";
@@ -198,6 +200,6 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Ein neues Aussehen, wie die Shroudly-App für Computer: sechs Tabs unten, Statistik mit Live-Geschwindigkeit und Verbindungen nach Website, Protokoll und Folgen.\nAuf dem Mac ist Shroudly jetzt der Proxy des Macs, wie die Version für Computer: viel leichter. Für Apps, die den Proxy ignorieren: Einstellungen → Verbindung → Alle Apps über Shroudly (VPN).";
+"whatsNewApple" = "Zum Starten oder Stoppen den runden Schalter antippen: das Shroudly-Logo, aus mit geschlossenem, an mit offenem Auge.\nTabs aus Liquid Glass unten: gedrückt halten und entlangwischen oder die Seite wischen. Protokolle sind jetzt unter Info.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

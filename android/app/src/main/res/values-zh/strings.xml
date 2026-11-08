@@ -109,6 +109,7 @@
     <string name="appSection">应用程序</string>
     <string name="autoRawBlocked">此网络阻断了 {app} 的连接，Shroudly 的所有技术都未能突破。请使用 {app} 自带的代理设置或 VPN。</string>
     <string name="autoRawUnreachable">{app} 无法连接到其服务器：此网络封锁了这些服务器的地址，而没有位于别处的服务器，Shroudly 无法绕过这一点。请使用 {app} 自带的代理设置或 VPN。</string>
+    <string name="bypassed">已绕过</string>
     <string name="connections">连接</string>
     <string name="connsAllow">允许</string>
     <string name="connsBlock">屏蔽</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly 使用</string>
     <string name="connsTitle">按网站的连接</string>
     <string name="copyLogs">复制日志</string>
+    <string name="dataTransferred">已传输数据</string>
     <string name="dnsAroundAndroid">此设备上有其他东西在回答应用的域名查询（私人 DNS 或 DNS 应用），因此被封锁的应用可能打不开。请在 设置 → 网络 → 私人 DNS 中选择“关闭”或“自动”，关闭 DNS 应用，然后重新启动 Shroudly。</string>
     <string name="dnsErrorEmpty">请输入服务器地址，例如 {example}。</string>
     <string name="dnsErrorHost">这既不是 IP 地址也不是服务器名称；请按 {example} 的格式输入。</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">暂无日志条目</string>
     <string name="notProtected">未受保护</string>
     <string name="onlineNow">当前在线</string>
+    <string name="onlineNowDesc">全球此刻正在使用 Shroudly 的人数</string>
     <string name="openSourceDesc">Shroudly 免费且基于 MIT 许可证开源：任何人都可以阅读、审查和编译其代码。</string>
     <string name="openSourceTitle">开源</string>
     <string name="ownServer">自己的服务器</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">常规</string>
     <string name="tabSharing">服务器与共享</string>
     <string name="tagline">隐形。不可阻挡。</string>
+    <string name="tapToStart">轻点开始</string>
+    <string name="tapToStop">轻点停止</string>
     <string name="testing">正在测试…</string>
     <string name="torAskCard">在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络打开它：慢很多（网页和视频加载缓慢），部分网站会要求验证码。你的回答会被记住；可在设置中更改。</string>
     <string name="torAskNo">不</string>
@@ -305,7 +310,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">被网络反复切断的应用（例如伊朗的 WhatsApp）现在会经过 Tor，快速停止再启动也不会再让 Tor 从头开始。\n“停止”总能关闭保护；“仅代理”在没有任何应用经过它时会直接说明，一键即可改用 VPN 模式。\nRoblox 和其他应用中的证书错误更少了。</string>
+    <string name="whatsNewAndroid">全新外观：圆形开关就是 Shroudly 的标志，关闭时眼睛闭着。轻点即可开始或停止。\n底部悬浮标签（按住后沿标签滑动，或滑动页面）、带实时速度的统计，以及不再拥挤的设置标签。日志现在位于“关于”中。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

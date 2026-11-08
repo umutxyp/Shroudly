@@ -109,6 +109,7 @@
     <string name="appSection">Uygulama</string>
     <string name="autoRawBlocked">Bu ağ {app} bağlantılarını durduruyor ve Shroudly\'nin tekniklerinden hiçbiri geçemedi. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
     <string name="autoRawUnreachable">{app} sunucularına ulaşamıyor: bu ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
+    <string name="bypassed">Atlatılan</string>
     <string name="connections">Bağlantılar</string>
     <string name="connsAllow">İzin ver</string>
     <string name="connsBlock">Engelle</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly kullanıyor</string>
     <string name="connsTitle">Siteye göre bağlantılar</string>
     <string name="copyLogs">Kayıtları kopyala</string>
+    <string name="dataTransferred">Aktarılan veri</string>
     <string name="dnsAroundAndroid">Bu cihazda uygulamaların ad sorgularını başka bir şey cevaplıyor (Özel DNS ya da bir DNS uygulaması), bu yüzden engelli uygulamalar açılmayabilir. Ayarlar → Ağ → Özel DNS\'te Kapalı ya da Otomatik\'i seç, varsa DNS uygulamasını kapat, sonra Shroudly\'yi yeniden başlat.</string>
     <string name="dnsErrorEmpty">Sunucunun adresini yaz, örneğin {example}.</string>
     <string name="dnsErrorHost">Bu bir IP adresi ya da sunucu adı değil; {example} gibi yaz.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Henüz kayıt yok</string>
     <string name="notProtected">Korunmuyor</string>
     <string name="onlineNow">Şu anda çevrimiçi</string>
+    <string name="onlineNowDesc">Dünya genelinde şu anda Shroudly kullanan kişi sayısı</string>
     <string name="openSourceDesc">Shroudly, MIT lisansıyla ücretsiz ve açık kaynaklıdır: kodunu herkes okuyabilir, denetleyebilir ve derleyebilir.</string>
     <string name="openSourceTitle">Açık kaynak</string>
     <string name="ownServer">Kendi sunucun</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Genel</string>
     <string name="tabSharing">Sunucu ve paylaşım</string>
     <string name="tagline">Görünmez. Durdurulamaz.</string>
+    <string name="tapToStart">Başlatmak için dokun</string>
+    <string name="tapToStop">Durdurmak için dokun</string>
     <string name="testing">Test ediliyor…</string>
     <string name="torAskCard">Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu Tor ağı üzerinden açabilir: çok daha yavaştır (sayfalar ve videolar yavaş yüklenir) ve bazı siteler captcha ister. Cevabın hatırlanır; Ayarlar\'dan değiştirebilirsin.</string>
     <string name="torAskNo">Hayır</string>
@@ -305,7 +310,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Ağın sürekli kestiği uygulamalar (İran\'da WhatsApp gibi) artık Tor\'dan geçiyor; kısa bir kapat-aç Tor\'u baştan başlatmıyor.\nDurdur her zaman korumayı kapatıyor; Yalnızca proxy, hiçbir uygulama geçmiyorsa bunu açıkça söylüyor ve VPN modu tek dokunuşta.\nRoblox ve diğer uygulamalarda daha az sertifika hatası.</string>
+    <string name="whatsNewAndroid">Yeni görünüm: ortadaki daire Shroudly logosu, kapalıyken gözü kapalı. Başlatmak ya da durdurmak için ona dokun.\nAltta yüzen sekmeler (basılı tutup üzerlerinde kaydır ya da sayfayı yana kaydır), canlı hızlarla İstatistik ve hiç sıkışmayan Ayarlar sekmeleri. Kayıtlar artık Hakkında\'da.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

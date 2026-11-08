@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { exitWithPlace } from './exitPlace';
-import { BugIcon, HeartIcon, PowerIcon, ShieldAlertIcon, ShieldCheckIcon, ShieldIcon, SpinnerIcon } from './icons';
+import { BugIcon, HeartIcon, PowerIcon, SpinnerIcon } from './icons';
 import ReportDialog from './ReportDialog';
 import Toast from './Toast';
 import ClampedText from './ClampedText';
@@ -144,15 +144,10 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // On but not working (browsers not going through it, or the user's own
   // server not answering): the shield in amber with its alert, as the title.
   const warned = notRouting || !!ownServerDown;
-  const ShieldGlyph = warned ? ShieldAlertIcon : active ? ShieldCheckIcon : ShieldIcon;
   const label = loading ? (active ? t('stopping') : t('starting')) : starting ? t('starting') : (active ? t('stop') : t('start'));
-  // The shield and the title: the accent colour when it works, amber when it
-  // is on and does not yet.
-  // --state: the accent, except where the accent is a warning or danger
-  // colour (globals.css).
-  const ring = warned ? 'var(--warn-line)' : active ? 'var(--state-line)' : 'var(--line-strong)';
-  const disc = warned ? 'var(--warn-soft)' : active ? 'var(--state-soft)' : 'var(--surface)';
-  const glyph = warned ? 'var(--warn)' : active ? 'var(--state)' : 'var(--text-faint)';
+  // The orb's light and the title: the accent colour when it works, amber
+  // when it is on and does not yet. --state: the accent, except where the
+  // accent is a warning or danger colour (globals.css).
 
   return (
     <>
@@ -161,24 +156,17 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
       {/* data-room: the shield gives up its room first in a short window
           (panelRoom.js, globals.css). */}
       <div ref={panelRef} data-room={room} className="power-panel flex min-h-full flex-col items-center justify-center">
-        {/* The shield — the one bold moment */}
-        <div className="power-shield relative flex shrink-0 items-center justify-center" aria-hidden>
-          {active && !warned && (
-            <span
-              className="power-halo halo absolute rounded-full"
-              style={{ background: 'radial-gradient(circle, var(--state-soft) 0%, transparent 70%)' }}
-            />
-          )}
-          <div
-            className="power-disc relative flex items-center justify-center rounded-full border transition-all duration-500"
-            style={{ borderColor: ring, background: disc }}
-          >
-            <ShieldGlyph
-              className="power-glyph transition-colors duration-500"
-              strokeWidth={1.5}
-              style={{ color: glyph }}
-            />
+        {/* The orb — the one bold moment: Shroudly's logo on dark glass,
+            its eye shut while off and open once on (the same on the phones
+            and the Mac App Store app). */}
+        <div className="power-shield relative flex shrink-0 items-center justify-center" aria-hidden
+             data-look={warned ? 'warn' : active ? 'on' : (loading || starting) ? 'busy' : 'off'}>
+          <span className="power-glow absolute rounded-full" />
+          <div className="power-disc relative flex items-center justify-center rounded-full">
+            <img src="./mark-closed.png" alt="" draggable={false} className="power-mark power-mark-closed absolute select-none" />
+            <img src="./mark-open.png" alt="" draggable={false} className="power-mark power-mark-open absolute select-none" />
           </div>
+          {(loading || starting) && <span className="power-turn absolute rounded-full" />}
         </div>
 
         {/* Status text */}

@@ -54,10 +54,11 @@ const F = JSON.parse(read('components', 'follow.json'));
   t.ok(/if \(tv\) root\.addView\(label\(13f, R\.color\.text_dim\)\.apply \{ setText\(R\.string\.followTv\)/.test(kt) && /ActivityNotFoundException/.test(kt),
     'Android TV: the addresses shown in full, and a tap with nothing to open it says the address');
   const cv = read('apple', 'App', 'ContentView.swift');
-  // iPhone, iPad and Mac: one of the desktop's six tabs at the bottom, before
-  // About; Apple TV: its own row of buttons, and it says to open them elsewhere.
+  // iPhone, iPad and Mac: one of the desktop's tabs at the bottom, before
+  // About; Apple TV: one of the system's tabs along the top, and it says to
+  // open them elsewhere.
   t.ok(/case protection, stats, settings, logs, follow, about/.test(cv) && /case \.follow: FollowView\(\)/.test(cv)
-    && /NavigationLink \{ FollowView\(\) \} label: \{\s*Tab\(icon: "person\.2", text: tr\("navFollow"\)\)/.test(cv)
+    && /NavigationStack \{ FollowView\(\) \}\s*\.tabItem \{ Label\(tr\("navFollow"\), systemImage: "person\.2"\) \}/.test(cv)
     && /#if os\(tvOS\)[\s\S]{0,200}Text\(tr\("followTv"\)\)/.test(sw),
     'Apple: a tab of its own beside About; Apple TV says to open them elsewhere');
 

@@ -16,6 +16,7 @@
 
 <ScrollView
     android:id="@+id/root"
+    android:defaultFocusHighlightEnabled="false"
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1"
@@ -74,15 +75,40 @@
                 android:focusable="true"
                 android:stateListAnimator="@animator/press">
 
+                <!-- Shroudly's logo, as at the top left: shut and grey while
+                     off, open in its colours once on (Orb fades one into the
+                     other; scripts/logo makes both). -->
                 <ImageView
-                    android:id="@+id/toggleIcon"
-                    android:layout_width="104dp"
-                    android:layout_height="104dp"
+                    android:id="@+id/toggleIconClosed"
+                    android:layout_width="98dp"
+                    android:layout_height="98dp"
                     android:layout_gravity="center"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/logo" />
+                    android:src="@drawable/mark_closed" />
+
+                <ImageView
+                    android:id="@+id/toggleIcon"
+                    android:layout_width="98dp"
+                    android:layout_height="98dp"
+                    android:layout_gravity="center"
+                    android:alpha="0"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/mark_open" />
             </FrameLayout>
         </FrameLayout>
+
+        <!-- Phones and tablets: the switch is the button; this says so. -->
+        <TextView
+            android:id="@+id/tapHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:letterSpacing="0.05"
+            android:textAllCaps="true"
+            android:textColor="@color/text_faint"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/status"
@@ -702,10 +728,172 @@
                 android:textSize="13.5sp" />
         </LinearLayout>
 
+        <!-- The live count, as the desktop's "Online now": while protection
+             is on and "Count me in" (Settings) is on (OnlineCount). -->
+        <LinearLayout
+            android:id="@+id/onlineCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/badge_ok">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_users"
+                    android:tint="@color/ok" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/onlineNow"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/onlineNowDesc"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text_faint"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/onlineNow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/text"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+        <!-- The speeds now, each with its last minute drawn under it (the
+             desktop's StatsPanel). -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:baselineAligned="false"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_arrow_down"
+                    android:tint="@color/text_dim" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/download"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text_dim"
+                    android:textSize="13.5sp" />
+
+                <TextView
+                    android:id="@+id/rateDown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:fontFeatureSettings="tnum"
+                    android:textColor="?attr/accentLight"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <me.codeshare.shroudly.Spark
+                android:id="@+id/sparkDown"
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:layout_marginTop="6dp"
+                android:importantForAccessibility="no" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/line" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_arrow_up"
+                    android:tint="@color/text_dim" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/upload"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text_dim"
+                    android:textSize="13.5sp" />
+
+                <TextView
+                    android:id="@+id/rateUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:fontFeatureSettings="tnum"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <me.codeshare.shroudly.Spark
+                android:id="@+id/sparkUp"
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:layout_marginTop="6dp"
+                android:importantForAccessibility="no" />
+        </LinearLayout>
+
+        <!-- Two by two, as the desktop: connections and how many got past
+             the block; the data carried and the time on. -->
+        <me.codeshare.shroudly.AutoRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -743,6 +931,53 @@
                     android:textColor="@color/text_faint"
                     android:textSize="12sp" />
             </LinearLayout>
+            <LinearLayout
+                style="@style/StatTile"
+                android:layout_marginStart="12dp">
+
+                <LinearLayout style="@style/StatHead">
+
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_shield" />
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/bypassed" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/bypassed"
+                    style="@style/StatValue" />
+            </LinearLayout>
+        </me.codeshare.shroudly.AutoRow>
+
+        <me.codeshare.shroudly.AutoRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/StatTile">
+
+                <LinearLayout style="@style/StatHead">
+
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_download" />
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/dataTransferred" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/transferred"
+                    style="@style/StatValue" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/StatTile"
@@ -764,69 +999,7 @@
                     android:id="@+id/uptime"
                     style="@style/StatValue" />
             </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
-
-            <LinearLayout style="@style/StatTile">
-
-                <LinearLayout style="@style/StatHead">
-
-                    <ImageView
-                        android:importantForAccessibility="no"
-                        style="@style/StatIcon"
-                        android:src="@drawable/ic_arrow_down" />
-
-                    <TextView
-                        style="@style/StatLabel"
-                        android:text="@string/download" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/download"
-                    style="@style/StatValue" />
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/StatTile"
-                android:layout_marginStart="12dp">
-
-                <LinearLayout style="@style/StatHead">
-
-                    <ImageView
-                        android:importantForAccessibility="no"
-                        style="@style/StatIcon"
-                        android:src="@drawable/ic_arrow_up" />
-
-                    <TextView
-                        style="@style/StatLabel"
-                        android:text="@string/upload" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/upload"
-                    style="@style/StatValue" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- The live count, as the desktop's "Online now": while protection
-             is on and "Count me in" (Settings) is on (OnlineCount). -->
-        <TextView
-            android:id="@+id/onlineNow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:textAlignment="viewStart"
-            android:textColor="@color/text_dim"
-            android:textSize="12.5sp"
-            android:visibility="gone" />
+        </me.codeshare.shroudly.AutoRow>
 
         </LinearLayout>
 
@@ -1016,6 +1189,17 @@
 
             <View
                 android:id="@+id/helpOthersDivider"
+                style="@style/Divider" />
+
+            <!-- The Logs page (not a tab of its own: Chrome.tabs). -->
+            <TextView
+                android:id="@+id/logsRow"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_logs"
+                android:text="@string/navLogs" />
+
+            <View
+                android:id="@+id/logsRowDivider"
                 style="@style/Divider" />
 
             <!-- The recent log and the phone's details, to send to us. -->

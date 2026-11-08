@@ -188,6 +188,8 @@
 "tabGeneral" = "Giştî";
 "tabSharing" = "Pêşkêşkar û parvekirin";
 "tagline" = "Nayê dîtin. Nayê rawestandin.";
+"tapToStart" = "Ji bo destpêkirinê bitikîne";
+"tapToStop" = "Ji bo rawestandinê bitikîne";
 "torAskCard" = "Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor veke: pir hêdîtir (rûpel û vîdyo hêdî bar dibin), û hin malper captcha dixwazin. Bersiva te tê parastin; tu dikarî di Mîhengan de biguherînî.";
 "torAskNo" = "Na";
 "torAskNotice" = "Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor, çareya xwe ya dawî, veke, lê pir hêdîtir. Ji bo destûrê an redkirinê Shroudly veke.";
@@ -198,6 +200,6 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Xuyangeke nû, wekî sepana Shroudly ya ji bo komputeran: şeş tab li jêr, Statîstîk bi leza zindî û girêdanên li gorî malperê, Tomar û Bişopîne.\nLi ser Mac, Shroudly niha proxyya Mac e, wekî guhertoya komputeran: gelek siviktir. Ji bo sepanên ku proxyyê paşguh dikin: Mîheng → Girêdan → Hemû sepan bi Shroudly (VPN).";
+"whatsNewApple" = "Ji bo destpêkirin an rawestandinê li bişkoka girover bitikîne: logoya Shroudly, dema girtî ye çav girtî û dema vekirî ye vekirî.\nTabên Liquid Glass li jêr: bigire û li ser wan bişemitîne an rûpelê bişemitîne. Tomar niha di «Derbarê» de ne.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

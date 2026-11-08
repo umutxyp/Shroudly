@@ -82,6 +82,12 @@ struct AboutView: View {
             }
             #if !os(tvOS)
             Section {
+                #if os(iOS)
+                // iPhone and iPad: the Logs page (not a tab of its own there).
+                NavigationLink { LogsView().background(Theme.background).navigationTitle(tr("navLogs")) } label: {
+                    Label(tr("navLogs"), systemImage: "list.bullet.rectangle")
+                }
+                #endif
                 ShareLink(item: logs.isEmpty ? Diagnostics.header() : logs) {
                     Label(tr("androidShareLogs"), systemImage: "square.and.arrow.up")
                 }

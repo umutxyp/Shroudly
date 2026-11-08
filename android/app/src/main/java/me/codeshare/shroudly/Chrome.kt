@@ -36,6 +36,11 @@ object Chrome {
 
     const val EXTRA_TAB = "me.codeshare.shroudly.TAB"
 
+    /* The tabs at the bottom: Logs is a row of About instead (on a phone the
+     * bar keeps room for each name; on a TV the bar stays short). */
+    @Suppress("UNUSED_PARAMETER")
+    fun tabs(a: Activity): List<Tab> = Tab.values().filter { it != Tab.LOGS }
+
     private fun dp(a: Activity, v: Float): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, a.resources.displayMetrics).toInt()
 
@@ -108,55 +113,120 @@ object Chrome {
         pill.setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
     }
 
-    /* The six tabs and the line under them; `onTab` gets a tap on another. */
+    /*
+     * The tabs at the bottom, as on the iPhone: a floating rounded bar with a
+     * lens over the chosen tab. A press lifts the lens over the tab under the
+     * finger, the finger can slide along the bar with the lens following (a
+     * light tick at each tab), and letting go opens that tab. "A Codeshare
+     * product" under it. `onTab` gets the tab let go on, if another.
+     */
     fun bottomBar(a: Activity, selected: Tab, onTab: (Tab) -> Unit): View {
         val accent = Accent.color(a, R.attr.accentLight)
-        val faint = a.getColor(R.color.text_faint)
+        val faint = a.getColor(R.color.text_dim)
+        val shown = tabs(a)
+        // Logs opened from About: About stays lit.
+        val lit = if (selected in shown) selected else Tab.ABOUT
         val box = LinearLayout(a).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(a.getColor(R.color.bg))
+            setPadding(dp(a, 12f), dp(a, 6f), dp(a, 12f), 0)
+            clipToPadding = false
+            clipChildren = false
         }
-        box.addView(View(a).apply { setBackgroundColor(a.getColor(R.color.line)) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 1f)))
-        val row = LinearLayout(a).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(dp(a, 4f), 0, dp(a, 4f), 0)
+        // Android TV: a short bar in the middle with the icons alone, each
+        // a clear target for the remote (its name is read out).
+        val tv = Tv.isTv(a)
+        val capsule = android.widget.FrameLayout(a).apply {
+            background = GradientDrawable().apply {
+                cornerRadius = dp(a, 30f).toFloat()
+                setColor(a.getColor(R.color.surface))
+                setStroke(dp(a, 1f), a.getColor(R.color.line_strong))
+            }
+            elevation = dp(a, 10f).toFloat()
+            setPadding(dp(a, 4f), dp(a, 4f), dp(a, 4f), dp(a, 4f))
         }
-        for (t in Tab.values()) {
-            val on = t == selected
+        val lens = View(a).apply {
+            background = GradientDrawable().apply {
+                cornerRadius = dp(a, 26f).toFloat()
+                setColor((accent and 0x00FFFFFF) or 0x26000000)
+                setStroke(dp(a, 1f), (accent and 0x00FFFFFF) or 0x40000000)
+            }
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        capsule.addView(lens, android.widget.FrameLayout.LayoutParams(0, 0))
+        val cells = ArrayList<LinearLayout>()
+        val icons = ArrayList<ImageView>()
+        val labels = ArrayList<TextView>()
+        val row = DragRow(a)
+        for (t in shown) {
             val cell = LinearLayout(a).apply {
                 orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER_HORIZONTAL
-                setPadding(0, dp(a, 6f), 0, dp(a, 7f))
-                setBackgroundResource(R.drawable.pressable)
+                gravity = Gravity.CENTER
+                setPadding(0, dp(a, if (tv) 10f else 7f), 0, dp(a, if (tv) 10f else 6f))
                 isClickable = true
                 isFocusable = true
                 contentDescription = a.getString(t.label)
-                isSelected = on
-                setOnClickListener { if (!on) onTab(t) }
+                isSelected = t == lit
+                setOnClickListener { if (t != lit) onTab(t) }
             }
-            // The desktop's mark over the chosen tab.
-            cell.addView(View(a).apply {
-                background = GradientDrawable().apply { cornerRadius = dp(a, 2f).toFloat(); setColor(if (on) accent else 0) }
-            }, LinearLayout.LayoutParams(dp(a, 28f), dp(a, 2.5f)).apply { bottomMargin = dp(a, 6f) })
-            cell.addView(ImageView(a).apply {
+            val icon = ImageView(a).apply {
                 setImageResource(t.icon)
-                imageTintList = android.content.res.ColorStateList.valueOf(if (on) accent else faint)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            }, LinearLayout.LayoutParams(dp(a, 21f), dp(a, 21f)))
-            cell.addView(TextView(a).apply {
+            }
+            cell.addView(icon, LinearLayout.LayoutParams(dp(a, if (tv) 24f else 21f), dp(a, if (tv) 24f else 21f)))
+            val label = TextView(a).apply {
                 text = a.getString(t.label)
-                textSize = 11f
+                textSize = 10.5f
                 maxLines = 1
                 ellipsize = android.text.TextUtils.TruncateAt.END
                 gravity = Gravity.CENTER
-                setTextColor(if (on) accent else faint)
                 typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(a, 3f) })
-            row.addView(cell, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            }
+            if (!tv) cell.addView(label, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(a, 3f) })
+            row.addView(cell, if (tv) LinearLayout.LayoutParams(dp(a, 76f), ViewGroup.LayoutParams.WRAP_CONTENT)
+                else LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            cells += cell
+            icons += icon
+            labels += label
         }
-        box.addView(row)
-        box.addView(View(a).apply { setBackgroundColor(a.getColor(R.color.line)) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 1f)))
+        fun paint(at: Int) {
+            for (k in cells.indices) {
+                val c = if (k == at || shown[k] == lit) accent else faint
+                icons[k].imageTintList = android.content.res.ColorStateList.valueOf(c)
+                labels[k].setTextColor(c)
+            }
+        }
+        fun place(at: Int, animate: Boolean) {
+            val c = cells.getOrNull(at) ?: return
+            if (c.width == 0) return
+            if (lens.layoutParams.width != c.width || lens.layoutParams.height != c.height) {
+                lens.layoutParams = lens.layoutParams.apply { width = c.width; height = c.height }
+            }
+            if (animate && android.animation.ValueAnimator.areAnimatorsEnabled()) {
+                lens.animate().translationX(c.left.toFloat()).setDuration(220)
+                    .setInterpolator(android.view.animation.OvershootInterpolator(0.9f)).start()
+            } else {
+                lens.translationX = c.left.toFloat()
+            }
+        }
+        val start = shown.indexOf(lit)
+        paint(start)
+        row.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> if (row.pressed < 0) place(start, false) }
+        row.onMove = { at ->
+            a.window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+            paint(at)
+            place(at, true)
+            lens.animate().scaleX(1.06f).scaleY(1.06f).setDuration(120).start()
+        }
+        row.onUp = { at ->
+            lens.animate().scaleX(1f).scaleY(1f).setDuration(120).start()
+            if (at >= 0 && shown[at] != lit) onTab(shown[at]) else { paint(start); place(start, true) }
+        }
+        capsule.addView(row, android.widget.FrameLayout.LayoutParams(if (tv) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        box.addView(capsule, LinearLayout.LayoutParams(if (tv) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            gravity = Gravity.CENTER_HORIZONTAL
+        })
         // "A Codeshare product", the brand stronger, as under the desktop's tabs.
         val parts = a.getString(R.string.footerProduct).split("{brand}")
         val sb = SpannableStringBuilder(parts.getOrElse(0) { "" })
@@ -169,10 +239,86 @@ object Chrome {
             text = sb
             textSize = 12f
             gravity = Gravity.CENTER
-            setTextColor(faint)
+            setTextColor(a.getColor(R.color.text_faint))
             setPadding(0, dp(a, 6f), 0, dp(a, 6f))
         })
         return box
+    }
+
+    /* The bar's row: takes the finger itself (a press, a slide along it, a
+     * lift), while each tab stays a button for TalkBack and the D-pad. */
+    class DragRow(a: Activity) : LinearLayout(a) {
+        var pressed = -1
+        var onMove: ((Int) -> Unit)? = null
+        var onUp: ((Int) -> Unit)? = null
+
+        init {
+            orientation = HORIZONTAL
+        }
+
+        private fun at(x: Float): Int {
+            for (i in 0 until childCount) {
+                val c = getChildAt(i)
+                if (x >= c.left && x < c.right) return i
+            }
+            return if (x < 0) (if (layoutDirection == LAYOUT_DIRECTION_RTL) childCount - 1 else 0)
+                else (if (layoutDirection == LAYOUT_DIRECTION_RTL) 0 else childCount - 1)
+        }
+
+        override fun onInterceptTouchEvent(ev: android.view.MotionEvent): Boolean = true
+
+        @android.annotation.SuppressLint("ClickableViewAccessibility")
+        override fun onTouchEvent(ev: android.view.MotionEvent): Boolean {
+            when (ev.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_MOVE -> {
+                    parent?.requestDisallowInterceptTouchEvent(true)
+                    val i = at(ev.x)
+                    if (i != pressed) {
+                        pressed = i
+                        onMove?.invoke(i)
+                    }
+                }
+                android.view.MotionEvent.ACTION_UP -> {
+                    val i = at(ev.x)
+                    pressed = -1
+                    onUp?.invoke(i)
+                }
+                android.view.MotionEvent.ACTION_CANCEL -> {
+                    pressed = -1
+                    onUp?.invoke(-1)
+                }
+            }
+            return true
+        }
+    }
+
+    /*
+     * A swipe across the screen goes to the tab beside it, as between an
+     * Android app's pages: to the next tab from right to left (the other
+     * way round in a right-to-left language). Only a clear sideways fling
+     * counts, so scrolling a page never changes the tab.
+     */
+    class Swipe(private val a: Activity, private val current: () -> Tab, private val go: (Tab) -> Unit) {
+        private val far = dp(a, 72f)
+        private val detector = android.view.GestureDetector(a, object : android.view.GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: android.view.MotionEvent?, e2: android.view.MotionEvent, vx: Float, vy: Float): Boolean {
+                if (e1 == null) return false
+                val dx = e2.x - e1.x
+                val dy = e2.y - e1.y
+                if (kotlin.math.abs(dx) < far || kotlin.math.abs(dx) < kotlin.math.abs(dy) * 2 || kotlin.math.abs(vx) < 500) return false
+                val rtl = a.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+                val tabs = tabs(a)
+                val now = current().let { if (it in tabs) it else Tab.ABOUT }
+                val j = tabs.indexOf(now) + if ((dx < 0) != rtl) 1 else -1
+                if (j !in tabs.indices) return false
+                go(tabs[j])
+                return true
+            }
+        })
+
+        fun feed(ev: android.view.MotionEvent) {
+            detector.onTouchEvent(ev)
+        }
     }
 
     /* From Settings or Follow: the main screen's page, or the other screen. */

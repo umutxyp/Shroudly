@@ -75,7 +75,7 @@ object LiteOffer {
         try {
             ShroudlyVpnService.channels(ctx)
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.text(R.string.liteOfferTitle, "host" to shown))
                 .setContentText(text)
                 .setStyle(Notification.BigTextStyle().bigText(text))

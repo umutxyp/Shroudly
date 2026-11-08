@@ -330,9 +330,40 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
    and the Start/Stop button stay on screen without scrolling. */
 .power-panel { gap: 28px; padding-block: 24px; }
 .power-shield { --shield: 150px; }
-.power-disc { width: var(--shield); height: var(--shield); }
-.power-halo { width: calc(var(--shield) * 1.2); height: calc(var(--shield) * 1.2); }
-.power-glyph { width: calc(var(--shield) * 0.43); height: calc(var(--shield) * 0.43); }
+.power-shield { --tint: var(--state); width: var(--shield); height: var(--shield); }
+.power-shield[data-look='warn'] { --tint: var(--warn); }
+/* The orb (components/ControlPanel.js; the same in the Apple and Android
+   apps): dark glass lit from above with a fine bright edge, Shroudly's logo
+   in it, its eye shut while off and open once on. Calm: a still light round
+   it while on, a thin arc turning while starting or stopping. */
+.power-disc {
+  width: var(--shield); height: var(--shield); overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--surface-hover), var(--surface));
+  box-shadow: inset 0 0 0 1.2px rgba(255, 255, 255, 0.10), 0 12px 30px rgba(0, 0, 0, 0.45);
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+.power-shield:is([data-look='on'], [data-look='warn']) .power-disc {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--tint) 20%, var(--surface)), var(--surface));
+  box-shadow: inset 0 0 0 1.2px color-mix(in srgb, var(--tint) 50%, transparent), 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+.power-glow {
+  inset: -15%; opacity: 0; transition: opacity 0.5s ease;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tint) 30%, transparent) 48%, transparent 70%);
+}
+.power-shield:is([data-look='on'], [data-look='warn']) .power-glow { opacity: 1; }
+.power-mark { width: 56%; height: 56%; object-fit: contain; transition: opacity 0.5s ease; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
+.power-mark-open { opacity: 0; }
+.power-shield:not([data-look='off']) .power-mark-open { opacity: 1; }
+.power-shield:not([data-look='off']) .power-mark-closed { opacity: 0; }
+.power-turn {
+  width: calc(var(--shield) + 8px); height: calc(var(--shield) + 8px);
+  border: 2px solid transparent; border-top-color: var(--tint);
+  animation: spin 1.1s linear infinite;
+}
 .power-panel[data-room='compact'] { gap: 16px; padding-block: 16px; }
 .power-panel[data-room='compact'] .power-shield { --shield: 96px; }
 .power-panel:is([data-room='tight'], [data-room='min']) { gap: 12px; padding-block: 12px; }

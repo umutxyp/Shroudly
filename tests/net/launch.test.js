@@ -60,19 +60,22 @@ const t = suite('launch');
     t.ok(/moveToApplications\?\.\(\)/.test(notice) && /t\('moveToAppsBtn'\)/.test(notice), 'the window offers it with one button');
   }
   {
-    // The tray on Windows and Linux (TV-1): the menu bar's shield in a line
-    // that shows on a dark bar (light, with a dark rim) and on Windows' light
-    // taskbar (dark), each in every size, shipped, and chosen by the bar.
+    // The tray and the menu bar: Shroudly's logo, as at the window's top
+    // left, its eye open while on and shut in grey while off, in every size
+    // (Windows' .ico, @2x and @3x elsewhere), shipped, and the window's and
+    // notifications' icon the logo itself, never a blurred small copy.
     const fs = require('fs');
     const pub = (f) => path.join(ROOT, 'public', f);
     const ico = (f) => { const b = fs.readFileSync(pub(f)); return b.readUInt16LE(2) === 1 ? b.readUInt16LE(4) : 0; };
-    t.ok(ico('tray-light.ico') >= 6 && ico('tray-dark.ico') >= 6 && ['tray-light.png', 'tray-light@2x.png', 'tray-dark.png', 'tray-dark@2x.png'].every((f) => fs.existsSync(pub(f))),
-      'tray icons in every size for both bars');
+    t.ok(ico('tray-on.ico') >= 6 && ico('tray-off.ico') >= 6
+      && ['tray-on.png', 'tray-on@2x.png', 'tray-on@3x.png', 'tray-off.png', 'tray-off@2x.png', 'tray-off@3x.png'].every((f) => fs.existsSync(pub(f))),
+      'tray icons in every size, on and off');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
     const shipped = JSON.stringify(pkg.build.extraResources);
     const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
-    t.ok(/tray-light\*/.test(shipped) && /tray-dark\*/.test(shipped) && /shouldUseDarkColorsForSystemIntegratedUI/.test(main) && /nativeTheme\.on\('updated'/.test(main),
-      'shipped, and picked by the taskbar\'s colour, following it when it changes');
+    t.ok(/tray-on\*/.test(shipped) && /tray-off\*/.test(shipped) && /"public\/icon\.png"/.test(shipped)
+      && /iconAssetPath\('icon\.png'\)/.test(main) && !/icon-small/.test(main),
+      'shipped, and the window and notifications use the logo at full size');
   }
   // W4: Settings > Reset all settings restarts Shroudly; a copy started at
   // login must come back with its window, not into the tray.
@@ -94,8 +97,9 @@ const t = suite('launch');
   t.ok(px[0] === 128 && px[1] === 128 && px[2] === 128 && px[3] === 153 && px[4] === 20 && px[7] === 0,
     'protection off: the icon in gray, a little faded (see-through stays see-through)');
   const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
-  t.ok(/tray\.setImage\(makeTrayIcon\((active|look)\)\);/.test(main) && !/if \(process\.platform === 'darwin'\) tray\.setImage/.test(main),
-    '…switched with protection on every system, not only macOS');
+  t.ok(/tray\.setImage\(makeTrayIcon\((active|look)\)\);/.test(main) && !/if \(process\.platform === 'darwin'\) tray\.setImage/.test(main)
+    && /tray-\$\{active \? 'on' : 'off'\}/.test(main),
+    '…switched with protection on every system (the eye open or shut), not only macOS');
   t.ok(/if \(!store\.get\('closeToldInTray', false\)\)/.test(main), 'closing the window says "still running in the tray" the first time only, not at every close');
 
   // W3: start at login turned off in Task Manager or Settings stays off.

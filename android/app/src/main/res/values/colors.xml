@@ -7,6 +7,7 @@
     <color name="surface_pop">#FF151C2B</color>
     <color name="surface_2">#FF161D2E</color>
     <color name="line">#1F94A3B8</color>
+    <color name="line_strong">#3894A3B8</color>
     <color name="text">#FFE8EDF6</color>
     <color name="text_dim">#FFA3AFC4</color>
     <color name="text_faint">#FF7D89A1</color>

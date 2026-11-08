@@ -188,6 +188,8 @@
 "tabGeneral" = "Chung";
 "tabSharing" = "Máy chủ và chia sẻ";
 "tagline" = "Vô hình. Không thể ngăn cản.";
+"tapToStart" = "Chạm để bắt đầu";
+"tapToStop" = "Chạm để dừng";
 "torAskCard" = "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor: chậm hơn nhiều (trang và video tải chậm), và một số trang yêu cầu captcha. Câu trả lời của bạn được lưu; bạn có thể đổi trong Cài đặt.";
 "torAskNo" = "Không";
 "torAskNotice" = "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor, lối thoát cuối cùng, nhưng chậm hơn nhiều. Mở Shroudly để cho phép hoặc từ chối.";
@@ -198,6 +200,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Giao diện mới, giống ứng dụng Shroudly cho máy tính: sáu thẻ ở dưới, Thống kê với tốc độ trực tiếp và kết nối theo trang, Nhật ký và Theo dõi.\nTrên Mac, Shroudly giờ là proxy của máy Mac, như bản cho máy tính: nhẹ hơn nhiều. Với ứng dụng bỏ qua proxy: Cài đặt → Kết nối → Mọi ứng dụng qua Shroudly (VPN).";
+"whatsNewApple" = "Chạm vào công tắc tròn để bật hoặc dừng: logo Shroudly, mắt nhắm khi tắt và mở khi bật.\nCác thẻ Liquid Glass ở dưới: nhấn giữ và trượt dọc theo chúng, hoặc vuốt trang. Nhật ký giờ nằm trong Giới thiệu.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

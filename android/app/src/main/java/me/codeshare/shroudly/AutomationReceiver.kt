@@ -116,7 +116,7 @@ class AutomationReceiver : BroadcastReceiver() {
             )
             val body = ctx.getString(text)
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.getString(R.string.androidAutomationNotStarted))
                 .setContentText(body)
                 .setStyle(Notification.BigTextStyle().bigText(body))

@@ -109,6 +109,7 @@
     <string name="appSection">Aplikasi</string>
     <string name="autoRawBlocked">Jaringan ini menghentikan koneksi {app}, dan tidak satu pun teknik Shroudly berhasil lolos. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat menjangkau servernya: jaringan ini memblokir alamat server tersebut, dan Shroudly tidak dapat menembusnya tanpa server di tempat lain. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
+    <string name="bypassed">Ditembus</string>
     <string name="connections">Koneksi</string>
     <string name="connsAllow">Izinkan</string>
     <string name="connsBlock">Blokir</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">dipakai Shroudly</string>
     <string name="connsTitle">Koneksi per situs</string>
     <string name="copyLogs">Salin log</string>
+    <string name="dataTransferred">Data ditransfer</string>
     <string name="dnsAroundAndroid">Ada hal lain di perangkat ini yang menjawab pencarian nama aplikasi (DNS Pribadi atau aplikasi DNS), jadi aplikasi yang diblokir mungkin tidak terbuka. Di Setelan → Jaringan → DNS Pribadi pilih Nonaktif atau Otomatis, tutup aplikasi DNS, lalu mulai Shroudly lagi.</string>
     <string name="dnsErrorEmpty">Ketik alamat server, misalnya {example}.</string>
     <string name="dnsErrorHost">Itu bukan alamat IP atau nama server; ketik seperti {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Belum ada entri log</string>
     <string name="notProtected">Tidak terlindungi</string>
     <string name="onlineNow">Online sekarang</string>
+    <string name="onlineNowDesc">Orang yang sedang memakai Shroudly saat ini di seluruh dunia</string>
     <string name="openSourceDesc">Shroudly gratis dan bersumber terbuka di bawah lisensi MIT: siapa pun dapat membaca, memeriksa, dan membangun kodenya.</string>
     <string name="openSourceTitle">Sumber terbuka</string>
     <string name="ownServer">Server sendiri</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Umum</string>
     <string name="tabSharing">Server dan berbagi</string>
     <string name="tagline">Tak terlihat. Tak terhentikan.</string>
+    <string name="tapToStart">Ketuk untuk memulai</string>
+    <string name="tapToStop">Ketuk untuk berhenti</string>
     <string name="testing">Menguji…</string>
     <string name="torAskCard">Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor: jauh lebih lambat (halaman dan video dimuat pelan), dan beberapa situs meminta captcha. Jawabanmu disimpan; kamu bisa mengubahnya di Pengaturan.</string>
     <string name="torAskNo">Tidak</string>
@@ -305,7 +310,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Aplikasi yang terus diputus jaringan (seperti WhatsApp di Iran) kini lewat Tor, dan berhenti lalu mulai cepat tidak lagi memulai Tor dari awal.\nBerhenti selalu mematikan perlindungan, dan Hanya proxy mengatakan dengan jelas jika tidak ada aplikasi yang lewat, dengan mode VPN sekali ketuk.\nLebih sedikit galat sertifikat di Roblox dan aplikasi lain.</string>
+    <string name="whatsNewAndroid">Tampilan baru: sakelar bundar adalah logo Shroudly, matanya tertutup saat mati. Ketuk untuk memulai atau menghentikan.\nTab mengambang di bawah (tekan dan geser di atasnya, atau geser halaman), Statistik dengan kecepatan langsung, dan tab Pengaturan yang tidak pernah berdesakan. Log kini ada di Tentang.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

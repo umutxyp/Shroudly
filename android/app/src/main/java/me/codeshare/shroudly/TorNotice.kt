@@ -50,7 +50,7 @@ object TorNotice {
             ShroudlyVpnService.channels(ctx)
             val text = ctx.text(R.string.torUsedPhone, "host" to h)
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.getString(R.string.app_name))
                 .setContentText(text)
                 .setStyle(Notification.BigTextStyle().bigText(text))

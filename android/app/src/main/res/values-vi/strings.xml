@@ -109,6 +109,7 @@
     <string name="appSection">Ứng dụng</string>
     <string name="autoRawBlocked">Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="autoRawUnreachable">{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
+    <string name="bypassed">Đã vượt chặn</string>
     <string name="connections">Kết nối</string>
     <string name="connsAllow">Cho phép</string>
     <string name="connsBlock">Chặn</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly dùng</string>
     <string name="connsTitle">Kết nối theo trang</string>
     <string name="copyLogs">Sao chép nhật ký</string>
+    <string name="dataTransferred">Dữ liệu đã truyền</string>
     <string name="dnsAroundAndroid">Có thứ khác trên thiết bị này đang trả lời việc tra cứu tên của ứng dụng (DNS riêng hoặc ứng dụng DNS), nên ứng dụng bị chặn có thể không mở được. Vào Cài đặt → Mạng → DNS riêng chọn Tắt hoặc Tự động, đóng ứng dụng DNS, rồi khởi động lại Shroudly.</string>
     <string name="dnsErrorEmpty">Nhập địa chỉ máy chủ, ví dụ {example}.</string>
     <string name="dnsErrorHost">Đó không phải địa chỉ IP hay tên máy chủ; hãy nhập như {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Chưa có mục nhật ký nào</string>
     <string name="notProtected">Chưa được bảo vệ</string>
     <string name="onlineNow">Đang trực tuyến</string>
+    <string name="onlineNowDesc">Số người đang dùng Shroudly ngay lúc này trên toàn thế giới</string>
     <string name="openSourceDesc">Shroudly miễn phí và là mã nguồn mở theo giấy phép MIT: bất kỳ ai cũng có thể đọc, kiểm tra và tự biên dịch mã của nó.</string>
     <string name="openSourceTitle">Mã nguồn mở</string>
     <string name="ownServer">Máy chủ riêng</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Chung</string>
     <string name="tabSharing">Máy chủ và chia sẻ</string>
     <string name="tagline">Vô hình. Không thể ngăn cản.</string>
+    <string name="tapToStart">Chạm để bắt đầu</string>
+    <string name="tapToStop">Chạm để dừng</string>
     <string name="testing">Đang kiểm tra…</string>
     <string name="torAskCard">Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor: chậm hơn nhiều (trang và video tải chậm), và một số trang yêu cầu captcha. Câu trả lời của bạn được lưu; bạn có thể đổi trong Cài đặt.</string>
     <string name="torAskNo">Không</string>
@@ -305,7 +310,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Các ứng dụng bị mạng ngắt liên tục (như WhatsApp ở Iran) giờ đi qua Tor, và tắt rồi bật nhanh không còn khởi động lại Tor từ đầu.\nDừng luôn tắt bảo vệ, và Chỉ proxy nói rõ khi không có ứng dụng nào đi qua nó, với chế độ VPN chỉ một chạm.\nÍt lỗi chứng chỉ hơn trong Roblox và các ứng dụng khác.</string>
+    <string name="whatsNewAndroid">Giao diện mới: công tắc tròn là logo Shroudly, mắt nhắm khi tắt. Chạm vào để bật hoặc dừng.\nCác thẻ nổi ở dưới (nhấn giữ và trượt dọc theo chúng, hoặc vuốt trang), Thống kê với tốc độ trực tiếp và các thẻ Cài đặt không bao giờ chật chội. Nhật ký giờ nằm trong Giới thiệu.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

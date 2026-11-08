@@ -109,6 +109,7 @@
     <string name="appSection">Tətbiq</string>
     <string name="autoRawBlocked">Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="autoRawUnreachable">{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
+    <string name="bypassed">Yan keçilən</string>
     <string name="connections">Bağlantılar</string>
     <string name="connsAllow">İcazə ver</string>
     <string name="connsBlock">Blokla</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly istifadə edir</string>
     <string name="connsTitle">Saytlara görə bağlantılar</string>
     <string name="copyLogs">Qeydləri köçür</string>
+    <string name="dataTransferred">Ötürülən məlumat</string>
     <string name="dnsAroundAndroid">Bu cihazda tətbiqlərin ad sorğularına başqa bir şey cavab verir (Şəxsi DNS və ya DNS tətbiqi), ona görə bloklanmış tətbiqlər açılmaya bilər. Ayarlar → Şəbəkə → Şəxsi DNS bölməsində «Söndürülü» və ya «Avtomatik» seçin, DNS tətbiqlərini bağlayın, sonra Shroudly-ni yenidən başladın.</string>
     <string name="dnsErrorEmpty">Serverin ünvanını yazın, məsələn {example}.</string>
     <string name="dnsErrorHost">Bu nə IP ünvanı, nə də server adıdır; onu {example} kimi yazın.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Hələ qeyd yoxdur</string>
     <string name="notProtected">Qorunmur</string>
     <string name="onlineNow">İndi onlayn</string>
+    <string name="onlineNowDesc">Hazırda bütün dünyada Shroudly istifadə edən insanlar</string>
     <string name="openSourceDesc">Shroudly pulsuzdur və MIT lisenziyası ilə açıq mənbəlidir: hər kəs onun kodunu oxuya, yoxlaya və yığa bilər.</string>
     <string name="openSourceTitle">Açıq mənbə</string>
     <string name="ownServer">Öz serveriniz</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Ümumi</string>
     <string name="tabSharing">Server və paylaşım</string>
     <string name="tagline">Görünməz. Dayandırılmaz.</string>
+    <string name="tapToStart">Başlatmaq üçün toxunun</string>
+    <string name="tapToStop">Dayandırmaq üçün toxunun</string>
     <string name="testing">Yoxlanılır…</string>
     <string name="torAskCard">Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu Tor şəbəkəsi ilə aça bilər: çox daha yavaşdır (səhifələr və videolar yavaş yüklənir) və bəzi saytlar captcha istəyir. Cavabın yadda saxlanılır; Ayarlarda dəyişə bilərsən.</string>
     <string name="torAskNo">Xeyr</string>
@@ -305,7 +310,7 @@
     <string name="upload">Göndərmə</string>
     <string name="uptime">İş müddəti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Şəbəkənin daim kəsdiyi tətbiqlər (məsələn, İranda WhatsApp) artıq Tor-dan keçir, qısa bağla-aç isə Tor-u əvvəldən başlatmır.\nDayandır qorumanı həmişə söndürür, «Yalnız proksi» isə ondan heç bir tətbiq keçmirsə, bunu açıq deyir — VPN rejimi bir toxunuşla.\nRoblox və digər tətbiqlərdə daha az sertifikat xətası.</string>
+    <string name="whatsNewAndroid">Yeni görünüş: dairəvi açar Shroudly loqosudur, söndürüləndə gözü yumulu. Başlatmaq və ya dayandırmaq üçün ona toxunun.\nAşağıda üzən tablar (basıb üzərlərində sürüşdürün və ya səhifəni sürüşdürün), canlı sürətlə Statistika və heç vaxt sıxılmayan Ayarlar tabları. Jurnallar indi Haqqında bölməsindədir.</string>
     <string name="whatsNewOk">Aydındır</string>
     <string name="whatsNewTitle">{version} versiyasında yeniliklər</string>
 </resources>

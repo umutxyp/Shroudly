@@ -478,58 +478,24 @@ function traySaveLogs(s) {
 }
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
-function trayGlyphPath() {
-  let dark = true;
-  if (process.platform === 'win32') {
-    try { dark = nativeTheme.shouldUseDarkColorsForSystemIntegratedUI !== false; } catch {}
-  }
-  const v = dark ? 'light' : 'dark';
-  return iconAssetPath(process.platform === 'win32' ? `tray-${v}.ico` : `tray-${v}.png`);
-}
-
+/* The window's, the taskbar's and the notifications' icon: Shroudly's logo,
+ * as at the window's top left (never a blurred small copy). */
 function trayIconPath() {
   return process.platform === 'win32' ? iconAssetPath('icon.ico')
-                                      : iconAssetPath('icon-small.png');
+                                      : iconAssetPath('icon.png');
 }
 
-/* macOS menu bar: monochrome template images (sources in scripts/tray-icons)
- * that macOS tints for light and dark menu bars; @2x/@3x are picked up
- * automatically. A solid pupil means protection is on. Elsewhere: the
- * shield in a line that shows on the taskbar, in gray while protection is
- * off (grayIcon). */
+/* The notification area and the menu bar: Shroudly's logo, exactly as at the
+ * window's top left, its eye open while protection is on and shut while off
+ * (scripts/logo/make-icons.py). @2x/@3x are picked up by themselves; the
+ * Windows .ico carries every size a display scale asks for. */
 function makeTrayIcon(active = false) {
   try {
-    if (process.platform === 'darwin') {
-      const img = nativeImage.createFromPath(iconAssetPath(active ? 'trayTemplate.png' : 'trayInactiveTemplate.png'));
-      img.setTemplateImage(true);
-      return img;
-    }
-    // The menu bar's shield and eye, not the app icon: its dark navy all
-    // but vanished on a dark taskbar (TV-1). A light line with a dark rim
-    // for dark bars, a dark line for Windows' light taskbar.
-    let img = nativeImage.createFromPath(trayGlyphPath());
+    const name = `tray-${active ? 'on' : 'off'}.${process.platform === 'win32' ? 'ico' : 'png'}`;
+    let img = nativeImage.createFromPath(iconAssetPath(name));
     if (img.isEmpty()) img = nativeImage.createFromPath(trayIconPath());
-    if (img.isEmpty()) return nativeImage.createEmpty();
-    return active ? img : grayIcon(img);
+    return img;
   } catch { return nativeImage.createEmpty(); }
-}
-
-/* Windows and Linux: the app's own icon, in gray and a little faded while
- * protection is off. The notification area showed the same icon either way,
- * so a protection that had gone off looked on. Every size the icon has is
- * kept, so it stays sharp on any display scale. */
-function grayIcon(img) {
-  try {
-    return grayed(img);
-  } catch { return img; }
-}
-function grayed(img) {
-  const out = nativeImage.createEmpty();
-  for (const scaleFactor of img.getScaleFactors()) {
-    const { width, height } = img.getSize(scaleFactor);
-    out.addRepresentation({ scaleFactor, width, height, buffer: Launch.grayPixels(Buffer.from(img.toBitmap({ scaleFactor }))) });
-  }
-  return out.isEmpty() ? img : out;
 }
 
 function systemLanguages() {

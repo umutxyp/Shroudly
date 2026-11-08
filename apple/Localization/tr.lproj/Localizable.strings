@@ -188,6 +188,8 @@
 "tabGeneral" = "Genel";
 "tabSharing" = "Sunucu ve paylaşım";
 "tagline" = "Görünmez. Durdurulamaz.";
+"tapToStart" = "Başlatmak için dokun";
+"tapToStop" = "Durdurmak için dokun";
 "torAskCard" = "Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu Tor ağı üzerinden açabilir: çok daha yavaştır (sayfalar ve videolar yavaş yüklenir) ve bazı siteler captcha ister. Cevabın hatırlanır; Ayarlar'dan değiştirebilirsin.";
 "torAskNo" = "Hayır";
 "torAskNotice" = "Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu son çaresi olan Tor ağı üzerinden açabilir, ama çok daha yavaş. İzin vermek ya da reddetmek için Shroudly'yi aç.";
@@ -198,6 +200,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Bilgisayar sürümüyle aynı yeni görünüm: altta altı sekme, canlı hız ve siteye göre bağlantılarla İstatistik, Günlük ve Takip et.\nMac'te Shroudly artık bilgisayar sürümü gibi Mac'in vekil sunucusu: çok daha hafif. Vekili dinlemeyen uygulamalar için Ayarlar → Bağlantı → Tüm uygulamalar Shroudly'den (VPN).";
+"whatsNewApple" = "Başlatmak ya da durdurmak için ortadaki daireye dokun: Shroudly logosu, kapalıyken gözü kapalı, açılınca açık.\nAltta Liquid Glass sekmeler: basılı tutup üzerlerinde kaydır ya da sayfayı yana kaydır. Kayıtlar artık Hakkında'da.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

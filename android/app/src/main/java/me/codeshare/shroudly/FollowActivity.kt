@@ -61,11 +61,21 @@ class FollowActivity : Activity() {
         textAlignment = View.TEXT_ALIGNMENT_VIEW_START
     }
 
+    // A sideways swipe goes to the tab beside it (Chrome.Swipe).
+    private val swipe by lazy { Chrome.Swipe(this, { Chrome.Tab.FOLLOW }) { Chrome.go(this, it) } }
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        swipe.feed(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Accent.apply(this)
         super.onCreate(savedInstanceState)
         val tv = Tv.isTv(this)
-        val root = LinearLayout(this).apply {
+        // The main screen's column: at most content_max_width, in the middle
+        // of a tablet or a TV.
+        val root = Column(this, null).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16f), dp(16f), dp(16f), dp(16f))
         }
@@ -75,7 +85,12 @@ class FollowActivity : Activity() {
         // The developer's first: news, new versions and urgent notices go there.
         group(root, getString(R.string.followDeveloper), DEVELOPER, tv)
         group(root, getString(R.string.followCodeshare), CODESHARE, tv)
-        val scroll = ScrollView(this).apply { id = View.generateViewId(); addView(root); setBackgroundColor(getColor(R.color.bg)) }
+        val scroll = ScrollView(this).apply {
+            id = View.generateViewId()
+            addView(root, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT, android.view.Gravity.CENTER_HORIZONTAL))
+            setBackgroundColor(getColor(R.color.bg))
+            defaultFocusHighlightEnabled = false
+        }
         // The desktop's frame (Chrome): its top, the page, the six tabs with
         // Follow chosen.
         val frame = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(getColor(R.color.bg)) }

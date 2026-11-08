@@ -109,6 +109,7 @@
     <string name="appSection">အပလီကေးရှင်း</string>
     <string name="autoRawBlocked">ဤကွန်ရက်က {app} ၏ ချိတ်ဆက်မှုများကို တားဆီးထားပြီး Shroudly ၏ နည်းလမ်းများထဲမှ တစ်ခုမျှ မဖြတ်ကျော်နိုင်ခဲ့ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
+    <string name="bypassed">ကျော်ဖြတ်ပြီး</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>
     <string name="connsAllow">ခွင့်ပြုရန်</string>
     <string name="connsBlock">ပိတ်ရန်</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly အသုံးပြုသည်</string>
     <string name="connsTitle">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ</string>
     <string name="copyLogs">မှတ်တမ်းများ ကူးယူရန်</string>
+    <string name="dataTransferred">လွှဲပြောင်းခဲ့သော ဒေတာ</string>
     <string name="dnsAroundAndroid">ဤစက်တွင် အက်ပ်များ၏ အမည်ရှာဖွေမှုကို အခြားတစ်ခုက ဖြေနေသည် (Private DNS သို့မဟုတ် DNS အက်ပ်)၊ ထို့ကြောင့် ပိတ်ဆို့ထားသော အက်ပ်များ မပွင့်နိုင်ပါ။ ဆက်တင်များ → ကွန်ရက် → Private DNS တွင် ပိတ် သို့မဟုတ် အလိုအလျောက် ကိုရွေးပြီး DNS အက်ပ်များကို ပိတ်ကာ Shroudly ကို ပြန်စပါ။</string>
     <string name="dnsErrorEmpty">ဆာဗာ၏ လိပ်စာကို ရိုက်ထည့်ပါ၊ ဥပမာ {example}။</string>
     <string name="dnsErrorHost">၎င်းသည် IP လိပ်စာ သို့မဟုတ် ဆာဗာအမည် မဟုတ်ပါ။ {example} ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">မှတ်တမ်း မရှိသေးပါ</string>
     <string name="notProtected">ကာကွယ်မထားပါ</string>
     <string name="onlineNow">ယခု အွန်လိုင်း</string>
+    <string name="onlineNowDesc">ယခုအချိန် Shroudly ကို သုံးနေသူများ (ကမ္ဘာတစ်ဝှမ်း)</string>
     <string name="openSourceDesc">Shroudly သည် MIT လိုင်စင်ဖြင့် အခမဲ့ ပွင့်လင်းရင်းမြစ် ဆော့ဖ်ဝဲ ဖြစ်သည်: မည်သူမဆို ၎င်း၏ ကုဒ်ကို ဖတ်ရှု၊ စစ်ဆေး၊ တည်ဆောက်နိုင်သည်။</string>
     <string name="openSourceTitle">ပွင့်လင်းရင်းမြစ်</string>
     <string name="ownServer">ကိုယ်ပိုင် ဆာဗာ</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">အထွေထွေ</string>
     <string name="tabSharing">ဆာဗာနှင့် မျှဝေခြင်း</string>
     <string name="tagline">မမြင်ရ။ မတားဆီးနိုင်။</string>
+    <string name="tapToStart">စတင်ရန် နှိပ်ပါ</string>
+    <string name="tapToStop">ရပ်ရန် နှိပ်ပါ</string>
     <string name="testing">စမ်းသပ်နေသည်…</string>
     <string name="torAskCard">ဤကွန်ရက်တွင် မည်သည့်နည်းလမ်းကမျှ {host} ကို မဖွင့်နိုင်ခဲ့ပါ။ Shroudly သည် Tor ကွန်ရက်မှတစ်ဆင့် ဖွင့်ပေးနိုင်သည်- အလွန်နှေးပြီး (စာမျက်နှာများနှင့် ဗီဒီယိုများ နှေးကွေးစွာ ပွင့်သည်) အချို့ဆိုက်များက captcha တောင်းသည်။ သင့်အဖြေကို မှတ်ထားမည်ဖြစ်ပြီး ဆက်တင်များတွင် ပြောင်းနိုင်သည်။</string>
     <string name="torAskNo">မသုံးပါ</string>
@@ -305,7 +310,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ကွန်ရက်က အကြိမ်ကြိမ် ဖြတ်ချသော အက်ပ်များ (ဥပမာ အီရန်ရှိ WhatsApp) ယခု Tor ဖြင့် ဖြတ်သွားပြီး အမြန်ရပ်ပြီး ပြန်ဖွင့်ခြင်းက Tor ကို အစမှ ပြန်မစတော့ပါ။\n«ရပ်ရန်» သည် ကာကွယ်မှုကို အမြဲပိတ်ပြီး «ပရောက်စီသာ» မှ အက်ပ်တစ်ခုမှ မဖြတ်ပါက ရှင်းရှင်းပြောပြီး VPN မုဒ်ကို တစ်ချက်တို့ရုံဖြင့် ရနိုင်သည်။\nRoblox နှင့် အခြားအက်ပ်များတွင် လက်မှတ်အမှားများ နည်းလာသည်။</string>
+    <string name="whatsNewAndroid">ပုံစံသစ်- အဝိုင်းခလုတ်သည် Shroudly လိုဂိုဖြစ်ပြီး ပိတ်ထားလျှင် မျက်လုံးမှိတ်ထားသည်။ စရန် သို့မဟုတ် ရပ်ရန် နှိပ်ပါ။\nအောက်ခြေတွင် လွင့်နေသော တဘ်များ (ဖိထားပြီး ၎င်းတို့ပေါ် ဆွဲပါ သို့မဟုတ် စာမျက်နှာကို ပွတ်ဆွဲပါ)၊ တိုက်ရိုက်အမြန်နှုန်းပါ စာရင်းအင်းနှင့် ဘယ်တော့မှ မကျပ်သော ဆက်တင်တဘ်များ။ မှတ်တမ်းများသည် ယခု အကြောင်းတွင် ရှိသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

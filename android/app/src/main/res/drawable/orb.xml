@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The round switch around the logo: the dark surface with a navy line when
-     off; when protected, the logo's royal blue glowing out of its navy, with
-     the eye's blue round it. -->
+<!-- The round switch around the logo, as on the desktop and the iPhone: dark
+     glass with a fine line when off; lit lightly in the accent once on. -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="?attr/accentSoft">
     <item>
         <selector
@@ -10,12 +9,10 @@
             <item android:state_activated="true">
                 <shape android:shape="oval">
                     <gradient
-                        android:centerColor="@color/brand_royal"
-                        android:endColor="@color/brand_navy"
-                        android:gradientRadius="86dp"
-                        android:startColor="@color/brand_bright"
-                        android:type="radial" />
-                    <stroke android:width="2dp" android:color="?attr/accent" />
+                        android:angle="270"
+                        android:endColor="@color/surface"
+                        android:startColor="?attr/accentSoft" />
+                    <stroke android:width="1.5dp" android:color="?attr/accentLine" />
                 </shape>
             </item>
             <item>
@@ -24,7 +21,7 @@
                         android:angle="270"
                         android:endColor="@color/surface"
                         android:startColor="@color/surface_2" />
-                    <stroke android:width="1.5dp" android:color="@color/brand_shield" />
+                    <stroke android:width="1.2dp" android:color="@color/line_strong" />
                 </shape>
             </item>
         </selector>

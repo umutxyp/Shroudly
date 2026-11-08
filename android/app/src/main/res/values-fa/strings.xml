@@ -109,6 +109,7 @@
     <string name="appSection">برنامه</string>
     <string name="autoRawBlocked">این شبکه اتصال‌های برنامهٔ {app} را متوقف می‌کند و هیچ‌یک از روش‌های Shroudly از آن عبور نکرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
     <string name="autoRawUnreachable">برنامهٔ {app} نمی‌تواند به سرورهایش برسد: این شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
+    <string name="bypassed">دورزده‌شده</string>
     <string name="connections">اتصال‌ها</string>
     <string name="connsAllow">اجازه بده</string>
     <string name="connsBlock">مسدود کن</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">مورد استفادهٔ Shroudly</string>
     <string name="connsTitle">اتصال‌ها بر اساس سایت</string>
     <string name="copyLogs">کپی گزارش‌ها</string>
+    <string name="dataTransferred">دادهٔ منتقل‌شده</string>
     <string name="dnsAroundAndroid">چیز دیگری روی این دستگاه به پرس‌وجوهای نام برنامه‌ها جواب می‌دهد (DNS خصوصی یا یک برنامهٔ DNS)، پس ممکن است برنامه‌های مسدود باز نشوند. در تنظیمات ← شبکه ← DNS خصوصی، «خاموش» یا «خودکار» را انتخاب کنید، برنامه‌های DNS را ببندید و Shroudly را دوباره روشن کنید.</string>
     <string name="dnsErrorEmpty">نشانی سرور را بنویسید، مثل {example}.</string>
     <string name="dnsErrorHost">این نه نشانی IP است و نه نام سرور؛ آن را مثل {example} بنویسید.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">هنوز گزارشی ثبت نشده است</string>
     <string name="notProtected">محافظت‌نشده</string>
     <string name="onlineNow">هم‌اکنون آنلاین</string>
+    <string name="onlineNowDesc">کسانی که هم‌اکنون در سراسر جهان از Shroudly استفاده می‌کنند</string>
     <string name="openSourceDesc">Shroudly رایگان و متن‌باز با مجوز MIT است: هر کسی می‌تواند کد آن را بخواند، بررسی کند و بسازد.</string>
     <string name="openSourceTitle">متن‌باز</string>
     <string name="ownServer">سرور خودتان</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">عمومی</string>
     <string name="tabSharing">سرور و اشتراک‌گذاری</string>
     <string name="tagline">نامرئی. توقف‌ناپذیر.</string>
+    <string name="tapToStart">برای شروع ضربه بزنید</string>
+    <string name="tapToStop">برای توقف ضربه بزنید</string>
     <string name="testing">در حال آزمایش…</string>
     <string name="torAskCard">هیچ روشی {host} را در این شبکه باز نکرد. Shroudly می‌تواند آن را از طریق شبکه Tor باز کند: بسیار کندتر (صفحه‌ها و ویدیوها کند بارگذاری می‌شوند) و برخی سایت‌ها captcha می‌خواهند. پاسخ شما نگه داشته می‌شود؛ می‌توانید آن را در تنظیمات تغییر دهید.</string>
     <string name="torAskNo">نه</string>
@@ -305,7 +310,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">برنامه‌هایی که شبکه مدام قطع‌شان می‌کند (مثل واتساپ در ایران) حالا از Tor عبور می‌کنند و خاموش و روشن کردن سریع دیگر Tor را از اول شروع نمی‌کند.\n«توقف» همیشه محافظت را خاموش می‌کند و «فقط پراکسی» اگر هیچ برنامه‌ای از آن عبور نکند، صریح می‌گوید؛ حالت VPN با یک لمس.\nخطاهای گواهی در Roblox و برنامه‌های دیگر کمتر شده است.</string>
+    <string name="whatsNewAndroid">ظاهر تازه: کلید گرد لوگوی Shroudly است و وقتی خاموش است چشمش بسته است. برای روشن یا خاموش کردن رویش ضربه بزنید.\nزبانه‌های شناور پایین صفحه (نگه دارید و رویشان بکشید یا صفحه را بکشید)، آمار با سرعت زنده و زبانه‌های تنظیمات که هرگز فشرده نمی‌شوند. گزارش‌ها حالا در «درباره» هستند.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

@@ -1,22 +1,29 @@
 {
   "fill" : {
     "linear-gradient" : [
-      "srgb:0.10588,0.29020,0.70196,1.00000",
-      "srgb:0.03137,0.08627,0.23529,1.00000"
+      "srgb:0.10980,0.14118,0.20784,1.00000",
+      "srgb:0.04314,0.05882,0.09020,1.00000"
     ]
   },
   "groups" : [
     {
       "layers" : [
         {
-          "glass" : true,
+          "glass" : false,
           "image-name" : "shield.png",
-          "name" : "shield"
+          "name" : "shield",
+          "position" : {
+            "scale" : 1.25,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.55
+        "opacity" : 0.5
       },
       "translucency" : {
         "enabled" : false,

@@ -109,6 +109,7 @@
     <string name="appSection">Anwendung</string>
     <string name="autoRawBlocked">Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
     <string name="autoRawUnreachable">Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
+    <string name="bypassed">Umgangen</string>
     <string name="connections">Verbindungen</string>
     <string name="connsAllow">Zulassen</string>
     <string name="connsBlock">Sperren</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">von Shroudly genutzt</string>
     <string name="connsTitle">Verbindungen nach Seite</string>
     <string name="copyLogs">Protokoll kopieren</string>
+    <string name="dataTransferred">Übertragene Daten</string>
     <string name="dnsAroundAndroid">Etwas anderes auf diesem Gerät beantwortet die Namensabfragen der Apps (Privates DNS oder eine DNS-App), deshalb öffnen sich gesperrte Apps womöglich nicht. Wähle unter Einstellungen → Netzwerk → Privates DNS „Aus“ oder „Automatisch“, schließe DNS-Apps und starte Shroudly neu.</string>
     <string name="dnsErrorEmpty">Gib die Adresse des Servers ein, etwa {example}.</string>
     <string name="dnsErrorHost">Das ist keine IP-Adresse und kein Servername; gib sie wie {example} ein.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Noch keine Protokolleinträge</string>
     <string name="notProtected">Nicht geschützt</string>
     <string name="onlineNow">Jetzt online</string>
+    <string name="onlineNowDesc">Menschen, die Shroudly gerade weltweit nutzen</string>
     <string name="openSourceDesc">Shroudly ist kostenlos und Open Source unter der MIT-Lizenz: Jeder kann den Code lesen, prüfen und selbst bauen.</string>
     <string name="openSourceTitle">Open Source</string>
     <string name="ownServer">Eigener Server</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Allgemein</string>
     <string name="tabSharing">Server und Teilen</string>
     <string name="tagline">Unsichtbar. Unaufhaltsam.</string>
+    <string name="tapToStart">Zum Starten tippen</string>
+    <string name="tapToStop">Zum Beenden tippen</string>
     <string name="testing">Wird getestet…</string>
     <string name="torAskCard">Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen: deutlich langsamer (Seiten und Videos laden langsam), und manche Seiten verlangen ein Captcha. Deine Antwort wird gespeichert; du kannst sie in den Einstellungen ändern.</string>
     <string name="torAskNo">Nein</string>
@@ -305,7 +310,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Apps, die das Netz immer wieder kappt (wie WhatsApp im Iran), laufen jetzt über Tor, und ein kurzes Stoppen und Starten fängt Tor nicht mehr von vorn an.\nStopp schaltet den Schutz immer ab, und „Nur Proxy“ sagt klar, wenn keine App darüber läuft – der VPN-Modus ist einen Tipp entfernt.\nWeniger Zertifikatsfehler in Roblox und anderen Apps.</string>
+    <string name="whatsNewAndroid">Neues Aussehen: Der runde Schalter ist das Shroudly-Logo, aus mit geschlossenem Auge. Zum Starten oder Stoppen antippen.\nSchwebende Tabs unten (gedrückt halten und entlangwischen oder die Seite wischen), Statistik mit Live-Geschwindigkeit und Einstellungs-Tabs, die nie gequetscht werden. Protokolle sind jetzt unter Info.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

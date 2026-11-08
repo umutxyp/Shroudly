@@ -188,6 +188,8 @@
 "tabGeneral" = "常规";
 "tabSharing" = "服务器与共享";
 "tagline" = "隐形。不可阻挡。";
+"tapToStart" = "轻点开始";
+"tapToStop" = "轻点停止";
 "torAskCard" = "在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络打开它：慢很多（网页和视频加载缓慢），部分网站会要求验证码。你的回答会被记住；可在设置中更改。";
 "torAskNo" = "不";
 "torAskNotice" = "在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络（它的最后手段）打开它，但会慢很多。打开 Shroudly 以允许或拒绝。";
@@ -198,6 +200,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "全新外观，与电脑版 Shroudly 相同：底部六个标签页，统计页显示实时速度和按网站的连接，以及日志和关注。\n在 Mac 上，Shroudly 现在与电脑版一样作为 Mac 的代理：轻快得多。对于忽略代理的应用：设置 → 连接 → 所有应用都经过 Shroudly (VPN)。";
+"whatsNewApple" = "轻点圆形开关即可开始或停止：Shroudly 的标志，关闭时眼睛闭着，开启后睁开。\n底部 Liquid Glass 标签：按住后沿标签滑动，或滑动页面。日志现在位于“关于”中。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

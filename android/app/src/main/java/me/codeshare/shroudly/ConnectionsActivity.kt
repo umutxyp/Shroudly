@@ -77,7 +77,7 @@ class ConnectionsActivity : Activity() {
         root.addView(empty)
         list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(list)
-        val scroll = ScrollView(this).apply { id = View.generateViewId(); addView(root); setBackgroundColor(getColor(R.color.bg)) }
+        val scroll = ScrollView(this).apply { id = View.generateViewId(); addView(root); setBackgroundColor(getColor(R.color.bg)); defaultFocusHighlightEnabled = false }
         setContentView(scroll)
         Tv.rings(window)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

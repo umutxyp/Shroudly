@@ -70,27 +70,35 @@ struct SettingsView: View {
     #if !os(tvOS)
     /* The tabs in a rounded box, the chosen one tinted (the desktop's look). */
     private var groupBar: some View {
-        HStack(spacing: 4) {
-            ForEach(Group.allCases, id: \.self) { g in
-                Button { group = g } label: {
-                    Text(g.title)
-                        .font(.system(size: 13, weight: .medium))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.85)
-                        .foregroundStyle(group == g ? Theme.accent : Theme.secondaryText)
-                        .frame(maxWidth: .infinity, minHeight: 38)
-                        .padding(.horizontal, 4)
-                        .background(group == g ? Theme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
-                        .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(group == g ? Theme.accent.opacity(0.38) : .clear, lineWidth: 1))
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
+        // All four on one line while every name fits whole, else two by
+        // two, else one under the other; never shrunk or cut.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 4) { ForEach(Group.allCases, id: \.self) { groupButton($0) } }
+            VStack(spacing: 4) {
+                HStack(spacing: 4) { groupButton(.general); groupButton(.connection) }
+                HStack(spacing: 4) { groupButton(.sharing); groupButton(.app) }
             }
+            VStack(spacing: 4) { ForEach(Group.allCases, id: \.self) { groupButton($0) } }
         }
         .padding(4)
         .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radius))
         .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line, lineWidth: 1))
+    }
+
+    private func groupButton(_ g: Group) -> some View {
+        Button { group = g } label: {
+            Text(g.title)
+                .font(.system(size: 13.5, weight: .medium))
+                .lineLimit(1)
+                .fixedSize()
+                .foregroundStyle(group == g ? Theme.accent : Theme.secondaryText)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, minHeight: 38)
+                .background(group == g ? Theme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
+                .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(group == g ? Theme.accent.opacity(0.38) : .clear, lineWidth: 1))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
     #endif
 

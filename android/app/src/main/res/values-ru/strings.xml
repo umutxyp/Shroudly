@@ -109,6 +109,7 @@
     <string name="appSection">Приложение</string>
     <string name="autoRawBlocked">Эта сеть обрывает соединения приложения {app}, и ни одна из техник Shroudly не прошла. Используйте настройку прокси в самом приложении {app} или VPN.</string>
     <string name="autoRawUnreachable">Приложение {app} не может связаться со своими серверами: эта сеть блокирует их адреса, и без сервера в другом месте Shroudly не может это обойти. Используйте настройку прокси в самом приложении {app} или VPN.</string>
+    <string name="bypassed">Обойдено</string>
     <string name="connections">Подключения</string>
     <string name="connsAllow">Разрешить</string>
     <string name="connsBlock">Заблокировать</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">использует Shroudly</string>
     <string name="connsTitle">Соединения по сайтам</string>
     <string name="copyLogs">Скопировать журнал</string>
+    <string name="dataTransferred">Передано данных</string>
     <string name="dnsAroundAndroid">На этом устройстве запросы имён у приложений обрабатывает что-то другое (частный DNS или DNS-приложение), поэтому заблокированные приложения могут не открываться. В Настройках → Сеть → Частный DNS выберите «Отключено» или «Автоматически», закройте DNS-приложения и снова запустите Shroudly.</string>
     <string name="dnsErrorEmpty">Введите адрес сервера, например {example}.</string>
     <string name="dnsErrorHost">Это не IP-адрес и не имя сервера; введите его как {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Записей в журнале пока нет</string>
     <string name="notProtected">Не защищено</string>
     <string name="onlineNow">Сейчас онлайн</string>
+    <string name="onlineNowDesc">Сколько человек пользуется Shroudly прямо сейчас по всему миру</string>
     <string name="openSourceDesc">Shroudly бесплатен и распространяется с открытым исходным кодом по лицензии MIT: любой может прочитать, проверить и собрать его код.</string>
     <string name="openSourceTitle">Открытый исходный код</string>
     <string name="ownServer">Свой сервер</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Общие</string>
     <string name="tabSharing">Сервер и общий доступ</string>
     <string name="tagline">Невидимый. Неудержимый.</string>
+    <string name="tapToStart">Нажмите, чтобы включить</string>
+    <string name="tapToStop">Нажмите, чтобы остановить</string>
     <string name="testing">Проверка…</string>
     <string name="torAskCard">Ни один способ не открыл {host} в этой сети. Shroudly может открыть его через сеть Tor: гораздо медленнее (страницы и видео грузятся медленно), а некоторые сайты просят пройти капчу. Ваш ответ запоминается; его можно изменить в Настройках.</string>
     <string name="torAskNo">Нет</string>
@@ -305,7 +310,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Приложения, которые сеть постоянно обрывает (например, WhatsApp в Иране), теперь идут через Tor, а быстрое выключение и включение больше не запускает Tor заново.\n«Стоп» всегда выключает защиту, а «Только прокси» прямо говорит, если через него не идёт ни одно приложение, — режим VPN в одно касание.\nМеньше ошибок сертификата в Roblox и других приложениях.</string>
+    <string name="whatsNewAndroid">Новый вид: круглый переключатель — логотип Shroudly, выключен — глаз закрыт. Нажмите, чтобы включить или остановить.\nПлавающие вкладки внизу (зажмите и ведите по ним или листайте страницу), статистика со скоростью в реальном времени и вкладки настроек без тесноты. Журнал теперь в разделе «О приложении».</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

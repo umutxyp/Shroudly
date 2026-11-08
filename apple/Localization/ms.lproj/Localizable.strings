@@ -188,6 +188,8 @@
 "tabGeneral" = "Umum";
 "tabSharing" = "Pelayan dan perkongsian";
 "tagline" = "Tidak kelihatan. Tidak terhalang.";
+"tapToStart" = "Ketik untuk mula";
+"tapToStop" = "Ketik untuk berhenti";
 "torAskCard" = "Tiada teknik yang membuka {host} di rangkaian ini. Shroudly boleh membukanya melalui rangkaian Tor: jauh lebih perlahan (halaman dan video dimuatkan dengan perlahan), dan sesetengah laman meminta captcha. Jawapan anda disimpan; anda boleh mengubahnya dalam Tetapan.";
 "torAskNo" = "Tidak";
 "torAskNotice" = "Tiada teknik yang membuka {host} di rangkaian ini. Shroudly boleh membukanya melalui rangkaian Tor, jalan terakhirnya, tetapi jauh lebih perlahan. Buka Shroudly untuk membenarkan atau menolak.";
@@ -198,6 +200,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Rupa baharu, sama seperti apl Shroudly untuk komputer: enam tab di bawah, Statistik dengan kelajuan langsung dan sambungan mengikut laman, Log dan Ikuti.\nDi Mac, Shroudly kini ialah proksi Mac, seperti versi komputer: jauh lebih ringan. Untuk apl yang mengabaikan proksi: Tetapan → Sambungan → Semua apl melalui Shroudly (VPN).";
+"whatsNewApple" = "Ketik suis bulat untuk mula atau berhenti: logo Shroudly, matanya tertutup apabila dimatikan dan terbuka apabila dihidupkan.\nTab Liquid Glass di bawah: tekan dan leret di atasnya, atau leret halaman. Log kini dalam Perihal.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

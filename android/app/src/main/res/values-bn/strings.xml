@@ -109,6 +109,7 @@
     <string name="appSection">অ্যাপ্লিকেশন</string>
     <string name="autoRawBlocked">এই নেটওয়ার্ক {app}-এর সংযোগ আটকে দিচ্ছে, আর Shroudly-এর কোনো কৌশলই পার হতে পারেনি। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।</string>
     <string name="autoRawUnreachable">{app} তার সার্ভারে পৌঁছাতে পারছে না: এই নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর অন্য কোথাও থাকা কোনো সার্ভার ছাড়া Shroudly এটি পার হতে পারে না। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।</string>
+    <string name="bypassed">বাইপাসকৃত</string>
     <string name="connections">সংযোগ</string>
     <string name="connsAllow">অনুমতি দিন</string>
     <string name="connsBlock">ব্লক করুন</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly ব্যবহার করে</string>
     <string name="connsTitle">সাইট অনুযায়ী সংযোগ</string>
     <string name="copyLogs">লগ কপি করুন</string>
+    <string name="dataTransferred">স্থানান্তরিত ডেটা</string>
     <string name="dnsAroundAndroid">এই ডিভাইসে অ্যাপের নাম খোঁজার উত্তর অন্য কিছু দিচ্ছে (প্রাইভেট DNS বা কোনো DNS অ্যাপ), তাই ব্লক করা অ্যাপ নাও খুলতে পারে। সেটিংস → নেটওয়ার্ক → প্রাইভেট DNS-এ বন্ধ বা স্বয়ংক্রিয় বেছে নিন, DNS অ্যাপ বন্ধ করুন, তারপর Shroudly আবার চালু করুন।</string>
     <string name="dnsErrorEmpty">সার্ভারের ঠিকানা লিখুন, যেমন {example}।</string>
     <string name="dnsErrorHost">এটি IP ঠিকানা বা সার্ভারের নাম নয়; {example}-এর মতো লিখুন।</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">এখনও কোনো লগ এন্ট্রি নেই</string>
     <string name="notProtected">অরক্ষিত</string>
     <string name="onlineNow">এখন অনলাইনে</string>
+    <string name="onlineNowDesc">বিশ্বজুড়ে এই মুহূর্তে যারা Shroudly ব্যবহার করছেন</string>
     <string name="openSourceDesc">Shroudly বিনামূল্যে এবং MIT লাইসেন্সের অধীনে ওপেন সোর্স: যে কেউ এর কোড পড়তে, যাচাই করতে ও বিল্ড করতে পারে।</string>
     <string name="openSourceTitle">ওপেন সোর্স</string>
     <string name="ownServer">নিজের সার্ভার</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">সাধারণ</string>
     <string name="tabSharing">সার্ভার ও শেয়ার</string>
     <string name="tagline">অদৃশ্য। অপ্রতিরোধ্য।</string>
+    <string name="tapToStart">চালু করতে ট্যাপ করুন</string>
+    <string name="tapToStop">বন্ধ করতে ট্যাপ করুন</string>
     <string name="testing">পরীক্ষা চলছে…</string>
     <string name="torAskCard">এই নেটওয়ার্কে কোনো কৌশলই {host} খুলতে পারেনি। Shroudly এটি Tor নেটওয়ার্ক দিয়ে খুলতে পারে: অনেক ধীর (পেজ ও ভিডিও ধীরে লোড হয়), আর কিছু সাইট captcha চায়। আপনার উত্তর মনে রাখা হয়; সেটিংসে বদলাতে পারেন।</string>
     <string name="torAskNo">না</string>
@@ -305,7 +310,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">যেসব অ্যাপ নেটওয়ার্ক বারবার কেটে দেয় (যেমন ইরানে WhatsApp), সেগুলো এখন Tor দিয়ে যায়, আর দ্রুত বন্ধ-চালু করলে Tor আর শুরু থেকে চালু হয় না।\n«থামান» সবসময় সুরক্ষা বন্ধ করে, আর «শুধু প্রক্সি» স্পষ্ট বলে যখন কোনো অ্যাপ এর মধ্য দিয়ে যায় না, VPN মোড এক ট্যাপে।\nRoblox ও অন্যান্য অ্যাপে কম সার্টিফিকেট ত্রুটি।</string>
+    <string name="whatsNewAndroid">নতুন চেহারা: গোল সুইচটি Shroudly-র লোগো, বন্ধ থাকলে চোখ বন্ধ। চালু বা বন্ধ করতে এটিতে ট্যাপ করুন।\nনিচে ভাসমান ট্যাব (চেপে ধরে সেগুলোর ওপর সরান বা পাতা সরান), লাইভ গতিসহ পরিসংখ্যান আর সেটিংসের ট্যাব যা কখনো চাপাচাপি হয় না। লগ এখন «সম্পর্কে»-তে।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

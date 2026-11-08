@@ -833,6 +833,8 @@ window() {
     sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
   fi
 }
+# The links and Share logs are on the About tab, as on the desktop.
+about_tab() { sh_ "am start -W -n $PKG/.MainActivity --es me.codeshare.shroudly.TAB ABOUT" >/dev/null; sleep 2; }
 ui_has() { sh_ "uiautomator dump /sdcard/ui.xml" >/dev/null; grep -q -- "$1" <<<"$(sh_ "cat /sdcard/ui.xml")"; }
 # The rows are at the bottom, more than a small screen shows at once: from
 # the top, a little further down each time until the text is on screen.
@@ -856,6 +858,7 @@ sh_ "input keyevent KEYCODE_BACK" >/dev/null
 say "a phone proxy where nothing runs (127.0.0.1:1): the window says so"
 window
 wait_for 20 has_log "Updates: GitHub" || fail "installed from a file, the window does not look for updates on GitHub"
+about_tab
 wait_for 40 ui_seek 'text="Release notes"' || fail "no GitHub releases link"
 wait_for 40 ui_seek 'text="Privacy policy"' || fail "no privacy policy link"
 say "installed from a file: updates from GitHub, links Release notes and Privacy policy"
@@ -863,6 +866,7 @@ adb_ install -r -i com.android.vending "$APK" >/dev/null || fail "install as Goo
 say "installer now: $(sh_ "dumpsys package $PKG" | grep -m1 'installerPackageName=' | sed 's/^ *//')"
 window
 wait_for 20 has_log "Updates: Google Play" || fail "installed by Google Play, the window still looks for updates on GitHub"
+about_tab
 wait_for 40 ui_seek 'text="Source code on GitHub"' || fail "installed by Google Play, the window still links the GitHub releases"
 ui_has 'text="Release notes"' && fail "installed by Google Play, the window still links the GitHub releases"
 say "installed by Google Play: no GitHub update check, links the source code instead"

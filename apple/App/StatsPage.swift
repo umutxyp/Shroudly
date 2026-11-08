@@ -36,25 +36,17 @@ struct StatsPage: View {
                 }
                 online
                 rates
-                Grid(horizontalSpacing: 12, verticalSpacing: 12) {
-                    GridRow {
-                        Counter(icon: "link", label: tr("connections"), value: on ? number(stats?.active ?? 0) : "0",
-                                sub: tr("totalCount", ["count": on ? number(stats?.total ?? 0) : "0"]))
-                        Counter(icon: "checkmark.shield", label: tr("bypassed"), value: on ? number(stats?.desync ?? 0) : "0", sub: " ")
-                    }
-                    GridRow {
-                        Counter(icon: "cylinder", label: tr("dataTransferred"),
-                                value: Self.bytes(on ? Double((stats?.down ?? 0) + (stats?.up ?? 0)) : 0))
-                        Counter(icon: "clock", label: tr("uptime"), value: nil, since: on ? since : nil)
-                    }
-                    if on, let ads = stats?.blocked, ads > 0 {
-                        GridRow {
-                            Counter(icon: "checkmark.shield", label: tr("adsBlocked"), value: number(ads))
-                                .gridCellColumns(2)
-                        }
-                    }
+                // Two by two while each counter has the room its words need,
+                // one under the other once they would be squeezed (Pair).
+                Pair(a: Counter(icon: "link", label: tr("connections"), value: on ? number(stats?.active ?? 0) : "0",
+                                sub: tr("totalCount", ["count": on ? number(stats?.total ?? 0) : "0"])),
+                     b: Counter(icon: "checkmark.shield", label: tr("bypassed"), value: on ? number(stats?.desync ?? 0) : "0", sub: " "))
+                Pair(a: Counter(icon: "cylinder", label: tr("dataTransferred"),
+                                value: Self.bytes(on ? Double((stats?.down ?? 0) + (stats?.up ?? 0)) : 0)),
+                     b: Counter(icon: "clock", label: tr("uptime"), value: nil, since: on ? since : nil))
+                if on, let ads = stats?.blocked, ads > 0 {
+                    Counter(icon: "checkmark.shield", label: tr("adsBlocked"), value: number(ads))
                 }
-                .fixedSize(horizontal: false, vertical: true)
                 ConnectionsSection(on: on)
             }
             .frame(maxWidth: 560)
@@ -184,6 +176,25 @@ struct StatsPage: View {
         }
     }
 
+    /* Two boxes side by side while each still has the room its words need,
+     * else one under the other: decided by what is in them, not the screen
+     * (a large text size, a long language or a narrow phone). */
+    private struct Pair<A: View, B: View>: View {
+        let a: A
+        let b: B
+
+        var body: some View {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    a.frame(minWidth: 140)
+                    b.frame(minWidth: 140)
+                }
+                .fixedSize(horizontal: false, vertical: true)
+                VStack(spacing: 12) { a; b }
+            }
+        }
+    }
+
     private struct Counter: View {
         let icon: String
         let label: String
@@ -197,7 +208,6 @@ struct StatsPage: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Theme.secondaryText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
                 Group {
                     if let value {
                         Text(value)
@@ -212,7 +222,6 @@ struct StatsPage: View {
                 .font(.system(size: 24, weight: .semibold).monospacedDigit())
                 .foregroundStyle(Theme.text)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
                 if let sub {
                     Text(sub)
                         .font(.system(size: 12))

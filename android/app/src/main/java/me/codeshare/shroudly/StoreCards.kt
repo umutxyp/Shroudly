@@ -137,7 +137,7 @@ object StoreCards {
             val body = ctx.getString(R.string.androidMoveBody)
             // The quiet channel (protection's own: low, no sound, no heads-up).
             val n = android.app.Notification.Builder(ctx, ShroudlyVpnService.CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.getString(R.string.androidMoveTitle))
                 .setContentText(body)
                 .setStyle(android.app.Notification.BigTextStyle().bigText(body))

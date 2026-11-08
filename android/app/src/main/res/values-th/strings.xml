@@ -109,6 +109,7 @@
     <string name="appSection">แอปพลิเคชัน</string>
     <string name="autoRawBlocked">เครือข่ายนี้หยุดการเชื่อมต่อของ {app} และไม่มีเทคนิคใดของ Shroudly ผ่านได้ ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="autoRawUnreachable">{app} เข้าถึงเซิร์ฟเวอร์ของตัวเองไม่ได้: เครือข่ายนี้บล็อกที่อยู่ของเซิร์ฟเวอร์เหล่านั้น และ Shroudly เลี่ยงสิ่งนี้ไม่ได้หากไม่มีเซิร์ฟเวอร์ที่อยู่ที่อื่น ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
+    <string name="bypassed">เลี่ยงการบล็อกแล้ว</string>
     <string name="connections">การเชื่อมต่อ</string>
     <string name="connsAllow">อนุญาต</string>
     <string name="connsBlock">บล็อก</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly ใช้</string>
     <string name="connsTitle">การเชื่อมต่อตามเว็บไซต์</string>
     <string name="copyLogs">คัดลอกบันทึก</string>
+    <string name="dataTransferred">ข้อมูลที่รับส่ง</string>
     <string name="dnsAroundAndroid">มีสิ่งอื่นในอุปกรณ์นี้ตอบการค้นหาชื่อของแอป (DNS ส่วนตัวหรือแอป DNS) แอปที่ถูกบล็อกจึงอาจเปิดไม่ได้ ไปที่ การตั้งค่า → เครือข่าย → DNS ส่วนตัว แล้วเลือกปิดหรืออัตโนมัติ ปิดแอป DNS แล้วเริ่ม Shroudly ใหม่</string>
     <string name="dnsErrorEmpty">พิมพ์ที่อยู่ของเซิร์ฟเวอร์ เช่น {example}</string>
     <string name="dnsErrorHost">นี่ไม่ใช่ที่อยู่ IP หรือชื่อเซิร์ฟเวอร์ พิมพ์แบบ {example}</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">ยังไม่มีรายการบันทึก</string>
     <string name="notProtected">ไม่ได้รับการป้องกัน</string>
     <string name="onlineNow">ออนไลน์ขณะนี้</string>
+    <string name="onlineNowDesc">จำนวนผู้ที่กำลังใช้ Shroudly อยู่ในขณะนี้ทั่วโลก</string>
     <string name="openSourceDesc">Shroudly เป็นซอฟต์แวร์ฟรีและโอเพนซอร์สภายใต้สัญญาอนุญาต MIT ทุกคนสามารถอ่าน ตรวจสอบ และสร้างจากโค้ดได้</string>
     <string name="openSourceTitle">โอเพนซอร์ส</string>
     <string name="ownServer">เซิร์ฟเวอร์ของคุณเอง</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">ทั่วไป</string>
     <string name="tabSharing">เซิร์ฟเวอร์และการแชร์</string>
     <string name="tagline">มองไม่เห็น ไม่มีใครหยุดได้</string>
+    <string name="tapToStart">แตะเพื่อเริ่ม</string>
+    <string name="tapToStop">แตะเพื่อหยุด</string>
     <string name="testing">กำลังทดสอบ…</string>
     <string name="torAskCard">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly เปิดได้ผ่านเครือข่าย Tor: ช้ากว่ามาก (หน้าเว็บและวิดีโอโหลดช้า) และบางเว็บไซต์ขอ captcha ระบบจะจำคำตอบของคุณไว้ เปลี่ยนได้ในการตั้งค่า</string>
     <string name="torAskNo">ไม่</string>
@@ -305,7 +310,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">แอปที่เครือข่ายตัดซ้ำ ๆ (เช่น WhatsApp ในอิหร่าน) ตอนนี้ผ่าน Tor และการหยุดแล้วเริ่มใหม่อย่างรวดเร็วจะไม่เริ่ม Tor ใหม่ตั้งแต่ต้นอีก\n«หยุด» ปิดการป้องกันเสมอ และ «พร็อกซีเท่านั้น» จะบอกชัดเมื่อไม่มีแอปใดผ่าน พร้อมโหมด VPN ในแตะเดียว\nข้อผิดพลาดใบรับรองใน Roblox และแอปอื่นน้อยลง</string>
+    <string name="whatsNewAndroid">หน้าตาใหม่: สวิตช์วงกลมคือโลโก้ Shroudly ปิดอยู่ตาจะหลับ แตะเพื่อเริ่มหรือหยุด\nแท็บลอยด้านล่าง (กดค้างแล้วเลื่อนไปตามแท็บ หรือปัดหน้า) สถิติพร้อมความเร็วสด และแท็บการตั้งค่าที่ไม่เบียดกันอีกต่อไป บันทึกย้ายไปอยู่ในเกี่ยวกับแล้ว</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

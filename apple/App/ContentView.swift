@@ -24,6 +24,9 @@ struct ContentView: View {
     #if !os(tvOS)
     // The tab shown (the desktop app's six, at the bottom).
     @State private var tab: MainTab = .protection
+    #else
+    // Apple TV's tab along the top.
+    @State private var tvTab = 0
     #endif
     // Read so the switch takes a new accent at once.
     @AppStorage(Accent.key) private var accentId = Accent.defaultId
@@ -70,6 +73,15 @@ struct ContentView: View {
             helpDue = HelpNudge.due()
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
             #if DEBUG
+            #if os(tvOS)
+            switch UserDefaults.standard.string(forKey: "ShroudlyTab") {
+            case "stats": tvTab = 1
+            case "settings": tvTab = 2
+            case "follow": tvTab = 3
+            case "about": tvTab = 4
+            default: break
+            }
+            #endif
             #if !os(tvOS)
             // Screenshots of each tab (a debug build only): -ShroudlyTab stats|settings|logs|follow|about.
             switch UserDefaults.standard.string(forKey: "ShroudlyTab") {
@@ -84,6 +96,7 @@ struct ContentView: View {
             switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
             case "help": helpDue = true
             case "whatsnew": newsVersion = version; showNews = true; return
+            case "on", "off": return
             default: break
             }
             #endif
@@ -112,49 +125,20 @@ struct ContentView: View {
      * it with "A Codeshare product" below. */
     @ViewBuilder private var layout: some View {
         #if os(tvOS)
-        NavigationStack {
-            ZStack {
-                Theme.background.ignoresSafeArea()
-                // Scrolls only when it does not fit: a small iPhone (SE) with
-                // a notice and a long language; otherwise it fills the screen.
-                GeometryReader { screen in
-                ScrollView {
-                // A wide, low screen (an unfolded iPhone Duo, Apple TV): the
-                // status and its card side by side, so it all fits at once.
-                let wide = screen.size.width > screen.size.height * 1.2 && (screen.size.height < 800 || Theme.isTV)
-                VStack(spacing: wide || Self.compact ? 20 : 28) {
-                    Spacer(minLength: wide ? 8 : 0)
-                    if wide {
-                        // Apple TV: a wider column for its larger type, so the
-                        // cards' words are not cut off.
-                        HStack(alignment: .center, spacing: Theme.isTV ? 80 : 40) {
-                            status
-                            VStack(spacing: 14) {
-                                card
-                                statsView
-                            }
-                            .frame(maxWidth: Theme.isTV ? 820 : 460)
-                        }
-                        .padding(.horizontal, Theme.isTV ? 80 : 24)
-                    } else {
-                        status
-                        card
-                        statsView.frame(maxWidth: 520)
-                    }
-                    Spacer(minLength: wide ? 8 : 0)
-                    tabs
-                }
-                .frame(maxWidth: wide ? .infinity : 520)
-                .frame(minHeight: screen.size.height)
-                .frame(maxWidth: .infinity)
-                }
-                .macScrollBarHidden()
-                }
-            }
-            .navigationTitle("Shroudly")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
+        // Apple TV: the system's tabs along the top, as Apple TV apps have
+        // them, with the desktop's pages in them.
+        TabView(selection: $tvTab) {
+            // The icons alone along the top, their names read out.
+            NavigationStack { tvHome }
+                .tabItem { Image(systemName: "shield").accessibilityLabel(tr("navProtection")) }.tag(0)
+            NavigationStack { tvStats }
+                .tabItem { Image(systemName: "chart.bar").accessibilityLabel(tr("navStats")) }.tag(1)
+            NavigationStack { SettingsView().background(Theme.background.ignoresSafeArea()) }
+                .tabItem { Image(systemName: "gearshape").accessibilityLabel(tr("navSettings")) }.tag(2)
+            NavigationStack { FollowView().background(Theme.background.ignoresSafeArea()) }
+                .tabItem { Image(systemName: "person.2").accessibilityLabel(tr("navFollow")) }.tag(3)
+            NavigationStack { AboutView().background(Theme.background.ignoresSafeArea()) }
+                .tabItem { Image(systemName: "info.circle").accessibilityLabel(tr("navInfo")) }.tag(4)
         }
         #else
         NavigationStack {
@@ -163,9 +147,11 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     header
                     Rectangle().fill(Theme.line).frame(height: 1)
-                    page
+                    pages
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    bottomBar
+                        // The tabs float over the page on glass; the page
+                        // scrolls on under them.
+                        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
                 }
             }
             .navigationTitle("Shroudly")
@@ -176,10 +162,57 @@ struct ContentView: View {
         #endif
     }
 
+    #if os(tvOS)
+    /* Apple TV's Protection: the logo and status on top, the orb (the
+     * remote's switch) and what it says beside the card and the counters. */
+    private var tvHome: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            HStack(alignment: .center, spacing: 90) {
+                status
+                    .frame(width: 560)
+                VStack(spacing: 24) {
+                    card
+                    tvCounters(full: false)
+                }
+                .frame(maxWidth: 900)
+            }
+            .padding(.horizontal, 90)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    /* Apple TV's Stats: every counter in tiles of the same size. */
+    private var tvStats: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            tvCounters(full: true)
+                .frame(maxWidth: 1500)
+                .padding(.horizontal, 90)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private func tvCounters(full: Bool) -> some View {
+        TVStats(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
+                stats: watch.preview ? Self.previewStats : stats, full: full)
+    }
+    #endif
+
     #if !os(tvOS)
     /* The desktop app's tabs (app/page.js), in its order. */
     enum MainTab: CaseIterable {
         case protection, stats, settings, logs, follow, about
+
+        /* The tabs at the bottom: on iPhone and iPad, Logs is a row of About
+         * instead, so the bar keeps room for each name; the Mac has all six. */
+        static var shown: [MainTab] {
+            #if os(iOS)
+            return allCases.filter { $0 != .logs }
+            #else
+            return allCases
+            #endif
+        }
 
         var icon: String {
             switch self {
@@ -227,8 +260,23 @@ struct ContentView: View {
         .padding(.vertical, 12)
     }
 
-    @ViewBuilder private var page: some View {
-        switch tab {
+    /* The tab's page. On iPhone and iPad a swipe goes to the tab beside it,
+     * as the pages of an iPhone app do; the Mac's window changes on a click. */
+    @ViewBuilder private var pages: some View {
+        #if os(iOS)
+        TabView(selection: $tab) {
+            ForEach(MainTab.shown, id: \.self) { t in
+                page(t).tag(t)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        #else
+        page(tab)
+        #endif
+    }
+
+    @ViewBuilder private func page(_ t: MainTab) -> some View {
+        switch t {
         case .protection: home
         case .stats:
             StatsPage(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
@@ -247,7 +295,24 @@ struct ContentView: View {
             ScrollView {
                 VStack(spacing: Self.compact ? 18 : 24) {
                     Spacer(minLength: 0)
-                    ShieldDisc(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil)
+                    #if os(iOS)
+                    // iPhone and iPad: the orb is the switch.
+                    VStack(spacing: 4) {
+                        PowerOrb(look: orbLook, size: 176) { toggle() }
+                            .accessibilityLabel(controller.phase == .off ? tr("start") : tr("stop"))
+                        Text(phase == .off ? tr("tapToStart") : phase == .on ? tr("tapToStop") : " ")
+                            .font(.system(size: 12.5, weight: .medium))
+                            .foregroundStyle(Theme.faintText)
+                            .textCase(.uppercase)
+                            .kerning(0.6)
+                    }
+                    // A firm tap when it is on, a light one when off.
+                    .onChange(of: controller.phase) { new in
+                        if new == .on { Feel.on() } else if new == .off { Feel.off() }
+                    }
+                    #else
+                    PowerOrb(look: orbLook, size: 150)
+                    #endif
                     VStack(spacing: 6) {
                         Text(title)
                             .font(.system(size: 24, weight: .semibold))
@@ -266,9 +331,12 @@ struct ContentView: View {
                     card
                         .frame(maxWidth: 440)
                         .padding(.horizontal, 16)
+                    #if os(macOS)
+                    // The Mac keeps the desktop's button.
                     MainButton(phase: controller.phase) { toggle() }
                         .frame(maxWidth: 320)
                         .padding(.horizontal, 24)
+                    #endif
                     NavigationLink { ReportView(watch: watch) } label: {
                         Label(tr("reportLink"), systemImage: "ladybug")
                             .font(.system(size: 14, weight: .medium))
@@ -292,41 +360,21 @@ struct ContentView: View {
         return phase == .on ? tr("dpiBypassRunning") : tr("dpiBypassStopped")
     }
 
+    /* The six tabs on glass, and "A Codeshare product" under them. */
     private var bottomBar: some View {
-        VStack(spacing: 0) {
-            Rectangle().fill(Theme.line).frame(height: 1)
-            HStack(spacing: 0) {
-                ForEach(MainTab.allCases, id: \.self) { t in
-                    Button { tab = t } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: t == .protection && tab == t ? "shield.fill" : t.icon)
-                                .font(.system(size: 18, weight: .regular))
-                                .frame(height: 22)
-                            Text(t.title)
-                                .font(.system(size: 11, weight: .medium))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
-                        .foregroundStyle(tab == t ? Theme.accent : Theme.faintText)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 9)
-                        .padding(.bottom, 7)
-                        .overlay(alignment: .top) {
-                            if tab == t {
-                                Capsule().fill(Theme.accent).frame(width: 30, height: 2.5)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(tab == t ? .isSelected : [])
-                }
-            }
-            .padding(.horizontal, 4)
-            Rectangle().fill(Theme.line).frame(height: 1)
+        VStack(spacing: 2) {
+            GlassTabBar(tab: $tab)
+                .padding(.horizontal, Self.compact ? 10 : 12)
             footer
         }
-        .background(Theme.background)
+        .padding(.top, 6)
+        .background(alignment: .bottom) {
+            // The page fades out under the tabs instead of showing through
+            // the words under them.
+            LinearGradient(colors: [Theme.background.opacity(0), Theme.background.opacity(0.92), Theme.background],
+                           startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea(edges: .bottom)
+        }
     }
 
     /* "A Codeshare product", as under the desktop's tabs. */
@@ -343,7 +391,7 @@ struct ContentView: View {
     /* The button and what it says. */
     private var status: some View {
         VStack(spacing: Self.compact ? 18 : 28) {
-            Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
+            PowerOrb(look: orbLook, size: 250) { toggle() }
             VStack(spacing: 8) {
                 Text(title)
                     .font(.title2.weight(.semibold))
@@ -368,11 +416,6 @@ struct ContentView: View {
                 .buttonStyle(.plain)
             }
         }
-    }
-
-    private var statsView: some View {
-        StatsView(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
-                  stats: watch.preview ? Self.previewStats : stats)
     }
 
     /* Debug builds' screenshots: believable numbers instead of dashes. */
@@ -412,25 +455,6 @@ struct ContentView: View {
         }
     }
 
-    private var tabs: some View {
-        HStack(spacing: Theme.isTV ? 40 : 12) {
-            NavigationLink { SettingsView() } label: {
-                Tab(icon: "gearshape", text: tr("navSettings"))
-            }
-            // Follow Shroudly: a tab of its own, beside About (AboutView.swift).
-            NavigationLink { FollowView() } label: {
-                Tab(icon: "person.2", text: tr("navFollow"))
-            }
-            NavigationLink { AboutView() } label: {
-                Tab(icon: "info.circle", text: tr("navInfo"))
-            }
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: Theme.isTV ? 1100 : 520)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
-    }
-
     /* Under the status: the address sites see while it works through your
      * own server (issue #66), else the tagline. */
     private var subtitle: String {
@@ -457,6 +481,16 @@ struct ContentView: View {
     /* The tunnel's phase; "on" for a debug build's warning screenshots. */
     private var phase: TunnelController.Phase { watch.preview ? .on : controller.phase }
 
+    /* The orb's look: amber when on but your own server or the world does
+     * not answer. */
+    private var orbLook: PowerOrb.Look {
+        switch phase {
+        case .off: return .off
+        case .starting, .stopping: return .busy
+        case .on: return watch.ownServerDown != nil || watch.national != nil ? .warn : .on
+        }
+    }
+
     private var title: String {
         switch phase {
         case .off: return tr("notProtected")
@@ -480,75 +514,6 @@ struct ContentView: View {
         }
     }
 }
-
-/* The big round button: blue and glowing when protected, grey when not,
- * amber when protected but your own server or the world does not answer. */
-private struct Orb: View {
-    /* The Mac's window is small (480 by 680): a smaller switch, so the
-     * stats fit under it without a scroll bar. */
-    #if os(macOS)
-    static let size: CGFloat = 160
-    #else
-    static let size: CGFloat = 210
-    #endif
-
-    let phase: TunnelController.Phase
-    var warn = false
-    let action: () -> Void
-
-    private var tint: Color { on ? (warn ? .orange : Theme.accent) : Theme.off }
-
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                Circle()
-                    .fill(on ? tint.opacity(0.18) : Theme.card)
-                    .frame(width: Orb.size, height: Orb.size)
-                Circle()
-                    .stroke(tint, lineWidth: 4)
-                    .frame(width: Orb.size * 6 / 7, height: Orb.size * 6 / 7)
-                if phase == .starting || phase == .stopping {
-                    ProgressView().controlSize(.large).tint(.white)
-                } else {
-                    Image(systemName: "power")
-                        .font(.system(size: Orb.size * 0.3, weight: .medium))
-                        .foregroundStyle(on ? tint : Theme.secondaryText)
-                }
-            }
-            .shadow(color: on ? tint.opacity(0.45) : .clear, radius: 30)
-            .contentShape(Circle())
-        }
-        #if os(tvOS)
-        .buttonStyle(OrbFocus())
-        #else
-        .buttonStyle(.plain)
-        #endif
-        .disabled(phase == .stopping)
-        .accessibilityLabel(on || phase == .starting ? tr("stop") : tr("start"))
-    }
-
-    private var on: Bool { phase == .on }
-}
-
-#if os(tvOS)
-/* Apple TV: the remote's focus on the round switch, as a ring round it and a
- * little growth, instead of the system's square platter behind it. */
-private struct OrbFocus: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View { Ring(configuration: configuration) }
-
-    private struct Ring: View {
-        let configuration: ButtonStyle.Configuration
-        @Environment(\.isFocused) private var focused
-
-        var body: some View {
-            configuration.label
-                .overlay(Circle().stroke(Theme.accent, lineWidth: 6).frame(width: Orb.size + 22, height: Orb.size + 22).opacity(focused ? 1 : 0))
-                .scaleEffect(configuration.isPressed ? 0.97 : (focused ? 1.08 : 1))
-                .animation(.easeOut(duration: 0.15), value: focused)
-        }
-    }
-}
-#endif
 
 /* A notice under the status: what is wrong, and where to read more. */
 private struct Warning: View {
@@ -642,23 +607,6 @@ private struct TorAskCard: View {
     }
 }
 
-private struct Tab: View {
-    let icon: String
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-            Text(text)
-        }
-        .font(.body.weight(.medium))
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
-    }
-}
-
 #if !os(tvOS)
 /* The desktop's status pill (app/page.js): a dot and Active / Inactive. */
 private struct StatusPill: View {
@@ -684,45 +632,6 @@ private struct StatusPill: View {
         .padding(.horizontal, 11)
         .padding(.vertical, 6)
         .background(color.opacity(0.12), in: Capsule())
-    }
-}
-
-/* The desktop's shield (components/ControlPanel.js .power-disc): a round
- * disc with the shield in it, lit in the accent while protected. */
-private struct ShieldDisc: View {
-    #if os(macOS)
-    static let size: CGFloat = 150
-    #else
-    static let size: CGFloat = 170
-    #endif
-    let phase: TunnelController.Phase
-    var warn = false
-
-    private var on: Bool { phase == .on }
-    private var tint: Color { on ? (warn ? Theme.warn : Theme.accent) : Theme.secondaryText }
-
-    var body: some View {
-        ZStack {
-            if on {
-                Circle()
-                    .fill(RadialGradient(colors: [tint.opacity(0.22), .clear], center: .center, startRadius: 0, endRadius: Self.size * 0.85))
-                    .frame(width: Self.size * 1.6, height: Self.size * 1.6)
-            }
-            Circle()
-                .fill(on ? tint.opacity(0.10) : Theme.card)
-                .overlay(Circle().stroke(on ? tint.opacity(0.45) : Theme.lineStrong, lineWidth: 1.5))
-                .frame(width: Self.size, height: Self.size)
-            if phase == .starting || phase == .stopping {
-                ProgressView().controlSize(.large).tint(Theme.text)
-            } else {
-                Image(systemName: on ? "checkmark.shield" : "shield")
-                    .font(.system(size: Self.size * 0.32, weight: .light))
-                    .foregroundStyle(tint)
-            }
-        }
-        .frame(width: Self.size * 1.2, height: Self.size * 1.2)
-        .animation(.easeInOut(duration: 0.4), value: phase)
-        .accessibilityHidden(true)
     }
 }
 
@@ -889,6 +798,8 @@ struct LogsView: View {
         Button(action: action) {
             Label(title, systemImage: icon)
                 .font(.system(size: 12.5, weight: .medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .foregroundStyle(Theme.secondaryText)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 7)

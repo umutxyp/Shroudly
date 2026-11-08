@@ -81,7 +81,7 @@ object TorAsk {
         try {
             ShroudlyVpnService.channels(ctx)
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.text(R.string.torAskTitle, "host" to (Protection.torAsk ?: "")))
                 .setContentText(text)
                 .setStyle(Notification.BigTextStyle().bigText(text))

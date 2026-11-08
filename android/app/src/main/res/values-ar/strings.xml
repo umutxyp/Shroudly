@@ -109,6 +109,7 @@
     <string name="appSection">التطبيق</string>
     <string name="autoRawBlocked">تمنع هذه الشبكة اتصالات تطبيق {app}، ولم ينجح أي أسلوب من أساليب Shroudly في تجاوز ذلك. استخدم إعداد الوكيل الخاص بتطبيق {app} أو VPN.</string>
     <string name="autoRawUnreachable">لا يستطيع تطبيق {app} الوصول إلى خوادمه: هذه الشبكة تحجب عناوينها، ولا يستطيع Shroudly تجاوز ذلك دون خادم في مكان آخر. استخدم إعداد الوكيل الخاص بتطبيق {app} أو VPN.</string>
+    <string name="bypassed">تم تجاوزها</string>
     <string name="connections">الاتصالات</string>
     <string name="connsAllow">سماح</string>
     <string name="connsBlock">حظر</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">يستخدمه Shroudly</string>
     <string name="connsTitle">الاتصالات حسب الموقع</string>
     <string name="copyLogs">نسخ السجلات</string>
+    <string name="dataTransferred">البيانات المنقولة</string>
     <string name="dnsAroundAndroid">شيء آخر على هذا الجهاز يجيب عن استعلامات الأسماء للتطبيقات (DNS خاص أو تطبيق DNS)، لذلك قد لا تفتح التطبيقات المحجوبة. من الإعدادات ← الشبكة ← DNS الخاص اختر «إيقاف» أو «تلقائي»، وأغلق أي تطبيق DNS، ثم شغّل Shroudly من جديد.</string>
     <string name="dnsErrorEmpty">اكتب عنوان الخادم، مثل {example}.</string>
     <string name="dnsErrorHost">هذا ليس عنوان IP ولا اسم خادم؛ اكتبه مثل {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">لا توجد إدخالات في السجل بعد</string>
     <string name="notProtected">غير محمي</string>
     <string name="onlineNow">متصل الآن</string>
+    <string name="onlineNowDesc">عدد من يستخدمون Shroudly الآن حول العالم</string>
     <string name="openSourceDesc">Shroudly مجاني ومفتوح المصدر بموجب ترخيص MIT: يمكن لأي شخص قراءة شيفرته وتدقيقها وبناؤها.</string>
     <string name="openSourceTitle">مفتوح المصدر</string>
     <string name="ownServer">خادمك الخاص</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">عام</string>
     <string name="tabSharing">الخادم والمشاركة</string>
     <string name="tagline">غير مرئي. لا يُقهر.</string>
+    <string name="tapToStart">انقر للبدء</string>
+    <string name="tapToStop">انقر للإيقاف</string>
     <string name="testing">جارٍ الاختبار…</string>
     <string name="torAskCard">لم تفتح أي تقنية {host} على هذه الشبكة. يمكن لـ Shroudly فتحه عبر شبكة Tor: أبطأ بكثير (تُحمَّل الصفحات ومقاطع الفيديو ببطء)، وبعض المواقع تطلب اختبار captcha. يُحفظ جوابك؛ ويمكنك تغييره من الإعدادات.</string>
     <string name="torAskNo">لا</string>
@@ -305,7 +310,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">التطبيقات التي تقطعها الشبكة مرارًا (مثل واتساب في إيران) تمر الآن عبر Tor، ولم يعد الإيقاف والتشغيل السريع يعيد تشغيل Tor من البداية.\n«إيقاف» يطفئ الحماية دائمًا، و«الوكيل فقط» يقول بوضوح إن لم يمر عبره أي تطبيق، مع وضع VPN بلمسة واحدة.\nأخطاء شهادات أقل في Roblox والتطبيقات الأخرى.</string>
+    <string name="whatsNewAndroid">مظهر جديد: المفتاح الدائري هو شعار Shroudly، وعينه مغمضة عند الإيقاف. انقر عليه للتشغيل أو الإيقاف.\nعلامات تبويب عائمة في الأسفل (اضغط واسحب عليها أو اسحب الصفحة)، وإحصاءات بسرعات مباشرة، وعلامات تبويب للإعدادات لا تتزاحم أبدًا. السجلات الآن في «حول».</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

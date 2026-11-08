@@ -109,6 +109,7 @@
     <string name="appSection">اپلیکېشن</string>
     <string name="autoRawBlocked">دا شبکه د {app} اپ اړیکې دروي، او د Shroudly هېڅ تخنیک بریالی نه شو. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
+    <string name="bypassed">خلاص شوي</string>
     <string name="connections">اړیکې</string>
     <string name="connsAllow">اجازه</string>
     <string name="connsBlock">بندول</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly یې کاروي</string>
     <string name="connsTitle">د سایټ له مخې اتصالونه</string>
     <string name="copyLogs">لاګونه کاپي کړئ</string>
+    <string name="dataTransferred">لېږدول شوي معلومات</string>
     <string name="dnsAroundAndroid">په دې وسیله کې د اپونو د نوم پوښتنو ته بل شی ځواب ورکوي (خصوصي DNS یا د DNS اپ)، نو ښايي بند اپونه پرانیستل نشي. په امستنو ← شبکه ← خصوصي DNS کې «بند» یا «اتومات» وټاکئ، د DNS اپونه وتړئ، بیا Shroudly له سره پیل کړئ.</string>
     <string name="dnsErrorEmpty">د سرور پته ولیکئ، لکه {example}.</string>
     <string name="dnsErrorHost">دا نه IP پته ده او نه د سرور نوم؛ داسې یې ولیکئ لکه {example}.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">تر اوسه هېڅ ثبت نشته</string>
     <string name="notProtected">خوندي نه دی</string>
     <string name="onlineNow">اوس آنلاین</string>
+    <string name="onlineNowDesc">هغه خلک چې همدا اوس په ټوله نړۍ کې Shroudly کاروي</string>
     <string name="openSourceDesc">Shroudly وړیا او د MIT جواز لاندې پرانیستې سرچینه ده: هر څوک کولی شي د هغه کوډ ولولي، وڅېړي او جوړ یې کړي.</string>
     <string name="openSourceTitle">پرانیستې سرچینه</string>
     <string name="ownServer">خپل سرور</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">عمومي</string>
     <string name="tabSharing">سرور او شریکول</string>
     <string name="tagline">نالیدلی. نه درېدونکی.</string>
+    <string name="tapToStart">د پیل لپاره ټک وکړئ</string>
+    <string name="tapToStop">د درولو لپاره ټک وکړئ</string>
     <string name="testing">ازمویل کېږي…</string>
     <string name="torAskCard">په دې شبکه کې هېڅ تخنیک {host} پرانیستی نه شو. Shroudly کولی شي هغه د Tor شبکې له لارې پرانیزي: ډېر ورو (پاڼې او ویډیوګانې ورو پورته کېږي)، او ځینې سایټونه captcha غواړي. ستاسو ځواب ساتل کېږي؛ په ترتیباتو کې یې بدلولی شئ.</string>
     <string name="torAskNo">نه</string>
@@ -305,7 +310,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">هغه اپونه چې شبکه یې پرله‌پسې پرې کوي (لکه په ایران کې واټس‌اپ) اوس له Tor څخه تېرېږي، او ژر بندول او چالانول نور Tor له سره نه پیلوي.\n«درول» تل ساتنه بندوي، او «یوازې پراکسي» په ښکاره وايي کله چې هېڅ اپ ترې نه تېرېږي، د VPN حالت په یوه ټک.\nپه Roblox او نورو اپونو کې د سند لږې تېروتنې.</string>
+    <string name="whatsNewAndroid">نوې بڼه: ګرد سويچ د Shroudly لوګو دی، کله چې بند وي سترګه يې پټه ده. د پيلولو يا درولو لپاره پرې ټک وکړئ.\nلاندې لامبو وهونکې ټبونه (ونيسئ او پرې وښويوئ يا پاڼه وښويوئ)، د ژوندۍ چټکتيا سره احصايې او د ترتيباتو ټبونه چې هيڅکله نه تنګيږي. لاګونه اوس په «په اړه» کې دي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

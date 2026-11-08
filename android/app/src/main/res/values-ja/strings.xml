@@ -109,6 +109,7 @@
     <string name="appSection">アプリケーション</string>
     <string name="autoRawBlocked">このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="autoRawUnreachable">{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。</string>
+    <string name="bypassed">バイパス済み</string>
     <string name="connections">接続</string>
     <string name="connsAllow">許可</string>
     <string name="connsBlock">ブロック</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly が使用</string>
     <string name="connsTitle">サイト別の接続</string>
     <string name="copyLogs">ログをコピー</string>
+    <string name="dataTransferred">転送データ量</string>
     <string name="dnsAroundAndroid">このデバイスでは、アプリの名前の問い合わせに別のもの（プライベート DNS や DNS アプリ）が答えているため、ブロックされたアプリが開かないことがあります。設定 → ネットワーク → プライベート DNS で「オフ」か「自動」を選び、DNS アプリを閉じてから Shroudly を起動し直してください。</string>
     <string name="dnsErrorEmpty">サーバーのアドレスを入力してください（例: {example}）。</string>
     <string name="dnsErrorHost">IP アドレスでもサーバー名でもありません。{example} のように入力してください。</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">ログはまだありません</string>
     <string name="notProtected">保護されていません</string>
     <string name="onlineNow">現在オンライン</string>
+    <string name="onlineNowDesc">いま世界中で Shroudly を使っている人の数</string>
     <string name="openSourceDesc">Shroudly は MIT ライセンスの無料オープンソースソフトウェアです。誰でもコードを読み、検証し、ビルドできます。</string>
     <string name="openSourceTitle">オープンソース</string>
     <string name="ownServer">自分のサーバー</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">一般</string>
     <string name="tabSharing">サーバーと共有</string>
     <string name="tagline">見えない。止められない。</string>
+    <string name="tapToStart">タップして開始</string>
+    <string name="tapToStop">タップして停止</string>
     <string name="testing">テスト中…</string>
     <string name="torAskCard">このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は Tor ネットワーク経由で開けます。かなり遅く（ページや動画の読み込みが遅くなります）、captcha を求めるサイトもあります。回答は保存され、設定で変更できます。</string>
     <string name="torAskNo">いいえ</string>
@@ -305,7 +310,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">ネットワークに何度も切られるアプリ（イランの WhatsApp など）は Tor を通るようになり、すばやく停止・開始しても Tor が最初からやり直さなくなりました。\n「停止」は必ず保護をオフにし、「プロキシのみ」はどのアプリも通っていないときにはっきり伝え、ワンタップで VPN モードにできます。\nRoblox などのアプリで証明書エラーが減りました。</string>
+    <string name="whatsNewAndroid">新しいデザイン：丸いスイッチは Shroudly のロゴで、オフのときは目を閉じています。タップして開始・停止できます。\n下部にフローティングタブ（押したままなぞる、またはページをスワイプ）、リアルタイムの速度を表示する統計、窮屈にならない設定タブ。ログは「情報」に移りました。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

@@ -36,7 +36,7 @@ object DnsNotice {
                 android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
             )
             val n = Notification.Builder(ctx, ShroudlyVpnService.ALERT_CHANNEL)
-                .setSmallIcon(R.drawable.ic_shield)
+                .setSmallIcon(R.drawable.ic_stat_logo)
                 .setContentTitle(ctx.getString(R.string.app_name))
                 .setContentText(text)
                 .setStyle(Notification.BigTextStyle().bigText(text))

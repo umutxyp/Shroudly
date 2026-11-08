@@ -109,6 +109,7 @@
     <string name="appSection">Барнома</string>
     <string name="autoRawBlocked">Пайвастҳои барномаи {app} дар ин шабака қатъ мешаванд ва ҳеҷ яке аз усулҳои Shroudly гузашта натавонист. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
     <string name="autoRawUnreachable">Барномаи {app} ба серверҳои худ пайваст шуда наметавонад: ин шабака суроғаҳои онҳоро мебандад ва Shroudly бе сервере дар ҷои дигар инро давр зада наметавонад. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
+    <string name="bypassed">Давр зада шуд</string>
     <string name="connections">Пайвастҳо</string>
     <string name="connsAllow">Иҷозат додан</string>
     <string name="connsBlock">Манъ кардан</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly истифода мебарад</string>
     <string name="connsTitle">Пайвастҳо аз рӯи сайт</string>
     <string name="copyLogs">Нусха бардоштани сабтҳо</string>
+    <string name="dataTransferred">Ҳаҷми интиқол</string>
     <string name="dnsAroundAndroid">Дар ин дастгоҳ ба дархостҳои номи барномаҳо чизи дигар ҷавоб медиҳад (DNS-и хусусӣ ё барномаи DNS), бинобар ин барномаҳои басташуда шояд кушода нашаванд. Дар Танзимот → Шабака → DNS-и хусусӣ «Хомӯш» ё «Худкор»-ро интихоб кунед, барномаҳои DNS-ро пӯшед ва Shroudly-ро аз нав оғоз кунед.</string>
     <string name="dnsErrorEmpty">Суроғаи серверро нависед, масалан {example}.</string>
     <string name="dnsErrorHost">Ин на суроғаи IP ва на номи сервер аст; онро мисли {example} нависед.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Ҳанӯз ягон сабт нест</string>
     <string name="notProtected">Ҳимоя нашудааст</string>
     <string name="onlineNow">Ҳозир онлайн</string>
+    <string name="onlineNowDesc">Одамоне, ки ҳозир дар саросари ҷаҳон Shroudly-ро истифода мебаранд</string>
     <string name="openSourceDesc">Shroudly ройгон ва бо коди кушода таҳти иҷозатномаи MIT аст: ҳар кас метавонад коди онро хонад, санҷад ва худаш созад.</string>
     <string name="openSourceTitle">Коди кушода</string>
     <string name="ownServer">Сервери худи шумо</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Умумӣ</string>
     <string name="tabSharing">Сервер ва мубодила</string>
     <string name="tagline">Ноаён. Боздоштнашаванда.</string>
+    <string name="tapToStart">Барои оғоз пахш кунед</string>
+    <string name="tapToStop">Барои қатъ пахш кунед</string>
     <string name="testing">Санҷиш…</string>
     <string name="torAskCard">Дар ин шабака ягон усул {host}-ро накушод. Shroudly метавонад онро тавассути шабакаи Tor кушояд: хеле сусттар (саҳифаҳо ва видеоҳо суст бор мешаванд) ва баъзе сомонаҳо captcha мепурсанд. Ҷавоби шумо нигоҳ дошта мешавад; онро дар Танзимот иваз карда метавонед.</string>
     <string name="torAskNo">Не</string>
@@ -305,7 +310,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Барномаҳое, ки шабака пайваста қатъ мекунад (масалан, WhatsApp дар Эрон), акнун тавассути Tor мегузаранд ва хомӯшу фаъол кардани зуд Tor-ро аз нав оғоз намекунад.\n«Қатъ» ҳимояро ҳамеша хомӯш мекунад ва «Танҳо прокси» агар ягон барнома аз он нагузарад, инро равшан мегӯяд — реҷаи VPN бо як пахш.\nХатоҳои сертификат дар Roblox ва барномаҳои дигар камтар шуданд.</string>
+    <string name="whatsNewAndroid">Намуди нав: калиди мудаввар логотипи Shroudly аст, хомӯш — чашмаш пӯшида. Барои оғоз ё қатъ онро пахш кунед.\nҶадвалҳои шинокунанда дар поён (пахш карда дар болояшон лағжонед ё саҳифаро лағжонед), Омор бо суръати зинда ва ҷадвалҳои Танзимот, ки ҳеҷ гоҳ танг намешаванд. Сабтҳо акнун дар «Дар бораи барнома».</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

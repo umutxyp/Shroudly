@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/ic_shield"
-    android:inset="30dp" />
+<!-- The themed launcher icon (Android 13+): Shroudly's logo in one colour,
+     its light parts kept (scripts/logo/make-mono.py). -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_launcher_mono_logo" />

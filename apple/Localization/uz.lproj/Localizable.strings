@@ -188,6 +188,8 @@
 "tabGeneral" = "Umumiy";
 "tabSharing" = "Server va ulashish";
 "tagline" = "Koʻrinmas. Toʻxtatib boʻlmas.";
+"tapToStart" = "Boshlash uchun bosing";
+"tapToStop" = "To‘xtatish uchun bosing";
 "torAskCard" = "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni Tor tarmog'i orqali ochishi mumkin: ancha sekin (sahifalar va videolar sekin yuklanadi), ba'zi saytlar captcha so'raydi. Javobingiz saqlanadi; uni Sozlamalarda o'zgartirishingiz mumkin.";
 "torAskNo" = "Yo'q";
 "torAskNotice" = "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni so'nggi chorasi — Tor tarmog'i orqali ochishi mumkin, lekin ancha sekinroq. Ruxsat berish yoki rad etish uchun Shroudly'ni oching.";
@@ -198,6 +200,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Kompyuterlar uchun Shroudly kabi yangi ko‘rinish: pastda oltita bo‘lim, jonli tezlik va saytlar bo‘yicha ulanishlar bilan Statistika, Jurnal va Kuzatish.\nMac’da Shroudly endi kompyuter versiyasi kabi Mac’ning proksisi: ancha yengil. Proksini e’tiborsiz qoldiradigan ilovalar uchun: Sozlamalar → Ulanish → Barcha ilovalar Shroudly orqali (VPN).";
+"whatsNewApple" = "Yoqish yoki to‘xtatish uchun dumaloq tugmani bosing: Shroudly logotipi, o‘chiq paytda ko‘zi yumuq, yoqilganda ochiq.\nPastda Liquid Glass bo‘limlar: bosib turib ustidan suring yoki sahifani suring. Jurnallar endi «Ilova haqida» bo‘limida.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

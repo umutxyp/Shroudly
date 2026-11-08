@@ -82,6 +82,14 @@ class SettingsActivity : Activity() {
     /* An explanation, when its section shows them. */
     private fun ifOpen(section: Int, text: CharSequence): CharSequence? = if (section in open) text else null
 
+    // A sideways swipe goes to the tab beside it (Chrome.Swipe).
+    private val swipe by lazy { Chrome.Swipe(this, { Chrome.Tab.SETTINGS }) { Chrome.go(this, it) } }
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        swipe.feed(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Accent.apply(this)
         super.onCreate(savedInstanceState)
@@ -542,7 +550,7 @@ class SettingsActivity : Activity() {
             sbm.requestAddTileService(
                 android.content.ComponentName(this, ShroudlyTileService::class.java),
                 getString(R.string.app_name),
-                android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_shield),
+                android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_stat_logo),
                 mainExecutor,
             ) { result ->
                 if (result == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED ||
@@ -1173,23 +1181,15 @@ class SettingsActivity : Activity() {
             connection.addView(c, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(20f) })
         }
         val names = listOf(R.string.tabGeneral, R.string.tabConnection, R.string.tabSharing, R.string.tabApp)
-        val bar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            background = getDrawable(R.drawable.card)
-            setPadding(dpx(4f), dpx(4f), dpx(4f), dpx(4f))
-        }
         val accent = Accent.color(this, R.attr.accentLight)
         val buttons = names.map { n ->
             TextView(this).apply {
                 setText(n)
                 gravity = android.view.Gravity.CENTER
-                maxLines = 2
-                minHeight = dpx(44f)
-                setPadding(dpx(3f), dpx(6f), dpx(3f), dpx(6f))
-                // Whole words on a narrow phone, made smaller to fit, never cut.
-                hyphenationFrequency = android.text.Layout.HYPHENATION_FREQUENCY_NONE
-                breakStrategy = android.graphics.text.LineBreaker.BREAK_STRATEGY_SIMPLE
-                setAutoSizeTextTypeUniformWithConfiguration(9, 13, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+                maxLines = 1
+                textSize = 13.5f
+                minHeight = dpx(40f)
+                setPadding(dpx(12f), dpx(6f), dpx(12f), dpx(6f))
                 typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
                 isClickable = true
                 isFocusable = true
@@ -1207,9 +1207,11 @@ class SettingsActivity : Activity() {
             }
             getSharedPreferences("ui", MODE_PRIVATE).edit().putInt("settingsTab", i).apply()
         }
-        for ((i, b) in buttons.withIndex()) {
-            b.setOnClickListener { pick(i) }
-            bar.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        for ((i, b) in buttons.withIndex()) b.setOnClickListener { pick(i) }
+        // One line while the four names fit whole, else two by two (FitTabs).
+        val bar = FitTabs(this, buttons).apply {
+            background = getDrawable(R.drawable.card)
+            setPadding(dpx(4f), dpx(4f), dpx(4f), dpx(4f))
         }
         col.addView(bar, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(14f) })
         pick(getSharedPreferences("ui", MODE_PRIVATE).getInt("settingsTab", 0).coerceIn(0, 3))

@@ -109,6 +109,7 @@
     <string name="appSection">Колдонмо</string>
     <string name="autoRawBlocked">Бул тармак {app} колдонмосунун туташууларын үзөт, ал эми Shroudly колдонгон ыкмалардын бири да өткөн жок. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="autoRawUnreachable">{app} колдонмосу өз серверлерине туташа албайт: бул тармак алардын даректерин бөгөттөйт, ал эми башка жердеги серверсиз Shroudly муну айланып өтө албайт. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
+    <string name="bypassed">Айланып өтүлдү</string>
     <string name="connections">Туташуулар</string>
     <string name="connsAllow">Уруксат берүү</string>
     <string name="connsBlock">Бөгөттөө</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly колдонот</string>
     <string name="connsTitle">Сайттар боюнча туташуулар</string>
     <string name="copyLogs">Журналды көчүрүү</string>
+    <string name="dataTransferred">Берилген маалымат</string>
     <string name="dnsAroundAndroid">Бул түзмөктө колдонмолордун аталыш сурамдарына башка бир нерсе жооп берет (Жеке DNS же DNS колдонмосу), ошондуктан бөгөттөлгөн колдонмолор ачылбашы мүмкүн. Жөндөөлөр → Тармак → Жеке DNS бөлүмүндө «Өчүк» же «Автоматтык» тандаңыз, DNS колдонмолорун жабыңыз, анан Shroudly\'ни кайра иштетиңиз.</string>
     <string name="dnsErrorEmpty">Сервердин дарегин жазыңыз, мисалы {example}.</string>
     <string name="dnsErrorHost">Бул IP дарек да, сервердин аты да эмес; аны {example} сыяктуу жазыңыз.</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">Журналда азырынча жазуулар жок</string>
     <string name="notProtected">Корголгон эмес</string>
     <string name="onlineNow">Азыр онлайн</string>
+    <string name="onlineNowDesc">Дүйнө жүзү боюнча азыр Shroudly колдонуп жаткан адамдар</string>
     <string name="openSourceDesc">Shroudly акысыз жана MIT лицензиясы боюнча ачык булактуу: анын кодун ар ким окуй, текшере жана кура алат.</string>
     <string name="openSourceTitle">Ачык булак</string>
     <string name="ownServer">Өз сервериңиз</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">Жалпы</string>
     <string name="tabSharing">Сервер жана бөлүшүү</string>
     <string name="tagline">Көрүнбөйт. Токтобойт.</string>
+    <string name="tapToStart">Баштоо үчүн басыңыз</string>
+    <string name="tapToStop">Токтотуу үчүн басыңыз</string>
     <string name="testing">Текшерилүүдө…</string>
     <string name="torAskCard">Бул тармакта эч бир ыкма {host} сайтын ачкан жок. Shroudly аны Tor тармагы аркылуу ача алат: бир топ жайыраак (барактар жана видеолор жай жүктөлөт), айрым сайттар captcha сурайт. Жообуңуз сакталат; аны Жөндөөлөрдөн өзгөртө аласыз.</string>
     <string name="torAskNo">Жок</string>
@@ -305,7 +310,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Тармак улам үзө берген колдонмолор (мисалы, Ирандагы WhatsApp) эми Tor аркылуу өтөт, ал тез өчүрүп-күйгүзүү Tor\'ду башынан баштабайт.\n«Токтотуу» коргоону дайыма өчүрөт, ал «Прокси гана» аркылуу бир да колдонмо өтпөсө, муну ачык айтат — VPN режими бир басууда.\nRoblox жана башка колдонмолордо сертификат катачылыктары азайды.</string>
+    <string name="whatsNewAndroid">Жаңы көрүнүш: тегерек которгуч — Shroudly логотиби, өчүк кезде көзү жумук. Баштоо же токтотуу үчүн басыңыз.\nТөмөндө калкыма өтмөктөр (басып туруп бою менен жылдырыңыз же баракты жылдырыңыз), түз ылдамдыгы бар Статистика жана эч качан кысылбаган Жөндөөлөр өтмөктөрү. Журнал эми «Колдонмо жөнүндө» бөлүмүндө.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

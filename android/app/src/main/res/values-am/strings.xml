@@ -109,6 +109,7 @@
     <string name="appSection">መተግበሪያ</string>
     <string name="autoRawBlocked">ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የፕሮክሲ ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="autoRawUnreachable">የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የፕሮክሲ ቅንብር ወይም VPN ይጠቀሙ።</string>
+    <string name="bypassed">የታለፉ</string>
     <string name="connections">ግንኙነቶች</string>
     <string name="connsAllow">ፍቀድ</string>
     <string name="connsBlock">አግድ</string>
@@ -125,6 +126,7 @@
     <string name="connsSystem">Shroudly ይጠቀማል</string>
     <string name="connsTitle">በድረ ገጽ የተከፋፈሉ ግንኙነቶች</string>
     <string name="copyLogs">መዝገቡን ይቅዱ</string>
+    <string name="dataTransferred">የተላለፈ ውሂብ</string>
     <string name="dnsAroundAndroid">በዚህ መሣሪያ ላይ ሌላ ነገር የመተግበሪያዎችን የስም ፍለጋ እየመለሰ ነው (Private DNS ወይም የDNS መተግበሪያ)፣ ስለዚህ የታገዱ መተግበሪያዎች ላይከፈቱ ይችላሉ። በቅንብሮች → አውታረ መረብ → Private DNS ውስጥ ጠፍቷል ወይም ራስ-ሰር ይምረጡ፣ የDNS መተግበሪያዎችን ይዝጉ፣ ከዚያ Shroudlyን እንደገና ያስጀምሩ።</string>
     <string name="dnsErrorEmpty">የአገልጋዩን አድራሻ ይጻፉ፣ ለምሳሌ {example}።</string>
     <string name="dnsErrorHost">ይህ የIP አድራሻም የአገልጋይ ስምም አይደለም፤ እንደ {example} ይጻፉት።</string>
@@ -195,6 +197,7 @@
     <string name="noLogs">እስካሁን የመዝገብ ግቤቶች የሉም</string>
     <string name="notProtected">አልተጠበቀም</string>
     <string name="onlineNow">አሁን በመስመር ላይ</string>
+    <string name="onlineNowDesc">በአሁኑ ጊዜ በዓለም ዙሪያ Shroudlyን የሚጠቀሙ ሰዎች</string>
     <string name="openSourceDesc">Shroudly በMIT ፈቃድ ስር ነፃ እና ክፍት ምንጭ ነው፤ ማንኛውም ሰው ኮዱን ማንበብ፣ መመርመር እና መገንባት ይችላል።</string>
     <string name="openSourceTitle">ክፍት ምንጭ</string>
     <string name="ownServer">የራስዎ አገልጋይ</string>
@@ -286,6 +289,8 @@
     <string name="tabGeneral">አጠቃላይ</string>
     <string name="tabSharing">አገልጋይና ማጋራት</string>
     <string name="tagline">የማይታይ። የማይቆም።</string>
+    <string name="tapToStart">ለመጀመር ይንኩ</string>
+    <string name="tapToStop">ለማቆም ይንኩ</string>
     <string name="testing">በመሞከር ላይ…</string>
     <string name="torAskCard">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አልከፈተም። Shroudly በTor አውታረ መረብ በኩል ሊከፍተው ይችላል፦ በጣም ዝግ ያለ ነው (ገጾችና ቪዲዮዎች በዝግታ ይጫናሉ)፣ አንዳንድ ጣቢያዎችም captcha ይጠይቃሉ። መልስዎ ይቀመጣል፤ በቅንብሮች ውስጥ መቀየር ይችላሉ።</string>
     <string name="torAskNo">አይ</string>
@@ -305,7 +310,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አውታረ መረቡ ደጋግሞ የሚያቋርጣቸው መተግበሪያዎች (እንደ ኢራን ውስጥ WhatsApp) አሁን በTor ያልፋሉ፣ ፈጣን ማቆምና መጀመርም Torን ከመጀመሪያው አያስጀምርም።\n«አቁም» ሁልጊዜ ጥበቃን ያጠፋል፣ «ፕሮክሲ ብቻ» ደግሞ ምንም መተግበሪያ በእሱ ካላለፈ በግልጽ ይናገራል፣ የVPN ሁነታም በአንድ ንክኪ።\nበRoblox እና በሌሎች መተግበሪያዎች ያነሱ የሰርተፊኬት ስህተቶች።</string>
+    <string name="whatsNewAndroid">አዲስ ገጽታ፦ ክብ ማብሪያው የShroudly አርማ ነው፣ ሲጠፋ ዓይኑ ተዘግቷል። ለመጀመር ወይም ለማቆም ይንኩት።\nከታች ተንሳፋፊ ትሮች (ተጭነው በላያቸው ያንሸራቱ ወይም ገጹን ያንሸራቱ)፣ የቀጥታ ፍጥነት ያለው ስታቲስቲክስ እና ፈጽሞ የማይጨናነቁ የቅንብሮች ትሮች። ምዝግቦች አሁን በ«ስለ» ውስጥ ናቸው።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>
