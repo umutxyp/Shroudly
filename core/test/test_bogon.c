@@ -164,6 +164,20 @@ static int parse1(const uint8_t *b, int n) {
   return dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl);
 }
 
+/* An AAAA reply for name with the given addresses (16 bytes each). */
+static int build_aaaa(uint8_t *b, const char *name, const uint8_t (*ips)[16], int n) {
+  int p = 0;
+  b[p++]=0x12; b[p++]=0x34; b[p++]=0x81; b[p++]=0x80; b[p++]=0; b[p++]=1; b[p++]=0; b[p++]=(uint8_t)n; b[p++]=0; b[p++]=0; b[p++]=0; b[p++]=0;
+  const char *s = name;
+  while (*s) { const char *d = strchr(s, '.'); int l = d ? (int)(d - s) : (int)strlen(s); b[p++]=(uint8_t)l; memcpy(b+p,s,(size_t)l); p+=l; s += l + (d ? 1 : 0); if (!d) break; }
+  b[p++]=0; b[p++]=0; b[p++]=28; b[p++]=0; b[p++]=1;
+  for (int i = 0; i < n; i++) {
+    b[p++]=0xc0; b[p++]=0x0c; b[p++]=0; b[p++]=28; b[p++]=0; b[p++]=1; b[p++]=0; b[p++]=0; b[p++]=0x0e; b[p++]=0x10; b[p++]=0; b[p++]=16;
+    memcpy(b+p, ips[i], 16); p += 16;
+  }
+  return p;
+}
+
 int main(void){
   uint8_t b[512];
   doh_init(NULL,NULL);
@@ -285,6 +299,36 @@ int main(void){
   CHECK(doh_ipv4_is_blockpage(0x7f000001)==0 && doh_ipv4_is_blockpage(0x7f0000fe)==0);
   CHECK(doh_ipv4_is_blockpage(0xc0a80101)==0 && doh_ipv4_is_blockpage(0x08080808)==0);
   printf("  block-page addresses: OK\n");
+
+  /* 13b. IPv6: Iran's block page (2001:4188:2:600:10:10:34:3x), an IPv4
+   *      block page written as IPv6, and bogons are no answer; a real
+   *      address is kept, and a LAN's own address marks a private answer */
+  {
+    const uint8_t ir[16] = {0x20,0x01,0x41,0x88,0x00,0x02,0x06,0x00,0x00,0x10,0x00,0x10,0x00,0x34,0x00,0x36};
+    const uint8_t mapped[16] = {0,0,0,0,0,0,0,0,0,0,0xff,0xff,0xc3,0xaf,0xfe,0x02};   /* ::ffff:195.175.254.2 */
+    const uint8_t real[16] = {0x2a,0x03,0x28,0x80,0xf1,0x2f,0x00,0x83,0xfa,0xce,0xb0,0x0c,0,0,0x25,0xde};
+    const uint8_t ula[16] = {0xfd,0x00,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+    CHECK(doh_ipv6_is_blockpage(ir) && doh_ipv6_is_blockpage(mapped) && !doh_ipv6_is_blockpage(real));
+    uint8_t ips[3][16]; memcpy(ips[0], ir, 16); memcpy(ips[1], real, 16); memcpy(ips[2], mapped, 16);
+    n = build_aaaa(b, "instagram.com", (const uint8_t (*)[16])ips, 3);
+    uint8_t a[DOH_MAX_ADDRS][16]; int na = 0; uint32_t ttl = 0;
+    CHECK(dns_parse(b, n, 1, a, DOH_MAX_ADDRS, &na, &ttl) == 0 && na == 1 && memcmp(a[0], real, 16) == 0);
+    n = build_aaaa(b, "instagram.com", (const uint8_t (*)[16])&ir, 1);
+    na = 0; CHECK(dns_parse(b, n, 1, a, DOH_MAX_ADDRS, &na, &ttl) == DNS_NODATA);
+    n = build_aaaa(b, "nas.example", (const uint8_t (*)[16])&ula, 1);
+    na = 0; CHECK(dns_parse(b, n, 1, a, DOH_MAX_ADDRS, &na, &ttl) == DNS_PRIVATE);
+    struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss)); ss.ss_family = AF_INET6;
+    memcpy(&((struct sockaddr_in6 *)&ss)->sin6_addr, ir, 16);
+    CHECK(doh_addr_is_block(&ss) && sys_answer_refused(&ss, 0) && sys_answer_refused(&ss, 1));
+    memcpy(&((struct sockaddr_in6 *)&ss)->sin6_addr, ula, 16);
+    CHECK(sys_answer_refused(&ss, 0) && !sys_answer_refused(&ss, 1));
+    memcpy(&((struct sockaddr_in6 *)&ss)->sin6_addr, real, 16);
+    CHECK(!doh_addr_is_block(&ss) && !sys_answer_refused(&ss, 0));
+    doh_add_block_ip("2001:db8::bad");
+    const uint8_t added[16] = {0x20,0x01,0x0d,0xb8,0,0,0,0,0,0,0,0,0,0,0x0b,0xad};
+    CHECK(doh_ipv6_is_blockpage(added));
+  }
+  printf("  IPv6 block pages and bogons: OK\n");
 
   /* 14. local names, and what the system resolver may answer */
   CHECK(doh_local_name("router") && doh_local_name("nas.lan") && doh_local_name("NAS.LAN") &&

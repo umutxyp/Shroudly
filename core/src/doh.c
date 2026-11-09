@@ -266,8 +266,69 @@ static uint32_t g_block_ips[MAX_BLOCK_IPS] = {
 };
 static int g_block_n = 1;
 
+/* The same for IPv6. Iran's answers blocked names with 2001:4188:2:600:
+ * 10:10:34:34 to :36 (10.10.34.34 to .36 written in the address) as well:
+ * on a network with IPv6, where encrypted DNS is blocked and plain DNS is
+ * the fallback, those were taken for the site's own address, and connections
+ * went to the block page instead of the techniques or Tor (MCI's mobile data,
+ * "no app opens"). */
+#define MAX_BLOCK_IPS6 64
+static uint8_t g_block6[MAX_BLOCK_IPS6][16] = {
+  { 0x20,0x01,0x41,0x88,0x00,0x02,0x06,0x00,0x00,0x10,0x00,0x10,0x00,0x34,0x00,0x34 },
+  { 0x20,0x01,0x41,0x88,0x00,0x02,0x06,0x00,0x00,0x10,0x00,0x10,0x00,0x34,0x00,0x35 },
+  { 0x20,0x01,0x41,0x88,0x00,0x02,0x06,0x00,0x00,0x10,0x00,0x10,0x00,0x34,0x00,0x36 },
+};
+static int g_block6_n = 3;
+
+static int is_blockpage_v6(const uint8_t a[16]) {
+  for (int i = 0; i < g_block6_n; i++) if (memcmp(g_block6[i], a, 16) == 0) return 1;
+  /* An IPv4 block page written as IPv6 (::ffff:a.b.c.d, 64:ff9b::a.b.c.d). */
+  static const uint8_t mapped[12] = { 0,0,0,0,0,0,0,0,0,0,0xff,0xff };
+  static const uint8_t nat64[12] = { 0,0x64,0xff,0x9b,0,0,0,0,0,0,0,0 };
+  if (memcmp(a, mapped, 12) == 0 || memcmp(a, nat64, 12) == 0) {
+    uint32_t ip = ((uint32_t)a[12] << 24) | ((uint32_t)a[13] << 16) | ((uint32_t)a[14] << 8) | a[15];
+    for (int i = 0; i < g_block_n; i++) if (g_block_ips[i] == ip) return 1;
+  }
+  return 0;
+}
+
+/* Addresses no public name has: unspecified, link-local (fe80::/10),
+ * unique-local (fc00::/7, a LAN's), multicast, and an IPv4 bogon written as
+ * IPv6 (::ffff:10.0.0.1). A censor answers with them, as with IPv4 bogons.
+ * Loopback (::1, ::ffff:127.x) is not among them: no censor answers with it,
+ * and it is where a developer's own override and the tests point a name. */
+static int is_bogon_v6(const uint8_t a[16]) {
+  static const uint8_t zero[16] = { 0 };
+  if (memcmp(a, zero, 16) == 0) return 1;
+  if (a[0] == 0xfe && (a[1] & 0xc0) == 0x80) return 1;
+  if ((a[0] & 0xfe) == 0xfc) return 1;
+  if (a[0] == 0xff) return 1;
+  static const uint8_t mapped[12] = { 0,0,0,0,0,0,0,0,0,0,0xff,0xff };
+  if (memcmp(a, mapped, 12) == 0) {
+    uint32_t ip = ((uint32_t)a[12] << 24) | ((uint32_t)a[13] << 16) | ((uint32_t)a[14] << 8) | a[15];
+    return (ip >> 24) != 127 && is_bogon_v4(ip);
+  }
+  return 0;
+}
+
+/* A LAN's own IPv6 (link-local, unique-local): bogons, but a real answer for
+ * a name only the local network knows. */
+static int is_private_v6(const uint8_t a[16]) {
+  return (a[0] == 0xfe && (a[1] & 0xc0) == 0x80) || (a[0] & 0xfe) == 0xfc;
+}
+
+int doh_ipv6_is_blockpage(const uint8_t a[16]) {
+  return is_blockpage_v6(a);
+}
+
 void doh_add_block_ip(const char *ip) {
   struct in_addr a;
+  struct in6_addr a6;
+  if (inet_pton(AF_INET6, ip, &a6) == 1) {
+    for (int i = 0; i < g_block6_n; i++) if (memcmp(g_block6[i], &a6, 16) == 0) return;
+    if (g_block6_n < MAX_BLOCK_IPS6) memcpy(g_block6[g_block6_n++], &a6, 16);
+    return;
+  }
   if (inet_pton(AF_INET, ip, &a) != 1) return;
   uint32_t h = ntohl(a.s_addr);
   for (int i = 0; i < g_block_n; i++) if (g_block_ips[i] == h) return;
@@ -298,6 +359,10 @@ int doh_addr_v4_is_block(uint32_t ip /*host order*/) {
 
 /* True if a resolved address is a censorship answer (block page or bogon). */
 int doh_addr_is_block(const struct sockaddr_storage *sa) {
+  if (sa->ss_family == AF_INET6) {
+    const uint8_t *a = (const uint8_t *)&((const struct sockaddr_in6 *)sa)->sin6_addr;
+    return is_bogon_v6(a) || is_blockpage_v6(a);
+  }
   if (sa->ss_family != AF_INET) return 0;
   uint32_t ip = ntohl(((const struct sockaddr_in *)sa)->sin_addr.s_addr);
   return is_bogon_v4(ip) || is_blockpage_v4(ip);
@@ -311,6 +376,10 @@ int doh_addr_is_block(const struct sockaddr_storage *sa) {
  * page pointing a public name at the LAN (DNS rebinding). */
 static int sys_answer_refused(const struct sockaddr_storage *sa, int trusted) {
   if (!trusted) return doh_addr_is_block(sa);
+  if (sa->ss_family == AF_INET6) {
+    const uint8_t *a = (const uint8_t *)&((const struct sockaddr_in6 *)sa)->sin6_addr;
+    return is_blockpage_v6(a) || (is_bogon_v6(a) && !is_private_v6(a));
+  }
   if (sa->ss_family != AF_INET) return 0;
   uint32_t ip = ntohl(((const struct sockaddr_in *)sa)->sin_addr.s_addr);
   return is_blockpage_v4(ip) || (is_bogon_v4(ip) && !is_private_v4(ip));
@@ -572,7 +641,12 @@ static int dns_parse(const uint8_t *r, int len, int want6,
         if (is_private_v4(ip) && !is_blockpage_v4(ip)) private = 1;
         continue;
       }
-    } else if (!(want6 && rdlen == 16)) {
+    } else if (want6 && rdlen == 16) {
+      if (is_bogon_v6(r + rdata) || is_blockpage_v6(r + rdata)) {
+        if (is_private_v6(r + rdata)) private = 1;
+        continue;
+      }
+    } else {
       continue;
     }
     int dup = 0;
