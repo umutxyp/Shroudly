@@ -32,9 +32,11 @@ object Protector {
     fun refusedByAndroid(dialogSeen: Boolean, ms: Long, restricted: Boolean): Boolean =
         restricted || (!dialogSeen && ms in 0 until REFUSED_AT_ONCE_MS)
 
-    /* Stops whichever is running. */
-    fun stop(ctx: Context) {
-        if (Protection.proxyOnly) ShroudlyProxyService.stop(ctx) else ShroudlyVpnService.stop(ctx)
+    /* Stops whichever is running. by: where the stop came from, said in the
+     * log ("the window", "the quick settings tile"): a report that says
+     * protection went off then shows whether someone asked for it. */
+    fun stop(ctx: Context, by: String = "the app") {
+        if (Protection.proxyOnly) ShroudlyProxyService.stop(ctx, by) else ShroudlyVpnService.stop(ctx, by)
     }
 
     /* Another mode chosen in Settings while protection is on: the running

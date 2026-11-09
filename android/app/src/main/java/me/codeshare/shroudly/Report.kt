@@ -110,6 +110,40 @@ object Report {
 
     fun chars(s: String): Int = s.trim().let { it.codePointCount(0, it.length) }
 
+    /* ── where "Something not working?" is offered ──────────────────────
+     * In Iran most reports were about what no app on the phone can change
+     * (addresses blocked outright, Tor not yet allowed, the network down),
+     * and they buried the rest. There the link shows only once Shroudly
+     * itself has gone wrong (it could not start, protection ended by itself,
+     * the engine stuck: fault()), for a day, and goes again as soon as a
+     * report is sent. Everywhere else it always shows. Pure, for the tests. */
+    const val FAULT_SHOWS_MS = 24 * 60 * 60 * 1000L
+    private const val KEY_FAULT = "faultAt"
+
+    fun offered(inIran: Boolean, faultAt: Long, lastSentAt: Long, now: Long): Boolean =
+        !inIran || (faultAt > lastSentAt && now - faultAt in 0 until FAULT_SHOWS_MS)
+
+    /* Shroudly's own failure, now: the link shows in Iran for a day. */
+    fun fault(ctx: Context) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong(KEY_FAULT, System.currentTimeMillis()).apply()
+    }
+
+    /* The phone is in Iran: its SIM's or network's country, else its time zone. */
+    fun inIran(ctx: Context): Boolean {
+        val tm = try { ctx.getSystemService(android.telephony.TelephonyManager::class.java) } catch (_: Exception) { null }
+        val sim = try { tm?.simCountryIso.orEmpty() } catch (_: Exception) { "" }
+        val net = try { tm?.networkCountryIso.orEmpty() } catch (_: Exception) { "" }
+        if (sim.equals("ir", true) || net.equals("ir", true)) return true
+        if (sim.isNotEmpty() || net.isNotEmpty()) return false
+        return NationalNet.homeCountry(AppSettings.homeCountry(ctx), java.util.TimeZone.getDefault().id) == "IR"
+    }
+
+    fun offered(ctx: Context): Boolean {
+        val faultAt = maxOf(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_FAULT, 0), Protection.faultAt)
+        val last = load(ctx).maxOfOrNull { it.at } ?: 0L
+        return offered(inIran(ctx), faultAt, last, System.currentTimeMillis())
+    }
+
     private fun cut(s: String, max: Int): String {
         val t = s.trim()
         val n = t.codePointCount(0, t.length)

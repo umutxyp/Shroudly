@@ -27,7 +27,7 @@ class ShroudlyTileService : TileService() {
 
     override fun onClick() {
         when (Protection.state) {
-            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this)
+            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this, "the quick settings tile")
             Protection.State.OFF -> {
                 // With the VPN allowed already, protection starts from here.
                 // Otherwise the window opens and asks at once (the consent
@@ -54,12 +54,12 @@ class ShroudlyTileService : TileService() {
             showDialog(
                 AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setMessage(R.string.androidLockdownStop)
-                    .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this) }
+                    .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this, "the quick settings tile") }
                     .setNegativeButton(android.R.string.cancel, null)
                     .create(),
             )
         } catch (_: Exception) {
-            Protector.stop(this)
+            Protector.stop(this, "the quick settings tile")
         }
     }
 

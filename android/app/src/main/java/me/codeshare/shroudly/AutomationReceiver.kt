@@ -58,7 +58,7 @@ class AutomationReceiver : BroadcastReceiver() {
         }
         if (!on) {
             if (Protection.state == Protection.State.OFF) return
-            Protector.stop(context)
+            Protector.stop(context, "another app (automation)")
             ShroudlyVpnService.log("Automation: protection off, asked by another app")
             return
         }

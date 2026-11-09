@@ -134,10 +134,13 @@ class ShroudlyVpnService : VpnService() {
             return true
         }
 
-        fun stop(ctx: Context) {
+        fun stop(ctx: Context, by: String = "the app") {
             if (Protection.state == Protection.State.OFF) return
-            ctx.startService(Intent(ctx, ShroudlyVpnService::class.java).setAction(ACTION_STOP))
+            ctx.startService(Intent(ctx, ShroudlyVpnService::class.java).setAction(ACTION_STOP).putExtra(EXTRA_BY, by))
         }
+
+        /* Where a stop came from, for the log. */
+        const val EXTRA_BY = "me.codeshare.shroudly.BY"
 
         /* The app's log (AppLog) keeps its lines in the app's files from here on. */
         fun attachLog(ctx: Context) {
@@ -303,6 +306,7 @@ class ShroudlyVpnService : VpnService() {
         lastStartId = startId
         when (intent?.action) {
             ACTION_STOP -> {
+                if (active) log("Stop asked from ${intent.getStringExtra(EXTRA_BY) ?: "the notification"}")
                 // Asked to stop before it ever started: still owe startForeground.
                 if (!active && Protection.state == Protection.State.OFF) {
                     stopSelf()
@@ -1467,6 +1471,7 @@ class ShroudlyVpnService : VpnService() {
      * no new engine can start beside it. Protection ends (apps connect
      * directly) and the process with it (finish). */
     private fun wedged(detail: String) {
+        Report.fault(this)
         log("Stuck: $detail")
         restartProcess = true
         if (alwaysOn()) {
@@ -1493,6 +1498,7 @@ class ShroudlyVpnService : VpnService() {
      * protection holds on instead, tries everything again with a growing
      * pause, and says honestly that apps are offline until it works. */
     private fun giveUp(res: Int, detail: String, cause: LockdownHold.Cause = LockdownHold.Cause.OTHER) {
+        Report.fault(this)
         if (lockdown()) {
             holdOn(detail, cause)
             return
@@ -1693,7 +1699,7 @@ class ShroudlyVpnService : VpnService() {
     private fun goForeground(starting: Boolean): String? {
         channels(this)
         val stopIntent = PendingIntent.getService(
-            this, 1, Intent(this, ShroudlyVpnService::class.java).setAction(ACTION_STOP),
+            this, 1, Intent(this, ShroudlyVpnService::class.java).setAction(ACTION_STOP).putExtra(EXTRA_BY, "the notification"),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         // Under lockdown, Stop asks first in the window (with Shroudly off

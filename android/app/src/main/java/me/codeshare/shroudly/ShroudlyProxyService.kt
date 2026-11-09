@@ -50,9 +50,9 @@ class ShroudlyProxyService : Service() {
             ctx.startForegroundService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_START))
         }
 
-        fun stop(ctx: Context) {
+        fun stop(ctx: Context, by: String = "the app") {
             if (Protection.state == Protection.State.OFF) return
-            ctx.startService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_STOP))
+            ctx.startService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_STOP).putExtra(ShroudlyVpnService.EXTRA_BY, by))
         }
 
         /* The window is open, or protection on again: the notice that it
@@ -111,7 +111,10 @@ class ShroudlyProxyService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_STOP -> { work.execute { stopAll(byUser = true) }; return START_NOT_STICKY }
+            ACTION_STOP -> {
+                if (active) AppLog.add("Stop asked from ${intent.getStringExtra(ShroudlyVpnService.EXTRA_BY) ?: "the notification"}")
+                work.execute { stopAll(byUser = true) }; return START_NOT_STICKY
+            }
             // The ad blocker's switch or its exceptions (MainActivity), as in VPN mode.
             ShroudlyVpnService.ACTION_ADBLOCK -> {
                 work.execute { if (active) { applyAdblock(); refreshAdblockSoon() } }
@@ -676,7 +679,7 @@ class ShroudlyProxyService : Service() {
     private fun goForeground(starting: Boolean): String? {
         ShroudlyVpnService.channels(this)
         val stopIntent = PendingIntent.getService(
-            this, 2, Intent(this, ShroudlyProxyService::class.java).setAction(ACTION_STOP),
+            this, 2, Intent(this, ShroudlyProxyService::class.java).setAction(ACTION_STOP).putExtra(ShroudlyVpnService.EXTRA_BY, "the notification"),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val text = if (starting) getString(R.string.starting) else ProxyPort.onText(this, if (port > 0) port else ProxyPort.remembered(this))
