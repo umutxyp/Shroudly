@@ -293,34 +293,49 @@ function send(res, status, body) {
 // Browser connects there; but bridges.torproject.org itself is blocked where
 // they are needed. So the apps ask here: the country is Cloudflare's for the
 // connection (CF-IPCountry), nothing about the asker is kept, and the answer
-// is cached an hour per country.
+// is cached an hour per country. A country the Tor Project has nothing
+// particular for (or none known) gets its defaults: WebTunnel and obfs4 that
+// are in no bundle either, the same for everyone.
 const MOAT = 'https://bridges.torproject.org/moat/circumvention/settings';
+const MOAT_DEFAULTS = 'https://bridges.torproject.org/moat/circumvention/defaults';
 const BRIDGE_KINDS = ['webtunnel', 'obfs4', 'snowflake', 'meek'];
 const BRIDGES_MS = 60 * 60 * 1000;
 const bridgeCache = new Map();   // country -> { at, bridges }
 
+// The bridge lines of a Moat answer, by transport.
+function moatBridges(j) {
+  const out = {};
+  // Those in no bundle first: the bundle's are the first a censor blocks.
+  const settings = (Array.isArray(j && j.settings) ? j.settings : []).slice()
+    .sort((a, b) => Number((a && a.bridges && a.bridges.source) === 'builtin') - Number((b && b.bridges && b.bridges.source) === 'builtin'));
+  for (const s of settings) {
+    const b = s && s.bridges;
+    if (!b || !BRIDGE_KINDS.includes(b.type) || !Array.isArray(b.bridge_strings)) continue;
+    const lines = b.bridge_strings.filter((l) => typeof l === 'string' && l.startsWith(`${b.type} `) && l.length < 2000 && !/[\r\n]/.test(l));
+    if (lines.length) out[b.type] = [...new Set([...(out[b.type] || []), ...lines])].slice(0, 8);
+  }
+  return out;
+}
+
+async function moat(url, body) {
+  const r = await fetch(url, {
+    method: 'POST', headers: { 'content-type': 'application/vnd.api+json' },
+    body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
+  });
+  return r.ok ? moatBridges(await r.json()) : null;
+}
+
 async function bridgesFor(cc) {
-  const hit = bridgeCache.get(cc);
+  const key = cc || 'defaults';
+  const hit = bridgeCache.get(key);
   if (hit && Date.now() - hit.at < BRIDGES_MS) return hit.bridges;
   let bridges = hit ? hit.bridges : {};
   try {
-    const r = await fetch(MOAT, {
-      method: 'POST', headers: { 'content-type': 'application/vnd.api+json' },
-      body: JSON.stringify({ country: cc.toLowerCase(), transports: BRIDGE_KINDS }), signal: AbortSignal.timeout(10000),
-    });
-    if (r.ok) {
-      const j = await r.json();
-      const out = {};
-      for (const s of Array.isArray(j.settings) ? j.settings : []) {
-        const b = s && s.bridges;
-        if (!b || !BRIDGE_KINDS.includes(b.type) || !Array.isArray(b.bridge_strings)) continue;
-        const lines = b.bridge_strings.filter((l) => typeof l === 'string' && l.startsWith(`${b.type} `) && l.length < 2000 && !/[\r\n]/.test(l));
-        if (lines.length) out[b.type] = [...(out[b.type] || []), ...lines].slice(0, 8);
-      }
-      bridges = out;
-    }
+    let got = cc ? await moat(MOAT, { country: cc.toLowerCase(), transports: BRIDGE_KINDS }) : null;
+    if (!got || !Object.keys(got).length) got = await moat(MOAT_DEFAULTS, { transports: BRIDGE_KINDS });
+    if (got) bridges = got;
   } catch { /* the last answer, or none */ }
-  bridgeCache.set(cc, { at: Date.now(), bridges });
+  bridgeCache.set(key, { at: Date.now(), bridges });
   if (bridgeCache.size > 300) bridgeCache.delete(bridgeCache.keys().next().value);
   return bridges;
 }
@@ -361,8 +376,7 @@ const server = http.createServer(async (req, res) => {
       const head = String(req.headers['cf-ipcountry'] || '').toUpperCase();
       const asked = String(searchParams.get('cc') || '').toUpperCase();
       const cc = /^[A-Z]{2}$/.test(head) && head !== 'XX' && head !== 'T1' ? head : /^[A-Z]{2}$/.test(asked) ? asked : '';
-      if (!cc) { send(res, 200, { country: null, bridges: {} }); return; }
-      send(res, 200, { country: cc, bridges: await bridgesFor(cc) });
+      send(res, 200, { country: cc || null, bridges: await bridgesFor(cc) });
       return;
     }
     send(res, 404, { error: 'not found' });
