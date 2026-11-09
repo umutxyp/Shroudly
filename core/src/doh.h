@@ -58,6 +58,9 @@ int  doh_addr_is_block(const struct sockaddr_storage *sa);
  * or one added with doh_add_block_ip. Never 0.0.0.0 or 127.0.0.0/8, which a
  * hosts file or the user's own filtering DNS answers with on purpose. */
 int  doh_ipv4_is_blockpage(uint32_t ip);
+/* The same for an IPv6 address (16 bytes): Iran's 2001:4188:2:600:10:10:34:3x,
+ * one added with doh_add_block_ip, or an IPv4 one written as IPv6. */
+int  doh_ipv6_is_blockpage(const uint8_t a[16]);
 int  doh_addr_v4_is_block(uint32_t ip);
 
 /* A reply that may be handed to another program as it is (Advanced mode's

@@ -65,7 +65,7 @@ async function get(P, host, port, timeoutMs = 40000) {
 
   // gone.example: encrypted DNS never answers for it (its lookup refused).
   const dns = await H.dnsStub({ 'dropped.example': { AAAA: ['::1'] }, 'cdn.dropped.example': { AAAA: ['::1'] }, 'gone.example': { silent: true },
-    'www.roblox.com': { AAAA: ['::1'] }, 'c0.rbxcdn.com': { AAAA: ['::1'] } });
+    'www.roblox.com': { AAAA: ['::1'] }, 'img.dropped.example': { AAAA: ['::1'] }, 'c0.rbxcdn.com': { AAAA: ['::1'] } });
   const base = ['--auto', '--doh', '--doh-port', String(dns.port), '--ipv6'];
 
   {
@@ -139,6 +139,18 @@ async function get(P, host, port, timeoutMs = 40000) {
     const sibLadder = /"type":"blocked","host":"cdn\.dropped\.example"/.test(eng.out);
     t.ok(b === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 2 && sibLadder && sib < 12000 && sib < first,
       `another name of that site: the techniques first, briefly, then Tor (${sib} ms against ${first} ms)`);
+    /* An app that gives up on each connection after two seconds (Instagram
+     * on Irancell), for another name of that site: it never waits out a
+     * ladder, so the ladder never reached Tor. After a few, its next
+     * connection goes there at once. */
+    const n1 = tor.asked.length;
+    for (let i = 0; i < 4; i++) await get(P, 'img.dropped.example', silentPort, 2000);
+    await H.sleep(300);
+    const t3 = Date.now();
+    const imp = await get(P, 'img.dropped.example', silentPort, 15000);
+    const quick = Date.now() - t3;
+    t.ok(imp === 'HTTP/1.1 200 OK' && quick < 3000 && tor.asked.slice(n1).some((a) => a.host === 'img.dropped.example'),
+      `an app too impatient for the ladder: after a few, that name goes straight to Tor (${imp} in ${quick} ms)`);
     /* Another domain of the same service (SITE_FAMILY: roblox.com and
      * rbxcdn.com) is not "that site": it keeps its whole ladder. Since 2.6.58
      * the family was taken for one site here, and the game's maps and items

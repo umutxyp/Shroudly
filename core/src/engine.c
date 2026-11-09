@@ -2133,6 +2133,13 @@ static void report(const char *ev, const char *host, const char *strat,
     if (strat && strcmp(strat, "stall") == 0 && attempts >= 12 && attempts <= 24)
       for (int i = 1; i < CUTS_TO_FB; i++) cuts_note(host);
   }
+  /* Every technique failed for a name while another name of its site goes
+   * through the last way out already: counted like a cut, so after a few its
+   * next connections go there at once. An app that gives up on a connection
+   * in two or three seconds (Instagram on Irancell: i.instagram.com, dozens
+   * a minute) left before the ladder reached Tor, every time, and never got
+   * a byte, while test-gateway.instagram.com worked through Tor beside it. */
+  if (strcmp(ev, "blocked") == 0 && g_cfg.fallback_kind && !g_cfg.upstream_kind && fb_site_is(host)) cuts_note(host);
   char h[256];
   json_host(h, sizeof(h), host);
   engine_printf("{\"type\":\"%s\",\"host\":\"%s\",\"strategy\":\"%s\","
@@ -3863,7 +3870,8 @@ static int nd_usable(const struct sockaddr_storage *ss) {
     if (doh_ipv4_is_blockpage(ip) || (ip >> 24) == 0 || (ip >> 24) >= 224 || udp_v4_private(ip)) return 0;
     return 1;
   }
-  if (ss->ss_family == AF_INET6) return !udp_dst_forbidden(ss) && !udp_dst_private(ss);
+  if (ss->ss_family == AF_INET6) return !udp_dst_forbidden(ss) && !udp_dst_private(ss)
+    && !doh_ipv6_is_blockpage((const uint8_t *)&((const struct sockaddr_in6 *)ss)->sin6_addr);
   return 0;
 }
 
