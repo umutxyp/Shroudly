@@ -108,8 +108,21 @@ function shortName(dir) {
   return String(out).trim().split(/\r?\n/).pop();
 }
 
+/* The country's bridges (the Tor Project's circumvention settings, through
+ * shroudly.codeshare.me/v1/bridges) first, then the bundle's: as bridgesOf. */
+function mergeBridges(country, bundled) {
+  const out = {};
+  for (const kind of ['webtunnel', 'obfs4', 'snowflake', 'meek']) {
+    const theirs = country && Array.isArray(country[kind]) ? country[kind] : [];
+    const ok = theirs.filter((l) => typeof l === 'string' && l.startsWith(`${kind} `) && l.length < 2000 && !/[\r\n]/.test(l)).slice(0, 8);
+    const all = [...ok, ...((bundled && bundled[kind]) || [])];
+    if (all.length) out[kind] = [...new Set(all)];
+  }
+  return out;
+}
+
 function torrc({ port, dataDir, lyrebird, bridges, stage, ownerPid }) {
-  const kinds = stage === 'snowflake' ? ['snowflake'] : ['snowflake', 'meek', 'obfs4', 'webtunnel'];
+  const kinds = stage === 'snowflake' ? ['snowflake'] : stage === 'country' ? ['webtunnel', 'obfs4', 'snowflake', 'meek'] : ['snowflake', 'meek', 'obfs4', 'webtunnel'];
   const lines = bridges ? kinds.flatMap((k) => bridges[k] || []).map(withPeers) : [];
   const transports = [...new Set(lines.map((l) => l.split(' ')[0]))];
   const q = (p) => `"${String(p).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -153,7 +166,7 @@ class TorRoute {
    *                without it, only a Tor already in place is used
    */
   constructor({ dataDir, log, onChange, dir = null, platform = process.platform, spawn: sp = spawn, ownerPid = process.pid,
-    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS, fetch = null } = {}) {
+    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS, fetch = null, countryBridges = null } = {}) {
     this.dataDir = dataDir;
     this.log = log || (() => {});
     this.onChange = onChange || (() => {});
@@ -164,6 +177,14 @@ class TorRoute {
     const shipped = dir || torDir(platform);
     this.dir = fs.existsSync(files(shipped, platform).tor) || !fetch ? shipped : path.join(dataDir || '.', 'tor-bin', require('./tor-files').VERSION);
     this._fetching = null;
+    /* async () => { webtunnel: [...], obfs4: [...], snowflake: [...] }: the
+     * bridges the Tor Project gives out for this country. The bundle's are
+     * all blocked in Russia, where Tor never got through; Tor Browser gets
+     * these there. Asked once the bundle's did not get through; once they
+     * have, the next start goes to them at once. */
+    this.countryBridges = countryBridges;
+    this._country = null;          // { at, bridges }
+    this._countryWorked = false;
     this.spawn = sp;
     this.ownerPid = ownerPid;
     this.stallMs = stallMs; this.idleMs = idleMs; this.retryMs = retryMs;
@@ -231,8 +252,9 @@ class TorRoute {
   need() {
     if (this.proc || !this.port || !this.available() || this._fetching) return;
     if (this.state === 'failed' && Date.now() - this.failedAt < this.retryMs) return;
-    if (this.present()) { this._start('snowflake'); return; }
-    this.getReady().then((ok) => { if (ok && !this.proc && this.port) this._start('snowflake'); });
+    const first = this._countryWorked && this._country ? 'country' : 'snowflake';
+    if (this.present()) { this._start(first); return; }
+    this.getReady().then((ok) => { if (ok && !this.proc && this.port) this._start(first); });
   }
 
   _start(stage) {
@@ -241,6 +263,7 @@ class TorRoute {
     const f = files(this.dir, this.platform);
     let bridges = {};
     try { bridges = bridgesOf(fs.readFileSync(f.config, 'utf8')); } catch {}
+    if (stage === 'country') bridges = mergeBridges(this._country && this._country.bridges, bridges);
     if (!bridges.snowflake && stage === 'snowflake') stage = 'all';
     // Where Tor can read every path (asciiDir); found once.
     if (this._base === undefined) {
@@ -275,7 +298,9 @@ class TorRoute {
     this.progress = 0;
     this.log('info', stage === 'snowflake'
       ? 'The last way out: starting Tor through Snowflake, for sites nothing else opened'
-      : 'The last way out: Snowflake did not get through; trying Tor\'s other ways (meek, obfs4) with it');
+      : stage === 'country'
+        ? `The last way out: Tor through the bridges the Tor Project gives for this country (${Object.keys(bridges).join(', ')})`
+        : 'The last way out: Snowflake did not get through; trying Tor\'s other ways (meek, obfs4) with it');
     this._changed();
     let buf = '';
     const onData = (d) => {
@@ -311,7 +336,8 @@ class TorRoute {
           clearTimeout(this._timers.stall);
           this._usedAt = Date.now();
           this._armIdle();
-          this.log('info', `The last way out is ready: Tor through ${this.stage === 'snowflake' ? 'Snowflake' : 'its bridges'}`);
+          if (this.stage === 'country') this._countryWorked = true;
+          this.log('info', `The last way out is ready: Tor through ${this.stage === 'snowflake' ? 'Snowflake' : this.stage === 'country' ? 'this country\'s bridges' : 'its bridges'}`);
         }
         this._changed();
       }
@@ -329,9 +355,26 @@ class TorRoute {
     this._timers.stall = setTimeout(() => {
       if (gen !== this._gen || this.state !== 'starting') return;
       if (this.stage === 'snowflake') this._start('all');
-      else this._fail(`Tor did not get through (${this.progress}%)`);
+      else if (this.stage === 'all') this._tryCountry(gen);
+      else { if (this.stage === 'country') this._countryWorked = false; this._fail(`Tor did not get through (${this.progress}%)`); }
     }, this.stallMs);
     if (this._timers.stall.unref) this._timers.stall.unref();
+  }
+
+  /* The bundle's bridges did not get through: the country's, asked now (kept
+   * six hours), and Tor again with them. None to be had: failed as before. */
+  async _tryCountry(gen) {
+    const pct = this.progress;
+    if (!this.countryBridges) { this._fail(`Tor did not get through (${pct}%)`); return; }
+    let c = this._country && Date.now() - this._country.at < 6 * 3600 * 1000 ? this._country.bridges : null;
+    if (!c) {
+      try { c = await this.countryBridges(); } catch { c = null; }
+      if (c && typeof c === 'object') this._country = { at: Date.now(), bridges: c };
+    }
+    if (gen !== this._gen || this.state !== 'starting') return;
+    const extra = mergeBridges(c, {});
+    if (!Object.keys(extra).length) { this._fail(`Tor did not get through (${pct}%)`); return; }
+    this._start('country');
   }
 
   /* The engine's count of connections it carried (its STATS line). */
@@ -416,3 +459,4 @@ module.exports.torrc = torrc;
 module.exports.asciiDir = asciiDir;
 module.exports.withPeers = withPeers;
 module.exports.SNOWFLAKE_PEERS = SNOWFLAKE_PEERS;
+module.exports.mergeBridges = mergeBridges;

@@ -62,8 +62,33 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         fun withPeers(line: String): String =
             if (line.startsWith("snowflake ") && !Regex(" max=\\d+").containsMatchIn(line)) "$line max=$SNOWFLAKE_PEERS" else line
 
+        /* The country's bridges (the Tor Project's circumvention settings,
+         * through shroudly.codeshare.me/v1/bridges) first, then the
+         * bundle's: as the desktop (tor-route.js mergeBridges). Pure. */
+        private val COUNTRY_ORDER = listOf("webtunnel", "obfs4", "snowflake", "meek")
+        fun mergeBridges(country: Map<String, List<String>>?, bundled: Map<String, List<String>>): Map<String, List<String>> {
+            val out = LinkedHashMap<String, List<String>>()
+            for (k in COUNTRY_ORDER) {
+                val theirs = (country?.get(k) ?: emptyList()).filter { it.startsWith("$k ") && it.length < 2000 && !it.contains('\n') && !it.contains('\r') }.take(8)
+                val all = (theirs + (bundled[k] ?: emptyList())).distinct()
+                if (all.isNotEmpty()) out[k] = all
+            }
+            return out
+        }
+
+        /* {"country": "RU", "bridges": {"webtunnel": [...], ...}}: the bridges. */
+        fun countryBridgesOf(json: String): Map<String, List<String>> = try {
+            val b = org.json.JSONObject(json).optJSONObject("bridges")
+            val out = HashMap<String, List<String>>()
+            if (b != null) for (k in COUNTRY_ORDER) {
+                val a = b.optJSONArray(k) ?: continue
+                out[k] = (0 until a.length()).map { a.optString(it) }.filter { it.isNotEmpty() }
+            }
+            out
+        } catch (_: Exception) { emptyMap() }
+
         fun torrc(port: Int, dataDir: String, lyrebird: String, bridges: Map<String, List<String>>, stage: String, ownerPid: Int): String {
-            val kinds = if (stage == "snowflake") listOf("snowflake") else TRANSPORTS
+            val kinds = when (stage) { "snowflake" -> listOf("snowflake"); "country" -> COUNTRY_ORDER; else -> TRANSPORTS }
             val lines = kinds.flatMap { bridges[it] ?: emptyList() }.map(::withPeers)
             val transports = lines.map { it.substringBefore(' ') }.distinct()
             return (listOf(
@@ -112,6 +137,13 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     private var gen = 0
     private var port = 0
     private var stage = "snowflake"
+    /* The bridges the Tor Project gives out for this country: the bundle's
+     * are all blocked in Russia, where Tor never got through; Tor Browser
+     * gets these there. Asked once the bundle's did not get through (kept
+     * six hours); once they have, the next start goes to them at once. */
+    private var country: Map<String, List<String>>? = null
+    private var countryAt = 0L
+    private var countryWorked = false
     private var failedAt = 0L
     private var used = 0L
     private var usedAt = 0L
@@ -134,13 +166,14 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     fun need() = synchronized(lock) {
         if (proc != null || port == 0 || !available()) return@synchronized
         if (state == "failed" && System.currentTimeMillis() - failedAt < RETRY_MS) return@synchronized
-        start("snowflake")
+        start(if (countryWorked && country != null) "country" else "snowflake")
     }
 
     private fun start(s: String) {
         kill()
         val g = ++gen
-        val bridges = try { bridgesOf(ctx.assets.open("tor/pt_config.json").bufferedReader().use { it.readText() }) } catch (_: Exception) { emptyMap() }
+        val bundled = try { bridgesOf(ctx.assets.open("tor/pt_config.json").bufferedReader().use { it.readText() }) } catch (_: Exception) { emptyMap() }
+        val bridges = if (s == "country") mergeBridges(country, bundled) else bundled
         stage = if (s == "snowflake" && bridges["snowflake"] == null) "all" else s
         val data = File(ctx.filesDir, "tor").apply { mkdirs(); setReadable(false, false); setReadable(true, true); setExecutable(false, false); setExecutable(true, true); setWritable(false, false); setWritable(true, true) }
         val rc = File(ctx.filesDir, "torrc").apply { writeText(torrc(port, data.path, lyrebird.path, bridges, stage, android.os.Process.myPid())) }
@@ -153,8 +186,11 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         } catch (e: Exception) { fail("Tor could not start: ${e.message}"); return }
         proc = p
         state = "starting"; progress = 0
-        log(if (stage == "snowflake") "The last way out: starting Tor through Snowflake, for sites nothing else opened"
-            else "The last way out: Snowflake did not get through; trying Tor's other ways (meek, obfs4) with it")
+        log(when (stage) {
+            "snowflake" -> "The last way out: starting Tor through Snowflake, for sites nothing else opened"
+            "country" -> "The last way out: Tor through the bridges the Tor Project gives for this country (${bridges.keys.joinToString(", ")})"
+            else -> "The last way out: Snowflake did not get through; trying Tor's other ways (meek, obfs4) with it"
+        })
         onChange()
         Thread({
             try { p.inputStream.bufferedReader().forEachLine { line(it, g) } } catch (_: Exception) {}
@@ -177,7 +213,8 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
                     stall?.cancel(false)
                     usedAt = System.currentTimeMillis()
                     armIdle()
-                    log("The last way out is ready: Tor through ${if (stage == "snowflake") "Snowflake" else "its bridges"}")
+                    if (stage == "country") countryWorked = true
+                    log("The last way out is ready: Tor through ${when (stage) { "snowflake" -> "Snowflake"; "country" -> "this country's bridges"; else -> "its bridges" }}")
                 }
                 onChange()
             }
@@ -192,9 +229,35 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         stall = timers.schedule({
             synchronized(lock) {
                 if (g != gen || state != "starting") return@synchronized
-                if (stage == "snowflake") start("all") else fail("Tor did not get through ($progress%)")
+                when (stage) {
+                    "snowflake" -> start("all")
+                    "all" -> tryCountry(g)
+                    else -> { countryWorked = false; fail("Tor did not get through ($progress%)") }
+                }
             }
         }, STALL_MS, TimeUnit.MILLISECONDS)
+    }
+
+    /* The bundle's bridges did not get through: the country's, asked now
+     * through the engine (off the lock: it is a request), and Tor again with
+     * them. None to be had: failed as before. */
+    private fun tryCountry(g: Int) {
+        val pct = progress
+        val fresh = country != null && System.currentTimeMillis() - countryAt < 6 * 3600 * 1000L
+        Thread({
+            if (!fresh) {
+                val got = try {
+                    val req = ("GET /v1/bridges HTTP/1.1\r\nHost: ${OnlineHttp.HOST}\r\nConnection: close\r\n" +
+                        "User-Agent: Shroudly/${BuildConfig.VERSION_NAME} (Android)\r\nAccept-Encoding: identity\r\n\r\n").toByteArray(Charsets.ISO_8859_1)
+                    OnlineHttp.post(Protection.socksPort, Protection.socksAuth, req, 20_000)?.let { countryBridgesOf(it) }
+                } catch (_: Exception) { null }
+                synchronized(lock) { if (got != null && got.isNotEmpty()) { country = got; countryAt = System.currentTimeMillis() } }
+            }
+            synchronized(lock) {
+                if (g != gen || state != "starting") return@synchronized
+                if (mergeBridges(country, emptyMap()).isEmpty()) fail("Tor did not get through ($pct%)") else start("country")
+            }
+        }, "tor-country").apply { isDaemon = true }.start()
     }
 
     /* The engine's count of connections it carried (its stats line). */
