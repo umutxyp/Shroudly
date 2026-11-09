@@ -247,14 +247,8 @@ since a TV has no such panel.
 The same engine and encrypted DNS as the desktop and Android, as a VPN on the
 device (a packet tunnel): iPhone and iPad on iOS 16 or newer, the Mac from
 the same build (macOS 13 or newer), and Apple TV on tvOS 17 or newer. On the
-**App Store** (in review). Until it is there:
-
-- **TestFlight**, the easiest way on iPhone, iPad, Mac and Apple TV: install
-  Apple's [TestFlight](https://apps.apple.com/app/testflight/id899247664) app,
-  then open **[testflight.apple.com/join/JpdGCGc9](https://testflight.apple.com/join/JpdGCGc9)**
-  on the device and tap *Accept*, then *Install*. Open to everyone; new
-  versions arrive there before the App Store.
-- each release also carries `Shroudly-…-iOS.ipa` for TrollStore.
+**App Store** (in review); until it is there, each release also carries
+`Shroudly-…-iOS.ipa` for TrollStore.
 
 - **The `.ipa`** is signed ad hoc with its entitlements (the VPN extension,
   its app group), so it installs two ways:
