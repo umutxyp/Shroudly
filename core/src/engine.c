@@ -2123,7 +2123,16 @@ static void report(const char *ev, const char *host, const char *strat,
   /* Counted toward the last way out only while the site works nowhere
    * else: a cut beside its other connections answering (site_ok) is that
    * server's own way (a request it holds open), not a block. */
-  if (strcmp(ev, "cut") == 0 && !(note && strcmp(note, "site_ok") == 0)) cuts_note(host);
+  if (strcmp(ev, "cut") == 0 && !(note && strcmp(note, "site_ok") == 0)) {
+    cuts_note(host);
+    /* Frozen after about 16 KB from the server: what Russia's filters do to
+     * the addresses of Cloudflare and other hosts abroad. No technique gets
+     * past it, since it is the address and the amount, not the name, so the
+     * next connection goes to the last way out at once instead of after two
+     * more broken pages (freeip.me on T2 in Moscow). */
+    if (strat && strcmp(strat, "stall") == 0 && attempts >= 12 && attempts <= 24)
+      for (int i = 1; i < CUTS_TO_FB; i++) cuts_note(host);
+  }
   char h[256];
   json_host(h, sizeof(h), host);
   engine_printf("{\"type\":\"%s\",\"host\":\"%s\",\"strategy\":\"%s\","

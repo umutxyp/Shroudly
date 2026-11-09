@@ -179,6 +179,37 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop(); cutter.close(); site.close(); dns2.close();
   }
 
+  // Frozen after about 16 KB, as Russia's filters do to Cloudflare's
+  // addresses: the very next connection goes to the last way out.
+  {
+    const big = 'x'.repeat(200 * 1024);
+    const site = tls.createServer(H.testServerOptions(), (s) => {
+      s.on('error', () => {});
+      s.once('data', () => s.write(`HTTP/1.1 200 OK\r\nContent-Length: ${big.length}\r\nConnection: close\r\n\r\n${big}`));
+    });
+    await new Promise((r) => site.listen(0, '127.0.0.1', r));
+    const freezer = net.createServer((c) => {
+      const u = net.connect(site.address().port, '127.0.0.1');
+      let down = 0;
+      c.on('error', () => {}); u.on('error', () => {});
+      c.on('data', (d) => u.write(d));
+      // Everything up to 16 KB, then nothing more: the connection stays open.
+      u.on('data', (d) => { if (down >= 16 * 1024 || c.destroyed) return; const part = d.subarray(0, 16 * 1024 - down); down += part.length; c.write(part); });
+    });
+    await new Promise((r) => freezer.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const dns3 = await H.dnsStub({ 'frozen.example': { AAAA: ['::1'] } });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, ['--auto', '--doh', '--doh-port', String(dns3.port), '--ipv6', '--fallback-file', torFile]);
+    const n0 = tor.asked.length;
+    const first = await get(P, 'frozen.example', freezer.address().port, 14000);
+    await H.sleep(500);
+    const stall = /"type":"cut","host":"frozen\.example","strategy":"stall","attempts":1[2-9]/.test(eng.out) || /"type":"cut","host":"frozen\.example","strategy":"stall","attempts":2[0-4]/.test(eng.out);
+    const second = await get(P, 'frozen.example', freezer.address().port, 20000);
+    t.ok(stall && first !== 'HTTP/1.1 200 OK' && second === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 1 && tor.asked[tor.asked.length - 1].host === 'frozen.example',
+      `frozen after 16 KB once: the next connection goes through the last way out (${first}, then ${second})`);
+    eng.stop(); freezer.close(); site.close(); dns3.close();
+  }
+
   // The user's own server set: it carries everything, the last way out is not used.
   {
     const own = H.socksServer(world.address().port);
