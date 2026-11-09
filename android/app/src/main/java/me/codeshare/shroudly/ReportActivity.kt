@@ -49,8 +49,6 @@ class ReportActivity : Activity() {
     private lateinit var past: LinearLayout
     private lateinit var what: EditText
     private lateinit var site: EditText
-    private lateinit var isp: EditText
-    private lateinit var country: EditText
     private lateinit var contact: EditText
     private lateinit var whatWarn: TextView
     private lateinit var contactWarn: TextView
@@ -108,8 +106,6 @@ class ReportActivity : Activity() {
         whatWarn = label(12f, R.color.warn).apply { setText(R.string.reportBadWhat); visibility = View.GONE }
         form.addView(whatWarn)
         site = field(form, R.string.reportSite, max = 300)
-        isp = field(form, R.string.reportIsp, max = 120)
-        country = field(form, R.string.reportCountry, max = 80)
         contact = field(form, R.string.reportContact, max = 200).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
             textDirection = View.TEXT_DIRECTION_LTR
@@ -117,25 +113,23 @@ class ReportActivity : Activity() {
         contactWarn = label(12f, R.color.warn).apply { setText(R.string.reportBadContact); visibility = View.GONE }
         form.addView(contactWarn)
 
-        form.addView(label(12.5f, R.color.text_dim).apply {
-            text = "${getString(R.string.reportPrivacy)} ${getString(R.string.reportPrivacyProvider)}"
-            setPadding(dp(12f), dp(12f), dp(12f), dp(12f))
-            setBackgroundResource(R.drawable.card)
-        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(16f) })
-        form.addView(TextView(this).apply {
-            setText(R.string.androidPrivacyPolicy)
-            setTextColor(getColor(R.color.text_dim))
-            paintFlags = paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
-            setPadding(0, dp(8f), 0, dp(4f))
-            isFocusable = true
-            setOnClickListener { open(PRIVACY_URL) }
-        })
+        // One box: the report with the log, and the privacy policy, a link
+        // away for whoever wants to read it. The provider and the country
+        // are never asked: the report server takes them from the connection.
         agree = CheckBox(this).apply {
             setText(R.string.reportAgree)
             setTextColor(getColor(R.color.text))
             setOnCheckedChangeListener { _, _ -> refresh() }
         }
-        form.addView(agree, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8f) })
+        form.addView(agree, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(16f) })
+        form.addView(TextView(this).apply {
+            setText(R.string.androidPrivacyPolicy)
+            setTextColor(getColor(R.color.text_dim))
+            paintFlags = paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+            setPadding(dp(32f), dp(2f), 0, dp(4f))
+            isFocusable = true
+            setOnClickListener { open(PRIVACY_URL) }
+        })
         status = label(13f, R.color.warn).apply { visibility = View.GONE; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
         form.addView(status)
         send = Button(this).apply {
@@ -199,7 +193,7 @@ class ReportActivity : Activity() {
 
     private fun submit() {
         if (sending) return
-        val f = Report.Fields(what.text.toString(), site.text.toString(), isp.text.toString(), country.text.toString(), contact.text.toString())
+        val f = Report.Fields(what.text.toString(), site.text.toString(), "", "", contact.text.toString())
         val n = Report.chars(f.what)
         if (n < Report.WHAT_MIN || n > Report.WHAT_MAX || !agree.isChecked || Report.problem(f.what, f.site, f.contact) != null) return
         sending = true

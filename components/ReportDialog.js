@@ -6,9 +6,10 @@
  * real words), names the site or app and gives an e-mail address for the
  * answer (electron/report-check.js, the same as the report server), and
  * it goes to the developer with the app's log in one go (electron/report.js),
- * which gives a reference number. What is sent, where it goes and that
- * nothing of it is kept on our server are said before the Send button, and
- * Send waits for the user to tick that they agree to send it, log included.
+ * which gives a reference number. Send waits for the user to tick one box:
+ * the report with the app's log, and the privacy policy, a link away. The
+ * internet provider and the country are never asked: the report server
+ * takes them from the connection.
  * One report an hour, three a day. The same in the Android and Apple apps.
  */
 
@@ -138,21 +139,18 @@ export default function ReportDialog({ onClose }) {
                style={{ color: n > 0 && n < WHAT_MIN ? 'var(--warn)' : 'var(--text-faint)' }}>{n} / {WHAT_MAX}</p>
             {whatWarn && <p className="-mt-2 text-[12px]" role="status" style={{ color: 'var(--warn)' }}>{t('reportBadWhat')}</p>}
             <Field id="report-site" label={t('reportSite')} value={fields.site} onChange={set('site')} max={300} required />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field id="report-isp" label={t('reportIsp')} value={fields.isp} onChange={set('isp')} max={120} />
-              <Field id="report-country" label={t('reportCountry')} value={fields.country} onChange={set('country')} max={80} />
-            </div>
             <Field id="report-contact" label={t('reportContact')} value={fields.contact} onChange={set('contact')} max={200} required type="email" />
             {contactWarn && <p className="-mt-2 text-[12px]" role="status" style={{ color: 'var(--warn)' }}>{t('reportBadContact')}</p>}
 
-            <div className="rounded-[var(--radius)] border p-3 text-[12px] leading-relaxed wrap-anywhere"
-                 style={{ borderColor: 'var(--line)', color: 'var(--text-dim)', background: 'var(--bg-sunk)' }}>
-              {t('reportPrivacy')} {t('reportPrivacyProvider')}{' '}
-              <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="underline" style={{ color: 'var(--accent)' }}>{t('androidPrivacyPolicy')}</a>
-            </div>
+            {/* One box: the report with the log, and the privacy policy, which
+                is a link away for whoever wants to read it. The provider and
+                the country come from the connection, never asked. */}
             <label className="flex cursor-pointer items-start gap-2 text-[12.5px]" style={{ color: 'var(--text)' }}>
               <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5" />
-              <span>{t('reportAgree')}</span>
+              <span>
+                {t('reportAgree')}{' '}
+                <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="underline" style={{ color: 'var(--accent)' }}>{t('androidPrivacyPolicy')}</a>
+              </span>
             </label>
 
             {limited && <p className="text-[12.5px]" role="status" style={{ color: 'var(--warn)' }}>{rateText(info.wait.limit)}</p>}

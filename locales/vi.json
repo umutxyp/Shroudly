@@ -972,7 +972,7 @@
   "reportContact": "Email của bạn, để chúng tôi trả lời",
   "reportPrivacy": "Những gì được gửi: những gì bạn viết ở đây, phiên bản ứng dụng, hệ điều hành, mẫu thiết bị và ngôn ngữ của bạn, quốc gia mà kết nối của bạn đến từ đó, và nhật ký của ứng dụng (các trang web và ứng dụng Shroudly đã xử lý, cùng cài đặt của nó; không bao giờ có mật khẩu, tin nhắn hay những gì bạn đọc). Báo cáo được gửi đến codeshare.me rồi qua email chỉ đến nhà phát triển Shroudly. Máy chủ của chúng tôi không lưu gì trong đó; email được giữ cho đến khi nhà phát triển xóa. Địa chỉ của bạn chỉ được dùng trong bộ nhớ, để giới hạn số báo cáo được gửi.",
   "reportPrivacyProvider": "Nhà cung cấp internet mà kết nối của bạn đi qua cũng được thêm vào.",
-  "reportAgree": "Tôi đồng ý gửi báo cáo này cùng với nhật ký của ứng dụng.",
+  "reportAgree": "Tôi đồng ý gửi báo cáo này kèm nhật ký của ứng dụng và chấp nhận chính sách quyền riêng tư.",
   "reportSend": "Gửi báo cáo",
   "reportSending": "Đang gửi…",
   "reportSent": "Đã gửi. Mã tham chiếu của bạn:",
