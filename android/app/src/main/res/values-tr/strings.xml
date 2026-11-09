@@ -228,7 +228,10 @@
     <string name="protectionStopped">Koruma durduruldu</string>
     <string name="reopenAppsHint">Önceden açık olan uygulamalar: biri bağlanmazsa onu kapatıp bir kez yeniden aç.</string>
     <string name="reportAgree">Bu raporu uygulamanın kayıtlarıyla birlikte göndermeyi kabul ediyorum.</string>
-    <string name="reportContact">Cevap isterseniz e-posta ya da Telegram (isteğe bağlı)</string>
+    <string name="reportBadContact">Okuduğun bir e-posta adresi yaz. Geçici veya uydurma adresler ve Telegram kullanıcı adları kabul edilmiyor.</string>
+    <string name="reportBadSite">Çalışmayan site veya uygulamanın adını yaz.</string>
+    <string name="reportBadWhat">Ne olduğunu birkaç cümleyle, kendi sözlerinle anlat.</string>
+    <string name="reportContact">Yanıt için e-posta adresin</string>
     <string name="reportCopied">Kopyalandı</string>
     <string name="reportCopy">Kopyala</string>
     <string name="reportCountry">Ülke (isteğe bağlı)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Gönderiliyor…</string>
     <string name="reportSent">Gönderildi. Referans numaranız:</string>
     <string name="reportSentHint">Bize yazarken bu numarayı belirtin. Aşağıdaki listede 60 gün kalır.</string>
-    <string name="reportSite">Hangi site ya da uygulama? (isteğe bağlı)</string>
+    <string name="reportSite">Hangi site veya uygulama?</string>
     <string name="reportTitle">Çalışmayan bir şey mi var?</string>
     <string name="reportWhat">Ne çalışmıyor, o sırada ne yapıyordunuz?</string>
-    <string name="reportWhatHint">En az 50 karakter: ne çalışmıyor, nerede ve olduğunda ne yapıyordunuz.</string>
+    <string name="reportWhatHint">En az 80 karakter, kendi cümlelerinle: ne çalışmıyor, nerede ve o sırada ne yapıyordun?</string>
     <string name="routeAllDesc">Her site Shroudly üzerinden geçer ve şifreli DNS kullanır; böylece engelli bir site, adını önceden yazmana gerek kalmadan açılır. Engellenmeyen bağlantılara hiç dokunulmaz, bu yüzden hızın aynı kalır.</string>
     <string name="routeListed">Yalnızca listedeki siteler</string>
     <string name="routeListedDesc">Yalnızca aşağıdaki siteler Shroudly üzerinden geçer; diğer her şey doğrudan bağlanır ve operatörünün DNS’ini kullanır. Mümkün olan en küçük müdahaleyi istiyorsan bunu seç.</string>

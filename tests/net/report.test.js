@@ -89,7 +89,7 @@ function server(reply) {
   const ph = crypto.createHash('sha256').update(`shroudly-report-v1\n${at}\n${bh}\n${nonce}`).digest();
   const zero = ph[0] === 0 && ph[1] === 0 && (ph[2] & 0xc0) === 0;
   t.ok(zero && Math.abs(Number(at) - Date.now() / 1000) < 5, `a proof of work with 18 zero bits, made now (${Date.now() - t0} ms)`);
-  t.ok(Report.chars('ab😀') === 3 && Report.WHAT_MIN === 50 && Report.WHAT_MAX === 1000, 'characters counted as the server counts them (50 to 1000)');
+  t.ok(Report.chars('ab😀') === 3 && Report.WHAT_MIN === 80 && Report.WHAT_MAX === 1000, 'characters counted as the server counts them (80 to 1000)');
 
   // ── what the server says
   let srv = await server(() => [200, { ok: true, ref: 'SR-7K2Q-M9XD-4TPA' }]);
@@ -158,6 +158,25 @@ function server(reply) {
   t.ok(Report.connsSection(true, [{ host: 'discord.com', route: 'technique', conns: 1 }], null).startsWith('== Connections this session ==\ndiscord.com'), 'on: this session');
   t.ok(/^== Connections last session \(ended 2026-11-07T09:00:00\.000Z\) ==\ndiscord\.com  technique/.test(Report.connsSection(false, [], { rows: [{ host: 'discord.com', route: 'technique', conns: 1 }], at: Date.UTC(2026, 10, 7, 9) })), 'off: the last session, with when it ended');
   t.ok(/has not run/.test(Report.connsSection(false, [], null)), 'off and never on: said');
+
+  {
+    // What a report must carry (report-check.js, the same as the server):
+    // words, the site or app, and an e-mail address, never a Telegram name.
+    const C = require(path.join(ROOT, 'electron', 'report-check.js'));
+    const words = 'YouTube does not open on the TV since this morning, the app only spins and nothing ever loads.';
+    t.ok(C.whatOk(words) && C.whatOk('اینستاگرام باز نمیشه و هر کاری میکنم ریلزها نمایش داده نمیشن، فقط صفحه سفید میاد و چیزی لود نمیشه')
+      && !C.whatOk('too short to say anything')
+      && !C.whatOk('asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczx')
+      && !C.whatOk('hhhhhhhhhhhhhhhh '.repeat(6)) && !C.whatOk('not working '.repeat(8)),
+    'a description in words is taken; short, repeated or mashed ones are not');
+    t.ok(C.contactOk('hvam49844@gmail.com')
+      && ['', '@someone_on_telegram', 'test@test.com', 'qwrtzpsdf@gmail.com', 'someone@mailinator.com', 'nobody', 'a@b'].every((c) => !C.contactOk(c)),
+    'only a real e-mail address is taken: no Telegram name, made-up or throwaway address');
+    t.ok(C.problem({ what: words, site: '', contact: 'hvam49844@gmail.com' }) === 'site'
+      && C.problem({ what: words, site: 'youtube', contact: '@tg' }) === 'contact'
+      && C.problem({ what: words, site: 'youtube', contact: 'hvam49844@gmail.com' }) === null,
+    'the first thing to put right is named');
+  }
 
   console.log(`report: ${t.count} passed`);
   process.exit(0);

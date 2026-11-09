@@ -141,7 +141,10 @@
 "protected" = "Protected";
 "reopenAppsHint" = "Apps that were already open: if one does not connect, close it and open it again once.";
 "reportAgree" = "I agree to send this report together with the app's log.";
-"reportContact" = "Email or Telegram, if you'd like an answer (optional)";
+"reportBadContact" = "Enter an email address you can read. Temporary or made-up addresses and Telegram names aren't accepted.";
+"reportBadSite" = "Name the site or app that doesn't work.";
+"reportBadWhat" = "Describe what happened in your own words, in a few sentences.";
+"reportContact" = "Your email address, for our answer";
 "reportCopied" = "Copied";
 "reportCopy" = "Copy";
 "reportCountry" = "Country (optional)";
@@ -158,10 +161,10 @@
 "reportSending" = "Sending…";
 "reportSent" = "Sent. Your reference number:";
 "reportSentHint" = "Quote it if you write to us. It stays in the list below for 60 days.";
-"reportSite" = "Which site or app? (optional)";
+"reportSite" = "Which site or app?";
 "reportTitle" = "Something not working?";
 "reportWhat" = "What doesn't work, and what were you doing?";
-"reportWhatHint" = "At least 50 characters: what doesn't work, where, and what you were doing when it happened.";
+"reportWhatHint" = "At least 80 characters, in your own words: what doesn't work, where, and what you were doing when it happened.";
 "routeAllDesc" = "Every site goes through Shroudly and gets its encrypted DNS, so a blocked site works without you having to name it first. Connections that are not blocked are passed straight through untouched, so your speed stays the same.";
 "routeListed" = "Only listed sites";
 "routeListedDesc" = "Only the sites below go through Shroudly; everything else connects directly and uses your provider’s DNS. Choose this if you want the smallest possible footprint.";

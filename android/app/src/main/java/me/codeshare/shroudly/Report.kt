@@ -47,7 +47,8 @@ object Report {
     const val PER_DAY = 3
     const val LOG_MAX_CHARS = 2 * 1024 * 1024
     // What went wrong, in characters (code points, as the server counts).
-    const val WHAT_MIN = 50
+    const val WHAT_MIN = 80
+    const val WHAT_WORDS = 8
     const val WHAT_MAX = 1000
     const val POW_BITS = 18
     private const val POW_PREFIX = "shroudly-report-v1"
@@ -109,6 +110,66 @@ object Report {
     }
 
     fun chars(s: String): Int = s.trim().let { it.codePointCount(0, it.length) }
+
+    /* ── what a report must carry ──────────────────────────────────────
+     * What happened in real words, the site or app, and an e-mail address
+     * that can take an answer: as electron/report-check.js and the report
+     * server, which also checks that the address's domain takes mail. Most
+     * reports from some countries were a word or a keyboard mash, with a
+     * Telegram name or a made-up address. Only e-mail is taken. Pure. */
+    private val DISPOSABLE = setOf(
+        "mailinator.com", "guerrillamail.com", "guerrillamail.net", "guerrillamailblock.com", "sharklasers.com", "grr.la",
+        "yopmail.com", "yopmail.net", "yopmail.fr", "10minutemail.com", "10minutemail.net", "tempmail.com", "temp-mail.org",
+        "temp-mail.io", "tempmailo.com", "tempail.com", "tmpmail.org", "tmpmail.net", "trashmail.com", "trashmail.de",
+        "getnada.com", "nada.email", "dispostable.com", "maildrop.cc", "throwawaymail.com", "fakeinbox.com", "mintemail.com",
+        "emailondeck.com", "mohmal.com", "mailnesia.com", "mytemp.email", "tempinbox.com", "spamgourmet.com", "mailcatch.com",
+        "moakt.com", "emailfake.com", "fakemail.net", "burnermail.io", "dropmail.me", "tempr.email", "discard.email",
+        "mail.tm", "mail.gw", "1secmail.com", "1secmail.org", "1secmail.net", "inboxkitten.com", "mailpoof.com", "linshiyouxiang.net",
+    )
+    private val FAKE_DOMAINS = setOf("example.com", "example.org", "example.net", "test.com", "test.org", "domain.com", "email.test",
+        "localhost", "abc.com", "xyz.com", "asd.com", "aaa.com", "qwe.com", "asdf.com", "mail.com.com", "gmail.co", "gmial.com", "gamil.com")
+    private val FAKE_LOCAL = Regex("^(test|testing|tester|example|admin|user|email|mail|fake|spam|none|no|null|nobody|asd+f*|qwe+r*t*y*|zxc+|abc+d*|x+|a+|1+2*3*4*5*6*)$", RegexOption.IGNORE_CASE)
+    private val EMAIL = Regex("^([^\\s@]{1,64})@((?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,24})$")
+    private val NO_VOWEL = Regex("^[b-df-hj-np-tv-xz]{6,}$", RegexOption.IGNORE_CASE)
+
+    fun contactOk(v: String): Boolean {
+        val s = v.trim()
+        val m = EMAIL.matchEntire(s) ?: return false
+        if (s.length > 200) return false
+        val local = m.groupValues[1]
+        val domain = m.groupValues[2].lowercase()
+        if (FAKE_LOCAL.matches(local) || local.all { it == local[0] }) return false
+        if (domain in DISPOSABLE || domain in FAKE_DOMAINS) return false
+        return !NO_VOWEL.matches(local)
+    }
+
+    fun whatOk(v: String): Boolean {
+        val t = v.trim()
+        val cps = t.codePoints().toArray()
+        if (cps.size < WHAT_MIN || cps.size > WHAT_MAX) return false
+        val words = t.split(Regex("\\s+")).filter { w -> w.any { Character.isLetter(it) } }
+        if (words.size < WHAT_WORDS) return false
+        if (words.map { it.lowercase() }.toSet().size < 5) return false
+        val letters = cps.filter { Character.isLetter(it) }
+        if (letters.size < cps.size * 0.5) return false
+        var run = 1
+        for (i in 1 until cps.size) { run = if (cps[i] == cps[i - 1]) run + 1 else 1; if (run >= 6) return false }
+        val most = letters.groupingBy { Character.toLowerCase(it) }.eachCount().values.maxOrNull() ?: 0
+        if (most > letters.size * 0.3) return false
+        val latin = words.filter { w -> w.length >= 6 && w.all { it in 'a'..'z' || it in 'A'..'Z' } }
+        if (latin.isNotEmpty() && latin.count { w -> w.none { it.lowercaseChar() in "aeiouy" } } > latin.size * 0.4) return false
+        return true
+    }
+
+    fun siteOk(v: String): Boolean = chars(v) >= 2
+
+    /* The first thing to put right, or null: "what", "site" or "contact". */
+    fun problem(what: String, site: String, contact: String): String? = when {
+        !whatOk(what) -> "what"
+        !siteOk(site) -> "site"
+        !contactOk(contact) -> "contact"
+        else -> null
+    }
 
     /* ── where "Something not working?" is offered ──────────────────────
      * In Iran most reports were about what no app on the phone can change
@@ -372,7 +433,7 @@ object Report {
         val j = try { JSONObject(text ?: "") } catch (_: Exception) { null }
         val ref = j?.optString("ref")
         if (status == 200 && j?.optBoolean("ok") == true && ref != null && REF.matches(ref)) return Result(true, ref)
-        val e = j?.optString("error")?.takeIf { it in setOf("rate", "bad", "off", "mail") } ?: "network"
+        val e = j?.optString("error")?.takeIf { it in setOf("rate", "bad", "off", "mail", "contact", "what", "site") } ?: "network"
         return Result(false, error = e, limit = if (e == "rate") "hour" else null)
     }
 

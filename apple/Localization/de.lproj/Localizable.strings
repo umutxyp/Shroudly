@@ -141,7 +141,10 @@
 "protected" = "Geschützt";
 "reopenAppsHint" = "Apps, die schon offen waren: Verbindet sich eine nicht, schließe sie und öffne sie einmal neu.";
 "reportAgree" = "Ich bin einverstanden, diesen Bericht zusammen mit dem Protokoll der App zu senden.";
-"reportContact" = "E-Mail oder Telegram, falls du eine Antwort möchtest (optional)";
+"reportBadContact" = "Gib eine E-Mail-Adresse an, die du liest. Wegwerf- oder erfundene Adressen und Telegram-Namen werden nicht angenommen.";
+"reportBadSite" = "Nenne die Website oder App, die nicht funktioniert.";
+"reportBadWhat" = "Beschreibe in ein paar Sätzen und in eigenen Worten, was passiert ist.";
+"reportContact" = "Deine E-Mail-Adresse für unsere Antwort";
 "reportCopied" = "Kopiert";
 "reportCopy" = "Kopieren";
 "reportCountry" = "Land (optional)";
@@ -158,10 +161,10 @@
 "reportSending" = "Wird gesendet…";
 "reportSent" = "Gesendet. Deine Referenznummer:";
 "reportSentHint" = "Gib sie an, wenn du uns schreibst. Sie bleibt 60 Tage in der Liste unten.";
-"reportSite" = "Welche Website oder App? (optional)";
+"reportSite" = "Welche Website oder App?";
 "reportTitle" = "Funktioniert etwas nicht?";
 "reportWhat" = "Was funktioniert nicht, und was hast du gerade gemacht?";
-"reportWhatHint" = "Mindestens 50 Zeichen: Was funktioniert nicht, wo, und was hast du gerade gemacht, als es passiert ist?";
+"reportWhatHint" = "Mindestens 80 Zeichen, in eigenen Worten: Was funktioniert nicht, wo, und was hast du gerade gemacht?";
 "routeAllDesc" = "Alle Seiten laufen über Shroudly und nutzen dessen verschlüsseltes DNS, sodass eine gesperrte Seite funktioniert, ohne dass du sie vorher einträgst. Nicht gesperrte Verbindungen gehen unverändert durch, deine Geschwindigkeit bleibt gleich.";
 "routeListed" = "Nur gelistete Seiten";
 "routeListedDesc" = "Nur die Seiten unten laufen über Shroudly; alles andere verbindet direkt und nutzt das DNS deines Anbieters. Wähle das, wenn du den kleinstmöglichen Eingriff willst.";

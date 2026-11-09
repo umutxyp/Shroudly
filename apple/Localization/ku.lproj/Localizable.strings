@@ -141,7 +141,10 @@
 "protected" = "Parastî";
 "reopenAppsHint" = "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.";
 "reportAgree" = "Ez qebûl dikim ku vê raporê bi tomara sepanê re bişînim.";
-"reportContact" = "Heke tu bersivê dixwazî, e-name an Telegram (ne mecbûrî)";
+"reportBadContact" = "Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.";
+"reportBadSite" = "Navê malper an sepana ku naxebite binivîse.";
+"reportBadWhat" = "Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.";
+"reportContact" = "Navnîşana te ya e-nameyê, ji bo bersiva me";
 "reportCopied" = "Hat kopîkirin";
 "reportCopy" = "Kopî bike";
 "reportCountry" = "Welat (ne mecbûrî)";
@@ -158,10 +161,10 @@
 "reportSending" = "Tê şandin…";
 "reportSent" = "Hat şandin. Jimareya te ya referansê:";
 "reportSentHint" = "Dema ji me re dinivîsî wê bibêje. Ew 60 rojan di lîsteya jêrîn de dimîne.";
-"reportSite" = "Kîjan malper an sepan? (ne mecbûrî)";
+"reportSite" = "Kîjan malper an sepan?";
 "reportTitle" = "Tiştek naxebite?";
 "reportWhat" = "Çi naxebite, û wê demê te çi dikir?";
-"reportWhatHint" = "Herî kêm 50 tîp: çi naxebite, li ku derê û dema ku qewimî te çi dikir.";
+"reportWhatHint" = "Herî kêm 80 tîp, bi gotinên xwe: çi naxebite, li ku derê û wê demê te çi dikir.";
 "routeAllDesc" = "Her malper di ser Shroudly re diçe û DNS-a wê ya şîfrekirî distîne, ji ber vê yekê malpereke astengkirî dixebite bêyî ku tu pêşî navê wê binivîsî. Girêdanên ku ne astengkirî ne bêyî destwerdanê rasterast derbas dibin, ji ber vê yekê leza te wekî xwe dimîne.";
 "routeListed" = "Tenê malperên di lîsteyê de";
 "routeListedDesc" = "Tenê malperên li jêr di ser Shroudly re diçin; yên din hemû rasterast girê didin û DNS-a pêşkêşkerê te bi kar tînin. Heke tu şopa herî biçûk dixwazî, vê hilbijêre.";

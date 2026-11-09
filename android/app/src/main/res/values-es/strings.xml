@@ -228,7 +228,10 @@
     <string name="protectionStopped">Protección detenida</string>
     <string name="reopenAppsHint">Apps que ya estaban abiertas: si una no se conecta, ciérrala y vuelve a abrirla una vez.</string>
     <string name="reportAgree">Acepto enviar este informe junto con el registro de la app.</string>
-    <string name="reportContact">Correo o Telegram, si quieres una respuesta (opcional)</string>
+    <string name="reportBadContact">Escribe un correo que leas. No se aceptan direcciones temporales o inventadas ni nombres de Telegram.</string>
+    <string name="reportBadSite">Escribe el sitio o la app que no funciona.</string>
+    <string name="reportBadWhat">Cuenta con tus palabras, en unas frases, qué pasó.</string>
+    <string name="reportContact">Tu correo electrónico, para responderte</string>
     <string name="reportCopied">Copiado</string>
     <string name="reportCopy">Copiar</string>
     <string name="reportCountry">País (opcional)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Enviando…</string>
     <string name="reportSent">Enviado. Tu número de referencia:</string>
     <string name="reportSentHint">Indícalo si nos escribes. Se queda en la lista de abajo durante 60 días.</string>
-    <string name="reportSite">¿Qué sitio o app? (opcional)</string>
+    <string name="reportSite">¿Qué sitio o app?</string>
     <string name="reportTitle">¿Algo no funciona?</string>
     <string name="reportWhat">¿Qué no funciona y qué estabas haciendo?</string>
-    <string name="reportWhatHint">Al menos 50 caracteres: qué no funciona, dónde y qué estabas haciendo cuando pasó.</string>
+    <string name="reportWhatHint">Al menos 80 caracteres, con tus palabras: qué no funciona, dónde y qué estabas haciendo cuando pasó.</string>
     <string name="routeAllDesc">Todos los sitios pasan por Shroudly y usan su DNS cifrado, así que un sitio bloqueado funciona sin que tengas que añadirlo antes. Las conexiones que no están bloqueadas pasan intactas, así que la velocidad no cambia.</string>
     <string name="routeListed">Solo los sitios de la lista</string>
     <string name="routeListedDesc">Solo los sitios de abajo pasan por Shroudly; el resto se conecta directamente y usa el DNS de tu proveedor. Elige esto si quieres la menor intervención posible.</string>

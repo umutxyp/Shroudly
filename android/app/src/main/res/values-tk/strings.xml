@@ -228,7 +228,10 @@
     <string name="protectionStopped">Gorag togtadyldy</string>
     <string name="reopenAppsHint">Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.</string>
     <string name="reportAgree">Bu hasabaty programmanyň ýazgylary bilen bilelikde ibermäge razy.</string>
-    <string name="reportContact">Jogap isleseňiz, e-poçta ýa-da Telegram (hökmany däl)</string>
+    <string name="reportBadContact">Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.</string>
+    <string name="reportBadSite">Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň.</string>
+    <string name="reportBadWhat">Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.</string>
+    <string name="reportContact">Jogabymyz üçin e-poçta salgyňyz</string>
     <string name="reportCopied">Göçürildi</string>
     <string name="reportCopy">Göçür</string>
     <string name="reportCountry">Ýurt (hökmany däl)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Iberilýär…</string>
     <string name="reportSent">Iberildi. Salgylanma belgiňiz:</string>
     <string name="reportSentHint">Bize ýazanyňyzda şony aýdyň. Ol aşakdaky sanawda 60 gün durýar.</string>
-    <string name="reportSite">Haýsy sahypa ýa-da programma? (hökmany däl)</string>
+    <string name="reportSite">Haýsy sahypa ýa-da programma?</string>
     <string name="reportTitle">Bir zat işlemeýärmi?</string>
     <string name="reportWhat">Näme işlemeýär we şol wagt näme edýärdiňiz?</string>
-    <string name="reportWhatHint">Iň azyndan 50 nyşan: näme işlemeýär, nirede we bu bolanda näme edýärdiňiz.</string>
+    <string name="reportWhatHint">Azyndan 80 belgi, öz sözleriňiz bilen: näme işlänok, nirede we şol wagt näme edýärdiňiz.</string>
     <string name="routeAllDesc">Her bir saýt Shroudly arkaly geçýär we onuň şifrlenen DNS-ini ulanýar, şonuň üçin petiklenen saýt siz ony öňünden görkezmeseňiz hem işleýär. Petiklenmedik birikmeler hiç üýtgedilmän göni geçirilýär, şonuň üçin tizligiňiz öňküsi ýaly galýar.</string>
     <string name="routeListed">Diňe sanawdaky saýtlar</string>
     <string name="routeListedDesc">Diňe aşakdaky saýtlar Shroudly arkaly geçýär; galan ähli zat göni birikýär we üpjün edijiňiziň DNS-ini ulanýar. Mümkin boldugyça az yz galdyrmak isleseňiz, şuny saýlaň.</string>

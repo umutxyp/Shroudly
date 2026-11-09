@@ -141,7 +141,10 @@
 "protected" = "Korunuyor";
 "reopenAppsHint" = "Önceden açık olan uygulamalar: biri bağlanmazsa onu kapatıp bir kez yeniden aç.";
 "reportAgree" = "Bu raporu uygulamanın kayıtlarıyla birlikte göndermeyi kabul ediyorum.";
-"reportContact" = "Cevap isterseniz e-posta ya da Telegram (isteğe bağlı)";
+"reportBadContact" = "Okuduğun bir e-posta adresi yaz. Geçici veya uydurma adresler ve Telegram kullanıcı adları kabul edilmiyor.";
+"reportBadSite" = "Çalışmayan site veya uygulamanın adını yaz.";
+"reportBadWhat" = "Ne olduğunu birkaç cümleyle, kendi sözlerinle anlat.";
+"reportContact" = "Yanıt için e-posta adresin";
 "reportCopied" = "Kopyalandı";
 "reportCopy" = "Kopyala";
 "reportCountry" = "Ülke (isteğe bağlı)";
@@ -158,10 +161,10 @@
 "reportSending" = "Gönderiliyor…";
 "reportSent" = "Gönderildi. Referans numaranız:";
 "reportSentHint" = "Bize yazarken bu numarayı belirtin. Aşağıdaki listede 60 gün kalır.";
-"reportSite" = "Hangi site ya da uygulama? (isteğe bağlı)";
+"reportSite" = "Hangi site veya uygulama?";
 "reportTitle" = "Çalışmayan bir şey mi var?";
 "reportWhat" = "Ne çalışmıyor, o sırada ne yapıyordunuz?";
-"reportWhatHint" = "En az 50 karakter: ne çalışmıyor, nerede ve olduğunda ne yapıyordunuz.";
+"reportWhatHint" = "En az 80 karakter, kendi cümlelerinle: ne çalışmıyor, nerede ve o sırada ne yapıyordun?";
 "routeAllDesc" = "Her site Shroudly üzerinden geçer ve şifreli DNS kullanır; böylece engelli bir site, adını önceden yazmana gerek kalmadan açılır. Engellenmeyen bağlantılara hiç dokunulmaz, bu yüzden hızın aynı kalır.";
 "routeListed" = "Yalnızca listedeki siteler";
 "routeListedDesc" = "Yalnızca aşağıdaki siteler Shroudly üzerinden geçer; diğer her şey doğrudan bağlanır ve operatörünün DNS’ini kullanır. Mümkün olan en küçük müdahaleyi istiyorsan bunu seç.";

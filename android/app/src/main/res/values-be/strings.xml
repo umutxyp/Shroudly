@@ -228,7 +228,10 @@
     <string name="protectionStopped">Абарона выключана</string>
     <string name="reopenAppsHint">Праграмы, адкрытыя раней: калі нейкая не падключаецца, закрыйце яе і адкрыйце зноў.</string>
     <string name="reportAgree">Я згаджаюся адправіць гэтую справаздачу разам з журналам праграмы.</string>
-    <string name="reportContact">Пошта або Telegram, калі хочаце адказ (неабавязкова)</string>
+    <string name="reportBadContact">Укажыце пошту, якую вы чытаеце. Часовыя ці выдуманыя адрасы і імёны ў Telegram не прымаюцца.</string>
+    <string name="reportBadSite">Укажыце сайт ці праграму, якая не працуе.</string>
+    <string name="reportBadWhat">Апішыце сваімі словамі, некалькімі сказамі, што здарылася.</string>
+    <string name="reportContact">Ваша электронная пошта для адказу</string>
     <string name="reportCopied">Скапіявана</string>
     <string name="reportCopy">Капіяваць</string>
     <string name="reportCountry">Краіна (неабавязкова)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Адпраўка…</string>
     <string name="reportSent">Адпраўлена. Нумар вашага звароту:</string>
     <string name="reportSentHint">Назавіце яго, калі будзеце нам пісаць. Ён захоўваецца ў спісе ніжэй 60 дзён.</string>
-    <string name="reportSite">Які сайт ці праграма? (неабавязкова)</string>
+    <string name="reportSite">Які сайт ці праграма?</string>
     <string name="reportTitle">Нешта не працуе?</string>
     <string name="reportWhat">Што не працуе і што вы ў гэты час рабілі?</string>
-    <string name="reportWhatHint">Не менш за 50 знакаў: што не працуе, дзе і што вы рабілі, калі гэта здарылася.</string>
+    <string name="reportWhatHint">Не менш за 80 знакаў, сваімі словамі: што не працуе, дзе і што вы рабілі ў гэты момант.</string>
     <string name="routeAllDesc">Кожны сайт ідзе праз Shroudly і атрымлівае яго зашыфраваны DNS, таму заблакаваны сайт працуе, нават калі вы загадзя не ўнеслі яго ў спіс. Незаблакаваныя злучэнні праходзяць напрамую без змен, таму хуткасць не мяняецца.</string>
     <string name="routeListed">Толькі сайты са спіса</string>
     <string name="routeListedDesc">Праз Shroudly ідуць толькі сайты са спіса ніжэй; усё астатняе злучаецца напрамую і выкарыстоўвае DNS вашага правайдара. Выберыце гэты варыянт, калі хочаце, каб праграма ўмешвалася як мага менш.</string>

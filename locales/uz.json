@@ -965,11 +965,11 @@
   "reportIntro": "Ochilmayotgan sayt yoki ilova, yoki ishlamayotgan boshqa narsa boʻlsa, bizga ayting. Shroudly uni hali qoʻllab-quvvatlamasa, qoʻshamiz; xato boʻlsa, tuzatamiz.",
   "reportSendDesc": "Eng tez yoʻl: nima boʻlgani va ilova jurnali toʻgʻridan-toʻgʻri dasturchiga boradi, jurnal bilan oʻzingiz ovora boʻlmaysiz. Bizga yozganingizda aytishingiz mumkin boʻlgan maʼlumot raqamini olasiz.",
   "reportWhat": "Nima ishlamayapti va oʻsha paytda nima qilayotgan edingiz?",
-  "reportWhatHint": "Kamida 50 belgi: nima ishlamayapti, qayerda va bu sodir boʻlganda nima qilayotgan edingiz.",
-  "reportSite": "Qaysi sayt yoki ilova? (ixtiyoriy)",
+  "reportWhatHint": "Kamida 80 belgi, o'z so'zlaringiz bilan: nima ishlamayapti, qayerda va o'sha paytda nima qilayotgan edingiz.",
+  "reportSite": "Qaysi sayt yoki ilova?",
   "reportIsp": "Internet provayderi (ixtiyoriy)",
   "reportCountry": "Mamlakat (ixtiyoriy)",
-  "reportContact": "Javob olishni istasangiz, e-pochta yoki Telegram (ixtiyoriy)",
+  "reportContact": "Javobimiz uchun elektron pochtangiz",
   "reportPrivacy": "Nima yuboriladi: bu yerga yozganlaringiz, ilova versiyasi, tizimingiz, qurilma modeli va tilingiz, ulanishingiz kelayotgan mamlakat va ilova jurnali (Shroudly ishlagan sayt va ilovalar hamda uning sozlamalari; parollar, xabarlar yoki oʻqiganlaringiz hech qachon emas). Hisobot codeshare.me ga, u yerdan esa e-pochta orqali faqat Shroudly dasturchisiga boradi. Serverlarimiz bularning hech birini saqlamaydi; xat dasturchi oʻchirguncha qoladi. Manzilingiz faqat xotirada, yuboriladigan hisobotlar sonini cheklash uchun ishlatiladi.",
   "reportPrivacyProvider": "Ulanishingiz kelayotgan internet provayderi ham hisobotga qoʻshiladi.",
   "reportAgree": "Ushbu hisobotni ilova jurnali bilan birga yuborishga roziman.",
@@ -985,5 +985,8 @@
   "reportCopy": "Nusxa olish",
   "reportCopied": "Nusxa olindi",
   "macAllApps": "Barcha ilovalar Shroudly orqali (VPN)",
-  "macAllAppsDesc": "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi."
+  "macAllAppsDesc": "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi.",
+  "reportBadContact": "O'zingiz o'qiydigan pochta manzilini yozing. Vaqtinchalik yoki to'qib chiqarilgan manzillar va Telegram nomlari qabul qilinmaydi.",
+  "reportBadWhat": "Nima bo'lganini bir necha jumlada, o'z so'zlaringiz bilan yozing.",
+  "reportBadSite": "Ishlamayotgan sayt yoki ilova nomini yozing."
 }

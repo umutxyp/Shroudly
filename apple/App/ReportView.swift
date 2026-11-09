@@ -33,7 +33,7 @@ struct ReportView: View {
     private var count: Int { Report.chars(fields.what) }
     private var wait: Report.Wait { Report.wait(past) }
     private var canSend: Bool {
-        agree && !sending && wait.seconds <= 0 && (Report.whatMin...Report.whatMax).contains(count)
+        agree && !sending && wait.seconds <= 0 && Report.problem(what: fields.what, site: fields.site, contact: fields.contact) == nil
     }
 
     private func rateText(_ limit: String?) -> String { tr(limit == "day" ? "reportRateDay" : "reportRateHour") }
@@ -68,6 +68,9 @@ struct ReportView: View {
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(count > 0 && count < Report.whatMin ? .orange : Theme.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                    if count >= Report.whatMin && !Report.whatOk(fields.what) {
+                        Text(tr("reportBadWhat")).font(.footnote).foregroundStyle(.orange)
+                    }
                 } header: {
                     Text(tr("reportWhat"))
                 }
@@ -76,6 +79,14 @@ struct ReportView: View {
                     TextField(tr("reportIsp"), text: $fields.isp)
                     TextField(tr("reportCountry"), text: $fields.country)
                     TextField(tr("reportContact"), text: $fields.contact)
+                        #if os(iOS) || os(tvOS)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        #endif
+                        .autocorrectionDisabled()
+                    if fields.contact.trimmingCharacters(in: .whitespaces).count > 3 && !Report.contactOk(fields.contact) {
+                        Text(tr("reportBadContact")).font(.footnote).foregroundStyle(.orange)
+                    }
                 }
                 Section {
                     Text("\(tr("reportPrivacy")) \(tr("reportPrivacyProvider"))")
@@ -198,7 +209,13 @@ struct ReportView: View {
             Report.record(ref)
             sentRef = ref
         case .failed(let e, let limit):
-            failure = e == "rate" ? rateText(limit) : tr("reportFailed")
+            switch e {
+            case "rate": failure = rateText(limit)
+            case "contact": failure = tr("reportBadContact")
+            case "what": failure = tr("reportBadWhat")
+            case "site": failure = tr("reportBadSite")
+            default: failure = tr("reportFailed")
+            }
         }
         past = Report.load()
     }

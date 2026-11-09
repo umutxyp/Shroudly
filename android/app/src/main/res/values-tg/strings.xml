@@ -228,7 +228,10 @@
     <string name="protectionStopped">Ҳимоя қатъ шуд</string>
     <string name="reopenAppsHint">Барномаҳое, ки пештар кушода буданд: агар яке пайваст нашавад, онро бандед ва як бор аз нав кушоед.</string>
     <string name="reportAgree">Розӣ ҳастам, ки ин гузоришро якҷо бо сабтҳои барнома фиристам.</string>
-    <string name="reportContact">Агар ҷавоб хоҳед, почта ё Telegram (ихтиёрӣ)</string>
+    <string name="reportBadContact">Почтаеро нависед, ки онро мехонед. Суроғаҳои муваққатӣ ё сохта ва номҳои Telegram қабул намешаванд.</string>
+    <string name="reportBadSite">Номи сайт ё барномаеро, ки кор намекунад, нависед.</string>
+    <string name="reportBadWhat">Бо якчанд ҷумла ва бо суханони худ нависед, ки чӣ шуд.</string>
+    <string name="reportContact">Почтаи электронии шумо барои ҷавоби мо</string>
     <string name="reportCopied">Нусха бардошта шуд</string>
     <string name="reportCopy">Нусха бардоштан</string>
     <string name="reportCountry">Кишвар (ихтиёрӣ)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Фиристода мешавад…</string>
     <string name="reportSent">Фиристода шуд. Рақами пайгирии шумо:</string>
     <string name="reportSentHint">Ҳангоми навиштан ба мо онро зикр кунед. Он дар рӯйхати поён 60 рӯз мемонад.</string>
-    <string name="reportSite">Кадом сомона ё барнома? (ихтиёрӣ)</string>
+    <string name="reportSite">Кадом сайт ё барнома?</string>
     <string name="reportTitle">Чизе кор намекунад?</string>
     <string name="reportWhat">Чӣ кор намекунад ва он вақт шумо чӣ мекардед?</string>
-    <string name="reportWhatHint">Ақаллан 50 аломат: чӣ кор намекунад, дар куҷо ва ҳангоми рух додан шумо чӣ мекардед.</string>
+    <string name="reportWhatHint">Ақаллан 80 аломат, бо суханони худ: чӣ кор намекунад, дар куҷо ва он вақт шумо чӣ кор мекардед.</string>
     <string name="routeAllDesc">Ҳар сомона аз Shroudly мегузарад ва DNS-и рамзгузоришудаи онро мегирад, бинобар ин сомонаи басташуда бе он ки Шумо аввал номашро нависед, кор мекунад. Пайвастҳое, ки баста нестанд, бе тағйир мустақиман гузаронида мешаванд, бинобар ин суръати Шумо ҳамон хел мемонад.</string>
     <string name="routeListed">Танҳо сомонаҳои рӯйхат</string>
     <string name="routeListedDesc">Танҳо сомонаҳои дар поён буда аз Shroudly мегузаранд; ҳамаи дигарҳо мустақиман пайваст мешаванд ва DNS-и провайдери Шуморо истифода мебаранд. Инро интихоб кунед, агар хоҳед, ки изи Шумо то ҳадди имкон хурд бошад.</string>

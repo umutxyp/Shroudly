@@ -25,7 +25,8 @@ enum Report {
     static let historySpan: TimeInterval = 60 * 24 * 3600
     static let perHour = 1
     static let perDay = 3
-    static let whatMin = 50
+    static let whatMin = 80
+    static let whatWords = 8
     static let whatMax = 1000
     static let powBits = 18
     static let logMaxChars = 2 * 1024 * 1024
@@ -144,6 +145,68 @@ enum Report {
         s.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars.count
     }
 
+    /* ── what a report must carry ──────────────────────────────────────
+     * What happened in real words, the site or app, and an e-mail address
+     * that can take an answer: as electron/report-check.js, Report.kt and
+     * the report server, which also checks that the address's domain takes
+     * mail. Only e-mail is taken, never a Telegram name. */
+    static let disposable: Set<String> = [
+        "mailinator.com", "guerrillamail.com", "guerrillamail.net", "guerrillamailblock.com", "sharklasers.com", "grr.la",
+        "yopmail.com", "yopmail.net", "yopmail.fr", "10minutemail.com", "10minutemail.net", "tempmail.com", "temp-mail.org",
+        "temp-mail.io", "tempmailo.com", "tempail.com", "tmpmail.org", "tmpmail.net", "trashmail.com", "trashmail.de",
+        "getnada.com", "nada.email", "dispostable.com", "maildrop.cc", "throwawaymail.com", "fakeinbox.com", "mintemail.com",
+        "emailondeck.com", "mohmal.com", "mailnesia.com", "mytemp.email", "tempinbox.com", "spamgourmet.com", "mailcatch.com",
+        "moakt.com", "emailfake.com", "fakemail.net", "burnermail.io", "dropmail.me", "tempr.email", "discard.email",
+        "mail.tm", "mail.gw", "1secmail.com", "1secmail.org", "1secmail.net", "inboxkitten.com", "mailpoof.com", "linshiyouxiang.net",
+    ]
+    static let fakeDomains: Set<String> = ["example.com", "example.org", "example.net", "test.com", "test.org", "domain.com", "email.test",
+        "localhost", "abc.com", "xyz.com", "asd.com", "aaa.com", "qwe.com", "asdf.com", "mail.com.com", "gmail.co", "gmial.com", "gamil.com"]
+
+    private static func matches(_ s: String, _ pattern: String, caseless: Bool = false) -> [String]? {
+        guard let re = try? NSRegularExpression(pattern: pattern, options: caseless ? [.caseInsensitive] : []),
+              let m = re.firstMatch(in: s, range: NSRange(s.startIndex..., in: s)) else { return nil }
+        return (0..<m.numberOfRanges).map { i in Range(m.range(at: i), in: s).map { String(s[$0]) } ?? "" }
+    }
+
+    static func contactOk(_ v: String) -> Bool {
+        let s = v.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard s.count <= 200,
+              let m = matches(s, "^([^\\s@]{1,64})@((?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,24})$") else { return false }
+        let local = m[1], domain = m[2].lowercased()
+        if matches(local, "^(test|testing|tester|example|admin|user|email|mail|fake|spam|none|no|null|nobody|asd+f*|qwe+r*t*y*|zxc+|abc+d*|x+|a+|1+2*3*4*5*6*)$", caseless: true) != nil { return false }
+        if let f = local.first, local.allSatisfy({ $0 == f }) { return false }
+        if disposable.contains(domain) || fakeDomains.contains(domain) { return false }
+        return matches(local, "^[b-df-hj-np-tv-xz]{6,}$", caseless: true) == nil
+    }
+
+    static func whatOk(_ v: String) -> Bool {
+        let t = v.trimmingCharacters(in: .whitespacesAndNewlines)
+        let scalars = Array(t.unicodeScalars)
+        guard scalars.count >= whatMin, scalars.count <= whatMax else { return false }
+        let words = t.split(whereSeparator: { $0.isWhitespace }).map(String.init).filter { $0.contains { $0.isLetter } }
+        guard words.count >= whatWords, Set(words.map { $0.lowercased() }).count >= 5 else { return false }
+        let letters = scalars.filter { CharacterSet.letters.contains($0) }
+        guard Double(letters.count) >= Double(scalars.count) * 0.5 else { return false }
+        var run = 1
+        for i in 1..<scalars.count { run = scalars[i] == scalars[i - 1] ? run + 1 : 1; if run >= 6 { return false } }
+        var count: [String: Int] = [:]
+        for c in letters { count[String(c).lowercased(), default: 0] += 1 }
+        if Double(count.values.max() ?? 0) > Double(letters.count) * 0.3 { return false }
+        let latin = words.filter { $0.count >= 6 && $0.allSatisfy { ($0 >= "a" && $0 <= "z") || ($0 >= "A" && $0 <= "Z") } }
+        if !latin.isEmpty, Double(latin.filter { !$0.lowercased().contains(where: { "aeiouy".contains($0) }) }.count) > Double(latin.count) * 0.4 { return false }
+        return true
+    }
+
+    static func siteOk(_ v: String) -> Bool { chars(v) >= 2 }
+
+    /* The first thing to put right, or nil: "what", "site" or "contact". */
+    static func problem(what: String, site: String, contact: String) -> String? {
+        if !whatOk(what) { return "what" }
+        if !siteOk(site) { return "site" }
+        if !contactOk(contact) { return "contact" }
+        return nil
+    }
+
     static func history(_ list: [Sent], now: Date = Date()) -> [Sent] {
         Array(list.filter { isRef($0.ref) && $0.at <= now.addingTimeInterval(60) && now.timeIntervalSince($0.at) < historySpan }
             .sorted { $0.at > $1.at }.prefix(50))
@@ -256,7 +319,7 @@ enum Report {
     static func answer(status: Int, data: Data?) -> Outcome {
         let j = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         if status == 200, j?["ok"] as? Bool == true, let ref = j?["ref"] as? String, isRef(ref) { return .sent(ref) }
-        let e = (j?["error"] as? String).flatMap { ["rate", "bad", "off", "mail"].contains($0) ? $0 : nil } ?? "network"
+        let e = (j?["error"] as? String).flatMap { ["rate", "bad", "off", "mail", "contact", "what", "site"].contains($0) ? $0 : nil } ?? "network"
         return .failed(e, limit: e == "rate" ? "hour" : nil)
     }
 

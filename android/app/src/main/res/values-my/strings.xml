@@ -228,7 +228,10 @@
     <string name="protectionStopped">ကာကွယ်မှု ရပ်ပြီးပါပြီ</string>
     <string name="reopenAppsHint">ယခင်ကတည်းက ဖွင့်ထားသော အက်ပ်များ- တစ်ခုခု မချိတ်ဆက်နိုင်ပါက ပိတ်ပြီး တစ်ကြိမ် ပြန်ဖွင့်ပါ။</string>
     <string name="reportAgree">ဒီအစီရင်ခံစာကို အက်ပ်ရဲ့ မှတ်တမ်းနဲ့အတူ ပို့ဖို့ သဘောတူပါတယ်။</string>
-    <string name="reportContact">အဖြေလိုချင်ရင် အီးမေးလ် ဒါမှမဟုတ် Telegram (မဖြစ်မနေ မဟုတ်)</string>
+    <string name="reportBadContact">သင်ဖတ်သော အီးမေးလ်လိပ်စာကို ထည့်ပါ။ ယာယီ သို့မဟုတ် လုပ်ကြံထားသော လိပ်စာများနှင့် Telegram အမည်များကို လက်မခံပါ။</string>
+    <string name="reportBadSite">အလုပ်မလုပ်သော ဆိုက် သို့မဟုတ် အက်ပ်အမည်ကို ရေးပါ။</string>
+    <string name="reportBadWhat">ဘာဖြစ်ခဲ့သလဲဆိုတာ ကိုယ့်စကားဖြင့် စာကြောင်းအနည်းငယ် ရေးပါ။</string>
+    <string name="reportContact">ကျွန်ုပ်တို့ ပြန်ဖြေရန် သင့်အီးမေးလ်လိပ်စာ</string>
     <string name="reportCopied">ကူးယူပြီး</string>
     <string name="reportCopy">ကူးယူရန်</string>
     <string name="reportCountry">နိုင်ငံ (မဖြစ်မနေ မဟုတ်)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">ပို့နေသည်…</string>
     <string name="reportSent">ပို့ပြီးပါပြီ။ သင့်ရည်ညွှန်းနံပါတ်-</string>
     <string name="reportSentHint">ကျွန်ုပ်တို့ထံ စာရေးတဲ့အခါ ဒီနံပါတ်ကို ပြောပါ။ အောက်ကစာရင်းမှာ ရက် ၆၀ ကြာ ရှိနေပါမယ်။</string>
-    <string name="reportSite">ဘယ်ဆိုက် ဒါမှမဟုတ် အက်ပ်လဲ။ (မဖြစ်မနေ မဟုတ်)</string>
+    <string name="reportSite">ဘယ်ဆိုက် သို့မဟုတ် အက်ပ်လဲ။</string>
     <string name="reportTitle">တစ်ခုခု အလုပ်မလုပ်ဘူးလား။</string>
     <string name="reportWhat">ဘာက အလုပ်မလုပ်တာလဲ၊ အဲဒီအချိန်မှာ ဘာလုပ်နေခဲ့လဲ။</string>
-    <string name="reportWhatHint">အနည်းဆုံး စာလုံး ၅၀- ဘာက အလုပ်မလုပ်လဲ၊ ဘယ်မှာလဲ၊ ဖြစ်တုန်းက ဘာလုပ်နေခဲ့လဲ။</string>
+    <string name="reportWhatHint">အနည်းဆုံး စာလုံး ၈၀၊ ကိုယ့်စကားဖြင့်- ဘာအလုပ်မလုပ်သလဲ၊ ဘယ်မှာလဲ၊ အဲဒီအချိန် ဘာလုပ်နေခဲ့သလဲ။</string>
     <string name="routeAllDesc">ဆိုက်တိုင်း Shroudly မှတစ်ဆင့် သွားပြီး ၎င်း၏ ကုဒ်ဝှက်ထားသော DNS ကို ရသည်။ ထို့ကြောင့် ပိတ်ဆို့ထားသော ဆိုက်ကို ကြိုတင် ထည့်ရန် မလိုဘဲ အလုပ်ဖြစ်သည်။ ပိတ်ဆို့မထားသော ချိတ်ဆက်မှုများကို မပြင်ဘဲ တိုက်ရိုက် ဖြတ်သွားစေသဖြင့် သင့်အမြန်နှုန်း မပြောင်းပါ။</string>
     <string name="routeListed">စာရင်းထဲရှိ ဆိုက်များသာ</string>
     <string name="routeListedDesc">အောက်ပါ ဆိုက်များသာ Shroudly မှတစ်ဆင့် သွားသည်။ ကျန်အားလုံး တိုက်ရိုက် ချိတ်ဆက်ပြီး သင့်အင်တာနက် ဝန်ဆောင်မှုပေးသူ၏ DNS ကို သုံးသည်။ ခြေရာ အနည်းဆုံး ဖြစ်စေလိုပါက ဤအရာကို ရွေးပါ။</string>

@@ -3747,7 +3747,10 @@ ipcMain.handle('report:send', async (_e, fields) => {
   if (reportSending) return { ok: false, error: 'busy' };
   if (!fields || typeof fields !== 'object' || typeof fields.what !== 'string') return { ok: false, error: 'bad' };
   const n = Report.chars(fields.what);
-  if (n < Report.WHAT_MIN || n > Report.WHAT_MAX) return { ok: false, error: 'bad' };
+  if (n < Report.WHAT_MIN || n > Report.WHAT_MAX) return { ok: false, error: 'what' };
+  // What happened in words, the site or app, and an e-mail address (report-check.js).
+  const fault = require('./report-check').problem(fields);
+  if (fault) return { ok: false, error: fault };
   const past = Report.history(store.get('reports'));
   const w = Report.wait(past);
   if (w.ms > 0) return { ok: false, error: 'rate', limit: w.limit, retryAfter: Math.ceil(w.ms / 1000) };

@@ -965,11 +965,11 @@
   "reportIntro": "打不开的网站或应用，或者其他用不了的地方，都可以告诉我们。如果 Shroudly 还不支持，我们会加上；如果是 bug，我们会修好。",
   "reportSendDesc": "最快的方式：问题描述和应用日志会直接发给开发者，你不用自己处理日志。你会得到一个参考编号，联系我们时可以提供。",
   "reportWhat": "什么用不了？当时你在做什么？",
-  "reportWhatHint": "至少 50 个字：什么用不了、在哪里，以及出问题时你在做什么。",
-  "reportSite": "哪个网站或应用？（选填）",
+  "reportWhatHint": "至少 80 个字，用你自己的话说明：什么无法使用、在哪里，以及当时你在做什么。",
+  "reportSite": "哪个网站或应用？",
   "reportIsp": "网络运营商（选填）",
   "reportCountry": "国家/地区（选填）",
-  "reportContact": "如需回复，请留下邮箱或 Telegram（选填）",
+  "reportContact": "你的电子邮箱，用于我们的回复",
   "reportPrivacy": "发送的内容：你在这里写的内容、应用版本、系统、设备型号和语言、连接来自的国家/地区，以及应用日志（Shroudly 处理过的网站和应用及其设置；绝不包含密码、消息或你浏览的内容）。报告会发送到 codeshare.me，再通过邮件只发给 Shroudly 的开发者。我们的服务器不保存其中任何内容；邮件会保留到开发者删除为止。你的地址只在内存中用于限制报告数量。",
   "reportPrivacyProvider": "你的连接所属的网络运营商也会一并附上。",
   "reportAgree": "我同意连同应用日志一起发送这份报告。",
@@ -985,5 +985,8 @@
   "reportCopy": "复制",
   "reportCopied": "已复制",
   "macAllApps": "所有应用都经过 Shroudly (VPN)",
-  "macAllAppsDesc": "关闭：Shroudly 作为这台 Mac 的代理，与 GitHub 上的版本相同：浏览器和使用系统代理的应用经过它，其余直接连接，Mac 保持快速。开启：所有应用都经过 Shroudly，包括忽略代理的应用（Discord 应用、游戏），但 Mac 会变慢。"
+  "macAllAppsDesc": "关闭：Shroudly 作为这台 Mac 的代理，与 GitHub 上的版本相同：浏览器和使用系统代理的应用经过它，其余直接连接，Mac 保持快速。开启：所有应用都经过 Shroudly，包括忽略代理的应用（Discord 应用、游戏），但 Mac 会变慢。",
+  "reportBadContact": "请填写你会查看的电子邮箱。不接受临时或编造的地址，也不接受 Telegram 用户名。",
+  "reportBadWhat": "请用你自己的话，用几句话说明发生了什么。",
+  "reportBadSite": "请写出无法使用的网站或应用。"
 }

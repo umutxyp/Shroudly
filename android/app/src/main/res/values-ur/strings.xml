@@ -228,7 +228,10 @@
     <string name="protectionStopped">تحفظ بند ہو گیا</string>
     <string name="reopenAppsHint">جو ایپس پہلے سے کھلی تھیں: اگر کوئی کنیکٹ نہ ہو تو اسے بند کر کے ایک بار دوبارہ کھولیں۔</string>
     <string name="reportAgree">میں یہ رپورٹ ایپ کے لاگز کے ساتھ بھیجنے پر راضی ہوں۔</string>
-    <string name="reportContact">جواب چاہیں تو ای میل یا ٹیلی گرام (اختیاری)</string>
+    <string name="reportBadContact">ایسا ای میل پتہ لکھیں جو آپ پڑھتے ہیں۔ عارضی یا فرضی پتے اور ٹیلی گرام نام قبول نہیں۔</string>
+    <string name="reportBadSite">اس سائٹ یا ایپ کا نام لکھیں جو کام نہیں کر رہی۔</string>
+    <string name="reportBadWhat">اپنے الفاظ میں چند جملوں میں بتائیں کہ کیا ہوا۔</string>
+    <string name="reportContact">ہمارے جواب کے لیے آپ کا ای میل پتہ</string>
     <string name="reportCopied">کاپی ہو گیا</string>
     <string name="reportCopy">کاپی کریں</string>
     <string name="reportCountry">ملک (اختیاری)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">بھیجا جا رہا ہے…</string>
     <string name="reportSent">بھیج دی گئی۔ آپ کا حوالہ نمبر:</string>
     <string name="reportSentHint">ہمیں لکھتے وقت یہ نمبر بتائیں۔ یہ نیچے کی فہرست میں 60 دن رہتا ہے۔</string>
-    <string name="reportSite">کون سی سائٹ یا ایپ؟ (اختیاری)</string>
+    <string name="reportSite">کون سی سائٹ یا ایپ؟</string>
     <string name="reportTitle">کچھ کام نہیں کر رہا؟</string>
     <string name="reportWhat">کیا کام نہیں کر رہا، اور اس وقت آپ کیا کر رہے تھے؟</string>
-    <string name="reportWhatHint">کم از کم 50 حروف: کیا کام نہیں کر رہا، کہاں، اور جب یہ ہوا تو آپ کیا کر رہے تھے۔</string>
+    <string name="reportWhatHint">کم از کم 80 حروف، اپنے الفاظ میں: کیا کام نہیں کر رہا، کہاں، اور اُس وقت آپ کیا کر رہے تھے۔</string>
     <string name="routeAllDesc">ہر سائٹ Shroudly سے گزرتی ہے اور اس کا خفیہ DNS استعمال کرتی ہے، اس لیے بلاک شدہ سائٹ پہلے سے شامل کیے بغیر کھل جاتی ہے۔ جو کنکشن بلاک نہیں ہیں وہ جوں کے توں گزر جاتے ہیں، اس لیے رفتار وہی رہتی ہے۔</string>
     <string name="routeListed">صرف فہرست شدہ سائٹس</string>
     <string name="routeListedDesc">صرف نیچے دی گئی سائٹس Shroudly سے گزرتی ہیں؛ باقی سب براہِ راست جڑتا ہے اور آپ کے فراہم کنندہ کا DNS استعمال کرتا ہے۔ کم سے کم مداخلت چاہتے ہیں تو یہ منتخب کریں۔</string>

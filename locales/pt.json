@@ -965,11 +965,11 @@
   "reportIntro": "Um site ou app que não abre, ou qualquer outra coisa que não funcione: conte para a gente. Se o Shroudly ainda não tiver suporte, vamos adicionar; se for um bug, vamos corrigir.",
   "reportSendDesc": "O jeito mais rápido: o que aconteceu e o registro do app vão direto para o desenvolvedor, sem você precisar mexer em registros. Você recebe um número de referência para informar se escrever para a gente.",
   "reportWhat": "O que não funciona e o que você estava fazendo?",
-  "reportWhatHint": "Pelo menos 50 caracteres: o que não funciona, onde e o que você estava fazendo quando aconteceu.",
-  "reportSite": "Qual site ou app? (opcional)",
+  "reportWhatHint": "Pelo menos 80 caracteres, com suas palavras: o que não funciona, onde e o que você estava fazendo quando aconteceu.",
+  "reportSite": "Qual site ou app?",
   "reportIsp": "Provedor de internet (opcional)",
   "reportCountry": "País (opcional)",
-  "reportContact": "E-mail ou Telegram, se quiser uma resposta (opcional)",
+  "reportContact": "Seu e-mail, para a nossa resposta",
   "reportPrivacy": "O que é enviado: o que você escrever aqui, a versão do app, seu sistema, o modelo do aparelho e o idioma, o país de onde vem sua conexão e o registro do app (os sites e apps que o Shroudly tratou e as configurações; nunca senhas, mensagens ou o que você lê). Ele vai para codeshare.me e de lá, por e-mail, apenas para o desenvolvedor do Shroudly. Nossos servidores não guardam nada; o e-mail fica até o desenvolvedor apagá-lo. Seu endereço é usado só na memória, para limitar quantos relatórios são enviados.",
   "reportPrivacyProvider": "O provedor de internet de onde vem sua conexão também é incluído.",
   "reportAgree": "Concordo em enviar este relatório junto com o registro do app.",
@@ -985,5 +985,8 @@
   "reportCopy": "Copiar",
   "reportCopied": "Copiado",
   "macAllApps": "Todos os apps pelo Shroudly (VPN)",
-  "macAllAppsDesc": "Desligado: o Shroudly é o proxy deste Mac, como a versão do GitHub: navegadores e apps que usam o proxy do sistema passam por ele, o resto vai direto e o Mac continua rápido. Ligado: todos os apps passam pelo Shroudly, inclusive os que ignoram o proxy (o app do Discord, jogos), mas o Mac fica mais lento."
+  "macAllAppsDesc": "Desligado: o Shroudly é o proxy deste Mac, como a versão do GitHub: navegadores e apps que usam o proxy do sistema passam por ele, o resto vai direto e o Mac continua rápido. Ligado: todos os apps passam pelo Shroudly, inclusive os que ignoram o proxy (o app do Discord, jogos), mas o Mac fica mais lento.",
+  "reportBadContact": "Digite um e-mail que você lê. Endereços temporários ou inventados e nomes do Telegram não são aceitos.",
+  "reportBadWhat": "Conte com suas palavras, em algumas frases, o que aconteceu.",
+  "reportBadSite": "Diga qual site ou app não funciona."
 }

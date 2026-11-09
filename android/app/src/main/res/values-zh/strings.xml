@@ -228,7 +228,10 @@
     <string name="protectionStopped">保护已停止</string>
     <string name="reopenAppsHint">之前已经打开的应用：如果有一个连不上，请关闭后重新打开一次。</string>
     <string name="reportAgree">我同意连同应用日志一起发送这份报告。</string>
-    <string name="reportContact">如需回复，请留下邮箱或 Telegram（选填）</string>
+    <string name="reportBadContact">请填写你会查看的电子邮箱。不接受临时或编造的地址，也不接受 Telegram 用户名。</string>
+    <string name="reportBadSite">请写出无法使用的网站或应用。</string>
+    <string name="reportBadWhat">请用你自己的话，用几句话说明发生了什么。</string>
+    <string name="reportContact">你的电子邮箱，用于我们的回复</string>
     <string name="reportCopied">已复制</string>
     <string name="reportCopy">复制</string>
     <string name="reportCountry">国家/地区（选填）</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">正在发送…</string>
     <string name="reportSent">已发送。你的参考编号：</string>
     <string name="reportSentHint">联系我们时请提供此编号。它会在下方列表中保留 60 天。</string>
-    <string name="reportSite">哪个网站或应用？（选填）</string>
+    <string name="reportSite">哪个网站或应用？</string>
     <string name="reportTitle">有什么用不了吗？</string>
     <string name="reportWhat">什么用不了？当时你在做什么？</string>
-    <string name="reportWhatHint">至少 50 个字：什么用不了、在哪里，以及出问题时你在做什么。</string>
+    <string name="reportWhatHint">至少 80 个字，用你自己的话说明：什么无法使用、在哪里，以及当时你在做什么。</string>
     <string name="routeAllDesc">所有网站都经过 Shroudly 并使用其加密 DNS，因此被封网站无需事先添加即可打开。未被封锁的连接原样直通，速度不受影响。</string>
     <string name="routeListed">仅列表中的网站</string>
     <string name="routeListedDesc">只有下列网站经过 Shroudly，其余直接连接并使用运营商的 DNS。如果希望干预最小，请选择此项。</string>

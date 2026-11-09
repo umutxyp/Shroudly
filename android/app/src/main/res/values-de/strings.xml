@@ -228,7 +228,10 @@
     <string name="protectionStopped">Schutz beendet</string>
     <string name="reopenAppsHint">Apps, die schon offen waren: Verbindet sich eine nicht, schließe sie und öffne sie einmal neu.</string>
     <string name="reportAgree">Ich bin einverstanden, diesen Bericht zusammen mit dem Protokoll der App zu senden.</string>
-    <string name="reportContact">E-Mail oder Telegram, falls du eine Antwort möchtest (optional)</string>
+    <string name="reportBadContact">Gib eine E-Mail-Adresse an, die du liest. Wegwerf- oder erfundene Adressen und Telegram-Namen werden nicht angenommen.</string>
+    <string name="reportBadSite">Nenne die Website oder App, die nicht funktioniert.</string>
+    <string name="reportBadWhat">Beschreibe in ein paar Sätzen und in eigenen Worten, was passiert ist.</string>
+    <string name="reportContact">Deine E-Mail-Adresse für unsere Antwort</string>
     <string name="reportCopied">Kopiert</string>
     <string name="reportCopy">Kopieren</string>
     <string name="reportCountry">Land (optional)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Wird gesendet…</string>
     <string name="reportSent">Gesendet. Deine Referenznummer:</string>
     <string name="reportSentHint">Gib sie an, wenn du uns schreibst. Sie bleibt 60 Tage in der Liste unten.</string>
-    <string name="reportSite">Welche Website oder App? (optional)</string>
+    <string name="reportSite">Welche Website oder App?</string>
     <string name="reportTitle">Funktioniert etwas nicht?</string>
     <string name="reportWhat">Was funktioniert nicht, und was hast du gerade gemacht?</string>
-    <string name="reportWhatHint">Mindestens 50 Zeichen: Was funktioniert nicht, wo, und was hast du gerade gemacht, als es passiert ist?</string>
+    <string name="reportWhatHint">Mindestens 80 Zeichen, in eigenen Worten: Was funktioniert nicht, wo, und was hast du gerade gemacht?</string>
     <string name="routeAllDesc">Alle Seiten laufen über Shroudly und nutzen dessen verschlüsseltes DNS, sodass eine gesperrte Seite funktioniert, ohne dass du sie vorher einträgst. Nicht gesperrte Verbindungen gehen unverändert durch, deine Geschwindigkeit bleibt gleich.</string>
     <string name="routeListed">Nur gelistete Seiten</string>
     <string name="routeListedDesc">Nur die Seiten unten laufen über Shroudly; alles andere verbindet direkt und nutzt das DNS deines Anbieters. Wähle das, wenn du den kleinstmöglichen Eingriff willst.</string>

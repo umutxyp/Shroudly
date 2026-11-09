@@ -228,7 +228,10 @@
     <string name="protectionStopped">Protection stopped</string>
     <string name="reopenAppsHint">Apps that were already open: if one does not connect, close it and open it again once.</string>
     <string name="reportAgree">I agree to send this report together with the app\'s log.</string>
-    <string name="reportContact">Email or Telegram, if you\'d like an answer (optional)</string>
+    <string name="reportBadContact">Enter an email address you can read. Temporary or made-up addresses and Telegram names aren\'t accepted.</string>
+    <string name="reportBadSite">Name the site or app that doesn\'t work.</string>
+    <string name="reportBadWhat">Describe what happened in your own words, in a few sentences.</string>
+    <string name="reportContact">Your email address, for our answer</string>
     <string name="reportCopied">Copied</string>
     <string name="reportCopy">Copy</string>
     <string name="reportCountry">Country (optional)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Sending…</string>
     <string name="reportSent">Sent. Your reference number:</string>
     <string name="reportSentHint">Quote it if you write to us. It stays in the list below for 60 days.</string>
-    <string name="reportSite">Which site or app? (optional)</string>
+    <string name="reportSite">Which site or app?</string>
     <string name="reportTitle">Something not working?</string>
     <string name="reportWhat">What doesn\'t work, and what were you doing?</string>
-    <string name="reportWhatHint">At least 50 characters: what doesn\'t work, where, and what you were doing when it happened.</string>
+    <string name="reportWhatHint">At least 80 characters, in your own words: what doesn\'t work, where, and what you were doing when it happened.</string>
     <string name="routeAllDesc">Every site goes through Shroudly and gets its encrypted DNS, so a blocked site works without you having to name it first. Connections that are not blocked are passed straight through untouched, so your speed stays the same.</string>
     <string name="routeListed">Only listed sites</string>
     <string name="routeListedDesc">Only the sites below go through Shroudly; everything else connects directly and uses your provider’s DNS. Choose this if you want the smallest possible footprint.</string>

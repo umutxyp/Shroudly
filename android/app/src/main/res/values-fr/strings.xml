@@ -228,7 +228,10 @@
     <string name="protectionStopped">Protection désactivée</string>
     <string name="reopenAppsHint">Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois.</string>
     <string name="reportAgree">J\'accepte d\'envoyer ce rapport avec le journal de l\'app.</string>
-    <string name="reportContact">E-mail ou Telegram, si vous voulez une réponse (facultatif)</string>
+    <string name="reportBadContact">Indiquez une adresse e-mail que vous consultez. Les adresses temporaires ou inventées et les noms Telegram ne sont pas acceptés.</string>
+    <string name="reportBadSite">Indiquez le site ou l\'appli qui ne fonctionne pas.</string>
+    <string name="reportBadWhat">Décrivez avec vos mots, en quelques phrases, ce qui s\'est passé.</string>
+    <string name="reportContact">Votre adresse e-mail, pour notre réponse</string>
     <string name="reportCopied">Copié</string>
     <string name="reportCopy">Copier</string>
     <string name="reportCountry">Pays (facultatif)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Envoi…</string>
     <string name="reportSent">Envoyé. Votre numéro de référence :</string>
     <string name="reportSentHint">Indiquez-le si vous nous écrivez. Il reste 60 jours dans la liste ci-dessous.</string>
-    <string name="reportSite">Quel site ou quelle app ? (facultatif)</string>
+    <string name="reportSite">Quel site ou quelle appli ?</string>
     <string name="reportTitle">Quelque chose ne marche pas ?</string>
     <string name="reportWhat">Qu\'est-ce qui ne marche pas, et que faisiez-vous ?</string>
-    <string name="reportWhatHint">Au moins 50 caractères : ce qui ne marche pas, où, et ce que vous faisiez à ce moment-là.</string>
+    <string name="reportWhatHint">Au moins 80 caractères, avec vos mots : ce qui ne marche pas, où, et ce que vous faisiez à ce moment-là.</string>
     <string name="routeAllDesc">Tous les sites passent par Shroudly et profitent de son DNS chiffré : un site bloqué s’ouvre sans que vous ayez à l’ajouter. Les connexions qui ne sont pas bloquées passent telles quelles, votre débit reste identique.</string>
     <string name="routeListed">Uniquement les sites listés</string>
     <string name="routeListedDesc">Seuls les sites ci-dessous passent par Shroudly ; le reste se connecte directement et utilise le DNS de votre opérateur. À choisir si vous voulez l’intervention la plus discrète possible.</string>

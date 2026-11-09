@@ -2,7 +2,9 @@
 
 /*
  * "Something not working?": from the link under the main button
- * (ControlPanel). The user says what went wrong (50 to 1000 characters) and
+ * (ControlPanel). The user says what went wrong (80 to 1000 characters, in
+ * real words), names the site or app and gives an e-mail address for the
+ * answer (electron/report-check.js, the same as the report server), and
  * it goes to the developer with the app's log in one go (electron/report.js),
  * which gives a reference number. What is sent, where it goes and that
  * nothing of it is kept on our server are said before the Send button, and
@@ -14,12 +16,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { CheckIcon, CloseIcon, CopyIcon, SpinnerIcon } from './icons';
 
-const WHAT_MIN = 50;
-const WHAT_MAX = 1000;
+import { WHAT_MIN, WHAT_MAX, contactOk, whatOk, siteOk } from '../electron/report-check';
 const chars = (s) => [...String(s || '').trim()].length;
 const PRIVACY_URL = 'https://codeshare.me/projects/shroudly/privacy';
 
-function Field({ label, value, onChange, max, multiline = false, required = false, id, hint = null }) {
+function Field({ label, value, onChange, max, multiline = false, required = false, id, hint = null, type = 'text' }) {
   const Tag = multiline ? 'textarea' : 'input';
   return (
     <label className="flex flex-col gap-1" htmlFor={id}>
@@ -30,6 +31,9 @@ function Field({ label, value, onChange, max, multiline = false, required = fals
         value={value}
         maxLength={max}
         required={required}
+        type={multiline ? undefined : type}
+        autoComplete={type === 'email' ? 'email' : undefined}
+        dir={type === 'email' ? 'ltr' : undefined}
         rows={multiline ? 5 : undefined}
         onChange={(e) => onChange(multiline ? [...e.target.value].slice(0, max).join('') : e.target.value)}
         className="field w-full px-3 py-2 text-[13px]"
@@ -64,8 +68,14 @@ export default function ReportDialog({ onClose }) {
 
   const limited = info.wait && info.wait.ms > 0;
   const n = chars(fields.what);
-  const enough = n >= WHAT_MIN && n <= WHAT_MAX;
-  const canSend = agree && enough && state !== 'sending' && !limited;
+  const whatGood = whatOk(fields.what);
+  const contactGood = contactOk(fields.contact);
+  const canSend = agree && whatGood && siteOk(fields.site) && contactGood && state !== 'sending' && !limited;
+  // Said as soon as it is clear: the description long enough but not words,
+  // an address typed that cannot take mail.
+  const whatWarn = n >= WHAT_MIN && !whatGood;
+  const contactWarn = fields.contact.trim().length > 3 && !contactGood;
+  const errorText = (e) => ({ contact: t('reportBadContact'), what: t('reportBadWhat'), site: t('reportBadSite') }[e] || t('reportFailed'));
 
   const send = async () => {
     if (!canSend) return;
@@ -126,12 +136,14 @@ export default function ReportDialog({ onClose }) {
                    hint={<span className="text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('reportWhatHint')}</span>} />
             <p className="-mt-2 text-end text-[11px]" dir="ltr" aria-live="polite"
                style={{ color: n > 0 && n < WHAT_MIN ? 'var(--warn)' : 'var(--text-faint)' }}>{n} / {WHAT_MAX}</p>
-            <Field id="report-site" label={t('reportSite')} value={fields.site} onChange={set('site')} max={300} />
+            {whatWarn && <p className="-mt-2 text-[12px]" role="status" style={{ color: 'var(--warn)' }}>{t('reportBadWhat')}</p>}
+            <Field id="report-site" label={t('reportSite')} value={fields.site} onChange={set('site')} max={300} required />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field id="report-isp" label={t('reportIsp')} value={fields.isp} onChange={set('isp')} max={120} />
               <Field id="report-country" label={t('reportCountry')} value={fields.country} onChange={set('country')} max={80} />
             </div>
-            <Field id="report-contact" label={t('reportContact')} value={fields.contact} onChange={set('contact')} max={200} />
+            <Field id="report-contact" label={t('reportContact')} value={fields.contact} onChange={set('contact')} max={200} required type="email" />
+            {contactWarn && <p className="-mt-2 text-[12px]" role="status" style={{ color: 'var(--warn)' }}>{t('reportBadContact')}</p>}
 
             <div className="rounded-[var(--radius)] border p-3 text-[12px] leading-relaxed wrap-anywhere"
                  style={{ borderColor: 'var(--line)', color: 'var(--text-dim)', background: 'var(--bg-sunk)' }}>
@@ -146,7 +158,7 @@ export default function ReportDialog({ onClose }) {
             {limited && <p className="text-[12.5px]" role="status" style={{ color: 'var(--warn)' }}>{rateText(info.wait.limit)}</p>}
             {state === 'error' && result && !limited && (
               <p className="text-[12.5px]" role="alert" style={{ color: 'var(--danger)' }}>
-                {result.error === 'rate' ? rateText(result.limit) : t('reportFailed')}
+                {result.error === 'rate' ? rateText(result.limit) : errorText(result.error)}
               </p>
             )}
             <button type="button" onClick={send} disabled={!canSend} aria-busy={state === 'sending'}

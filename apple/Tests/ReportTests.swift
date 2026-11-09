@@ -8,6 +8,23 @@ final class ReportTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_794_000_000)
     private func ref(_ n: Int) -> String { String(format: "SR-AAAA-BBBB-%04d", n) }
 
+    func testAReportNeedsWordsASiteAndARealEmail() {
+        let words = "YouTube does not open on the TV since this morning, the app only spins and nothing ever loads."
+        XCTAssertTrue(Report.whatOk(words))
+        XCTAssertTrue(Report.whatOk("اینستاگرام باز نمیشه و هر کاری میکنم ریلزها نمایش داده نمیشن، فقط صفحه سفید میاد و چیزی لود نمیشه"))
+        XCTAssertFalse(Report.whatOk("too short to say anything"))
+        XCTAssertFalse(Report.whatOk("asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczx"))
+        XCTAssertFalse(Report.whatOk(String(repeating: "hhhhhhhhhhhhhhhh ", count: 6)))
+        XCTAssertFalse(Report.whatOk(String(repeating: "not working ", count: 8)))
+        XCTAssertTrue(Report.contactOk("hvam49844@gmail.com"))
+        for bad in ["", "@someone_on_telegram", "test@test.com", "qwrtzpsdf@gmail.com", "someone@mailinator.com", "nobody", "a@b"] {
+            XCTAssertFalse(Report.contactOk(bad), bad)
+        }
+        XCTAssertEqual(Report.problem(what: words, site: "", contact: "hvam49844@gmail.com"), "site")
+        XCTAssertEqual(Report.problem(what: words, site: "youtube", contact: "@telegram"), "contact")
+        XCTAssertNil(Report.problem(what: words, site: "youtube", contact: "hvam49844@gmail.com"))
+    }
+
     func testHistoryKeepsSixtyDaysNewestFirst() {
         let l = Report.history([
             .init(ref: ref(1), at: now.addingTimeInterval(-61 * Report.day)),
@@ -32,7 +49,7 @@ final class ReportTests: XCTestCase {
 
     func testCharactersAsTheServerCounts() {
         XCTAssertEqual(Report.chars("  ab😀 "), 3)
-        XCTAssertEqual(Report.whatMin, 50)
+        XCTAssertEqual(Report.whatMin, 80)
         XCTAssertEqual(Report.whatMax, 1000)
     }
 
