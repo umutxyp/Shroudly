@@ -90,6 +90,11 @@ object Chrome {
     /* Active (green), Starting… (amber) or Inactive (red), with a dot. */
     fun updatePill(a: Activity, pill: TextView) {
         val st = Protection.state
+        // Only when it changes: the window redraws every second, and a pill
+        // set again is announced to accessibility services again (and kept
+        // Android 9's UI from ever settling for the emulator test's dumps).
+        if (pill.tag == st) return
+        pill.tag = st
         val color = when (st) {
             Protection.State.ON -> a.getColor(R.color.ok)
             Protection.State.OFF -> a.getColor(R.color.danger)
