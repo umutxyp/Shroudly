@@ -1345,6 +1345,15 @@ app.whenReady().then(async () => {
   // nothing else opened; started by the engine's need of it.
   const torRoute = new TorRoute({
     dataDir: app.getPath('userData'), log: addLog,
+    // The bridges the Tor Project gives out for this country, asked through
+    // Shroudly's own server (bridges.torproject.org is blocked where they
+    // are needed), through the engine while it runs (tor-route.js).
+    countryBridges: async () => {
+      const r = await require('electron').net.fetch('https://shroudly.codeshare.me/v1/bridges', { signal: AbortSignal.timeout(20000) });
+      if (!r.ok) return null;
+      const j = await r.json();
+      return j && j.bridges && typeof j.bridges === 'object' ? j.bridges : null;
+    },
     onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())),
     // Fetched the first time it is needed (issue #75), through the engine
     // while it runs, so a network that blocks torproject.org does not stop it.

@@ -22,6 +22,7 @@
  *                                          (HEAD too: download managers and link checkers ask first)
  *   GET  /dl/<latest release file name> -> that file itself, served from here: the
  *                                          updater's mirror where github.com is blocked
+ *   GET  /v1/bridges                    -> Tor bridges for the asker's country (see below)
  *
  *   node server.js [--port 8787] [--state /var/lib/shroudly-stats/seen.json]
  */
@@ -284,6 +285,46 @@ function send(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+// ── Tor bridges for the asker's country ─────────────────────────────────────
+// The bridges Tor's bundle ships (Snowflake, meek, seven obfs4) are all
+// blocked in Russia, and Tor never got through there. The Tor Project hands
+// out others by country (its "Moat" circumvention settings: WebTunnel, obfs4
+// that are in no bundle, Snowflake tuned to the country), which is how Tor
+// Browser connects there; but bridges.torproject.org itself is blocked where
+// they are needed. So the apps ask here: the country is Cloudflare's for the
+// connection (CF-IPCountry), nothing about the asker is kept, and the answer
+// is cached an hour per country.
+const MOAT = 'https://bridges.torproject.org/moat/circumvention/settings';
+const BRIDGE_KINDS = ['webtunnel', 'obfs4', 'snowflake', 'meek'];
+const BRIDGES_MS = 60 * 60 * 1000;
+const bridgeCache = new Map();   // country -> { at, bridges }
+
+async function bridgesFor(cc) {
+  const hit = bridgeCache.get(cc);
+  if (hit && Date.now() - hit.at < BRIDGES_MS) return hit.bridges;
+  let bridges = hit ? hit.bridges : {};
+  try {
+    const r = await fetch(MOAT, {
+      method: 'POST', headers: { 'content-type': 'application/vnd.api+json' },
+      body: JSON.stringify({ country: cc.toLowerCase(), transports: BRIDGE_KINDS }), signal: AbortSignal.timeout(10000),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      const out = {};
+      for (const s of Array.isArray(j.settings) ? j.settings : []) {
+        const b = s && s.bridges;
+        if (!b || !BRIDGE_KINDS.includes(b.type) || !Array.isArray(b.bridge_strings)) continue;
+        const lines = b.bridge_strings.filter((l) => typeof l === 'string' && l.startsWith(`${b.type} `) && l.length < 2000 && !/[\r\n]/.test(l));
+        if (lines.length) out[b.type] = [...(out[b.type] || []), ...lines].slice(0, 8);
+      }
+      bridges = out;
+    }
+  } catch { /* the last answer, or none */ }
+  bridgeCache.set(cc, { at: Date.now(), bridges });
+  if (bridgeCache.size > 300) bridgeCache.delete(bridgeCache.keys().next().value);
+  return bridges;
+}
+
 function readId(req) {
   return new Promise((resolve) => {
     let body = '';
@@ -316,6 +357,14 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (route === 'GET /v1/online') { send(res, 200, { online: seen.size, interval: interval() }); return; }
+    if (route === 'GET /v1/bridges') {
+      const head = String(req.headers['cf-ipcountry'] || '').toUpperCase();
+      const asked = String(searchParams.get('cc') || '').toUpperCase();
+      const cc = /^[A-Z]{2}$/.test(head) && head !== 'XX' && head !== 'T1' ? head : /^[A-Z]{2}$/.test(asked) ? asked : '';
+      if (!cc) { send(res, 200, { country: null, bridges: {} }); return; }
+      send(res, 200, { country: cc, bridges: await bridgesFor(cc) });
+      return;
+    }
     send(res, 404, { error: 'not found' });
   } catch {
     if (!res.headersSent) send(res, 500, { error: 'error' });

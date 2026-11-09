@@ -171,6 +171,34 @@ function fakeSpawn(runs) {
     t.ok(A('C:\\Users\\Şükrü\\AppData\\Roaming\\shroudly', 'win32', { short: () => null, programData: 'C:\\ProgramData' }).startsWith('C:\\ProgramData\\Shroudly\\tor-'), 'a Turkish name too');
   }
 
+  {
+    // The bundle's bridges all blocked (Russia): the ones the Tor Project
+    // gives for this country, through Shroudly's server, after them; once
+    // those got through, the next start goes to them at once.
+    const cruns = []; const clogs = []; let asked = 0;
+    const cr = new TorRoute({
+      dataDir: data, dir: bin, platform: 'darwin', spawn: fakeSpawn(cruns), ownerPid: 9, stallMs: 300, idleMs: 60000, retryMs: 500,
+      log: (l, m) => clogs.push(`${l} ${m}`),
+      countryBridges: async () => { asked++; return { webtunnel: ['webtunnel [2001:db8::1]:443 FFFF url=https://w.example/x ver=0.0.1', 'bad\nline'], obfs4: ['obfs4 198.51.100.7:4444 BBBB cert=y iat-mode=0'] }; },
+    });
+    await cr.prepare();
+    cr.need();
+    await H.sleep(350);                  // Snowflake stalls
+    await H.sleep(350);                  // the bundle's stall
+    await H.sleep(100);
+    const k = cruns[2];
+    t.ok(asked === 1 && k && cr.status().stage === 'country' && /ClientTransportPlugin webtunnel,obfs4,snowflake,meek_lite exec/.test(k.torrc)
+      && k.torrc.indexOf('Bridge webtunnel') < k.torrc.indexOf('Bridge obfs4 198.51.100.7') && k.torrc.indexOf('Bridge obfs4 198.51.100.7') < k.torrc.indexOf('Bridge obfs4 203.0.113.1')
+      && !k.torrc.includes('bad'),
+    `the bundle's bridges blocked: this country's (WebTunnel first), then the bundle's (${cr.status().stage})`);
+    k.say('[notice] Bootstrapped 100% (done): Done');
+    t.ok(cr.status().state === 'ready' && clogs.some((l) => /ready: Tor through this country's bridges/.test(l)), 'ready through them, and said');
+    cr.stop();
+    cr.need();
+    t.ok(cruns[3] && cr.status().stage === 'country' && asked === 1, 'the next start goes to them at once, without asking again');
+    cr.stop();
+  }
+
   fs.rmSync(dir, { recursive: true, force: true });
 
   console.log(`tor-route: ${t.count} passed`);
