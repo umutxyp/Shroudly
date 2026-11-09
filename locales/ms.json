@@ -972,7 +972,7 @@
   "reportContact": "Alamat e-mel anda, untuk jawapan kami",
   "reportPrivacy": "Apa yang dihantar: apa yang anda tulis di sini, versi aplikasi, sistem, model peranti dan bahasa anda, negara asal sambungan anda, dan log aplikasi (laman dan aplikasi yang dikendalikan Shroudly, serta tetapannya; tidak sekali-kali kata laluan, mesej atau apa yang anda baca). Laporan dihantar ke codeshare.me dan dari situ melalui e-mel kepada pembangun Shroudly sahaja. Pelayan kami tidak menyimpan apa-apa daripadanya; e-mel kekal sehingga pembangun memadamnya. Alamat anda hanya digunakan dalam memori, untuk mengehadkan bilangan laporan.",
   "reportPrivacyProvider": "Penyedia internet asal sambungan anda juga ditambah pada laporan.",
-  "reportAgree": "Saya bersetuju menghantar laporan ini bersama log aplikasi.",
+  "reportAgree": "Saya bersetuju menghantar laporan ini bersama log aplikasi, dan saya menerima dasar privasi.",
   "reportSend": "Hantar laporan",
   "reportSending": "Menghantar…",
   "reportSent": "Dihantar. Nombor rujukan anda:",

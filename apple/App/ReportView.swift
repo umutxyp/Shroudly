@@ -76,8 +76,6 @@ struct ReportView: View {
                 }
                 Section {
                     TextField(tr("reportSite"), text: $fields.site)
-                    TextField(tr("reportIsp"), text: $fields.isp)
-                    TextField(tr("reportCountry"), text: $fields.country)
                     TextField(tr("reportContact"), text: $fields.contact)
                         #if os(iOS) || os(tvOS)
                         .keyboardType(.emailAddress)
@@ -88,11 +86,12 @@ struct ReportView: View {
                         Text(tr("reportBadContact")).font(.footnote).foregroundStyle(.orange)
                     }
                 }
+                // One box: the report with the log, and the privacy policy, a
+                // link away. The provider and the country are never asked:
+                // the report server takes them from the connection.
                 Section {
-                    Text("\(tr("reportPrivacy")) \(tr("reportPrivacyProvider"))")
-                        .font(.footnote).foregroundStyle(Theme.secondaryText)
-                    WebLink(url: Self.privacy) { Text(tr("androidPrivacyPolicy")) }
                     Toggle(tr("reportAgree"), isOn: $agree)
+                    WebLink(url: Self.privacy) { Text(tr("androidPrivacyPolicy")) }
                 }
                 Section {
                     if wait.seconds > 0 {

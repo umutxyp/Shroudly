@@ -972,7 +972,7 @@
   "reportContact": "Seu e-mail, para a nossa resposta",
   "reportPrivacy": "O que é enviado: o que você escrever aqui, a versão do app, seu sistema, o modelo do aparelho e o idioma, o país de onde vem sua conexão e o registro do app (os sites e apps que o Shroudly tratou e as configurações; nunca senhas, mensagens ou o que você lê). Ele vai para codeshare.me e de lá, por e-mail, apenas para o desenvolvedor do Shroudly. Nossos servidores não guardam nada; o e-mail fica até o desenvolvedor apagá-lo. Seu endereço é usado só na memória, para limitar quantos relatórios são enviados.",
   "reportPrivacyProvider": "O provedor de internet de onde vem sua conexão também é incluído.",
-  "reportAgree": "Concordo em enviar este relatório junto com o registro do app.",
+  "reportAgree": "Concordo em enviar este relatório com o registro do app e aceito a política de privacidade.",
   "reportSend": "Enviar relatório",
   "reportSending": "Enviando…",
   "reportSent": "Enviado. Seu número de referência:",

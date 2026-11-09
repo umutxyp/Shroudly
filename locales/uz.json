@@ -972,7 +972,7 @@
   "reportContact": "Javobimiz uchun elektron pochtangiz",
   "reportPrivacy": "Nima yuboriladi: bu yerga yozganlaringiz, ilova versiyasi, tizimingiz, qurilma modeli va tilingiz, ulanishingiz kelayotgan mamlakat va ilova jurnali (Shroudly ishlagan sayt va ilovalar hamda uning sozlamalari; parollar, xabarlar yoki oʻqiganlaringiz hech qachon emas). Hisobot codeshare.me ga, u yerdan esa e-pochta orqali faqat Shroudly dasturchisiga boradi. Serverlarimiz bularning hech birini saqlamaydi; xat dasturchi oʻchirguncha qoladi. Manzilingiz faqat xotirada, yuboriladigan hisobotlar sonini cheklash uchun ishlatiladi.",
   "reportPrivacyProvider": "Ulanishingiz kelayotgan internet provayderi ham hisobotga qoʻshiladi.",
-  "reportAgree": "Ushbu hisobotni ilova jurnali bilan birga yuborishga roziman.",
+  "reportAgree": "Ushbu hisobotni ilova jurnali bilan yuborishga roziman va maxfiylik siyosatini qabul qilaman.",
   "reportSend": "Hisobotni yuborish",
   "reportSending": "Yuborilmoqda…",
   "reportSent": "Yuborildi. Maʼlumot raqamingiz:",

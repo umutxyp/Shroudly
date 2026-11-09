@@ -972,7 +972,7 @@
   "reportContact": "Cavabımız üçün e-poçt ünvanınız",
   "reportPrivacy": "Göndərilənlər: buraya yazdıqlarınız, tətbiqin versiyası, sisteminiz, cihaz modeliniz və diliniz, bağlantınızın gəldiyi ölkə və tətbiqin qeydləri (Shroudly-nin işlədiyi sayt və tətbiqlər, onun ayarları; heç vaxt parollar, mesajlar və ya oxuduqlarınız yox). Hesabat codeshare.me-yə, oradan isə e-poçtla yalnız Shroudly-nin tərtibatçısına gedir. Serverlərimiz bunların heç birini saxlamır; e-poçt tərtibatçı silənə qədər qalır. Ünvanınız yalnız yaddaşda, göndərilən hesabatların sayını məhdudlaşdırmaq üçün istifadə olunur.",
   "reportPrivacyProvider": "Bağlantınızın gəldiyi internet provayderi də hesabata əlavə olunur.",
-  "reportAgree": "Bu hesabatı tətbiqin qeydləri ilə birlikdə göndərməyə razıyam.",
+  "reportAgree": "Bu hesabatı tətbiqin jurnalı ilə göndərməyə razıyam və məxfilik siyasətini qəbul edirəm.",
   "reportSend": "Hesabatı göndər",
   "reportSending": "Göndərilir…",
   "reportSent": "Göndərildi. İstinad nömrəniz:",
