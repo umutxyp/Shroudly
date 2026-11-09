@@ -837,11 +837,13 @@ window() {
 about_tab() { sh_ "am start -W -n $PKG/.MainActivity --es me.codeshare.shroudly.TAB ABOUT" >/dev/null; sleep 2; }
 ui_has() { sh_ "uiautomator dump /sdcard/ui.xml" >/dev/null; grep -q -- "$1" <<<"$(sh_ "cat /sdcard/ui.xml")"; }
 # The rows are at the bottom, more than a small screen shows at once: from
-# the top, a little further down each time until the text is on screen.
+# the top, a little further down each time until the text is on screen. The
+# About tab grew (Logs, Follow, donations): on API 28's small screen ten
+# steps no longer reached "Release notes", so up to thirty.
 ui_seek() {
   local i
   for _ in 1 2 3; do sh_ "input swipe 160 150 160 600 200" >/dev/null; done
-  for i in 1 2 3 4 5 6 7 8 9 10; do
+  for i in $(seq 1 30); do
     ui_has "$1" && return 0
     sh_ "input swipe 160 450 160 250 400" >/dev/null
     sleep 1
