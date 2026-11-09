@@ -179,8 +179,10 @@
             android:text="@string/androidDetails"
             android:visibility="gone" />
 
-        <!-- "Something not working?": always here, under the switch
-             (ReportActivity). -->
+        <!-- "Something not working?", under the switch (ReportActivity):
+             always, but in Iran only for a day after Shroudly itself went
+             wrong, and not again after a report until it does
+             (Report.offered). -->
         <TextView
             android:id="@+id/reportLink"
             style="@style/Link"

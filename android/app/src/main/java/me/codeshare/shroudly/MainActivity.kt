@@ -475,7 +475,7 @@ class MainActivity : Activity() {
 
     private fun onToggle() {
         when (Protection.state) {
-            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this)
+            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this, "the window")
             Protection.State.OFF -> {
                 vpnDenied = false
                 vpnBlocked = false
@@ -648,7 +648,7 @@ class MainActivity : Activity() {
         ShroudlyVpnService.log("VPN mode chosen in the window: every app goes through Shroudly")
         if (Protection.state == Protection.State.OFF) { startWithConsent(); return }
         vpnAfterProxy = true
-        Protector.stop(this)
+        Protector.stop(this, "the window")
     }
 
     private fun openVpnSettings() {
@@ -663,11 +663,11 @@ class MainActivity : Activity() {
         try {
             AlertDialog.Builder(this)
                 .setMessage(R.string.androidLockdownStop)
-                .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this) }
+                .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this, "the window") }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         } catch (_: Exception) {
-            Protector.stop(this)
+            Protector.stop(this, "the window")
         }
     }
 
@@ -683,6 +683,7 @@ class MainActivity : Activity() {
 
     @SuppressLint("SetTextI18n")
     private fun render() {
+        findViewById<View>(R.id.reportLink).visibility = if (Report.offered(this)) View.VISIBLE else View.GONE
         if (vpnAfterProxy && Protection.state == Protection.State.OFF) { vpnAfterProxy = false; startWithConsent() }
         val st = Protection.state
         val on = st == Protection.State.ON

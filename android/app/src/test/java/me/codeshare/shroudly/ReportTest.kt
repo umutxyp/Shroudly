@@ -2,6 +2,7 @@ package me.codeshare.shroudly
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import java.security.MessageDigest
 
@@ -13,6 +14,23 @@ class ReportTest {
     private val h = Report.HOUR
     private val d = Report.DAY
     private fun ref(n: Int) = "SR-AAAA-BBBB-%04d".format(n)
+
+    @Test
+    fun theLinkInIranShowsOnlyAfterOwnFaultForADay() {
+        val day = Report.FAULT_SHOWS_MS
+        // Elsewhere: always.
+        assertTrue(Report.offered(false, 0, 0, 1_000_000))
+        // Iran, nothing went wrong: hidden.
+        assertFalse(Report.offered(true, 0, 0, 1_000_000))
+        // Shroudly itself failed an hour ago: shown.
+        assertTrue(Report.offered(true, 1_000_000, 0, 1_000_000 + 3_600_000))
+        // A day later with no report: hidden again.
+        assertFalse(Report.offered(true, 1_000_000, 0, 1_000_000 + day))
+        // A report sent after the fault: hidden at once.
+        assertFalse(Report.offered(true, 1_000_000, 1_500_000, 2_000_000))
+        // A new fault after that report: shown again.
+        assertTrue(Report.offered(true, 3_000_000, 1_500_000, 3_100_000))
+    }
 
     @Test
     fun historyKeepsSixtyDaysNewestFirst() {

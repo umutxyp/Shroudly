@@ -62,7 +62,7 @@ class ShroudlyWidget : AppWidgetProvider() {
         if (intent.action != ACTION_TOGGLE) return
         when (Protection.state) {
             Protection.State.ON ->
-                if (Protection.lockdown && !Protection.proxyOnly) openApp(ctx, start = false) else Protector.stop(ctx)
+                if (Protection.lockdown && !Protection.proxyOnly) openApp(ctx, start = false) else Protector.stop(ctx, "the home screen widget")
             Protection.State.OFF -> {
                 val allowed = try { Protector.start(ctx) } catch (_: Exception) { false }
                 if (!allowed) openApp(ctx, start = true)

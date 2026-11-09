@@ -74,7 +74,11 @@ object Protection {
         changed()
     }
 
+    /* When Shroudly last went wrong itself (Report.offered). */
+    @Volatile var faultAt = 0L
+
     fun fail(res: Int, detail: String?) {
+        faultAt = System.currentTimeMillis()
         errorRes = res
         errorDetail = detail
         changed()
@@ -82,6 +86,7 @@ object Protection {
 
     fun trouble(res: Int) {
         if (troubleRes == res) return
+        if (res != 0) faultAt = System.currentTimeMillis()
         troubleRes = res
         changed()
     }
