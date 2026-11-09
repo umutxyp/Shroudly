@@ -54,4 +54,31 @@ final class TorRouteTests: XCTestCase {
         XCTAssertFalse(TorRoute.available, "an iPhone's or Apple TV's tunnel has no room for Tor")
         #endif
     }
+
+    func testThisCountrysBridgesFirstAndRemembered() {
+        // As shroudly.codeshare.me/v1/bridges answers (tests/net/tor-route.test.js, TorRouteTest.kt).
+        let json = #"{"country":"ru","bridges":{"webtunnel":["webtunnel [2001:db8::1]:443 FFFF url=https://w.example/x ver=0.0.1","bad\nline"],"obfs4":["obfs4 198.51.100.7:4444 BBBB cert=y iat-mode=0"],"other":["x"]}}"#
+        let c = TorRoute.countryBridgesOf(Data(json.utf8))
+        XCTAssertNotNil(c)
+        let bundled = ["obfs4": ["obfs4 203.0.113.1:443 A cert=x iat-mode=0"], "snowflake": ["snowflake 192.0.2.3:80 X"]]
+        let m = TorRoute.mergeBridges(c, bundled)
+        XCTAssertEqual(Set(m.keys), ["webtunnel", "obfs4", "snowflake"])
+        XCTAssertEqual(m["obfs4"], ["obfs4 198.51.100.7:4444 BBBB cert=y iat-mode=0", "obfs4 203.0.113.1:443 A cert=x iat-mode=0"])
+        XCTAssertEqual(m["webtunnel"]?.count, 1, "a line with a newline is dropped")
+        let lines = TorRoute.countryLines(m)
+        XCTAssertTrue(lines[0].hasPrefix("webtunnel "))
+        XCTAssertEqual(lines.last, "snowflake 192.0.2.3:80 X")
+        XCTAssertTrue(TorRoute.mergeBridges(nil, [:]).isEmpty)
+        XCTAssertNil(TorRoute.countryBridgesOf(Data("<html>".utf8)))
+
+        let d = UserDefaults(suiteName: "TorRouteCountry")!
+        d.removePersistentDomain(forName: "TorRouteCountry")
+        XCTAssertNil(TorRoute.remembered(d))
+        let now = Date()
+        TorRoute.remember(c, d, now: now)
+        XCTAssertEqual(TorRoute.remembered(d, now: now.addingTimeInterval(60))?["obfs4"], c?["obfs4"])
+        XCTAssertNil(TorRoute.remembered(d, now: now.addingTimeInterval(TorRoute.countryKeep + 1)), "not after a day")
+        TorRoute.remember(nil, d)
+        XCTAssertNil(TorRoute.remembered(d), "forgotten when they no longer get through")
+    }
 }

@@ -46,6 +46,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private lazy var torRoute: TorRoute = {
         let t = TorRoute(log: { [weak self] in self?.log($0) })
         t.usedCount = { [weak self] in ((self?.engine?.lastStats?["fallback"]) as? NSNumber)?.int64Value ?? 0 }
+        t.countryBridges = { [weak self] in await TorRoute.fetchCountry(via: self?.enginePath) }
         return t
     }()
     private let fileLog = SharedLog(name: "tunnel.log")
