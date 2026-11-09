@@ -228,7 +228,10 @@
     <string name="protectionStopped">ጥበቃ ቆሟል</string>
     <string name="reopenAppsHint">ቀድሞ ክፍት የነበሩ መተግበሪያዎች፦ አንዱ ካልተገናኘ ዝጉትና አንድ ጊዜ እንደገና ይክፈቱት።</string>
     <string name="reportAgree">ይህን ሪፖርት ከመተግበሪያው መዝገብ ጋር አብሮ ለመላክ እስማማለሁ።</string>
-    <string name="reportContact">መልስ ከፈለጉ ኢሜይል ወይም Telegram (አማራጭ)</string>
+    <string name="reportBadContact">የሚያነቡትን የኢሜይል አድራሻ ያስገቡ። ጊዜያዊ ወይም የተፈጠሩ አድራሻዎች እና የቴሌግራም ስሞች ተቀባይነት የላቸውም።</string>
+    <string name="reportBadSite">የማይሰራውን ድረ-ገጽ ወይም መተግበሪያ ስም ይጻፉ።</string>
+    <string name="reportBadWhat">ምን እንደተከሰተ በጥቂት ዓረፍተ ነገሮች በራስዎ ቃላት ይግለጹ።</string>
+    <string name="reportContact">ለምላሻችን የኢሜይል አድራሻዎ</string>
     <string name="reportCopied">ተቀድቷል</string>
     <string name="reportCopy">ቅዳ</string>
     <string name="reportCountry">አገር (አማራጭ)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">በመላክ ላይ…</string>
     <string name="reportSent">ተልኳል። የማጣቀሻ ቁጥርዎ፦</string>
     <string name="reportSentHint">ሲጽፉልን ይህን ቁጥር ይጥቀሱ። ከታች ባለው ዝርዝር ውስጥ ለ60 ቀናት ይቆያል።</string>
-    <string name="reportSite">የትኛው ድረ ገጽ ወይም መተግበሪያ? (አማራጭ)</string>
+    <string name="reportSite">የትኛው ድረ-ገጽ ወይም መተግበሪያ?</string>
     <string name="reportTitle">የማይሰራ ነገር አለ?</string>
     <string name="reportWhat">ምን አይሰራም፣ በዚያን ጊዜ ምን እያደረጉ ነበር?</string>
-    <string name="reportWhatHint">ቢያንስ 50 ፊደላት፦ ምን አይሰራም፣ የት፣ እና ሲከሰት ምን እያደረጉ ነበር።</string>
+    <string name="reportWhatHint">ቢያንስ 80 ፊደላት፣ በራስዎ ቃላት፦ ምን እየሰራ እንዳልሆነ፣ የት፣ እና በዚያ ጊዜ ምን እየሰሩ እንደነበር።</string>
     <string name="routeAllDesc">እያንዳንዱ ድረ-ገጽ በShroudly በኩል ያልፋል እና የተመሰጠረ DNS ያገኛል፤ ስለዚህ የታገደ ድረ-ገጽ አስቀድመው ስሙን መጥቀስ ሳያስፈልግዎ ይሰራል። ያልታገዱ ግንኙነቶች ሳይነኩ በቀጥታ ይተላለፋሉ፤ ስለዚህ ፍጥነትዎ እንዳለ ይቆያል።</string>
     <string name="routeListed">የተዘረዘሩ ድረ-ገጾች ብቻ</string>
     <string name="routeListedDesc">በShroudly በኩል የሚያልፉት ከታች ያሉት ድረ-ገጾች ብቻ ናቸው፤ ሌላው ሁሉ በቀጥታ ይገናኛል እና የአገልግሎት አቅራቢዎን DNS ይጠቀማል። በተቻለ መጠን አነስተኛ አሻራ እንዲኖር ከፈለጉ ይህን ይምረጡ።</string>

@@ -228,7 +228,10 @@
     <string name="protectionStopped">Защита выключена</string>
     <string name="reopenAppsHint">Приложения, открытые раньше: если какое-то не подключается, закройте его и откройте снова.</string>
     <string name="reportAgree">Я согласен(на) отправить этот отчёт вместе с журналом приложения.</string>
-    <string name="reportContact">Почта или Telegram, если хотите получить ответ (необязательно)</string>
+    <string name="reportBadContact">Укажите почту, которую вы читаете. Временные и выдуманные адреса и имена в Telegram не принимаются.</string>
+    <string name="reportBadSite">Укажите сайт или приложение, которое не работает.</string>
+    <string name="reportBadWhat">Опишите своими словами, в нескольких предложениях, что произошло.</string>
+    <string name="reportContact">Ваша электронная почта для ответа</string>
     <string name="reportCopied">Скопировано</string>
     <string name="reportCopy">Копировать</string>
     <string name="reportCountry">Страна (необязательно)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Отправка…</string>
     <string name="reportSent">Отправлено. Номер вашего обращения:</string>
     <string name="reportSentHint">Назовите его, если будете нам писать. Он хранится в списке ниже 60 дней.</string>
-    <string name="reportSite">Какой сайт или приложение? (необязательно)</string>
+    <string name="reportSite">Какой сайт или приложение?</string>
     <string name="reportTitle">Что-то не работает?</string>
     <string name="reportWhat">Что не работает и что вы в это время делали?</string>
-    <string name="reportWhatHint">Не меньше 50 символов: что не работает, где и что вы делали, когда это случилось.</string>
+    <string name="reportWhatHint">Не меньше 80 символов, своими словами: что не работает, где и что вы делали в этот момент.</string>
     <string name="routeAllDesc">Через Shroudly идут все сайты и используют его шифрованный DNS, поэтому заблокированный сайт открывается без добавления в список. Незаблокированные соединения проходят нетронутыми, скорость не меняется.</string>
     <string name="routeListed">Только сайты из списка</string>
     <string name="routeListedDesc">Через Shroudly идут только сайты из списка ниже; остальное подключается напрямую и использует DNS провайдера. Выберите это, если хотите минимальное вмешательство.</string>

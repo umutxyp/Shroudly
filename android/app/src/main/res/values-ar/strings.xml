@@ -228,7 +228,10 @@
     <string name="protectionStopped">توقفت الحماية</string>
     <string name="reopenAppsHint">التطبيقات التي كانت مفتوحة من قبل: إن لم يتصل أحدها فأغلقه وافتحه مرة أخرى.</string>
     <string name="reportAgree">أوافق على إرسال هذا البلاغ مع سجل التطبيق.</string>
-    <string name="reportContact">بريدك أو تيليجرام إن أردت ردًا (اختياري)</string>
+    <string name="reportBadContact">اكتب بريدًا إلكترونيًا تقرؤه. لا تُقبل العناوين المؤقتة أو المختلقة ولا أسماء تيليجرام.</string>
+    <string name="reportBadSite">اكتب اسم الموقع أو التطبيق الذي لا يعمل.</string>
+    <string name="reportBadWhat">صف ما حدث بكلماتك في بضع جمل.</string>
+    <string name="reportContact">بريدك الإلكتروني، لنرد عليك</string>
     <string name="reportCopied">تم النسخ</string>
     <string name="reportCopy">نسخ</string>
     <string name="reportCountry">البلد (اختياري)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">جارٍ الإرسال…</string>
     <string name="reportSent">تم الإرسال. رقمك المرجعي:</string>
     <string name="reportSentHint">اذكره إن راسلتنا. يبقى في القائمة أدناه 60 يومًا.</string>
-    <string name="reportSite">أي موقع أو تطبيق؟ (اختياري)</string>
+    <string name="reportSite">أي موقع أو تطبيق؟</string>
     <string name="reportTitle">هل هناك شيء لا يعمل؟</string>
     <string name="reportWhat">ما الذي لا يعمل، وماذا كنت تفعل حينها؟</string>
-    <string name="reportWhatHint">50 حرفًا على الأقل: ما الذي لا يعمل، وأين، وماذا كنت تفعل حين حدث ذلك.</string>
+    <string name="reportWhatHint">80 حرفًا على الأقل وبكلماتك: ما الذي لا يعمل، وأين، وماذا كنت تفعل حين حدث ذلك.</string>
     <string name="routeAllDesc">كل المواقع تمر عبر Shroudly وتستخدم نظام DNS المشفَّر الخاص به، فيفتح الموقع المحجوب دون أن تضيف اسمه مسبقًا. أما الاتصالات غير المحجوبة فتمر كما هي دون أي تعديل، لذا تبقى سرعتك كما هي.</string>
     <string name="routeListed">المواقع المدرجة فقط</string>
     <string name="routeListedDesc">المواقع أدناه فقط تمر عبر Shroudly؛ وكل ما عداها يتصل مباشرةً ويستخدم نظام DNS الخاص بمزوّدك. اختر هذا إن أردت أقل تدخل ممكن.</string>

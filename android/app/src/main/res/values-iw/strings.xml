@@ -228,7 +228,10 @@
     <string name="protectionStopped">ההגנה הופסקה</string>
     <string name="reopenAppsHint">אפליקציות שכבר היו פתוחות: אם אחת לא מתחברת, סגרו אותה ופתחו אותה שוב פעם אחת.</string>
     <string name="reportAgree">אני מסכים/ה לשלוח את הדיווח הזה יחד עם יומן האפליקציה.</string>
-    <string name="reportContact">אימייל או טלגרם, אם תרצו תשובה (רשות)</string>
+    <string name="reportBadContact">יש להזין כתובת אימייל שאת/ה קורא/ת. כתובות זמניות או מומצאות ושמות טלגרם אינם מתקבלים.</string>
+    <string name="reportBadSite">יש לכתוב את שם האתר או האפליקציה שלא עובדים.</string>
+    <string name="reportBadWhat">תאר/י במילים שלך, בכמה משפטים, מה קרה.</string>
+    <string name="reportContact">כתובת האימייל שלך, לתשובה שלנו</string>
     <string name="reportCopied">הועתק</string>
     <string name="reportCopy">העתקה</string>
     <string name="reportCountry">מדינה (רשות)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">שולח…</string>
     <string name="reportSent">נשלח. מספר ההפניה שלכם:</string>
     <string name="reportSentHint">ציינו אותו אם תכתבו לנו. הוא נשאר ברשימה למטה 60 יום.</string>
-    <string name="reportSite">איזה אתר או אפליקציה? (רשות)</string>
+    <string name="reportSite">איזה אתר או אפליקציה?</string>
     <string name="reportTitle">משהו לא עובד?</string>
     <string name="reportWhat">מה לא עובד, ומה עשיתם באותו רגע?</string>
-    <string name="reportWhatHint">לפחות 50 תווים: מה לא עובד, איפה, ומה עשיתם כשזה קרה.</string>
+    <string name="reportWhatHint">לפחות 80 תווים, במילים שלך: מה לא עובד, איפה, ומה עשית כשזה קרה.</string>
     <string name="routeAllDesc">כל האתרים עוברים דרך Shroudly ומקבלים את ה-DNS המוצפן שלו, כך שאתר חסום עובד בלי שצריך לציין אותו מראש. חיבורים שאינם חסומים מועברים ישירות וללא שינוי, כך שהמהירות נשארת כפי שהייתה.</string>
     <string name="routeListed">רק אתרים מהרשימה</string>
     <string name="routeListedDesc">רק האתרים שלמטה עוברים דרך Shroudly; כל השאר מתחברים ישירות ומשתמשים ב-DNS של ספק האינטרנט. כדאי לבחור באפשרות הזו כדי להשאיר טביעת רגל קטנה ככל האפשר.</string>

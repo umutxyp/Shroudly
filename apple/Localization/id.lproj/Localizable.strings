@@ -141,7 +141,10 @@
 "protected" = "Terlindungi";
 "reopenAppsHint" = "Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali.";
 "reportAgree" = "Saya setuju mengirim laporan ini bersama log aplikasi.";
-"reportContact" = "Email atau Telegram, jika Anda ingin jawaban (opsional)";
+"reportBadContact" = "Masukkan alamat email yang kamu baca. Alamat sementara atau karangan dan nama Telegram tidak diterima.";
+"reportBadSite" = "Sebutkan situs atau aplikasi yang tidak berfungsi.";
+"reportBadWhat" = "Ceritakan dengan kata-katamu sendiri, dalam beberapa kalimat, apa yang terjadi.";
+"reportContact" = "Alamat emailmu, untuk balasan kami";
 "reportCopied" = "Tersalin";
 "reportCopy" = "Salin";
 "reportCountry" = "Negara (opsional)";
@@ -158,10 +161,10 @@
 "reportSending" = "Mengirim…";
 "reportSent" = "Terkirim. Nomor referensi Anda:";
 "reportSentHint" = "Sebutkan nomor ini jika Anda menghubungi kami. Nomor ini tetap ada di daftar di bawah selama 60 hari.";
-"reportSite" = "Situs atau aplikasi apa? (opsional)";
+"reportSite" = "Situs atau aplikasi apa?";
 "reportTitle" = "Ada yang tidak berfungsi?";
 "reportWhat" = "Apa yang tidak berfungsi, dan apa yang sedang Anda lakukan?";
-"reportWhatHint" = "Minimal 50 karakter: apa yang tidak berfungsi, di mana, dan apa yang sedang Anda lakukan saat itu terjadi.";
+"reportWhatHint" = "Minimal 80 karakter, dengan kata-katamu sendiri: apa yang tidak berfungsi, di mana, dan apa yang sedang kamu lakukan saat itu.";
 "routeAllDesc" = "Semua situs melewati Shroudly dan memakai DNS terenkripsinya, jadi situs yang diblokir terbuka tanpa perlu Anda daftarkan dulu. Koneksi yang tidak diblokir diteruskan apa adanya, sehingga kecepatan tetap sama.";
 "routeListed" = "Hanya situs dalam daftar";
 "routeListedDesc" = "Hanya situs di bawah yang melewati Shroudly; selebihnya terhubung langsung dan memakai DNS penyedia Anda. Pilih ini jika Anda ingin campur tangan sekecil mungkin.";

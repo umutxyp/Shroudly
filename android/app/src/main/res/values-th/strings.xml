@@ -228,7 +228,10 @@
     <string name="protectionStopped">หยุดการป้องกันแล้ว</string>
     <string name="reopenAppsHint">แอปที่เปิดไว้ก่อนแล้ว: ถ้าแอปใดเชื่อมต่อไม่ได้ ให้ปิดแล้วเปิดใหม่หนึ่งครั้ง</string>
     <string name="reportAgree">ฉันยินยอมส่งรายงานนี้พร้อมบันทึกของแอป</string>
-    <string name="reportContact">อีเมลหรือ Telegram หากต้องการคำตอบ (ไม่บังคับ)</string>
+    <string name="reportBadContact">กรอกอีเมลที่คุณอ่านจริง ไม่รับอีเมลชั่วคราว อีเมลที่แต่งขึ้น หรือชื่อ Telegram</string>
+    <string name="reportBadSite">ระบุชื่อเว็บไซต์หรือแอปที่ใช้ไม่ได้</string>
+    <string name="reportBadWhat">เล่าด้วยคำพูดของคุณเองสักสองสามประโยคว่าเกิดอะไรขึ้น</string>
+    <string name="reportContact">อีเมลของคุณ สำหรับคำตอบจากเรา</string>
     <string name="reportCopied">คัดลอกแล้ว</string>
     <string name="reportCopy">คัดลอก</string>
     <string name="reportCountry">ประเทศ (ไม่บังคับ)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">กำลังส่ง…</string>
     <string name="reportSent">ส่งแล้ว หมายเลขอ้างอิงของคุณ:</string>
     <string name="reportSentHint">แจ้งหมายเลขนี้เมื่อเขียนถึงเรา หมายเลขจะอยู่ในรายการด้านล่าง 60 วัน</string>
-    <string name="reportSite">เว็บไซต์หรือแอปไหน? (ไม่บังคับ)</string>
+    <string name="reportSite">เว็บไซต์หรือแอปไหน?</string>
     <string name="reportTitle">มีอะไรใช้งานไม่ได้ไหม?</string>
     <string name="reportWhat">อะไรใช้งานไม่ได้ และตอนนั้นคุณกำลังทำอะไรอยู่?</string>
-    <string name="reportWhatHint">อย่างน้อย 50 ตัวอักษร: อะไรใช้งานไม่ได้ ที่ไหน และตอนที่เกิดขึ้นคุณกำลังทำอะไรอยู่</string>
+    <string name="reportWhatHint">อย่างน้อย 80 ตัวอักษร ด้วยคำพูดของคุณเอง: อะไรใช้ไม่ได้ ที่ไหน และตอนนั้นคุณกำลังทำอะไร</string>
     <string name="routeAllDesc">ทุกเว็บไซต์จะผ่าน Shroudly และใช้ DNS แบบเข้ารหัสของ Shroudly เว็บไซต์ที่ถูกบล็อกจึงใช้งานได้โดยที่คุณไม่ต้องระบุชื่อไว้ก่อน การเชื่อมต่อที่ไม่ได้ถูกบล็อกจะส่งผ่านไปตรง ๆ โดยไม่มีการแก้ไข ความเร็วของคุณจึงยังคงเท่าเดิม</string>
     <string name="routeListed">เฉพาะเว็บไซต์ในรายการ</string>
     <string name="routeListedDesc">เฉพาะเว็บไซต์ด้านล่างเท่านั้นที่ผ่าน Shroudly ส่วนที่เหลือทั้งหมดจะเชื่อมต่อโดยตรงและใช้ DNS ของผู้ให้บริการอินเทอร์เน็ตของคุณ เลือกตัวเลือกนี้หากคุณต้องการให้ Shroudly เข้าไปเกี่ยวข้องน้อยที่สุด</string>

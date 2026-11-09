@@ -965,11 +965,11 @@
   "reportIntro": "Açylmaýan sahypa ýa-da programma, ýa-da işlemeýän başga bir zat bar bolsa, bize aýdyň. Shroudly ony entek goldamaýan bolsa, goşarys; ýalňyşlyk bolsa, düzederis.",
   "reportSendDesc": "Iň çalt ýol: näme bolany we programmanyň ýazgylary göni öndürijä gidýär, ýazgylar bilen özüňiz başagaý bolmaly däl. Bize ýazanyňyzda aýdyp boljak salgylanma belgisini alýarsyňyz.",
   "reportWhat": "Näme işlemeýär we şol wagt näme edýärdiňiz?",
-  "reportWhatHint": "Iň azyndan 50 nyşan: näme işlemeýär, nirede we bu bolanda näme edýärdiňiz.",
-  "reportSite": "Haýsy sahypa ýa-da programma? (hökmany däl)",
+  "reportWhatHint": "Azyndan 80 belgi, öz sözleriňiz bilen: näme işlänok, nirede we şol wagt näme edýärdiňiz.",
+  "reportSite": "Haýsy sahypa ýa-da programma?",
   "reportIsp": "Internet üpjünçisi (hökmany däl)",
   "reportCountry": "Ýurt (hökmany däl)",
-  "reportContact": "Jogap isleseňiz, e-poçta ýa-da Telegram (hökmany däl)",
+  "reportContact": "Jogabymyz üçin e-poçta salgyňyz",
   "reportPrivacy": "Näme iberilýär: şu ýere ýazanlaryňyz, programmanyň wersiýasy, ulgamyňyz, enjamyň modeli we diliňiz, birikmäňiziň gelýän ýurdy we programmanyň ýazgylary (Shroudly-niň işlän sahypalary we programmalary hem-de onuň sazlamalary; parollar, habarlar ýa-da okaýanlaryňyz hiç haçan däl). Hasabat codeshare.me-ä, ondan bolsa e-poçta arkaly diňe Shroudly-niň öndürijisine gidýär. Serwerlerimiz bularyň hiç birini saklamaýar; hat öndüriji pozýança galýar. Salgyňyz diňe ýatda, iberilýän hasabatlaryň sanyny çäklendirmek üçin ulanylýar.",
   "reportPrivacyProvider": "Birikmäňiziň gelýän internet üpjünçisi hem hasabata goşulýar.",
   "reportAgree": "Bu hasabaty programmanyň ýazgylary bilen bilelikde ibermäge razy.",
@@ -985,5 +985,8 @@
   "reportCopy": "Göçür",
   "reportCopied": "Göçürildi",
   "macAllApps": "Ähli programmalar Shroudly arkaly (VPN)",
-  "macAllAppsDesc": "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar."
+  "macAllAppsDesc": "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar.",
+  "reportBadContact": "Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.",
+  "reportBadWhat": "Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.",
+  "reportBadSite": "Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň."
 }

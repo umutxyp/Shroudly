@@ -228,7 +228,10 @@
     <string name="protectionStopped">Perlindungan dihentikan</string>
     <string name="reopenAppsHint">Aplikasi yang sudah dibuka: jika satu tidak bersambung, tutup dan buka semula sekali.</string>
     <string name="reportAgree">Saya bersetuju menghantar laporan ini bersama log aplikasi.</string>
-    <string name="reportContact">E-mel atau Telegram, jika anda mahu jawapan (pilihan)</string>
+    <string name="reportBadContact">Masukkan alamat e-mel yang anda baca. Alamat sementara atau rekaan dan nama Telegram tidak diterima.</string>
+    <string name="reportBadSite">Nyatakan laman atau aplikasi yang tidak berfungsi.</string>
+    <string name="reportBadWhat">Terangkan dalam kata-kata sendiri, dalam beberapa ayat, apa yang berlaku.</string>
+    <string name="reportContact">Alamat e-mel anda, untuk jawapan kami</string>
     <string name="reportCopied">Disalin</string>
     <string name="reportCopy">Salin</string>
     <string name="reportCountry">Negara (pilihan)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Menghantar…</string>
     <string name="reportSent">Dihantar. Nombor rujukan anda:</string>
     <string name="reportSentHint">Sebut nombor ini jika anda menulis kepada kami. Ia kekal dalam senarai di bawah selama 60 hari.</string>
-    <string name="reportSite">Laman atau aplikasi apa? (pilihan)</string>
+    <string name="reportSite">Laman atau aplikasi apa?</string>
     <string name="reportTitle">Ada yang tidak berfungsi?</string>
     <string name="reportWhat">Apa yang tidak berfungsi, dan apa yang sedang anda lakukan?</string>
-    <string name="reportWhatHint">Sekurang-kurangnya 50 aksara: apa yang tidak berfungsi, di mana, dan apa yang anda lakukan ketika ia berlaku.</string>
+    <string name="reportWhatHint">Sekurang-kurangnya 80 aksara, dalam kata-kata sendiri: apa yang tidak berfungsi, di mana, dan apa yang anda lakukan ketika itu.</string>
     <string name="routeAllDesc">Setiap laman melalui Shroudly dan menggunakan DNS tersulitnya, jadi laman yang disekat dapat dibuka tanpa anda perlu menamakannya terlebih dahulu. Sambungan yang tidak disekat diteruskan secara terus tanpa diubah, jadi kelajuan anda kekal sama.</string>
     <string name="routeListed">Hanya laman tersenarai</string>
     <string name="routeListedDesc">Hanya laman di bawah yang melalui Shroudly; selebihnya bersambung secara terus dan menggunakan DNS pembekal internet anda. Pilih ini jika anda mahu kesan yang sekecil mungkin.</string>

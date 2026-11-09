@@ -965,11 +965,11 @@
   "reportIntro": "Açılmayan sayt və ya tətbiq, yaxud işləməyən başqa bir şey varsa, bizə deyin. Shroudly onu hələ dəstəkləmirsə, əlavə edərik; xətadırsa, düzəldərik.",
   "reportSendDesc": "Ən sürətli yol: nə baş verdiyi və tətbiqin qeydləri birbaşa tərtibatçıya gedir, qeydlərlə sizin məşğul olmağınız lazım deyil. Bizə yazanda göstərə biləcəyiniz istinad nömrəsi alırsınız.",
   "reportWhat": "Nə işləmir və o vaxt nə edirdiniz?",
-  "reportWhatHint": "Ən azı 50 simvol: nə işləmir, harada və bu baş verəndə nə edirdiniz.",
-  "reportSite": "Hansı sayt və ya tətbiq? (istəyə görə)",
+  "reportWhatHint": "Ən azı 80 simvol, öz sözlərinizlə: nə işləmir, harada və o vaxt nə edirdiniz.",
+  "reportSite": "Hansı sayt və ya tətbiq?",
   "reportIsp": "İnternet provayderi (istəyə görə)",
   "reportCountry": "Ölkə (istəyə görə)",
-  "reportContact": "Cavab istəyirsinizsə, e-poçt və ya Telegram (istəyə görə)",
+  "reportContact": "Cavabımız üçün e-poçt ünvanınız",
   "reportPrivacy": "Göndərilənlər: buraya yazdıqlarınız, tətbiqin versiyası, sisteminiz, cihaz modeliniz və diliniz, bağlantınızın gəldiyi ölkə və tətbiqin qeydləri (Shroudly-nin işlədiyi sayt və tətbiqlər, onun ayarları; heç vaxt parollar, mesajlar və ya oxuduqlarınız yox). Hesabat codeshare.me-yə, oradan isə e-poçtla yalnız Shroudly-nin tərtibatçısına gedir. Serverlərimiz bunların heç birini saxlamır; e-poçt tərtibatçı silənə qədər qalır. Ünvanınız yalnız yaddaşda, göndərilən hesabatların sayını məhdudlaşdırmaq üçün istifadə olunur.",
   "reportPrivacyProvider": "Bağlantınızın gəldiyi internet provayderi də hesabata əlavə olunur.",
   "reportAgree": "Bu hesabatı tətbiqin qeydləri ilə birlikdə göndərməyə razıyam.",
@@ -985,5 +985,8 @@
   "reportCopy": "Kopyala",
   "reportCopied": "Kopyalandı",
   "macAllApps": "Bütün tətbiqlər Shroudly ilə (VPN)",
-  "macAllAppsDesc": "Söndürülüb: Shroudly bu Mac-in proksisidir, GitHub-dakı versiya kimi: brauzerlər və sistem proksisindən istifadə edən tətbiqlər onun üzərindən keçir, qalanları birbaşa gedir və Mac sürətli qalır. Yanılı: proksiyə məhəl qoymayanlar (Discord tətbiqi, oyunlar) daxil, bütün tətbiqlər Shroudly ilə keçir, amma Mac yavaşlayır."
+  "macAllAppsDesc": "Söndürülüb: Shroudly bu Mac-in proksisidir, GitHub-dakı versiya kimi: brauzerlər və sistem proksisindən istifadə edən tətbiqlər onun üzərindən keçir, qalanları birbaşa gedir və Mac sürətli qalır. Yanılı: proksiyə məhəl qoymayanlar (Discord tətbiqi, oyunlar) daxil, bütün tətbiqlər Shroudly ilə keçir, amma Mac yavaşlayır.",
+  "reportBadContact": "Oxuduğunuz e-poçt ünvanını yazın. Müvəqqəti və ya uydurma ünvanlar və Telegram adları qəbul edilmir.",
+  "reportBadWhat": "Nə baş verdiyini bir neçə cümlə ilə, öz sözlərinizlə yazın.",
+  "reportBadSite": "İşləməyən saytın və ya tətbiqin adını yazın."
 }

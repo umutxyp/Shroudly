@@ -141,7 +141,10 @@
 "protected" = "Himoyalangan";
 "reopenAppsHint" = "Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.";
 "reportAgree" = "Ushbu hisobotni ilova jurnali bilan birga yuborishga roziman.";
-"reportContact" = "Javob olishni istasangiz, e-pochta yoki Telegram (ixtiyoriy)";
+"reportBadContact" = "O'zingiz o'qiydigan pochta manzilini yozing. Vaqtinchalik yoki to'qib chiqarilgan manzillar va Telegram nomlari qabul qilinmaydi.";
+"reportBadSite" = "Ishlamayotgan sayt yoki ilova nomini yozing.";
+"reportBadWhat" = "Nima bo'lganini bir necha jumlada, o'z so'zlaringiz bilan yozing.";
+"reportContact" = "Javobimiz uchun elektron pochtangiz";
 "reportCopied" = "Nusxa olindi";
 "reportCopy" = "Nusxa olish";
 "reportCountry" = "Mamlakat (ixtiyoriy)";
@@ -158,10 +161,10 @@
 "reportSending" = "Yuborilmoqda…";
 "reportSent" = "Yuborildi. Maʼlumot raqamingiz:";
 "reportSentHint" = "Bizga yozganingizda shuni ayting. U quyidagi roʻyxatda 60 kun turadi.";
-"reportSite" = "Qaysi sayt yoki ilova? (ixtiyoriy)";
+"reportSite" = "Qaysi sayt yoki ilova?";
 "reportTitle" = "Nimadir ishlamayaptimi?";
 "reportWhat" = "Nima ishlamayapti va oʻsha paytda nima qilayotgan edingiz?";
-"reportWhatHint" = "Kamida 50 belgi: nima ishlamayapti, qayerda va bu sodir boʻlganda nima qilayotgan edingiz.";
+"reportWhatHint" = "Kamida 80 belgi, o'z so'zlaringiz bilan: nima ishlamayapti, qayerda va o'sha paytda nima qilayotgan edingiz.";
 "routeAllDesc" = "Har bir sayt Shroudly orqali oʻtadi va uning shifrlangan DNS xizmatidan foydalanadi, shuning uchun bloklangan sayt uni oldindan koʻrsatmasangiz ham ishlaydi. Bloklanmagan ulanishlar hech qanday oʻzgarishsiz toʻgʻridan-toʻgʻri oʻtkaziladi, shuning uchun tezligingiz oʻzgarmaydi.";
 "routeListed" = "Faqat roʻyxatdagi saytlar";
 "routeListedDesc" = "Faqat quyidagi saytlar Shroudly orqali oʻtadi; qolgan hammasi toʻgʻridan-toʻgʻri ulanadi va provayderingizning DNS xizmatidan foydalanadi. Imkon qadar kam iz qoldirishni istasangiz, shuni tanlang.";

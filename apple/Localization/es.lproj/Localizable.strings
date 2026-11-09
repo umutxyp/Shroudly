@@ -141,7 +141,10 @@
 "protected" = "Protegido";
 "reopenAppsHint" = "Apps que ya estaban abiertas: si una no se conecta, ciérrala y vuelve a abrirla una vez.";
 "reportAgree" = "Acepto enviar este informe junto con el registro de la app.";
-"reportContact" = "Correo o Telegram, si quieres una respuesta (opcional)";
+"reportBadContact" = "Escribe un correo que leas. No se aceptan direcciones temporales o inventadas ni nombres de Telegram.";
+"reportBadSite" = "Escribe el sitio o la app que no funciona.";
+"reportBadWhat" = "Cuenta con tus palabras, en unas frases, qué pasó.";
+"reportContact" = "Tu correo electrónico, para responderte";
 "reportCopied" = "Copiado";
 "reportCopy" = "Copiar";
 "reportCountry" = "País (opcional)";
@@ -158,10 +161,10 @@
 "reportSending" = "Enviando…";
 "reportSent" = "Enviado. Tu número de referencia:";
 "reportSentHint" = "Indícalo si nos escribes. Se queda en la lista de abajo durante 60 días.";
-"reportSite" = "¿Qué sitio o app? (opcional)";
+"reportSite" = "¿Qué sitio o app?";
 "reportTitle" = "¿Algo no funciona?";
 "reportWhat" = "¿Qué no funciona y qué estabas haciendo?";
-"reportWhatHint" = "Al menos 50 caracteres: qué no funciona, dónde y qué estabas haciendo cuando pasó.";
+"reportWhatHint" = "Al menos 80 caracteres, con tus palabras: qué no funciona, dónde y qué estabas haciendo cuando pasó.";
 "routeAllDesc" = "Todos los sitios pasan por Shroudly y usan su DNS cifrado, así que un sitio bloqueado funciona sin que tengas que añadirlo antes. Las conexiones que no están bloqueadas pasan intactas, así que la velocidad no cambia.";
 "routeListed" = "Solo los sitios de la lista";
 "routeListedDesc" = "Solo los sitios de abajo pasan por Shroudly; el resto se conecta directamente y usa el DNS de tu proveedor. Elige esto si quieres la menor intervención posible.";

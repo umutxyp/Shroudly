@@ -141,7 +141,10 @@
 "protected" = "Goragly";
 "reopenAppsHint" = "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.";
 "reportAgree" = "Bu hasabaty programmanyň ýazgylary bilen bilelikde ibermäge razy.";
-"reportContact" = "Jogap isleseňiz, e-poçta ýa-da Telegram (hökmany däl)";
+"reportBadContact" = "Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.";
+"reportBadSite" = "Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň.";
+"reportBadWhat" = "Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.";
+"reportContact" = "Jogabymyz üçin e-poçta salgyňyz";
 "reportCopied" = "Göçürildi";
 "reportCopy" = "Göçür";
 "reportCountry" = "Ýurt (hökmany däl)";
@@ -158,10 +161,10 @@
 "reportSending" = "Iberilýär…";
 "reportSent" = "Iberildi. Salgylanma belgiňiz:";
 "reportSentHint" = "Bize ýazanyňyzda şony aýdyň. Ol aşakdaky sanawda 60 gün durýar.";
-"reportSite" = "Haýsy sahypa ýa-da programma? (hökmany däl)";
+"reportSite" = "Haýsy sahypa ýa-da programma?";
 "reportTitle" = "Bir zat işlemeýärmi?";
 "reportWhat" = "Näme işlemeýär we şol wagt näme edýärdiňiz?";
-"reportWhatHint" = "Iň azyndan 50 nyşan: näme işlemeýär, nirede we bu bolanda näme edýärdiňiz.";
+"reportWhatHint" = "Azyndan 80 belgi, öz sözleriňiz bilen: näme işlänok, nirede we şol wagt näme edýärdiňiz.";
 "routeAllDesc" = "Her bir saýt Shroudly arkaly geçýär we onuň şifrlenen DNS-ini ulanýar, şonuň üçin petiklenen saýt siz ony öňünden görkezmeseňiz hem işleýär. Petiklenmedik birikmeler hiç üýtgedilmän göni geçirilýär, şonuň üçin tizligiňiz öňküsi ýaly galýar.";
 "routeListed" = "Diňe sanawdaky saýtlar";
 "routeListedDesc" = "Diňe aşakdaky saýtlar Shroudly arkaly geçýär; galan ähli zat göni birikýär we üpjün edijiňiziň DNS-ini ulanýar. Mümkin boldugyça az yz galdyrmak isleseňiz, şuny saýlaň.";

@@ -228,7 +228,10 @@
     <string name="protectionStopped">Himoya oʻchirildi</string>
     <string name="reopenAppsHint">Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.</string>
     <string name="reportAgree">Ushbu hisobotni ilova jurnali bilan birga yuborishga roziman.</string>
-    <string name="reportContact">Javob olishni istasangiz, e-pochta yoki Telegram (ixtiyoriy)</string>
+    <string name="reportBadContact">O\'zingiz o\'qiydigan pochta manzilini yozing. Vaqtinchalik yoki to\'qib chiqarilgan manzillar va Telegram nomlari qabul qilinmaydi.</string>
+    <string name="reportBadSite">Ishlamayotgan sayt yoki ilova nomini yozing.</string>
+    <string name="reportBadWhat">Nima bo\'lganini bir necha jumlada, o\'z so\'zlaringiz bilan yozing.</string>
+    <string name="reportContact">Javobimiz uchun elektron pochtangiz</string>
     <string name="reportCopied">Nusxa olindi</string>
     <string name="reportCopy">Nusxa olish</string>
     <string name="reportCountry">Mamlakat (ixtiyoriy)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Yuborilmoqda…</string>
     <string name="reportSent">Yuborildi. Maʼlumot raqamingiz:</string>
     <string name="reportSentHint">Bizga yozganingizda shuni ayting. U quyidagi roʻyxatda 60 kun turadi.</string>
-    <string name="reportSite">Qaysi sayt yoki ilova? (ixtiyoriy)</string>
+    <string name="reportSite">Qaysi sayt yoki ilova?</string>
     <string name="reportTitle">Nimadir ishlamayaptimi?</string>
     <string name="reportWhat">Nima ishlamayapti va oʻsha paytda nima qilayotgan edingiz?</string>
-    <string name="reportWhatHint">Kamida 50 belgi: nima ishlamayapti, qayerda va bu sodir boʻlganda nima qilayotgan edingiz.</string>
+    <string name="reportWhatHint">Kamida 80 belgi, o\'z so\'zlaringiz bilan: nima ishlamayapti, qayerda va o\'sha paytda nima qilayotgan edingiz.</string>
     <string name="routeAllDesc">Har bir sayt Shroudly orqali oʻtadi va uning shifrlangan DNS xizmatidan foydalanadi, shuning uchun bloklangan sayt uni oldindan koʻrsatmasangiz ham ishlaydi. Bloklanmagan ulanishlar hech qanday oʻzgarishsiz toʻgʻridan-toʻgʻri oʻtkaziladi, shuning uchun tezligingiz oʻzgarmaydi.</string>
     <string name="routeListed">Faqat roʻyxatdagi saytlar</string>
     <string name="routeListedDesc">Faqat quyidagi saytlar Shroudly orqali oʻtadi; qolgan hammasi toʻgʻridan-toʻgʻri ulanadi va provayderingizning DNS xizmatidan foydalanadi. Imkon qadar kam iz qoldirishni istasangiz, shuni tanlang.</string>

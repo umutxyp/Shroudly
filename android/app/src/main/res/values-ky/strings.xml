@@ -228,7 +228,10 @@
     <string name="protectionStopped">Коргоо токтотулду</string>
     <string name="reopenAppsHint">Мурун ачык турган колдонмолор: бирөө туташпаса, аны жаап, бир жолу кайра ачыңыз.</string>
     <string name="reportAgree">Бул отчётту колдонмонун журналы менен бирге жөнөтүүгө макулмун.</string>
-    <string name="reportContact">Жооп алгыңыз келсе, почта же Telegram (милдеттүү эмес)</string>
+    <string name="reportBadContact">Өзүңүз окуган почтаны жазыңыз. Убактылуу же ойдон чыгарылган даректер жана Telegram аттары кабыл алынбайт.</string>
+    <string name="reportBadSite">Иштебей жаткан сайттын же колдонмонун атын жазыңыз.</string>
+    <string name="reportBadWhat">Эмне болгонун бир нече сүйлөм менен, өз сөзүңүз менен жазыңыз.</string>
+    <string name="reportContact">Жообубуз үчүн электрондук почтаңыз</string>
     <string name="reportCopied">Көчүрүлдү</string>
     <string name="reportCopy">Көчүрүү</string>
     <string name="reportCountry">Өлкө (милдеттүү эмес)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Жөнөтүлүүдө…</string>
     <string name="reportSent">Жөнөтүлдү. Шилтеме номериңиз:</string>
     <string name="reportSentHint">Бизге жазганда ошону айтыңыз. Ал төмөнкү тизмеде 60 күн турат.</string>
-    <string name="reportSite">Кайсы сайт же колдонмо? (милдеттүү эмес)</string>
+    <string name="reportSite">Кайсы сайт же колдонмо?</string>
     <string name="reportTitle">Бир нерсе иштебей жатабы?</string>
     <string name="reportWhat">Эмне иштебейт жана ошол учурда эмне кылып жаттыңыз?</string>
-    <string name="reportWhatHint">Кеминде 50 белги: эмне иштебейт, кайда жана ошол учурда эмне кылып жаттыңыз.</string>
+    <string name="reportWhatHint">Кеминде 80 белги, өз сөзүңүз менен: эмне иштебейт, кайда жана ошол учурда эмне кылып жаткан элеңиз.</string>
     <string name="routeAllDesc">Ар бир сайт Shroudly аркылуу өтөт жана шифрленген DNS колдонот, ошондуктан бөгөттөлгөн сайт аны алдын ала тизмеге кошпосоңуз деле иштейт. Бөгөттөлбөгөн туташуулар өзгөртүлбөстөн түз өткөрүлөт, ошондуктан ылдамдыгыңыз ошол бойдон калат.</string>
     <string name="routeListed">Тизмедеги сайттар гана</string>
     <string name="routeListedDesc">Төмөнкү сайттар гана Shroudly аркылуу өтөт; калгандарынын баары түз туташып, провайдериңиздин DNS кызматын колдонот. Мүмкүн болушунча аз из калтыргыңыз келсе, муну тандаңыз.</string>

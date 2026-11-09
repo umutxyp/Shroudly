@@ -965,11 +965,11 @@
   "reportIntro": "Trang web hay ứng dụng không mở được, hoặc bất cứ điều gì khác không hoạt động: hãy cho chúng tôi biết. Nếu Shroudly chưa hỗ trợ, chúng tôi sẽ thêm vào; nếu là lỗi, chúng tôi sẽ sửa.",
   "reportSendDesc": "Cách nhanh nhất: mô tả sự việc và nhật ký của ứng dụng đến thẳng nhà phát triển, bạn không phải tự xử lý nhật ký. Bạn sẽ nhận được một mã tham chiếu để nêu khi viết cho chúng tôi.",
   "reportWhat": "Điều gì không hoạt động, và lúc đó bạn đang làm gì?",
-  "reportWhatHint": "Ít nhất 50 ký tự: điều gì không hoạt động, ở đâu, và bạn đang làm gì khi chuyện xảy ra.",
-  "reportSite": "Trang web hay ứng dụng nào? (không bắt buộc)",
+  "reportWhatHint": "Ít nhất 80 ký tự, bằng lời của bạn: điều gì không hoạt động, ở đâu và lúc đó bạn đang làm gì.",
+  "reportSite": "Trang web hoặc ứng dụng nào?",
   "reportIsp": "Nhà cung cấp internet (không bắt buộc)",
   "reportCountry": "Quốc gia (không bắt buộc)",
-  "reportContact": "Email hoặc Telegram, nếu bạn muốn được trả lời (không bắt buộc)",
+  "reportContact": "Email của bạn, để chúng tôi trả lời",
   "reportPrivacy": "Những gì được gửi: những gì bạn viết ở đây, phiên bản ứng dụng, hệ điều hành, mẫu thiết bị và ngôn ngữ của bạn, quốc gia mà kết nối của bạn đến từ đó, và nhật ký của ứng dụng (các trang web và ứng dụng Shroudly đã xử lý, cùng cài đặt của nó; không bao giờ có mật khẩu, tin nhắn hay những gì bạn đọc). Báo cáo được gửi đến codeshare.me rồi qua email chỉ đến nhà phát triển Shroudly. Máy chủ của chúng tôi không lưu gì trong đó; email được giữ cho đến khi nhà phát triển xóa. Địa chỉ của bạn chỉ được dùng trong bộ nhớ, để giới hạn số báo cáo được gửi.",
   "reportPrivacyProvider": "Nhà cung cấp internet mà kết nối của bạn đi qua cũng được thêm vào.",
   "reportAgree": "Tôi đồng ý gửi báo cáo này cùng với nhật ký của ứng dụng.",
@@ -985,5 +985,8 @@
   "reportCopy": "Sao chép",
   "reportCopied": "Đã sao chép",
   "macAllApps": "Mọi ứng dụng qua Shroudly (VPN)",
-  "macAllAppsDesc": "Tắt: Shroudly là proxy của máy Mac này, giống bản trên GitHub: trình duyệt và ứng dụng dùng proxy hệ thống đi qua nó, phần còn lại đi thẳng, và máy Mac vẫn nhanh. Bật: mọi ứng dụng đi qua Shroudly, kể cả ứng dụng bỏ qua proxy (ứng dụng Discord, trò chơi), nhưng máy Mac chậm hơn."
+  "macAllAppsDesc": "Tắt: Shroudly là proxy của máy Mac này, giống bản trên GitHub: trình duyệt và ứng dụng dùng proxy hệ thống đi qua nó, phần còn lại đi thẳng, và máy Mac vẫn nhanh. Bật: mọi ứng dụng đi qua Shroudly, kể cả ứng dụng bỏ qua proxy (ứng dụng Discord, trò chơi), nhưng máy Mac chậm hơn.",
+  "reportBadContact": "Hãy nhập một email bạn thường đọc. Không chấp nhận địa chỉ tạm thời, địa chỉ bịa hay tên Telegram.",
+  "reportBadWhat": "Hãy kể lại bằng lời của bạn, trong vài câu, chuyện gì đã xảy ra.",
+  "reportBadSite": "Hãy ghi tên trang web hoặc ứng dụng không hoạt động."
 }

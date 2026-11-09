@@ -52,6 +52,8 @@ class ReportActivity : Activity() {
     private lateinit var isp: EditText
     private lateinit var country: EditText
     private lateinit var contact: EditText
+    private lateinit var whatWarn: TextView
+    private lateinit var contactWarn: TextView
     private lateinit var count: TextView
     private lateinit var agree: CheckBox
     private lateinit var status: TextView
@@ -103,10 +105,17 @@ class ReportActivity : Activity() {
         form.addView(label(12f, R.color.text_faint).apply { setText(R.string.reportWhatHint); setPadding(0, dp(2f), 0, 0) }, 1)
         count = label(12f, R.color.text_faint).apply { gravity = Gravity.END; textDirection = View.TEXT_DIRECTION_LTR }
         form.addView(count, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        whatWarn = label(12f, R.color.warn).apply { setText(R.string.reportBadWhat); visibility = View.GONE }
+        form.addView(whatWarn)
         site = field(form, R.string.reportSite, max = 300)
         isp = field(form, R.string.reportIsp, max = 120)
         country = field(form, R.string.reportCountry, max = 80)
-        contact = field(form, R.string.reportContact, max = 200)
+        contact = field(form, R.string.reportContact, max = 200).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            textDirection = View.TEXT_DIRECTION_LTR
+        }
+        contactWarn = label(12f, R.color.warn).apply { setText(R.string.reportBadContact); visibility = View.GONE }
+        form.addView(contactWarn)
 
         form.addView(label(12.5f, R.color.text_dim).apply {
             text = "${getString(R.string.reportPrivacy)} ${getString(R.string.reportPrivacyProvider)}"
@@ -146,7 +155,8 @@ class ReportActivity : Activity() {
         past = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(past)
 
-        what.addTextChangedListener(object : TextWatcher {
+        // The description, the site and the address each decide whether Send is on.
+        for (e in listOf(what, site, contact)) e.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) { refresh() }
@@ -178,7 +188,12 @@ class ReportActivity : Activity() {
         count.setTextColor(getColor(if (n in 1 until Report.WHAT_MIN || n > Report.WHAT_MAX) R.color.warn else R.color.text_faint))
         val w = Report.wait(Report.load(this), System.currentTimeMillis())
         if (w.ms > 0 && !sending) { status.text = waitText(w.limit); status.visibility = View.VISIBLE }
-        send.isEnabled = !sending && w.ms <= 0 && agree.isChecked && n in Report.WHAT_MIN..Report.WHAT_MAX
+        // What to put right, said as soon as it is clear.
+        whatWarn.visibility = if (n >= Report.WHAT_MIN && !Report.whatOk(what.text.toString())) View.VISIBLE else View.GONE
+        val c = contact.text.toString()
+        contactWarn.visibility = if (c.trim().length > 3 && !Report.contactOk(c)) View.VISIBLE else View.GONE
+        send.isEnabled = !sending && w.ms <= 0 && agree.isChecked &&
+            Report.problem(what.text.toString(), site.text.toString(), c) == null
         send.setText(if (sending) R.string.reportSending else R.string.reportSend)
     }
 
@@ -186,7 +201,7 @@ class ReportActivity : Activity() {
         if (sending) return
         val f = Report.Fields(what.text.toString(), site.text.toString(), isp.text.toString(), country.text.toString(), contact.text.toString())
         val n = Report.chars(f.what)
-        if (n < Report.WHAT_MIN || n > Report.WHAT_MAX || !agree.isChecked) return
+        if (n < Report.WHAT_MIN || n > Report.WHAT_MAX || !agree.isChecked || Report.problem(f.what, f.site, f.contact) != null) return
         sending = true
         status.visibility = View.GONE
         refresh()
@@ -237,7 +252,13 @@ class ReportActivity : Activity() {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 if (r.ok && r.ref != null) showDone(r.ref)
                 else {
-                    status.text = if (r.error == "rate") waitText(r.limit) else getString(R.string.reportFailed)
+                    status.text = when (r.error) {
+                        "rate" -> waitText(r.limit)
+                        "contact" -> getString(R.string.reportBadContact)
+                        "what" -> getString(R.string.reportBadWhat)
+                        "site" -> getString(R.string.reportBadSite)
+                        else -> getString(R.string.reportFailed)
+                    }
                     status.visibility = View.VISIBLE
                 }
                 showPast()

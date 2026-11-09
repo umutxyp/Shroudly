@@ -16,6 +16,23 @@ class ReportTest {
     private fun ref(n: Int) = "SR-AAAA-BBBB-%04d".format(n)
 
     @Test
+    fun aReportNeedsWordsASiteAndARealEmail() {
+        val words = "YouTube does not open on the TV since this morning, the app only spins and nothing ever loads."
+        assertTrue(Report.whatOk(words))
+        assertTrue(Report.whatOk("اینستاگرام باز نمیشه و هر کاری میکنم ریلزها نمایش داده نمیشن، فقط صفحه سفید میاد و چیزی لود نمیشه"))
+        assertFalse(Report.whatOk("too short to say anything"))
+        assertFalse(Report.whatOk("asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczxczxc asdasdasd qweqweqwe zxczx"))
+        assertFalse(Report.whatOk("hhhhhhhhhhhhhhhh ".repeat(6)))
+        assertFalse(Report.whatOk("not working ".repeat(8)))
+        assertTrue(Report.contactOk("hvam49844@gmail.com"))
+        for (bad in listOf("", "@someone_on_telegram", "test@test.com", "qwrtzpsdf@gmail.com", "someone@mailinator.com", "nobody", "a@b"))
+            assertFalse(bad, Report.contactOk(bad))
+        assertEquals("site", Report.problem(words, "", "hvam49844@gmail.com"))
+        assertEquals("contact", Report.problem(words, "youtube", "@telegram"))
+        assertEquals(null, Report.problem(words, "youtube", "hvam49844@gmail.com"))
+    }
+
+    @Test
     fun theLinkInIranShowsOnlyAfterOwnFaultForADay() {
         val day = Report.FAULT_SHOWS_MS
         // Elsewhere: always.
@@ -56,7 +73,7 @@ class ReportTest {
     @Test
     fun charactersAsTheServerCounts() {
         assertEquals(3, Report.chars("  ab😀 "))
-        assertEquals(50, Report.WHAT_MIN)
+        assertEquals(80, Report.WHAT_MIN)
         assertEquals(1000, Report.WHAT_MAX)
     }
 

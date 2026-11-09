@@ -965,11 +965,11 @@
   "reportIntro": "Malperek an sepanek venabe, an tiştekî din naxebite: ji me re bêje. Heke Shroudly hîn wê piştgirî nake, em ê lê zêde bikin; heke çewtiyek be, em ê sererast bikin.",
   "reportSendDesc": "Riya herî bilez: çi qewimî û tomara sepanê rasterast diçin ba pêşdebir, ne hewce ye tu bi tomaran re mijûl bibî. Tu jimareyeke referansê distînî ku dema ji me re dinivîsî bibêjî.",
   "reportWhat": "Çi naxebite, û wê demê te çi dikir?",
-  "reportWhatHint": "Herî kêm 50 tîp: çi naxebite, li ku derê û dema ku qewimî te çi dikir.",
-  "reportSite": "Kîjan malper an sepan? (ne mecbûrî)",
+  "reportWhatHint": "Herî kêm 80 tîp, bi gotinên xwe: çi naxebite, li ku derê û wê demê te çi dikir.",
+  "reportSite": "Kîjan malper an sepan?",
   "reportIsp": "Peydakerê înternetê (ne mecbûrî)",
   "reportCountry": "Welat (ne mecbûrî)",
-  "reportContact": "Heke tu bersivê dixwazî, e-name an Telegram (ne mecbûrî)",
+  "reportContact": "Navnîşana te ya e-nameyê, ji bo bersiva me",
   "reportPrivacy": "Çi tê şandin: tiştên ku tu li vir dinivîsî, guhertoya sepanê, pergala te, modela amûrê û ziman, welatê ku girêdana te jê tê, û tomara sepanê (malper û sepanên ku Shroudly pê re xebitî, û mîhengên wê; tu carî şîfre, peyam an tiştên ku tu dixwînî). Rapor diçe codeshare.me û ji wir bi e-nameyê tenê diçe ba pêşdebirê Shroudly. Serverên me tu tiştî ji van nagirin; e-name heta ku pêşdebir jê bibe dimîne. Navnîşana te tenê di bîrê de, ji bo sînordarkirina hejmara raporan tê bikaranîn.",
   "reportPrivacyProvider": "Peydakerê înternetê yê ku girêdana te jê tê jî li raporê tê zêdekirin.",
   "reportAgree": "Ez qebûl dikim ku vê raporê bi tomara sepanê re bişînim.",
@@ -985,5 +985,8 @@
   "reportCopy": "Kopî bike",
   "reportCopied": "Hat kopîkirin",
   "macAllApps": "Hemû sepan bi Shroudly (VPN)",
-  "macAllAppsDesc": "Girtî: Shroudly proxyya vê Mac e, wekî guhertoya ji GitHub: gerok û sepanên ku proxyya pergalê bi kar tînin di wê re derbas dibin, yên din rasterast diçin û Mac bilez dimîne. Vekirî: hemû sepan, yên ku proxyyê paşguh dikin jî (sepana Discord, lîstik), di Shroudly re derbas dibin, lê Mac hêdîtir dibe."
+  "macAllAppsDesc": "Girtî: Shroudly proxyya vê Mac e, wekî guhertoya ji GitHub: gerok û sepanên ku proxyya pergalê bi kar tînin di wê re derbas dibin, yên din rasterast diçin û Mac bilez dimîne. Vekirî: hemû sepan, yên ku proxyyê paşguh dikin jî (sepana Discord, lîstik), di Shroudly re derbas dibin, lê Mac hêdîtir dibe.",
+  "reportBadContact": "Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.",
+  "reportBadWhat": "Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.",
+  "reportBadSite": "Navê malper an sepana ku naxebite binivîse."
 }

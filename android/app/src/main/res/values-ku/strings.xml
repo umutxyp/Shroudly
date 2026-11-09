@@ -228,7 +228,10 @@
     <string name="protectionStopped">Parastin rawestiya</string>
     <string name="reopenAppsHint">Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.</string>
     <string name="reportAgree">Ez qebûl dikim ku vê raporê bi tomara sepanê re bişînim.</string>
-    <string name="reportContact">Heke tu bersivê dixwazî, e-name an Telegram (ne mecbûrî)</string>
+    <string name="reportBadContact">Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.</string>
+    <string name="reportBadSite">Navê malper an sepana ku naxebite binivîse.</string>
+    <string name="reportBadWhat">Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.</string>
+    <string name="reportContact">Navnîşana te ya e-nameyê, ji bo bersiva me</string>
     <string name="reportCopied">Hat kopîkirin</string>
     <string name="reportCopy">Kopî bike</string>
     <string name="reportCountry">Welat (ne mecbûrî)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">Tê şandin…</string>
     <string name="reportSent">Hat şandin. Jimareya te ya referansê:</string>
     <string name="reportSentHint">Dema ji me re dinivîsî wê bibêje. Ew 60 rojan di lîsteya jêrîn de dimîne.</string>
-    <string name="reportSite">Kîjan malper an sepan? (ne mecbûrî)</string>
+    <string name="reportSite">Kîjan malper an sepan?</string>
     <string name="reportTitle">Tiştek naxebite?</string>
     <string name="reportWhat">Çi naxebite, û wê demê te çi dikir?</string>
-    <string name="reportWhatHint">Herî kêm 50 tîp: çi naxebite, li ku derê û dema ku qewimî te çi dikir.</string>
+    <string name="reportWhatHint">Herî kêm 80 tîp, bi gotinên xwe: çi naxebite, li ku derê û wê demê te çi dikir.</string>
     <string name="routeAllDesc">Her malper di ser Shroudly re diçe û DNS-a wê ya şîfrekirî distîne, ji ber vê yekê malpereke astengkirî dixebite bêyî ku tu pêşî navê wê binivîsî. Girêdanên ku ne astengkirî ne bêyî destwerdanê rasterast derbas dibin, ji ber vê yekê leza te wekî xwe dimîne.</string>
     <string name="routeListed">Tenê malperên di lîsteyê de</string>
     <string name="routeListedDesc">Tenê malperên li jêr di ser Shroudly re diçin; yên din hemû rasterast girê didin û DNS-a pêşkêşkerê te bi kar tînin. Heke tu şopa herî biçûk dixwazî, vê hilbijêre.</string>

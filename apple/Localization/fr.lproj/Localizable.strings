@@ -141,7 +141,10 @@
 "protected" = "Protégé";
 "reopenAppsHint" = "Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois.";
 "reportAgree" = "J'accepte d'envoyer ce rapport avec le journal de l'app.";
-"reportContact" = "E-mail ou Telegram, si vous voulez une réponse (facultatif)";
+"reportBadContact" = "Indiquez une adresse e-mail que vous consultez. Les adresses temporaires ou inventées et les noms Telegram ne sont pas acceptés.";
+"reportBadSite" = "Indiquez le site ou l'appli qui ne fonctionne pas.";
+"reportBadWhat" = "Décrivez avec vos mots, en quelques phrases, ce qui s'est passé.";
+"reportContact" = "Votre adresse e-mail, pour notre réponse";
 "reportCopied" = "Copié";
 "reportCopy" = "Copier";
 "reportCountry" = "Pays (facultatif)";
@@ -158,10 +161,10 @@
 "reportSending" = "Envoi…";
 "reportSent" = "Envoyé. Votre numéro de référence :";
 "reportSentHint" = "Indiquez-le si vous nous écrivez. Il reste 60 jours dans la liste ci-dessous.";
-"reportSite" = "Quel site ou quelle app ? (facultatif)";
+"reportSite" = "Quel site ou quelle appli ?";
 "reportTitle" = "Quelque chose ne marche pas ?";
 "reportWhat" = "Qu'est-ce qui ne marche pas, et que faisiez-vous ?";
-"reportWhatHint" = "Au moins 50 caractères : ce qui ne marche pas, où, et ce que vous faisiez à ce moment-là.";
+"reportWhatHint" = "Au moins 80 caractères, avec vos mots : ce qui ne marche pas, où, et ce que vous faisiez à ce moment-là.";
 "routeAllDesc" = "Tous les sites passent par Shroudly et profitent de son DNS chiffré : un site bloqué s’ouvre sans que vous ayez à l’ajouter. Les connexions qui ne sont pas bloquées passent telles quelles, votre débit reste identique.";
 "routeListed" = "Uniquement les sites listés";
 "routeListedDesc" = "Seuls les sites ci-dessous passent par Shroudly ; le reste se connecte directement et utilise le DNS de votre opérateur. À choisir si vous voulez l’intervention la plus discrète possible.";

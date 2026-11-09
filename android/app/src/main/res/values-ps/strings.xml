@@ -228,7 +228,10 @@
     <string name="protectionStopped">ساتنه ودرول شوه</string>
     <string name="reopenAppsHint">هغه اپونه چې مخکې پرانیستي وو: که یو نښلي نه، وې تړئ او یو ځل بیا یې پرانیزئ.</string>
     <string name="reportAgree">زه منم چې دا راپور د اپ له لاګونو سره یوځای واستوم.</string>
-    <string name="reportContact">که ځواب غواړئ، برېښنالیک یا ټېلیګرام (اختیاري)</string>
+    <string name="reportBadContact">داسې برېښنالیک ولیکئ چې تاسو یې لولئ. لنډمهاله یا جوړ شوي پتې او د ټلګرام نومونه نه منل کېږي.</string>
+    <string name="reportBadSite">د هغه سایټ یا اپ نوم ولیکئ چې کار نه کوي.</string>
+    <string name="reportBadWhat">په څو جملو کې په خپلو خبرو ووایاست چې څه پېښ شول.</string>
+    <string name="reportContact">زموږ د ځواب لپاره ستاسو برېښنالیک</string>
     <string name="reportCopied">کاپي شو</string>
     <string name="reportCopy">کاپي</string>
     <string name="reportCountry">هېواد (اختیاري)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">استول کېږي…</string>
     <string name="reportSent">واستول شو. ستاسو د حوالې شمېره:</string>
     <string name="reportSentHint">موږ ته د لیکلو پر مهال یې یاده کړئ. په لاندې لېست کې ۶۰ ورځې پاتې کېږي.</string>
-    <string name="reportSite">کومه وېبپاڼه یا اپ؟ (اختیاري)</string>
+    <string name="reportSite">کوم سایټ یا اپ؟</string>
     <string name="reportTitle">څه کار نه کوي؟</string>
     <string name="reportWhat">څه کار نه کوي، او په هغه وخت کې مو څه کول؟</string>
-    <string name="reportWhatHint">لږ تر لږه ۵۰ توري: څه کار نه کوي، چېرته، او کله چې دا پېښ شو تاسو څه کول.</string>
+    <string name="reportWhatHint">لږ تر لږه ۸۰ توري، په خپلو خبرو: څه کار نه کوي، چېرته، او په هغه وخت کې تاسو څه کول.</string>
     <string name="routeAllDesc">هر سایټ د Shroudly له لارې ځي او د هغه کوډ شوی DNS کاروي، نو یو بند سایټ کار کوي پرته له دې چې تاسو یې لومړی نوم ولیکئ. هغه اړیکې چې بندې نه وي، پرته له لاس وهنې سیده تېرېږي، نو ستاسو سرعت همداسې پاتې کېږي.</string>
     <string name="routeListed">یوازې د لېست سایټونه</string>
     <string name="routeListedDesc">یوازې لاندې سایټونه د Shroudly له لارې ځي؛ نور هر څه مستقیم وصلېږي او ستاسو د انټرنېټ چمتو کوونکي DNS کاروي. که غواړئ Shroudly تر ممکنه حده لږ لاس ووهي، دا وټاکئ.</string>

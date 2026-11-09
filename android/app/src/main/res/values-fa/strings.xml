@@ -228,7 +228,10 @@
     <string name="protectionStopped">محافظت متوقف شد</string>
     <string name="reopenAppsHint">برنامه‌هایی که از قبل باز بودند: اگر یکی وصل نشد، آن را ببندید و یک بار دوباره باز کنید.</string>
     <string name="reportAgree">می‌پذیرم این گزارش را همراه با گزارش‌های برنامه بفرستم.</string>
-    <string name="reportContact">اگر پاسخ می‌خواهید، ایمیل یا تلگرام (اختیاری)</string>
+    <string name="reportBadContact">نشانی ایمیلی بنویسید که آن را می‌خوانید. نشانی‌های موقت یا ساختگی و نام کاربری تلگرام پذیرفته نمی‌شود.</string>
+    <string name="reportBadSite">نام سایت یا برنامه‌ای را که کار نمی‌کند بنویسید.</string>
+    <string name="reportBadWhat">با چند جمله و با زبان خودتان بنویسید چه اتفاقی افتاد.</string>
+    <string name="reportContact">نشانی ایمیل شما، برای پاسخ ما</string>
     <string name="reportCopied">کپی شد</string>
     <string name="reportCopy">کپی</string>
     <string name="reportCountry">کشور (اختیاری)</string>
@@ -247,10 +250,10 @@
     <string name="reportSending">در حال فرستادن…</string>
     <string name="reportSent">فرستاده شد. شمارهٔ پیگیری شما:</string>
     <string name="reportSentHint">اگر برای ما نوشتید، این شماره را ذکر کنید. تا ۶۰ روز در فهرست زیر می‌ماند.</string>
-    <string name="reportSite">کدام سایت یا برنامه؟ (اختیاری)</string>
+    <string name="reportSite">کدام سایت یا برنامه؟</string>
     <string name="reportTitle">چیزی کار نمی‌کند؟</string>
     <string name="reportWhat">چه چیزی کار نمی‌کند و آن موقع مشغول چه کاری بودید؟</string>
-    <string name="reportWhatHint">دست‌کم ۵۰ نویسه: چه چیزی کار نمی‌کند، کجا، و وقتی پیش آمد مشغول چه کاری بودید.</string>
+    <string name="reportWhatHint">دست‌کم ۸۰ نویسه و با جمله‌های خودتان: چه چیزی کار نمی‌کند، کجا، و آن لحظه مشغول چه کاری بودید.</string>
     <string name="routeAllDesc">همهٔ سایت‌ها از Shroudly عبور می‌کنند و از DNS رمزگذاری‌شدهٔ آن استفاده می‌کنند، پس سایت مسدود بدون اینکه از قبل نامش را بنویسید باز می‌شود. اتصال‌هایی که مسدود نیستند دست‌نخورده رد می‌شوند و سرعت شما تغییر نمی‌کند.</string>
     <string name="routeListed">فقط سایت‌های فهرست</string>
     <string name="routeListedDesc">فقط سایت‌های زیر از Shroudly عبور می‌کنند؛ بقیه مستقیم وصل می‌شوند و از DNS اپراتور شما استفاده می‌کنند. اگر کمترین دخالت را می‌خواهید این را انتخاب کنید.</string>
