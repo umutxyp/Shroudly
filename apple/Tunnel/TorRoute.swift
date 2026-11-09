@@ -136,7 +136,7 @@ import ShroudlyNative
  * (DisableNetwork) when nothing has needed it for IDLE seconds and when the
  * tunnel stops, and on again when a site needs it.
  */
-final class TorRoute {
+final class TorRoute: @unchecked Sendable {  // its state is touched on `queue` only
     static let stall: TimeInterval = 90
     static let idle: TimeInterval = 15 * 60
     static let retry: TimeInterval = 10 * 60
@@ -159,7 +159,14 @@ final class TorRoute {
     private var bridges: [String: [String]] = [:]
     /* The engine's count of connections Tor carried (its STATS line). */
     var usedCount: () -> Int64 = { 0 }
-
+    /* The bridges the Tor Project gives for this country (fetchCountry,
+     * set by the tunnel), tried when the bundle's got nowhere either. */
+    var countryBridges: () async -> [String: [String]]? = { nil }
+    private var country: (at: Date, bridges: [String: [String]])?
+    /* This country's bridges got Tor through: kept in the app group, so the
+     * next start goes to them first (as on the desktop and Android). */
+    static let countryKey = "torCountryWorked"
+    static let countryKeep: TimeInterval = 24 * 60 * 60
 
     init(log: @escaping (String) -> Void) {
         self.log = log
@@ -185,6 +192,71 @@ final class TorRoute {
             if !lines.isEmpty { out[k] = lines }
         }
         return out
+    }
+
+    /* The lines shroudly.codeshare.me/v1/bridges gives: { country, bridges }. */
+    static func countryBridgesOf(_ data: Data) -> [String: [String]]? {
+        guard let o = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let b = o["bridges"] as? [String: Any] else { return nil }
+        var out: [String: [String]] = [:]
+        for (k, v) in b { if let a = v as? [String] { out[k] = a } }
+        return out
+    }
+
+    /* The order this country's bridges are tried in, as electron/tor-route.js. */
+    static let countryOrder = ["webtunnel", "obfs4", "snowflake", "meek"]
+
+    /* This country's well-formed lines first (8 a transport at most), then
+     * the bundle's, without repeats (electron/tor-route.js, mergeBridges). */
+    static func mergeBridges(_ country: [String: [String]]?, _ bundled: [String: [String]]) -> [String: [String]] {
+        var out: [String: [String]] = [:]
+        for kind in countryOrder {
+            let theirs = (country?[kind] ?? []).filter { $0.hasPrefix("\(kind) ") && $0.count < 2000 && !$0.contains("\r") && !$0.contains("\n") }.prefix(8)
+            var seen = Set<String>()
+            let all = (Array(theirs) + (bundled[kind] ?? [])).filter { seen.insert($0).inserted }
+            if !all.isEmpty { out[kind] = all }
+        }
+        return out
+    }
+
+    static func countryLines(_ m: [String: [String]]) -> [String] {
+        countryOrder.flatMap { m[$0] ?? [] }
+    }
+
+    /* This country's bridges from shroudly.codeshare.me, through the engine
+     * (EngineHTTPS: by name, a technique where it is blocked), else straight
+     * where the system has no proxy configurations. nil when none came. */
+    static func fetchCountry(via e: EngineHTTPS.Path?) async -> [String: [String]]? {
+        let host = "shroudly.codeshare.me", t: TimeInterval = 20
+        do {
+            let s: EngineHTTPS.Stream
+            do { s = try await EngineHTTPS.open(host, via: e, timeout: t) } catch is EngineHTTPS.Unsupported {
+                s = try await EngineHTTPS.open(host, via: nil, timeout: t)
+            }
+            defer { s.close() }
+            let req = "GET /v1/bridges HTTP/1.1\r\nHost: \(host)\r\nUser-Agent: Shroudly\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n"
+            try await s.write(Data(req.utf8), timeout: t)
+            return countryBridgesOf(try AdBlockFetch.body(of: try await s.readAll(max: 256 * 1024, timeout: t)))
+        } catch {
+            return nil
+        }
+    }
+
+    /* This country's bridges, kept when they last got Tor through (within
+     * countryKeep); nil when they did not, or too long ago. */
+    static func remembered(_ d: UserDefaults = AppGroup.defaults, now: Date = Date()) -> [String: [String]]? {
+        guard let data = d.data(forKey: countryKey),
+              let o = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let at = o["at"] as? Double, now.timeIntervalSince1970 - at >= 0, now.timeIntervalSince1970 - at < countryKeep,
+              let b = o["bridges"] as? [String: [String]], !mergeBridges(b, [:]).isEmpty else { return nil }
+        return b
+    }
+
+    static func remember(_ b: [String: [String]]?, _ d: UserDefaults = AppGroup.defaults, now: Date = Date()) {
+        guard let b, let data = try? JSONSerialization.data(withJSONObject: ["at": now.timeIntervalSince1970, "bridges": b]) else {
+            d.removeObject(forKey: countryKey); return
+        }
+        d.set(data, forKey: countryKey)
     }
 
     /* A key=value of a bridge line ("url=", "fronts=", "ice="). */
@@ -242,18 +314,22 @@ final class TorRoute {
             let p = c.port(name)
             if p > 0 { for k in kinds { plugins += ["--ClientTransportPlugin", "\(k) socks5 127.0.0.1:\(p)"] } }
         }
-        let lines = bridges["snowflake"] ?? []
+        // This country's bridges first when they got Tor through last time.
+        let known = Self.remembered()
+        if let known { country = (Date(), known) }
+        let lines = known.map { Self.countryLines(Self.mergeBridges($0, bridges)) } ?? bridges["snowflake"] ?? []
         var args = ["--SocksPort", "127.0.0.1:\(port)", "--DataDirectory", dir.path, "--ClientOnly", "1", "--AvoidDiskWrites", "1",
                     "--UseBridges", "1", "--Log", "err stderr", "--GeoIPFile", "", "--GeoIPv6File", "", "--DisableNetwork", "0"]
         args += plugins
         for l in (lines.isEmpty ? allLines() : lines) { args += ["--Bridge", l] }
-        stage = lines.isEmpty ? "all" : "snowflake"
+        stage = known != nil ? "country" : lines.isEmpty ? "all" : "snowflake"
         let fd = args.withCStrings { shroudly_tor_start($0, Int32(args.count)) }
         guard fd >= 0 else { fail("Tor could not start (\(fd))"); return }
         started = true
         control = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
         state = .starting; progress = 0
-        log("The last way out: starting Tor through Snowflake, for sites nothing else opened")
+        log(known != nil ? "The last way out: starting Tor through this country's bridges, which got through last time"
+                         : "The last way out: starting Tor through Snowflake, for sites nothing else opened")
         send("SETEVENTS STATUS_CLIENT")
         Thread { [weak self] in self?.readControl() }.start()
         armStall()
@@ -298,7 +374,8 @@ final class TorRoute {
             stallTimer?.cancel()
             usedAt = Date(); used = usedCount()
             armIdle()
-            log("The last way out is ready: Tor through \(stage == "snowflake" ? "Snowflake" : "its bridges")")
+            if stage == "country" { Self.remember(country?.bridges) }
+            log("The last way out is ready: Tor through \(stage == "snowflake" ? "Snowflake" : stage == "country" ? "this country's bridges" : "its bridges")")
         }
     }
 
@@ -310,14 +387,45 @@ final class TorRoute {
                 // Snowflake did not get through: every bridge the bundle has.
                 self.stage = "all"
                 self.log("The last way out: Snowflake did not get through; trying Tor's other ways (meek, obfs4) with it")
-                self.send("SETCONF " + self.allLines().map { "Bridge=\"\($0.replacingOccurrences(of: "\"", with: ""))\"" }.joined(separator: " "))
+                self.setBridges(self.allLines())
                 self.armStall()
+            } else if self.stage == "all" {
+                self.tryCountry()
             } else {
+                if self.stage == "country" { Self.remember(nil) }
                 self.fail("Tor did not get through (\(self.progress)%)")
             }
         }
         stallTimer = w
         queue.asyncAfter(deadline: .now() + Self.stall, execute: w)
+    }
+
+    private func setBridges(_ lines: [String]) {
+        send("SETCONF " + lines.map { "Bridge=\"\($0.replacingOccurrences(of: "\"", with: ""))\"" }.joined(separator: " "))
+    }
+
+    /* The bundle's bridges got nowhere either (the Tor Project's own list is
+     * blocked in some countries): the bridges it gives for this country,
+     * fetched once (kept 6 hours), then the bundle's behind them. */
+    private func tryCountry() {
+        let pct = progress
+        let cached = country.flatMap { Date().timeIntervalSince($0.at) < 6 * 60 * 60 ? $0.bridges : nil }
+        let fetch = countryBridges
+        Task { [weak self] in
+            let c: [String: [String]]?
+            if let cached { c = cached } else { c = await fetch() }
+            self?.queue.async { [weak self] in
+                guard let self, self.state == .starting, self.stage == "all" else { return }
+                if cached == nil, let c { self.country = (Date(), c) }
+                let extra = Self.mergeBridges(c, [:])
+                guard !extra.isEmpty else { self.fail("Tor did not get through (\(pct)%)"); return }
+                self.stage = "country"
+                self.log("The last way out: Tor's own bridges did not get through either; trying the bridges the Tor Project gives for this country (" +
+                         Self.countryOrder.filter { extra[$0] != nil }.joined(separator: ", ") + ")")
+                self.setBridges(Self.countryLines(Self.mergeBridges(c, self.bridges)))
+                self.armStall()
+            }
+        }
     }
 
     private func armIdle() {
