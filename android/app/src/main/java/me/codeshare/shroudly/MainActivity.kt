@@ -876,7 +876,7 @@ class MainActivity : Activity() {
         // quieter to stop.
         val tv = Tv.isTv(this)
         tapHint.visibility = if (tv) View.GONE else View.VISIBLE
-        tapHint.text = if (busy) " " else getString(if (on) R.string.tapToStop else R.string.tapToStart)
+        tapHint.show(if (busy) " " else getString(if (on) R.string.tapToStop else R.string.tapToStart))
         if (!tv && lastFelt != null && lastFelt != Protection.state && (on || Protection.state == Protection.State.OFF)) {
             toggle.performHapticFeedback(
                 if (android.os.Build.VERSION.SDK_INT >= 30) {
