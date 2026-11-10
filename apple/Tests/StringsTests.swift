@@ -33,7 +33,7 @@ final class StringsTests: XCTestCase {
             for (k, v) in t {
                 // What's new is empty in a version with nothing new on Apple's
                 // systems (no window then); in every language alike.
-                if k == "whatsNewApple" { XCTAssertEqual(v.isEmpty, (en[k] ?? "").isEmpty, "\(lang).\(k) empty only where English is"); continue }
+                if k == "whatsNewApple" || k == "whatsNewMac" { XCTAssertEqual(v.isEmpty, (en[k] ?? "").isEmpty, "\(lang).\(k) empty only where English is"); continue }
                 XCTAssertFalse(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(lang).\(k) is empty")
                 XCTAssertEqual(placeholders(v), placeholders(en[k] ?? ""), "\(lang).\(k)")
             }
@@ -52,7 +52,7 @@ final class StringsTests: XCTestCase {
                     // 2.6.48: a copy without the VPN permission, the address sites see,
                     // the card asking for help, what changed.
                     "appleVpnNotSigned", "appleInstallHelp", "ownServerExit", "helpNudgeTitle", "helpNudgeBodyPhone",
-                    "helpNudgeShow", "supportBannerLater", "whatsNewTitle", "whatsNewOk", "whatsNewApple"]
+                    "helpNudgeShow", "supportBannerLater", "whatsNewTitle", "whatsNewOk", "whatsNewApple", "whatsNewMac"]
         used += Strategies.all.map(\.labelKey)
         for k in used { XCTAssertNotNil(en[k], k) }
     }

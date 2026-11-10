@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A quiet button on a row (Through Tor, Block, Copy): the raised surface
+     with a thin line round it, as the desktop's ghost buttons; drawn 4dp in
+     from the top and bottom so the touch target stays 48dp. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="?attr/accentSoft">
+    <item
+        android:bottom="4dp"
+        android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/surface_2" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/line_strong" />
+            <corners android:radius="9dp" />
+        </shape>
+    </item>
+</ripple>

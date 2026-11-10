@@ -96,11 +96,11 @@ function load(rel) {
     const en = JSON.parse(src('locales/en.json'));
     const lines = (k) => en[k].split('\n').filter(Boolean).length;
     // None for a platform a version changes nothing on: no window there.
-    t.ok(['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].every((k) => en[k].trim() === '' || en[k].split('\n').every((l) => l.trim() && l.length <= 200)),
+    t.ok(['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple', 'whatsNewMac'].every((k) => en[k].trim() === '' || en[k].split('\n').every((l) => l.trim() && l.length <= 200)),
       'the notes, a short line each, for every platform');
     for (const f of fs.readdirSync(path.join(ROOT, 'locales'))) {
       const j = JSON.parse(src(`locales/${f}`));
-      if (['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].some((k) => j[k].split('\n').filter(Boolean).length !== lines(k))) t.ok(false, `${f}: as many lines as English`);
+      if (['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple', 'whatsNewMac'].some((k) => j[k].split('\n').filter(Boolean).length !== lines(k))) t.ok(false, `${f}: as many lines as English`);
     }
     t.ok(true, 'every language has as many lines as English');
   }

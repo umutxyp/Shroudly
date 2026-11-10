@@ -211,6 +211,7 @@
 "upload" = "اپ لوڈ";
 "uptime" = "چلنے کا دورانیہ";
 "versionLabel" = "ورژن {version}";
-"whatsNewApple" = "Mac پر: ایپس جو ہمیشہ Tor سے جائیں (سائٹ کے لحاظ سے کنکشن)، جیسے Instagram یا Telegram؛ اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔";
+"whatsNewApple" = "";
+"whatsNewMac" = "Mac پر: ایپس جو ہمیشہ Tor سے جائیں (سائٹ کے لحاظ سے کنکشن)، جیسے Instagram یا Telegram؛ اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔";
 "whatsNewOk" = "سمجھ گیا";
 "whatsNewTitle" = "{version} میں نیا کیا ہے";

@@ -132,7 +132,7 @@ class ReportActivity : Activity() {
         })
         status = label(13f, R.color.warn).apply { visibility = View.GONE; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
         form.addView(status)
-        send = Button(this).apply {
+        send = Buttons.accent(Button(this)).apply {
             setText(R.string.reportSend)
             setOnClickListener { submit() }
         }
@@ -189,6 +189,8 @@ class ReportActivity : Activity() {
         send.isEnabled = !sending && w.ms <= 0 && agree.isChecked &&
             Report.problem(what.text.toString(), site.text.toString(), c) == null
         send.setText(if (sending) R.string.reportSending else R.string.reportSend)
+        // Its colour stays when it cannot be pressed yet: faded instead.
+        send.alpha = if (send.isEnabled) 1f else 0.45f
     }
 
     private fun submit() {
@@ -274,7 +276,7 @@ class ReportActivity : Activity() {
             setTextIsSelectable(true)
             setPadding(0, dp(6f), 0, dp(6f))
         })
-        done.addView(Button(this).apply { setText(R.string.reportCopy); setOnClickListener { copy(ref) } })
+        done.addView(Buttons.ghost(Button(this)).apply { setText(R.string.reportCopy); setOnClickListener { copy(ref) } })
         done.addView(label(13f, R.color.text_dim).apply { setText(R.string.reportSentHint); setPadding(0, dp(6f), 0, 0) })
         done.visibility = View.VISIBLE
         done.requestFocus()

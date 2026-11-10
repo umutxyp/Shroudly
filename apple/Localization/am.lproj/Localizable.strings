@@ -211,6 +211,7 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "በMac ላይ፦ ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፣ እንደ Instagram ወይም Telegram፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።";
+"whatsNewApple" = "";
+"whatsNewMac" = "በMac ላይ፦ ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፣ እንደ Instagram ወይም Telegram፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

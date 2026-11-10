@@ -155,6 +155,11 @@ struct TVPage<Content: View>: View {
                 .frame(width: 620)
                 content
                     .frame(maxWidth: 1000, maxHeight: .infinity)
+                    // The list scrolls under nothing: cut below the tabs
+                    // along the top (its rows ran behind their icons), with
+                    // room at the sides for a row the focus enlarges.
+                    .mask(Rectangle().padding(.horizontal, -60))
+                    .padding(.top, 14)
             }
             .padding(.horizontal, 80)
         }

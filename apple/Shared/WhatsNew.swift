@@ -45,6 +45,17 @@ enum WhatsNew {
      * back (no such string): a version with nothing new here leaves them empty. */
     static func notes(_ text: String, key: String) -> String { text == key ? "" : text }
 
+    /* This system's notes: on the Mac its own (whatsNewMac) when a version
+     * has some, else the ones for every Apple system (whatsNewApple). A
+     * change only the Mac has (Tor) was shown on Apple TV and iPhone too. */
+    static func forThisSystem() -> String {
+        #if os(macOS)
+        let mac = notes(tr("whatsNewMac"), key: "whatsNewMac")
+        if !mac.isEmpty { return mac }
+        #endif
+        return notes(tr("whatsNewApple"), key: "whatsNewApple")
+    }
+
     /* The notes, as a short digest: the same notes, the same digest; nil for
      * no notes. */
     static func digest(_ text: String) -> String? {

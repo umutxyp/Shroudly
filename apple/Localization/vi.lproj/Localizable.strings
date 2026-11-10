@@ -211,6 +211,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Trên Mac: ứng dụng luôn đi qua Tor (Kết nối theo trang), như Instagram hay Telegram; và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.";
+"whatsNewApple" = "";
+"whatsNewMac" = "Trên Mac: ứng dụng luôn đi qua Tor (Kết nối theo trang), như Instagram hay Telegram; và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

@@ -211,6 +211,7 @@
 "upload" = "আপলোড";
 "uptime" = "চালু থাকার সময়";
 "versionLabel" = "সংস্করণ {version}";
-"whatsNewApple" = "Mac-এ: যেসব অ্যাপ সবসময় Tor দিয়ে যায় (সাইট অনুযায়ী সংযোগ), যেমন Instagram বা Telegram; আর Tor-এর প্রশ্নে ঠিকানার বদলে অ্যাপের নাম থাকে।";
+"whatsNewApple" = "";
+"whatsNewMac" = "Mac-এ: যেসব অ্যাপ সবসময় Tor দিয়ে যায় (সাইট অনুযায়ী সংযোগ), যেমন Instagram বা Telegram; আর Tor-এর প্রশ্নে ঠিকানার বদলে অ্যাপের নাম থাকে।";
 "whatsNewOk" = "বুঝেছি";
 "whatsNewTitle" = "{version}-এ নতুন যা আছে";
