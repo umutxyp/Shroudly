@@ -90,12 +90,18 @@ struct AboutView: View {
                 WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
                     Label(tr("helpOthersConduit"), systemImage: "person.2.wave.2")
                 }
+                #if os(tvOS)
+                // A row the remote can reach: as the list's footer it sat
+                // below the last thing that takes the focus, cut off and
+                // never scrolled into view.
+                Text(tr("helpOthersBodyConduit"))
+                    .font(.system(size: 25))
+                    .foregroundStyle(Theme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .focusable()
+                #endif
             } header: {
                 Text(tr("helpOthers"))
-            } footer: {
-                #if os(tvOS)
-                Text(tr("helpOthersBodyConduit"))
-                #endif
             }
             }
             #if !os(tvOS)

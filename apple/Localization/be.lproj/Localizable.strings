@@ -211,6 +211,7 @@
 "upload" = "Запампоўка";
 "uptime" = "Час працы";
 "versionLabel" = "Версія {version}";
-"whatsNewApple" = "На Mac: праграмы заўсёды праз Tor (Злучэнні па сайтах), напрыклад Instagram ці Telegram; а пытанне пра Tor называе праграму, а не адрас.";
+"whatsNewApple" = "";
+"whatsNewMac" = "На Mac: праграмы заўсёды праз Tor (Злучэнні па сайтах), напрыклад Instagram ці Telegram; а пытанне пра Tor называе праграму, а не адрас.";
 "whatsNewOk" = "Зразумела";
 "whatsNewTitle" = "Што новага ў {version}";

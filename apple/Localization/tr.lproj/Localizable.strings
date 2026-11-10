@@ -211,6 +211,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Mac'te: her zaman Tor'dan giden uygulamalar (Siteye göre bağlantılar), örneğin Instagram ya da Telegram; Tor sorusu da adres yerine uygulamanın adını söylüyor.";
+"whatsNewApple" = "";
+"whatsNewMac" = "Mac'te: her zaman Tor'dan giden uygulamalar (Siteye göre bağlantılar), örneğin Instagram ya da Telegram; Tor sorusu da adres yerine uygulamanın adını söylüyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

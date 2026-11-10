@@ -94,12 +94,12 @@ class ConnectionsActivity : Activity() {
             })
         }
         root.addView(search)
-        blockTyped = Button(this).apply {
+        blockTyped = Buttons.ghost(Button(this)).apply {
             visibility = View.GONE
             setOnClickListener { Conns.clean(search.text.toString())?.let { block(it, true); search.setText("") } }
         }
         root.addView(blockTyped, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        torTyped = Button(this).apply {
+        torTyped = Buttons.ghost(Button(this)).apply {
             visibility = View.GONE
             setOnClickListener { Conns.clean(search.text.toString())?.let { tor(it, true); search.setText("") } }
         }
@@ -223,16 +223,18 @@ class ConnectionsActivity : Activity() {
         r.addView(texts, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         // Through Tor, or back the usual way (never for Shroudly's own names).
         // A name an app picked sends there: that app's switch brings it back.
-        if (!blocked && !system && torOk() && !(byApp && torBy == null)) r.addView(Button(this).apply {
+        val gap = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = dp(8f) }
+        if (!blocked && !system && torOk() && !(byApp && torBy == null)) r.addView(Buttons.ghost(Button(this)).apply {
             setText(if (torBy != null) R.string.connsTorBack else R.string.connsTor)
             if (torBy != null) setTextColor(Accent.color(this@ConnectionsActivity, R.attr.accentLight))
             setOnClickListener { if (torBy != null) tor(torBy, false) else tor(host, true) }
-        })
+        }, gap)
         // Shroudly's own names: Allow if one was blocked before, never Block.
-        if (blocked || !system) r.addView(Button(this).apply {
+        if (blocked || !system) r.addView(Buttons.ghost(Button(this)).apply {
             setText(if (blocked) R.string.connsAllow else R.string.connsBlock)
+            if (!blocked) setTextColor(getColor(R.color.danger))
             setOnClickListener { block(host, !blocked) }
-        })
+        }, LinearLayout.LayoutParams(gap))
         return r
     }
 }

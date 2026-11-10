@@ -37,7 +37,7 @@ t.ok(WhatsNew.note(store({ lastVersionSeen: '2.6.59' }), { current: '2.6.61' }) 
 // The notes in the apps are written for the version they ship in: from 2.6.65
 // to 2.6.70 they were not, and every update showed 2.6.64's notes under its
 // own number on iPhone and Android. package.json's whatsNewFor says which
-// version the locales' whatsNewDesktop, whatsNewAndroid and whatsNewApple
+// version the locales' whatsNewDesktop, whatsNewAndroid, whatsNewApple and whatsNewMac (the Mac's own, when it has some)
 // were written for; a new version means new notes (or "" where it changes
 // nothing on that system), and then whatsNewFor set to it.
 const pkg = require(path.join(ROOT, 'package.json'));
@@ -46,7 +46,7 @@ t.ok(pkg.whatsNewFor === pkg.version,
 const fs = require('fs');
 for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsWith('.json'))) {
   const l = require(path.join(ROOT, 'locales', f));
-  for (const k of ['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple']) {
+  for (const k of ['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple', 'whatsNewMac']) {
     t.ok(typeof l[k] === 'string' && (l[k].trim() === '') === (en[k].trim() === ''), `${f}: ${k} there, and empty only where English is`);
   }
 }

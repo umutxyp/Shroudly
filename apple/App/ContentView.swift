@@ -42,7 +42,7 @@ struct ContentView: View {
         .frame(minWidth: 360, idealWidth: 460 + (MacWindowFit.hasSidebar ? 220 : 0),
                maxWidth: 720 + (MacWindowFit.hasSidebar ? 220 : 0))
         #endif
-        .sheet(isPresented: $showNotice) {
+        .noticeCover(isPresented: $showNotice) {
             NoticeView {
                 noticeSeen = true
                 showNotice = false
@@ -109,7 +109,7 @@ struct ContentView: View {
             default: break
             }
             #endif
-            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen, notes: WhatsNew.notes(tr("whatsNewApple"), key: "whatsNewApple")) {
+            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen, notes: WhatsNew.forThisSystem()) {
                 newsVersion = v
                 showNews = true
             }
@@ -117,7 +117,7 @@ struct ContentView: View {
         .alert(tr("whatsNewTitle", ["version": newsVersion ?? ""]), isPresented: $showNews) {
             Button(tr("whatsNewOk")) { WhatsNew.seen() }
         } message: {
-            Text(WhatsNew.lines(tr("whatsNewApple")))
+            Text(WhatsNew.lines(WhatsNew.forThisSystem()))
         }
     }
 
@@ -430,7 +430,15 @@ struct ContentView: View {
                 }
                 // "Something not working?": always here, under the status
                 // (ReportView).
-                NavigationLink { ReportView(watch: watch) } label: {
+                NavigationLink {
+                    #if os(tvOS)
+                    // Laid out as the other pages: its name on the left, the
+                    // form beside it, not stretched across the TV.
+                    TVPage(title: tr("reportTitle"), symbol: "exclamationmark.bubble") { ReportView(watch: watch) }
+                    #else
+                    ReportView(watch: watch)
+                    #endif
+                } label: {
                     Label(tr("reportLink"), systemImage: "exclamationmark.bubble")
                         .font(.callout.weight(.medium))
                         .foregroundStyle(Theme.accent)
@@ -937,3 +945,15 @@ final class MacWindowFit {
     }
 }
 #endif
+
+extension View {
+    /* The notice before the first start: a sheet, but the whole screen on
+     * Apple TV, where a sheet is a small box (NoticeView). */
+    @ViewBuilder func noticeCover<C: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> C) -> some View {
+        #if os(tvOS)
+        fullScreenCover(isPresented: isPresented, content: content)
+        #else
+        sheet(isPresented: isPresented, content: content)
+        #endif
+    }
+}

@@ -211,6 +211,7 @@
 "upload" = "อัปโหลด";
 "uptime" = "เวลาทำงาน";
 "versionLabel" = "เวอร์ชัน {version}";
-"whatsNewApple" = "บน Mac: แอปที่ผ่าน Tor เสมอ (การเชื่อมต่อตามเว็บไซต์) เช่น Instagram หรือ Telegram และคำถามเรื่อง Tor จะบอกชื่อแอปแทนที่อยู่";
+"whatsNewApple" = "";
+"whatsNewMac" = "บน Mac: แอปที่ผ่าน Tor เสมอ (การเชื่อมต่อตามเว็บไซต์) เช่น Instagram หรือ Telegram และคำถามเรื่อง Tor จะบอกชื่อแอปแทนที่อยู่";
 "whatsNewOk" = "เข้าใจแล้ว";
 "whatsNewTitle" = "มีอะไรใหม่ใน {version}";

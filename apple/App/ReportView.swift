@@ -136,7 +136,12 @@ struct ReportView: View {
         .formStyle(.grouped)
         .listBackgroundHidden()
         .background(Theme.background)
+        #if os(tvOS)
+        // Apple TV: the page's name is on its left (TVPage), not over it.
+        .navigationTitle("")
+        #else
         .navigationTitle(tr("reportTitle"))
+        #endif
     }
 
     private var platform: String {

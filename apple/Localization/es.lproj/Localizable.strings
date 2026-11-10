@@ -211,6 +211,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "En el Mac: apps siempre por Tor (Conexiones por sitio), como Instagram o Telegram; y la pregunta de Tor nombra la app en lugar de una dirección.";
+"whatsNewApple" = "";
+"whatsNewMac" = "En el Mac: apps siempre por Tor (Conexiones por sitio), como Instagram o Telegram; y la pregunta de Tor nombra la app en lugar de una dirección.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

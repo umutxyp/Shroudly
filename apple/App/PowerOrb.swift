@@ -35,6 +35,10 @@ struct PowerOrb: View {
             Button(action: action) { orb }
                 .buttonStyle(OrbPress(size: size))
                 .disabled(look == .busy)
+                // Read out as what it does: the logo's picture name
+                // ("MarkClosed") was all VoiceOver had to say.
+                .accessibilityLabel(look == .off ? tr("start") : look == .busy ? tr("starting") : tr("stop"))
+                .accessibilityIdentifier("power")
         } else {
             orb.accessibilityHidden(true)
         }
