@@ -319,7 +319,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">Tor هلته هم نښلي چې معمول پلونه یې بند وي: هغه پلونه غواړي چې Tor Project یې ستاسو هېواد ته ورکوي.\nپه IPv6 شبکو کې Instagram، WhatsApp او Facebook، او هغه سایټونه چې په نیمایي کې ودرېږي (روسیه)، د Tor له لارې ژر خلاصېږي.\nلنډ راپور فورمه، او TalkBack نور هره ثانیه حالت نه لولي.</string>
+    <string name="whatsNewAndroid">هغه راپور چې نشي لېږل کېدای (روسیه د راپور سرور ورو کوي) اوس د Tor له لارې ځي؛ که Tor چالان نه وي، یوازې د هغه لپاره پیلېږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

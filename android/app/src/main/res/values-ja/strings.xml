@@ -319,7 +319,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">いつものブリッジがブロックされていても Tor がつながるように：Tor Project があなたの国向けに提供するブリッジを取得します。\nIPv6 ネットワーク上の Instagram・WhatsApp・Facebook や、途中で止まるサイト（ロシア）が、より早く Tor 経由で開きます。\n報告フォームが短くなり、TalkBack が毎秒状態を読み上げなくなりました。</string>
+    <string name="whatsNewAndroid">送信できない報告（ロシアでは報告サーバーが遅くされます）は Tor 経由で送られるようになりました。Tor が動いていなければ、そのためだけに起動します。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

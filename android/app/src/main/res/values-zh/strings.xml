@@ -319,7 +319,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">即使常用网桥被封锁，Tor 也能连上：它会获取 Tor Project 为你所在国家提供的网桥。\nIPv6 网络上的 Instagram、WhatsApp 和 Facebook，以及中途卡住的网站（俄罗斯），会更早通过 Tor 打开。\n报告表单更简短；TalkBack 不再每秒读出状态。</string>
+    <string name="whatsNewAndroid">无法发出的报告（俄罗斯会拖慢报告服务器）现在会通过 Tor 发送；如果 Tor 没在运行，会只为这份报告启动它。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

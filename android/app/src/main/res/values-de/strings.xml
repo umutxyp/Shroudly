@@ -319,7 +319,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Tor kommt auch dort durch, wo seine üblichen Bridges gesperrt sind: Es fragt nach den Bridges, die das Tor Project für dein Land anbietet.\nInstagram, WhatsApp und Facebook in IPv6-Netzen sowie Seiten, die mittendrin hängen (Russland), öffnen früher über Tor.\nEin kürzeres Meldeformular, und TalkBack liest den Status nicht mehr jede Sekunde vor.</string>
+    <string name="whatsNewAndroid">Eine Meldung, die nicht durchkommt (Russland bremst den Meldeserver), geht jetzt über Tor; läuft Tor nicht, startet es nur für sie.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

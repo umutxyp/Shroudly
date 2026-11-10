@@ -319,7 +319,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Tor odatdagi ko\'priklari bloklangan joyda ham ulanadi: Tor Project mamlakatingiz uchun beradigan ko\'priklarni so\'raydi.\nIPv6 tarmoqlaridagi Instagram, WhatsApp va Facebook hamda yarim yo\'lda qotib qoladigan saytlar (Rossiya) Tor orqali ertaroq ochiladi.\nQisqaroq hisobot shakli; TalkBack endi holatni har soniyada o\'qimaydi.</string>
+    <string name="whatsNewAndroid">Yuborib bo\'lmayotgan hisobot (Rossiya hisobot serverini sekinlashtiradi) endi Tor orqali ketadi; Tor ishlamayotgan bo\'lsa, faqat shu uchun yoqiladi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

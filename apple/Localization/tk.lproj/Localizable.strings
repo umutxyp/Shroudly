@@ -209,6 +209,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Mac: Tor adaty köprüleri petiklenen ýerde-de birigýär: Tor Project-iň ýurduňyz üçin berýän köprülerini soraýar.\nGoogle-yň öz saýtlary (Docs suratlary, YouTube) iň ýakyn serwerler üçin ilki Google-yň şifrlenen DNS-inden soraýar.\nHas gysga hasabat görnüşi: üpjün edijini we ýurdy doldurmak gerek däl.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

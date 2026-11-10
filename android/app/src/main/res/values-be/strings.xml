@@ -319,7 +319,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Tor падключаецца і там, дзе яго звычайныя масты заблакаваныя: ён запытвае масты, якія Tor Project дае для вашай краіны.\nInstagram, WhatsApp і Facebook у сетках з IPv6 і сайты, што завісаюць на паўдарозе (Расія), раней адкрываюцца праз Tor.\nКарацейшая форма справаздачы, і TalkBack больш не чытае стан кожную секунду.</string>
+    <string name="whatsNewAndroid">Справаздача, якую не ўдаецца адправіць (у Расіі сервер справаздач запавольваюць), цяпер ідзе праз Tor; калі Tor не запушчаны, ён уключаецца толькі дзеля яе.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

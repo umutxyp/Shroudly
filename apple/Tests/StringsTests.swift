@@ -31,6 +31,9 @@ final class StringsTests: XCTestCase {
             let t = try table(lang)
             XCTAssertEqual(Set(t.keys), Set(en.keys), lang)
             for (k, v) in t {
+                // What's new is empty in a version with nothing new on Apple's
+                // systems (no window then); in every language alike.
+                if k == "whatsNewApple" { XCTAssertEqual(v.isEmpty, (en[k] ?? "").isEmpty, "\(lang).\(k) empty only where English is"); continue }
                 XCTAssertFalse(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(lang).\(k) is empty")
                 XCTAssertEqual(placeholders(v), placeholders(en[k] ?? ""), "\(lang).\(k)")
             }

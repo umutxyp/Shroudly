@@ -319,7 +319,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">‏Tor מתחבר גם היכן שהגשרים הרגילים שלו חסומים: הוא מבקש את הגשרים ש-Tor Project נותן למדינה שלך.\n‏Instagram,‏ WhatsApp ו-Facebook ברשתות IPv6, ואתרים שנתקעים באמצע (רוסיה), נפתחים דרך Tor מוקדם יותר.\nטופס דיווח קצר יותר, ו-TalkBack כבר לא מקריא את המצב בכל שנייה.</string>
+    <string name="whatsNewAndroid">דיווח שלא מצליח לעבור (רוסיה מאטה את שרת הדיווחים) נשלח עכשיו דרך Tor; אם Tor לא פועל, הוא מופעל רק בשבילו.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

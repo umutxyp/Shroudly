@@ -319,7 +319,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Tor gets through where its usual bridges are blocked: it asks for the bridges the Tor Project gives for your country.\nInstagram, WhatsApp and Facebook on IPv6 networks, and sites that freeze partway (Russia), open through Tor sooner.\nA shorter report form, and TalkBack no longer reads the status out every second.</string>
+    <string name="whatsNewAndroid">A report that cannot get through (Russia slows the report server) now goes through Tor, started just for it if Tor is not running.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

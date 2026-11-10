@@ -319,7 +319,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Tor tetap bersambung walaupun jambatan biasanya disekat: ia meminta jambatan yang diberikan Tor Project untuk negara anda.\nInstagram, WhatsApp dan Facebook pada rangkaian IPv6, serta laman yang beku di tengah jalan (Rusia), dibuka melalui Tor lebih awal.\nBorang laporan lebih pendek, dan TalkBack tidak lagi membaca status setiap saat.</string>
+    <string name="whatsNewAndroid">Laporan yang tidak dapat dihantar (Rusia memperlahankan pelayan laporan) kini dihantar melalui Tor; jika Tor tidak berjalan, ia dihidupkan hanya untuknya.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

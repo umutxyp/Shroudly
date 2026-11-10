@@ -319,7 +319,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">Tor เชื่อมต่อได้แม้บริดจ์ปกติถูกบล็อก โดยขอบริดจ์ที่ Tor Project ให้สำหรับประเทศของคุณ\nInstagram, WhatsApp และ Facebook บนเครือข่าย IPv6 รวมถึงเว็บที่ค้างกลางทาง (รัสเซีย) เปิดผ่าน Tor ได้เร็วขึ้น\nแบบฟอร์มรายงานสั้นลง และ TalkBack ไม่อ่านสถานะทุกวินาทีอีกต่อไป</string>
+    <string name="whatsNewAndroid">รายงานที่ส่งไม่ได้ (รัสเซียทำให้เซิร์ฟเวอร์รายงานช้าลง) ตอนนี้จะส่งผ่าน Tor หาก Tor ยังไม่ทำงาน จะเปิดขึ้นเพื่อรายงานนี้เท่านั้น</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

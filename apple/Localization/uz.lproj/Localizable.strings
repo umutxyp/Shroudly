@@ -209,6 +209,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac: Tor odatdagi ko'priklari bloklangan joyda ham ulanadi: Tor Project mamlakatingiz uchun beradigan ko'priklarni so'raydi.\nGoogle'ning o'z saytlari (Docs rasmlari, YouTube) eng yaqin serverlar uchun avval Google'ning shifrlangan DNS'idan so'raydi.\nQisqaroq hisobot shakli: provayder va mamlakatni to'ldirish shart emas.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

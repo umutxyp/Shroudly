@@ -209,6 +209,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac: Tor adi körpüləri bloklandığı yerdə də qoşulur: Tor Project-in ölkəniz üçün verdiyi körpüləri istəyir.\nGoogle-un öz saytları (Docs şəkilləri, YouTube) ən yaxın serverlər üçün əvvəlcə Google-un şifrəli DNS-inə müraciət edir.\nDaha qısa hesabat forması: provayder və ölkə doldurmaq lazım deyil.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

@@ -209,6 +209,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Mac: Tor vẫn kết nối được dù các cầu nối thông thường bị chặn: nó xin các cầu nối mà Tor Project cung cấp cho quốc gia của bạn.\nCác trang của chính Google (ảnh Docs, YouTube) hỏi DNS mã hóa của Google trước, để dùng máy chủ gần nhất.\nBiểu mẫu báo cáo ngắn hơn: không cần điền nhà mạng hay quốc gia.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

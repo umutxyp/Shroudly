@@ -319,7 +319,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">Tor حتی جایی که پل‌های همیشگی‌اش مسدود است وصل می‌شود: پل‌هایی را می‌خواهد که Tor Project برای کشور شما می‌دهد.\nاینستاگرام، واتس‌اپ و فیسبوک روی شبکه‌های IPv6 و سایت‌هایی که وسط کار گیر می‌کنند (روسیه) زودتر از طریق Tor باز می‌شوند.\nفرم گزارش کوتاه‌تر، و TalkBack دیگر هر ثانیه وضعیت را نمی‌خواند.</string>
+    <string name="whatsNewAndroid">گزارشی که ارسال نمی‌شود (روسیه سرور گزارش‌ها را کند می‌کند) اکنون از طریق Tor می‌رود؛ اگر Tor روشن نباشد، فقط برای همین روشن می‌شود.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

@@ -209,6 +209,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "Mac፦ Tor የተለመዱ ድልድዮቹ በታገዱበትም ይገናኛል፤ Tor Project ለአገርዎ የሚሰጣቸውን ድልድዮች ይጠይቃል።\nየGoogle የራሱ ጣቢያዎች (የDocs ምስሎች፣ YouTube) ለቅርብ አገልጋዮች መጀመሪያ የGoogleን የተመሰጠረ DNS ይጠይቃሉ።\nአጭር የሪፖርት ቅጽ፤ የኢንተርኔት አቅራቢ ወይም አገር መሙላት አያስፈልግም።";
+"whatsNewApple" = "";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

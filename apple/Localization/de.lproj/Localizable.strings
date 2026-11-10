@@ -209,6 +209,6 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Mac: Tor kommt auch dort durch, wo seine üblichen Bridges gesperrt sind: Es fragt nach den Bridges, die das Tor Project für dein Land anbietet.\nGoogles eigene Seiten (Docs-Bilder, YouTube) fragen zuerst Googles verschlüsseltes DNS, für die nächsten Server.\nEin kürzeres Meldeformular: kein Anbieter und kein Land mehr anzugeben.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";
