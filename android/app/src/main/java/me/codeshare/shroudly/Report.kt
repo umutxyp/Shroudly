@@ -329,6 +329,7 @@ object Report {
         .safe("torLastResort") { TorRoute.enabled(ctx) }
         .safe("torAllowed") { TorRoute.approved(ctx) }
         .safe("torSites") { Conns.torSites(ctx).size }
+        .safe("torApps") { Conns.torApps(ctx).sorted().joinToString(",").ifEmpty { "none" } }
         .safe("onlyListedSites") { if (Conns.onlyMode(ctx)) Conns.onlySites(ctx).size else "off" }
         .safe("helpOthers") { Snowflake.enabled(ctx) }
         .safe("countMeIn") { OnlineCount.enabled(ctx) }

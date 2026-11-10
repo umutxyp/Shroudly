@@ -126,6 +126,8 @@
     <string name="connsSystem">مورد استفادهٔ Shroudly</string>
     <string name="connsTitle">اتصال‌ها بر اساس سایت</string>
     <string name="connsTor">از Tor</string>
+    <string name="connsTorApps">برنامه‌هایی که همیشه از Tor می‌روند</string>
+    <string name="connsTorAppsDesc">برنامهٔ انتخاب‌شده، مسدود باشد یا نه، به‌طور کامل از Tor می‌رود: کندتر است و سرورهایش به‌جای نشانی شما یک نشانی Tor می‌بینند. انتخاب آن یعنی اجازه دادن به Tor.</string>
     <string name="connsTorBack">مسیر معمول</string>
     <string name="connsTorChosen">از Tor فرستاده می‌شود</string>
     <string name="connsTorDesc">سایتی که خودش کشور شما را راه نمی‌دهد (می‌گوید در منطقه شما در دسترس نیست) از Tor باز می‌شود: کنارش «از Tor» را بزنید.</string>
@@ -319,7 +321,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">برنامه‌ای که شبکه سرورهایش را مسدود می‌کند (مثل Telegram) اکنون از طریق Tor می‌رود و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.</string>
+    <string name="whatsNewAndroid">جدید: برنامه‌هایی که همیشه از Tor می‌روند (اتصال‌ها بر اساس سایت): برنامه‌ای مثل Instagram یا Telegram را انتخاب کنید تا به‌طور کامل از Tor برود.\nبرنامه‌ای که شبکه سرورهایش را مسدود می‌کند هم اکنون از Tor می‌رود و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

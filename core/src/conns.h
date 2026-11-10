@@ -19,8 +19,10 @@
  * TOR <name> sends that name and every name under it through the last way
  * out (Tor) when it is set and may be used, for a site that turns the
  * user's country away itself (a geo-block no technique changes); the open
- * connections end so the next ones go there. UNTOR lifts one, TOR-CLEAR
- * all. ONLY <name> (with ONLY-MODE 1) makes Shroudly work on the listed
+ * connections end so the next ones go there. TOR <address>/<bits> does the
+ * same for a range of addresses (an app that connects to its servers by
+ * address, as Telegram does: the app picked in "Apps through Tor"). UNTOR
+ * lifts one, TOR-CLEAR all. ONLY <name> (with ONLY-MODE 1) makes Shroudly work on the listed
  * names alone: every other one goes out as it is, untouched, with the
  * network's DNS. ONLY-CLEAR empties the list, ONLY-MODE 0 ends the mode.
  */
@@ -58,10 +60,15 @@ int  conns_unblock(const char *host);
 void conns_block_clear(void);
 
 /* 1 if the user sends this name (or one above it) through Tor. */
+/* Whether host is an address in range ("address/bits"). */
+int  conns_in_range(const char *range, const char *host);
 int  conns_tor(const char *host);
 int  conns_tor_add(const char *host);
 int  conns_tor_del(const char *host);
-void conns_tor_clear(void);
+/* Empties the list; each(entry), if given, for every name and range it had
+ * (the last way out forgets having carried them: TOR-CLEAR then the list
+ * again is how an app on Apple systems sends a change). */
+void conns_tor_clear(void (*each)(const char *));
 /* Only listed names worked on: 1 if this one is left as it is. */
 int  conns_only_skip(const char *host);
 int  conns_only_add(const char *host);

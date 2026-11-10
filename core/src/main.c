@@ -415,7 +415,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
       if (ended >= 0) engine_printf("{\"type\":\"block\",\"ok\":1,\"ended\":%d}\n", ended);
     }
     else if (!strncmp(line, "UNBLOCK ", 8)) conns_unblock(line + 8);
-    else if (!strcmp(line, "TOR-CLEAR")) conns_tor_clear();
+    else if (!strcmp(line, "TOR-CLEAR")) conns_tor_clear(engine_fallback_drop);
     else if (!strncmp(line, "TOR ", 4)) {
       int ended = conns_tor_add(line + 4);
       if (ended >= 0) engine_printf("{\"type\":\"tor_site\",\"ok\":1,\"ended\":%d}\n", ended);

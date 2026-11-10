@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly istifadə edir";
 "connsTitle" = "Saytlara görə bağlantılar";
 "connsTor" = "Tor ilə";
+"connsTorApps" = "Həmişə Tor ilə gedən tətbiqlər";
+"connsTorAppsDesc" = "Seçilən tətbiq, bloklanıb-bloklanmamasından asılı olmayaraq, tamamilə Tor ilə gedir: daha yavaşdır və serverləri sənin ünvanın əvəzinə Tor ünvanı görür. Seçmək Tor-a icazə vermək deməkdir.";
 "connsTorBack" = "Adi yol";
 "connsTorChosen" = "Tor ilə göndərilir";
 "connsTorDesc" = "Ölkəni özü bloklayan sayt (olduğun yerdə əlçatan olmadığını deyən) Tor ilə açılır: yanındakı Tor ilə düyməsinə bas.";
@@ -209,6 +211,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac-da Tor sualı indi ünvan əvəzinə tətbiqin adını (məsələn, Telegram) çəkir.";
+"whatsNewApple" = "Mac-da: həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar), məsələn Instagram və ya Telegram; Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

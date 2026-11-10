@@ -24,6 +24,10 @@ static int g_nblock;
  * works on when that is chosen (ONLY, with ONLY-MODE 1). */
 static char g_tor[CONNS_BLOCK][256];
 static int g_ntor;
+/* Address ranges sent through Tor (TOR <address>/<bits>). */
+#define CONNS_TOR_RANGES 128
+static struct { int fam, bits; unsigned char net[16]; char text[64]; } g_torr[CONNS_TOR_RANGES];
+static int g_ntorr;
 static char g_only[CONNS_BLOCK][256];
 static int g_nonly;
 static int g_only_mode;
@@ -268,34 +272,147 @@ static int end_open(const char *host) {
   return ended;
 }
 
+/* An address, as bytes: 4 or 16 of them, 0 when s is not one ("[v6]" too). */
+static int addr_of(const char *s, unsigned char out[16]) {
+  char b[64];
+  size_t n = strlen(s);
+  if (n >= sizeof(b)) return 0;
+  if (n > 2 && s[0] == '[' && s[n - 1] == ']') { memcpy(b, s + 1, n - 2); b[n - 2] = 0; }
+  else memcpy(b, s, n + 1);
+  struct in_addr a4;
+  struct in6_addr a6;
+  if (inet_pton(AF_INET, b, &a4) == 1) { memcpy(out, &a4, 4); return 4; }
+  if (strchr(b, ':') && inet_pton(AF_INET6, b, &a6) == 1) { memcpy(out, &a6, 16); return 16; }
+  return 0;
+}
+
+static int in_range(const unsigned char *a, int fam, const unsigned char *net, int bits) {
+  (void)fam;
+  int full = bits / 8, rest = bits % 8;
+  if (memcmp(a, net, (size_t)full) != 0) return 0;
+  if (!rest) return 1;
+  unsigned char m = (unsigned char)(0xff << (8 - rest));
+  return (a[full] & m) == (net[full] & m);
+}
+
+/* "address/bits", read strictly: the range's first address kept. */
+static int range_of(const char *s, unsigned char net[16], int *fam, int *bits) {
+  const char *sl = strchr(s, '/');
+  if (!sl || sl == s || !sl[1]) return -1;
+  char a[64];
+  size_t n = (size_t)(sl - s);
+  if (n >= sizeof(a)) return -1;
+  memcpy(a, s, n); a[n] = 0;
+  char *end = NULL;
+  long b = strtol(sl + 1, &end, 10);
+  int f = addr_of(a, net);
+  if (!f || !end || *end || b < 0 || b > f * 8) return -1;
+  *fam = f; *bits = (int)b;
+  for (int i = (int)b; i < f * 8; i++) net[i / 8] &= (unsigned char)~(0x80 >> (i % 8));
+  return 0;
+}
+
+/* Whether host is an address in one of the ranges. Under the lock. */
+static int ranges_have(const char *host) {
+  if (!g_ntorr) return 0;
+  unsigned char a[16];
+  int f = addr_of(host, a);
+  if (!f) return 0;
+  for (int i = 0; i < g_ntorr; i++)
+    if (g_torr[i].fam == f && in_range(a, f, g_torr[i].net, g_torr[i].bits)) return 1;
+  return 0;
+}
+
+/* Open connections to addresses in the range end now (as end_open). */
+static int end_open_range(int fam, const unsigned char *net, int bits) {
+  int ended = 0;
+  mutex_lock(&g_mx);
+  for (int i = 0; i < CONNS_ACTIVE; i++) {
+    if (!g_act[i].used) continue;
+    unsigned char a[16];
+    if (addr_of(g_h[g_act[i].h].host, a) != fam || !in_range(a, fam, net, bits)) continue;
+    if (g_act[i].a != SOCK_INVALID) shutdown(g_act[i].a, SHUT_RDWR_C);
+    if (g_act[i].b != SOCK_INVALID) shutdown(g_act[i].b, SHUT_RDWR_C);
+    ended++;
+  }
+  mutex_unlock(&g_mx);
+  return ended;
+}
+
+int conns_in_range(const char *range, const char *host) {
+  unsigned char net[16], a[16];
+  int fam = 0, bits = 0;
+  if (!range || !host || range_of(range, net, &fam, &bits) != 0) return 0;
+  return addr_of(host, a) == fam && in_range(a, fam, net, bits);
+}
+
 int conns_tor(const char *host) {
   if (!atomic_load(&g_ready) || !host || !host[0]) return 0;
   char h[256];
   lower(h, sizeof(h), host);
   mutex_lock(&g_mx);
-  int yes = list_has(g_tor, g_ntor, h);
+  int yes = list_has(g_tor, g_ntor, h) || ranges_have(h);
   mutex_unlock(&g_mx);
   return yes;
 }
 
 int conns_tor_add(const char *host) {
-  if (list_add(g_tor, &g_ntor, host) != 0) return -1;
   while (host && *host == ' ') host++;
+  if (host && strchr(host, '/')) {
+    unsigned char net[16];
+    int fam = 0, bits = 0;
+    if (range_of(host, net, &fam, &bits) != 0) return -1;
+    if (!atomic_load(&g_ready)) conns_init();
+    mutex_lock(&g_mx);
+    int have = 0;
+    for (int i = 0; i < g_ntorr; i++) if (g_torr[i].fam == fam && g_torr[i].bits == bits && !memcmp(g_torr[i].net, net, (size_t)fam)) have = 1;
+    if (!have && g_ntorr < CONNS_TOR_RANGES) {
+      g_torr[g_ntorr].fam = fam; g_torr[g_ntorr].bits = bits;
+      memcpy(g_torr[g_ntorr].net, net, 16);
+      snprintf(g_torr[g_ntorr].text, sizeof(g_torr[0].text), "%s", host);
+      g_ntorr++;
+    }
+    mutex_unlock(&g_mx);
+    return end_open_range(fam, net, bits);
+  }
+  if (list_add(g_tor, &g_ntor, host) != 0) return -1;
   return end_open(host);
 }
 
 int conns_tor_del(const char *host) {
-  int found = list_del(g_tor, &g_ntor, host);
   while (host && *host == ' ') host++;
+  if (host && strchr(host, '/')) {
+    unsigned char net[16];
+    int fam = 0, bits = 0, found = 0;
+    if (range_of(host, net, &fam, &bits) != 0 || !atomic_load(&g_ready)) return 0;
+    mutex_lock(&g_mx);
+    for (int i = 0; i < g_ntorr; i++) {
+      if (g_torr[i].fam != fam || g_torr[i].bits != bits || memcmp(g_torr[i].net, net, (size_t)fam)) continue;
+      memmove(&g_torr[i], &g_torr[i + 1], (size_t)(g_ntorr - i - 1) * sizeof(g_torr[0]));
+      g_ntorr--; found = 1; break;
+    }
+    mutex_unlock(&g_mx);
+    if (found) end_open_range(fam, net, bits);
+    return found;
+  }
+  int found = list_del(g_tor, &g_ntor, host);
   if (found) end_open(host);
   return found;
 }
 
-void conns_tor_clear(void) {
+void conns_tor_clear(void (*each)(const char *)) {
   if (!atomic_load(&g_ready)) return;
+  static char was[CONNS_BLOCK + CONNS_TOR_RANGES][256];
+  int n = 0;
   mutex_lock(&g_mx);
+  for (int i = 0; i < g_ntor; i++) snprintf(was[n++], 256, "%s", g_tor[i]);
+  for (int i = 0; i < g_ntorr; i++) snprintf(was[n++], 256, "%s", g_torr[i].text);
   g_ntor = 0;
+  g_ntorr = 0;
   mutex_unlock(&g_mx);
+  /* Outside the lock: what each did is the caller's (the last way out's
+   * memory of what it carried). Only TOR-CLEAR calls it, one at a time. */
+  if (each) for (int i = 0; i < n; i++) each(was[i]);
 }
 
 int conns_only_add(const char *host) { return list_add(g_only, &g_nonly, host); }

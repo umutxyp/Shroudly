@@ -105,8 +105,8 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
 
   const tp = read('apple', 'Tunnel', 'PacketTunnelProvider.swift');
   const tc = read('apple', 'App', 'TunnelController.swift');
-  t.ok(/if TorNotice\.approved\(\) \{ self\.torRoute\.need\(\) \}/.test(tp) && /TorNotice\.ask\(host\)/.test(tp) && /case \.torYes:/.test(tp) && /out\["torAsk"\] = a/.test(tp),
-    'Mac: the tunnel asks unless allowed, and starts Tor on the app\'s yes');
+  t.ok(/if TorNotice\.approved\(\) \{ self\.torRoute\.need\(\) \}/.test(tp) && /TorNotice\.label\(had: had, hadRank:/.test(tp) && /TorNotice\.ask\(shown, again: better\)/.test(tp) && /case \.torYes:/.test(tp) && /out\["torAsk"\] = a/.test(tp),
+    'Mac: the tunnel asks unless allowed (naming the app where it can, TorNotice.label), and starts Tor on the app\'s yes');
   t.ok(/func answerTor\(_ yes: Bool\)/.test(tc) && /ProviderMessage\.torYes/.test(tc) && /new\.torLastResort = false/.test(tc)
     && /TorAskCard\(/.test(read('apple', 'App', 'ContentView.swift'))
     && /if old\.torLastResort != new\.torLastResort \{ AppGroup\.defaults\.set\(new\.torLastResort, forKey: "torApproved"\) \}/.test(read('apple', 'App', 'SettingsView.swift')),

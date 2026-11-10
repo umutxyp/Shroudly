@@ -371,6 +371,10 @@ class ShroudlyVpnService : VpnService() {
             ACTION_CONNS -> {
                 val what = intent.getStringExtra("what") ?: "CONNS"
                 if (active && Conns.COMMAND.matches(what)) later { engine?.send(what) }
+                // Tor just became ready (TorRoute): the sites and apps sent
+                // through it are given again, which ends their connections
+                // made the usual way meanwhile, so they connect through Tor.
+                else if (active && what == Conns.TOR_AGAIN) later { Conns.torEntries(this).takeIf { it.isNotEmpty() }?.let { t -> engine?.send(t.joinToString("\n") { "TOR $it" }) } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return stickyWhileOn()
             }

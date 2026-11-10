@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly dùng";
 "connsTitle" = "Kết nối theo trang";
 "connsTor" = "Qua Tor";
+"connsTorApps" = "Ứng dụng luôn đi qua Tor";
+"connsTorAppsDesc" = "Ứng dụng được chọn đi toàn bộ qua Tor, dù có bị chặn hay không: chậm hơn, và máy chủ của nó thấy một địa chỉ Tor thay vì địa chỉ của bạn. Chọn nghĩa là cho phép Tor.";
 "connsTorBack" = "Đường thường";
 "connsTorChosen" = "Đang gửi qua Tor";
 "connsTorDesc" = "Trang tự chặn quốc gia của bạn (báo không khả dụng ở nơi bạn ở) sẽ mở qua Tor: chọn Qua Tor bên cạnh nó.";
@@ -209,6 +211,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Trên Mac, câu hỏi về Tor giờ nêu tên ứng dụng (như Telegram) thay vì một địa chỉ.";
+"whatsNewApple" = "Trên Mac: ứng dụng luôn đi qua Tor (Kết nối theo trang), như Instagram hay Telegram; và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly ishlatadi</string>
     <string name="connsTitle">Saytlar bo\'yicha ulanishlar</string>
     <string name="connsTor">Tor orqali</string>
+    <string name="connsTorApps">Doim Tor orqali o\'tadigan ilovalar</string>
+    <string name="connsTorAppsDesc">Tanlangan ilova bloklangan bo\'lsa ham, bo\'lmasa ham to\'liq Tor orqali o\'tadi: sekinroq, serverlari esa sizning manzilingiz o\'rniga Tor manzilini ko\'radi. Tanlash Tor\'ga ruxsat berish demakdir.</string>
     <string name="connsTorBack">Odatiy yo‘l</string>
     <string name="connsTorChosen">Tor orqali yuboriladi</string>
     <string name="connsTorDesc">Mamlakatingizni o‘zi kiritmaydigan sayt (siz turgan joyda mavjud emasligini aytadigan) Tor orqali ochiladi: yonidagi «Tor orqali» tugmasini bosing.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Tarmoq serverlarini bloklaydigan ilova (masalan, Telegram) endi Tor orqali o\'tadi, Tor savoli esa manzil o\'rniga ilova nomini aytadi.</string>
+    <string name="whatsNewAndroid">Yangi: doim Tor orqali o\'tadigan ilovalar (Saytlar bo\'yicha ulanishlar): Instagram yoki Telegram kabi ilovani tanlang, u to\'liq Tor orqali o\'tadi.\nTarmoq serverlarini bloklaydigan ilova ham endi Tor orqali o\'tadi, Tor savoli esa manzil o\'rniga ilova nomini aytadi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

@@ -4883,6 +4883,8 @@ void engine_fallback_drop(const char *name) {
   if (!nl) return;
   mutex_lock(&g_fb_mx);
   for (int i = 0; i < FB_SLOTS; i++) {
+    /* A range (UNTOR address/bits): the addresses in it it carried. */
+    if (strchr(n, '/')) { if (g_fb[i].host[0] && conns_in_range(n, g_fb[i].host)) memset(&g_fb[i], 0, sizeof(g_fb[i])); continue; }
     size_t hl = strlen(g_fb[i].host);
     if (hl < nl || strcmp(g_fb[i].host + hl - nl, n) != 0) continue;
     if (hl == nl || g_fb[i].host[hl - nl - 1] == '.') memset(&g_fb[i], 0, sizeof(g_fb[i]));

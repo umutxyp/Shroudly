@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly bi kar tîne</string>
     <string name="connsTitle">Girêdan li gorî malperê</string>
     <string name="connsTor">Bi Tor</string>
+    <string name="connsTorApps">Sepanên ku her tim bi Tor diçin</string>
+    <string name="connsTorAppsDesc">Sepana hilbijartî, asteng be an ne, bi tevahî bi Tor diçe: hêdîtir e, û serverên wê li şûna navnîşana te navnîşanek Tor dibînin. Hilbijartin destûrdayîna Tor e.</string>
     <string name="connsTorBack">Riya asayî</string>
     <string name="connsTorChosen">Bi Tor tê şandin</string>
     <string name="connsTorDesc">Malpera ku bi xwe welatê te qebûl nake (dibêje li cihê te ne berdest e) bi Tor vedibe: li kêlekê wê «Bi Tor» hilbijêre.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Sepana ku tor serverên wê asteng dike (wek Telegram) êdî bi Tor diçe, û pirsa Tor li şûna navnîşanekê navê sepanê dibêje.</string>
+    <string name="whatsNewAndroid">Nû: sepanên ku her tim bi Tor diçin (Girêdan li gorî malperê): sepanek wek Instagram an Telegram hilbijêre û hemû bi Tor diçe.\nSepana ku tor serverên wê asteng dike jî êdî bi Tor diçe, û pirsa Tor li şûna navnîşanekê navê sepanê dibêje.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

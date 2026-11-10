@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly استعمال کرتا ہے";
 "connsTitle" = "سائٹ کے لحاظ سے کنکشن";
 "connsTor" = "Tor سے";
+"connsTorApps" = "ایپس جو ہمیشہ Tor سے جائیں";
+"connsTorAppsDesc" = "منتخب ایپ، رکی ہو یا نہیں، پوری Tor سے جاتی ہے: سست ہے، اور اس کے سرور آپ کے پتے کی جگہ Tor کا پتہ دیکھتے ہیں۔ منتخب کرنا Tor کی اجازت دینا ہے۔";
 "connsTorBack" = "عام راستہ";
 "connsTorChosen" = "Tor سے بھیجا جا رہا ہے";
 "connsTorDesc" = "جو سائٹ خود آپ کے ملک کو روکتی ہے (کہتی ہے کہ آپ کے علاقے میں دستیاب نہیں) وہ Tor سے کھلتی ہے: اس کے ساتھ «Tor سے» چنیں۔";
@@ -209,6 +211,6 @@
 "upload" = "اپ لوڈ";
 "uptime" = "چلنے کا دورانیہ";
 "versionLabel" = "ورژن {version}";
-"whatsNewApple" = "Mac پر Tor والا سوال اب پتے کی جگہ ایپ کا نام (جیسے Telegram) بتاتا ہے۔";
+"whatsNewApple" = "Mac پر: ایپس جو ہمیشہ Tor سے جائیں (سائٹ کے لحاظ سے کنکشن)، جیسے Instagram یا Telegram؛ اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔";
 "whatsNewOk" = "سمجھ گیا";
 "whatsNewTitle" = "{version} میں نیا کیا ہے";

@@ -29,6 +29,7 @@ object Conns {
     private val NAME = Regex("^[a-z0-9._:-]{1,253}$")
     private const val KEY = "userBlocked"
     private const val KEY_TOR = "torSites"
+    private const val KEY_TOR_APPS = "torApps"
     private const val KEY_ONLY_MODE = "onlySitesMode"
     private const val KEY_ONLY = "onlySites"
 
@@ -70,16 +71,60 @@ object Conns {
         val now = torSites(ctx).toMutableSet()
         if (on) now += h else now -= h
         ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putStringSet(KEY_TOR, now).apply()
-        Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "${if (on) "TOR" else "UNTOR"} $h")
-        if (on) {
-            TorRoute.setApproved(ctx, true)
-            if (!TorRoute.enabled(ctx)) {
-                TorRoute.setEnabled(ctx, true)
-                Protector.tell(ctx, ShroudlyVpnService.ACTION_SETTINGS, "torLastResort")
-            }
-        }
+        // Back the usual way only if no app picked needs it too.
+        if (on || h !in appEntries(torApps(ctx))) Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "${if (on) "TOR" else "UNTOR"} $h")
+        if (on) consentToTor(ctx)
         AppLog.add(if (on) "Connections: $h goes through Tor (the last way out) from now on" else "Connections: $h goes the usual way again")
         return now
+    }
+
+    /* Choosing Tor for a site or an app is the user's consent to it: the
+     * last way out is turned on and allowed, the engine started again with
+     * it if it was off. */
+    private fun consentToTor(ctx: Context) {
+        TorRoute.setApproved(ctx, true)
+        if (!TorRoute.enabled(ctx)) {
+            TorRoute.setEnabled(ctx, true)
+            Protector.tell(ctx, ShroudlyVpnService.ACTION_SETTINGS, "torLastResort")
+        }
+    }
+
+    /* "Apps always through Tor" (TorAppsList, from electron/tor-apps.js): the
+     * ids picked, known ones only. */
+    fun torApps(ctx: Context): Set<String> {
+        val kept = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).getStringSet(KEY_TOR_APPS, emptySet()) ?: emptySet()
+        return TorAppsList.apps.map { it.id }.filter { it in kept }.toSet()
+    }
+
+    /* The names and ranges of the apps `ids` (pure, for the tests). */
+    fun appEntries(ids: Set<String>): Set<String> =
+        TorAppsList.apps.filter { it.id in ids }.flatMap { it.entries }.toCollection(LinkedHashSet())
+
+    /* Everything sent through Tor by the user's choice: the sites typed and
+     * the apps picked. */
+    fun torEntries(ctx: Context): Set<String> = torSites(ctx) + appEntries(torApps(ctx))
+
+    /* What changes in the engine when the picked apps go from `before` to
+     * `after` with `sites` typed: TOR for what is new, UNTOR for what nothing
+     * needs any more (a name two apps share stays while one is picked).
+     * Pure, for the tests. */
+    fun appCommands(sites: Set<String>, before: Set<String>, after: Set<String>): List<String> {
+        val was = sites + appEntries(before)
+        val now = sites + appEntries(after)
+        return was.filter { it !in now }.map { "UNTOR $it" } + now.filter { it !in was }.map { "TOR $it" }
+    }
+
+    /* An app picked, or put back: kept, and the running engine told what
+     * changed. null for an id not in the list. */
+    fun setTorApp(ctx: Context, id: String, on: Boolean): Set<String>? {
+        val app = TorAppsList.apps.firstOrNull { it.id == id } ?: return null
+        val before = torApps(ctx)
+        val after = if (on) before + id else before - id
+        ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putStringSet(KEY_TOR_APPS, after).apply()
+        for (c in appCommands(torSites(ctx), before, after)) Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, c)
+        if (on) consentToTor(ctx)
+        AppLog.add(if (on) "Connections: ${app.name} goes through Tor (the last way out) from now on, all of it" else "Connections: ${app.name} goes the usual way again")
+        return after
     }
 
     /* Only the listed sites go through Shroudly's ways (Settings); every
@@ -105,7 +150,7 @@ object Conns {
     /* What the engine is given after it starts. */
     fun commands(ctx: Context): List<String> {
         val b = blocked(ctx)
-        val t = torSites(ctx)
+        val t = torEntries(ctx)
         return (if (b.isEmpty()) emptyList() else listOf("BLOCK-CLEAR") + b.sorted().map { "BLOCK $it" }) +
             (if (t.isEmpty()) emptyList() else listOf("TOR-CLEAR") + t.sorted().map { "TOR $it" }) +
             (if (onlyMode(ctx)) onlyCommands(ctx) else emptyList())
@@ -116,12 +161,18 @@ object Conns {
         val parts = mutableListOf<String>()
         blocked(ctx).size.takeIf { it > 0 }?.let { parts += "$it name${if (it == 1) "" else "s"} you blocked are refused" }
         torSites(ctx).size.takeIf { it > 0 }?.let { parts += "$it site${if (it == 1) "" else "s"} you send through Tor go there first" }
+        torApps(ctx).takeIf { it.isNotEmpty() }?.let { ids -> parts += TorAppsList.apps.filter { it.id in ids }.joinToString(", ") { it.name } + " always through Tor" }
         if (onlyMode(ctx)) parts += "only the ${onlySites(ctx).size} listed sites are worked on, the rest go out as they are"
         return "Connections: " + parts.joinToString("; ")
     }
 
+    /* Not a command of the engine's: the services give it the Tor list
+     * again (Tor just became ready). */
+    const val TOR_AGAIN = "TOR-AGAIN"
+
     /* A command the Connections list or Settings may send to the engine. */
-    val COMMAND = Regex("^(CONNS|ONLY-CLEAR|ONLY-MODE [01]|(BLOCK|UNBLOCK|TOR|UNTOR|ONLY) [a-z0-9._:-]{1,253})$")
+    // TOR and UNTOR take a range too (an app picked that connects by address).
+    val COMMAND = Regex("^(CONNS|ONLY-CLEAR|ONLY-MODE [01]|(BLOCK|UNBLOCK|TOR|UNTOR|ONLY) [a-z0-9._:-]{1,253}|(TOR|UNTOR) [0-9a-f.:]{2,45}/[0-9]{1,3})$")
 
     /* A new list came (counted, so a wait can tell). */
     @Volatile var rowsGen = 0L

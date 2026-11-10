@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly ulanýar</string>
     <string name="connsTitle">Saýtlar boýunça birikmeler</string>
     <string name="connsTor">Tor arkaly</string>
+    <string name="connsTorApps">Hemişe Tor arkaly gidýän programmalar</string>
+    <string name="connsTorAppsDesc">Saýlanan programma, petiklenen bolsa-da, bolmasa-da, doly Tor arkaly gidýär: haýalrak, serwerleri bolsa siziň salgyňyzyň ýerine Tor salgysyny görýär. Saýlamak Tor-a rugsat bermek diýmekdir.</string>
     <string name="connsTorBack">Adaty ýol</string>
     <string name="connsTorChosen">Tor arkaly iberilýär</string>
     <string name="connsTorDesc">Ýurduňyzy özi goýbermeýän saýt (siziň ýeriňizde elýeterli däl diýýän) Tor arkaly açylýar: ýanyndaky «Tor arkaly» düwmesine basyň.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Ulgamyň serwerlerini petikleýän programmasy (meselem, Telegram) indi Tor arkaly geçýär, Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.</string>
+    <string name="whatsNewAndroid">Täze: hemişe Tor arkaly gidýän programmalar (Saýtlar boýunça birikmeler): Instagram ýa-da Telegram ýaly programmany saýlaň, ol doly Tor arkaly gider.\nUlgamyň serwerlerini petikleýän programmasy hem indi Tor arkaly gidýär, Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

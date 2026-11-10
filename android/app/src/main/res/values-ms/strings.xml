@@ -126,6 +126,8 @@
     <string name="connsSystem">digunakan Shroudly</string>
     <string name="connsTitle">Sambungan mengikut laman</string>
     <string name="connsTor">Melalui Tor</string>
+    <string name="connsTorApps">Aplikasi sentiasa melalui Tor</string>
+    <string name="connsTorAppsDesc">Aplikasi yang dipilih melalui Tor sepenuhnya, disekat atau tidak: lebih perlahan, dan pelayannya melihat alamat Tor, bukan alamat anda. Memilihnya bermakna membenarkan Tor.</string>
     <string name="connsTorBack">Laluan biasa</string>
     <string name="connsTorChosen">Dihantar melalui Tor</string>
     <string name="connsTorDesc">Laman yang menyekat negara anda sendiri (mengatakan ia tidak tersedia di tempat anda) dibuka melalui Tor: pilih Melalui Tor di sebelahnya.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Aplikasi yang pelayannya disekat rangkaian (seperti Telegram) kini melalui Tor, dan soalan Tor menyebut nama aplikasi, bukan alamat.</string>
+    <string name="whatsNewAndroid">Baharu: aplikasi sentiasa melalui Tor (Sambungan mengikut laman): pilih aplikasi seperti Instagram atau Telegram dan semuanya melalui Tor.\nAplikasi yang pelayannya disekat rangkaian kini juga melalui Tor, dan soalan Tor menyebut nama aplikasi, bukan alamat.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

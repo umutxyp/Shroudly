@@ -53,6 +53,7 @@ const BlockCheck = require('./blockcheck');
 const Diagnostics = require('./diagnostics');
 const ProcNet = require('./procnet');
 const { RawWatch, programName, serviceOf, askLabel } = require('./raw-apps');
+const TorApps = require('./tor-apps');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
@@ -1401,6 +1402,7 @@ app.whenReady().then(async () => {
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
   // The last way out (tor-route.js): Tor through Snowflake, for a site
   // nothing else opened; started by the engine's need of it.
+  let torWasReady = false;
   const torRoute = new TorRoute({
     dataDir: app.getPath('userData'), log: addLog,
     // The bridges the Tor Project gives out for this country, asked through
@@ -1410,7 +1412,15 @@ app.whenReady().then(async () => {
       const j = await netJson('https://shroudly.codeshare.me/v1/bridges', 20000);
       return j && j.bridges && typeof j.bridges === 'object' ? j.bridges : null;
     },
-    onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())),
+    onChange: () => {
+      toWindow('dpi:status-changed', !!(engine && engine.isActive()));
+      // Ready: what the user sends through Tor (sites, apps) and opened
+      // before it was is ended once, so the app connects again through it
+      // (a browser keeps a connection made the usual way for minutes).
+      const ready = torRoute.state === 'ready';
+      if (ready && !torWasReady && engine && engine.isActive()) engine.torReady();
+      torWasReady = ready;
+    },
     // Fetched the first time it is needed (issue #75), through the engine
     // while it runs, so a network that blocks torproject.org does not stop it.
     // Not on Windows 7 and 8: the Tor Project's Tor no longer runs there
@@ -3599,6 +3609,11 @@ ipcMain.handle('conns:list', async () => {
     rows: rows.map((r) => ({ ...r, system: SystemHosts.isSystemHost(r.host, [own]) })),
     blocked: store.get('userBlocked', []),
     torSites: store.get('torSites', []),
+    // "Apps always through Tor": the ones picked, and the list to pick from.
+    torApps: store.get('torApps', []),
+    torAppList: TorApps.APPS.map((a) => ({ id: a.id, name: a.name })),
+    // The names the picked apps send through Tor (their buttons decide those).
+    torAppNames: TorApps.entriesOf(store.get('torApps', [])).filter((n) => !n.includes('/')),
     // Whether a site can be sent through Tor here (not on Windows 7/8 or a
     // processor with no Tor, not while your own server carries everything).
     torOk: !torUnsupported() && !store.get('ownServer'),
@@ -3649,6 +3664,23 @@ ipcMain.handle('conns:tor', (e, host, on) => {
     if (!store.get('torApproved', false)) {
       store.set('torApproved', true);
       addLog('info', `The last way out: allowed by the user (sending ${String(host)} through Tor); Tor starts when it is needed`);
+    }
+    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    else if (engine.isActive() && engine.tor) engine.tor.need();
+  }
+  return r;
+});
+
+/* "Apps always through Tor": an app picked is, like a site sent through
+ * Tor, the user's consent to Tor (see conns:tor). */
+ipcMain.handle('conns:torApp', (e, id, on) => {
+  if (!engine) return { ok: false };
+  if (on === true && torUnsupported()) return { ok: false, why: 'unsupported' };
+  const r = engine.setTorApp(String(id || ''), on === true);
+  if (r.ok && on === true) {
+    if (!store.get('torApproved', false)) {
+      store.set('torApproved', true);
+      addLog('info', `The last way out: allowed by the user (sending ${String(id)} through Tor); Tor starts when it is needed`);
     }
     if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
     else if (engine.isActive() && engine.tor) engine.tor.need();

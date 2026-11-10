@@ -44,6 +44,8 @@
 "connsSystem" = "utilisé par Shroudly";
 "connsTitle" = "Connexions par site";
 "connsTor" = "Par Tor";
+"connsTorApps" = "Apps toujours par Tor";
+"connsTorAppsDesc" = "Une app choisie passe tout entière par Tor, bloquée ou non : plus lent, et ses serveurs voient une adresse Tor au lieu de la tienne. La choisir, c’est autoriser Tor.";
 "connsTorBack" = "Voie normale";
 "connsTorChosen" = "Envoyé par Tor";
 "connsTorDesc" = "Un site qui refuse lui-même ton pays (il dit ne pas être disponible là où tu es) s'ouvre par Tor : choisis Par Tor à côté.";
@@ -209,6 +211,6 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Sur le Mac, la question sur Tor nomme désormais l’app (comme Telegram) au lieu d’une adresse.";
+"whatsNewApple" = "Sur le Mac : apps toujours par Tor (Connexions par site), comme Instagram ou Telegram ; et la question sur Tor nomme l’app au lieu d’une adresse.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

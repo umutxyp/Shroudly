@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly အသုံးပြုသည်</string>
     <string name="connsTitle">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ</string>
     <string name="connsTor">Tor မှတစ်ဆင့်</string>
+    <string name="connsTorApps">Tor မှတစ်ဆင့် အမြဲသွားသော အက်ပ်များ</string>
+    <string name="connsTorAppsDesc">ရွေးထားသော အက်ပ်သည် ပိတ်ထားသည်ဖြစ်စေ မပိတ်ထားသည်ဖြစ်စေ Tor မှတစ်ဆင့် အပြည့်သွားသည်- ပိုနှေးပြီး ၎င်း၏ ဆာဗာများက သင့်လိပ်စာအစား Tor လိပ်စာကို မြင်သည်။ ရွေးခြင်းသည် Tor ကို ခွင့်ပြုခြင်းဖြစ်သည်။</string>
     <string name="connsTorBack">ပုံမှန်လမ်း</string>
     <string name="connsTorChosen">Tor မှတစ်ဆင့် ပို့နေသည်</string>
     <string name="connsTorDesc">သင့်နိုင်ငံကို ကိုယ်တိုင်ပိတ်ထားသော ဆိုက် (သင်ရှိရာတွင် မရနိုင်ဟုပြသော) ကို Tor မှတစ်ဆင့် ဖွင့်နိုင်သည်- ဘေးရှိ «Tor မှတစ်ဆင့်» ကို ရွေးပါ။</string>
@@ -319,7 +321,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ကွန်ရက်က ဆာဗာများကို ပိတ်ထားသော အက်ပ် (ဥပမာ Telegram) သည် ယခု Tor မှတစ်ဆင့် သွားပြီး Tor မေးခွန်းတွင် လိပ်စာအစား အက်ပ်အမည်ကို ဖော်ပြသည်။</string>
+    <string name="whatsNewAndroid">အသစ်- Tor မှတစ်ဆင့် အမြဲသွားသော အက်ပ်များ (ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ)- Instagram သို့မဟုတ် Telegram ကဲ့သို့ အက်ပ်ကို ရွေးပါ၊ အားလုံး Tor မှတစ်ဆင့် သွားမည်။\nကွန်ရက်က ဆာဗာများကို ပိတ်ထားသော အက်ပ်သည်လည်း ယခု Tor မှတစ်ဆင့် သွားပြီး Tor မေးခွန်းတွင် လိပ်စာအစား အက်ပ်အမည်ကို ဖော်ပြသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

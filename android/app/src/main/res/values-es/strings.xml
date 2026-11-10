@@ -126,6 +126,8 @@
     <string name="connsSystem">lo usa Shroudly</string>
     <string name="connsTitle">Conexiones por sitio</string>
     <string name="connsTor">Por Tor</string>
+    <string name="connsTorApps">Apps siempre por Tor</string>
+    <string name="connsTorAppsDesc">Una app elegida pasa entera por Tor, esté bloqueada o no: más lenta, y sus servidores ven una dirección de Tor en lugar de la tuya. Al elegirla, permites Tor.</string>
     <string name="connsTorBack">Vía normal</string>
     <string name="connsTorChosen">Enviado por Tor</string>
     <string name="connsTorDesc">Un sitio que bloquea tu país por su cuenta (dice que no está disponible donde estás) abre por Tor: elige Por Tor a su lado.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Una app cuyos servidores bloquea la red (como Telegram) ahora pasa por Tor, y la pregunta de Tor nombra la app en lugar de una dirección.</string>
+    <string name="whatsNewAndroid">Nuevo: apps siempre por Tor (Conexiones por sitio): elige una app como Instagram o Telegram y pasa entera por Tor.\nUna app cuyos servidores bloquea la red ahora también pasa por Tor, y la pregunta de Tor nombra la app en lugar de una dirección.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

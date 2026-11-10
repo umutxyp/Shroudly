@@ -17,6 +17,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.TextView
 
 /*
@@ -36,6 +37,9 @@ class ConnectionsActivity : Activity() {
     private lateinit var blockTyped: Button
     private lateinit var torTyped: Button
     private lateinit var torDesc: TextView
+    private lateinit var appsBox: LinearLayout
+    private val appSwitches = HashMap<String, Switch>()
+    private var settingApps = false
     private lateinit var search: EditText
     private var shown = true
 
@@ -59,6 +63,24 @@ class ConnectionsActivity : Activity() {
         root.addView(label(13f, R.color.text_dim).apply { setText(R.string.connsDesc); setPadding(0, dp(4f), 0, dp(6f)) })
         torDesc = label(13f, R.color.text_dim).apply { setText(R.string.connsTorDesc); setPadding(0, 0, 0, dp(12f)) }
         root.addView(torDesc)
+        // "Apps always through Tor": a whole app picked at once (its names,
+        // and its addresses for one that connects by address). A switch
+        // each: one tap on a phone, one press of the remote on a TV.
+        appsBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, 0, 0, dp(12f)) }
+        appsBox.addView(label(15f, R.color.text, true).apply { setText(R.string.connsTorApps) })
+        appsBox.addView(label(12f, R.color.text_dim).apply { setText(R.string.connsTorAppsDesc); setPadding(0, dp(2f), 0, dp(4f)) })
+        for (a in TorAppsList.apps) {
+            val sw = Switch(this).apply {
+                text = a.name
+                textDirection = View.TEXT_DIRECTION_LTR
+                setTextColor(getColor(R.color.text))
+                setPadding(0, dp(6f), 0, dp(6f))
+                setOnCheckedChangeListener { _, on -> if (!settingApps) { Conns.setTorApp(this@ConnectionsActivity, a.id, on); render() } }
+            }
+            appSwitches[a.id] = sw
+            appsBox.addView(sw, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
+        root.addView(appsBox)
         search = EditText(this).apply {
             setHint(R.string.connsSearch)
             isSingleLine = true
@@ -158,11 +180,17 @@ class ConnectionsActivity : Activity() {
         torTyped.visibility = if (canTor) View.VISIBLE else View.GONE
         if (canTor) torTyped.text = text(R.string.connsTorName, "host" to typed!!)
         torDesc.visibility = if (torOk()) View.VISIBLE else View.GONE
+        appsBox.visibility = if (torOk()) View.VISIBLE else View.GONE
+        val picked = Conns.torApps(this)
+        settingApps = true
+        for ((id, sw) in appSwitches) if (sw.isChecked != (id in picked)) sw.isChecked = id in picked
+        settingApps = false
+        appNames = Conns.appEntries(picked).filter { !it.contains('/') }.toSet()
         val torOnly = torSites.filter { t -> Conns.rows.none { it.host == t } && (needle.isEmpty() || t.contains(needle)) }.sorted()
         empty.visibility = if (rows.isEmpty() && blockedOnly.isEmpty() && torOnly.isEmpty() && !canBlock) View.VISIBLE else View.GONE
         empty.setText(if (Protection.state == Protection.State.ON) R.string.connsEmpty else R.string.statsInactiveHint)
         list.removeAllViews()
-        for (r in rows) list.addView(row(r.host, meta(r, own), r.blocked, Conns.isSystem(r.host, own), viaTor(r.host, torSites)))
+        for (r in rows) list.addView(row(r.host, meta(r, own), r.blocked, Conns.isSystem(r.host, own), viaTor(r.host, torSites), viaTor(r.host, appNames) != null))
         for (b in blockedOnly) list.addView(row(b, getString(R.string.connsBlocked), true, Conns.isSystem(b, own), null))
         for (t in torOnly) list.addView(row(t, getString(R.string.connsTorChosen), false, false, t))
     }
@@ -173,14 +201,17 @@ class ConnectionsActivity : Activity() {
         if (r.active > 0) parts += text(R.string.connsOpen, "count" to r.active)
         route(r)?.let { parts += it }
         if (Conns.isSystem(r.host, own)) parts += getString(R.string.connsSystem)
-        if (r.route != "tor" && viaTor(r.host, Conns.torSites(this)) != null) parts += getString(R.string.connsTorChosen)
+        if (r.route != "tor" && (viaTor(r.host, Conns.torSites(this)) != null || viaTor(r.host, appNames) != null)) parts += getString(R.string.connsTorChosen)
         return parts.joinToString(" · ")
     }
 
     /* The listed name that sends this one through Tor (itself or one above it). */
     private fun viaTor(host: String, sites: Set<String>): String? = sites.firstOrNull { host == it || host.endsWith(".$it") }
 
-    private fun row(host: String, sub: String, blocked: Boolean, system: Boolean, torBy: String?): View {
+    // The names of the apps picked (their switches decide those).
+    private var appNames: Set<String> = emptySet()
+
+    private fun row(host: String, sub: String, blocked: Boolean, system: Boolean, torBy: String?, byApp: Boolean = false): View {
         val r = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -191,7 +222,8 @@ class ConnectionsActivity : Activity() {
         texts.addView(label(12f, if (blocked) R.color.warn else R.color.text_faint).apply { text = sub })
         r.addView(texts, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         // Through Tor, or back the usual way (never for Shroudly's own names).
-        if (!blocked && !system && torOk()) r.addView(Button(this).apply {
+        // A name an app picked sends there: that app's switch brings it back.
+        if (!blocked && !system && torOk() && !(byApp && torBy == null)) r.addView(Button(this).apply {
             setText(if (torBy != null) R.string.connsTorBack else R.string.connsTor)
             if (torBy != null) setTextColor(Accent.color(this@ConnectionsActivity, R.attr.accentLight))
             setOnClickListener { if (torBy != null) tor(torBy, false) else tor(host, true) }

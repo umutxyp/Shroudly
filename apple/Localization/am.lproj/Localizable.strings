@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly ይጠቀማል";
 "connsTitle" = "በድረ ገጽ የተከፋፈሉ ግንኙነቶች";
 "connsTor" = "በTor በኩል";
+"connsTorApps" = "ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች";
+"connsTorAppsDesc" = "የተመረጠ መተግበሪያ ታግዶም ባይታገድም ሙሉ በሙሉ በTor ያልፋል፤ ቀርፋፋ ነው፣ አገልጋዮቹም ከእርስዎ አድራሻ ይልቅ የTor አድራሻ ያያሉ። መምረጥ Torን መፍቀድ ነው።";
 "connsTorBack" = "የተለመደው መንገድ";
 "connsTorChosen" = "በTor በኩል እየተላከ ነው";
 "connsTorDesc" = "አገርዎን ራሱ የሚያግድ ድረ-ገጽ (ባሉበት እንደማይገኝ የሚናገር) በTor በኩል ይከፈታል፦ ከጎኑ «በTor በኩል»ን ይምረጡ።";
@@ -209,6 +211,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "በMac ላይ የTor ጥያቄው አሁን ከአድራሻ ይልቅ የመተግበሪያውን ስም (እንደ Telegram) ይጠቅሳል።";
+"whatsNewApple" = "በMac ላይ፦ ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፣ እንደ Instagram ወይም Telegram፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

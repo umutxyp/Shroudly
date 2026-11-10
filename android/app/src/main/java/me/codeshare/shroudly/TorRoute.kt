@@ -215,6 +215,10 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
                     armIdle()
                     if (stage == "country") countryWorked = true
                     log("The last way out is ready: Tor through ${when (stage) { "snowflake" -> "Snowflake"; "country" -> "this country's bridges"; else -> "its bridges" }}")
+                    // What the user sends through Tor and opened while it
+                    // started: connected again, through it (a browser keeps a
+                    // connection made the usual way for minutes).
+                    if (Conns.torEntries(ctx).isNotEmpty()) Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, Conns.TOR_AGAIN)
                 }
                 onChange()
             }

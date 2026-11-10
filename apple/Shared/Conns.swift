@@ -85,6 +85,36 @@ enum Conns {
         return Array(now).sorted()
     }
 
+    /* "Apps always through Tor" (TorAppsList, from electron/tor-apps.js):
+     * the ids picked, known ones only, in the list's order. */
+    static let torAppsKey = "torApps"
+    static func torApps(_ d: UserDefaults = AppGroup.defaults) -> [String] {
+        let kept = Set(d.stringArray(forKey: torAppsKey) ?? [])
+        return TorAppsList.apps.map(\.id).filter { kept.contains($0) }
+    }
+
+    @discardableResult
+    static func set(app id: String, tor on: Bool, _ d: UserDefaults = AppGroup.defaults) -> [String]? {
+        guard TorAppsList.apps.contains(where: { $0.id == id }) else { return nil }
+        var now = Set(torApps(d))
+        if on { now.insert(id) } else { now.remove(id) }
+        d.set(TorAppsList.apps.map(\.id).filter { now.contains($0) }, forKey: torAppsKey)
+        return torApps(d)
+    }
+
+    /* The names and ranges of the apps `ids`, each once. */
+    static func appEntries(_ ids: [String]) -> [String] {
+        var seen = Set<String>()
+        return TorAppsList.apps.filter { ids.contains($0.id) }.flatMap(\.entries).filter { seen.insert($0).inserted }
+    }
+
+    /* Everything sent through Tor by the user's choice: the sites typed and
+     * the apps picked. */
+    static func torEntries(_ d: UserDefaults = AppGroup.defaults) -> [String] {
+        var seen = Set<String>()
+        return (torSites(d) + appEntries(torApps(d))).filter { seen.insert($0).inserted }
+    }
+
     /* The listed name that sends this one through Tor (itself or one above). */
     static func viaTor(_ host: String, _ sites: [String]) -> String? {
         sites.first { host == $0 || host.hasSuffix("." + $0) }
@@ -114,7 +144,7 @@ enum Conns {
      * every change: each list cleared first, so sending it again is safe). */
     static func commands(_ d: UserDefaults = AppGroup.defaults) -> [String] {
         ["BLOCK-CLEAR"] + blocked(d).map { "BLOCK \($0)" }
-            + ["TOR-CLEAR"] + torSites(d).map { "TOR \($0)" }
+            + ["TOR-CLEAR"] + torEntries(d).map { "TOR \($0)" }
             + ["ONLY-CLEAR"] + onlySites(d).map { "ONLY \($0)" } + ["ONLY-MODE \(onlyMode(d) ? 1 : 0)"]
     }
 }

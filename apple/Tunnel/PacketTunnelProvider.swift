@@ -49,6 +49,16 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let t = TorRoute(log: { [weak self] in self?.log($0) })
         t.usedCount = { [weak self] in ((self?.engine?.lastStats?["fallback"]) as? NSNumber)?.int64Value ?? 0 }
         t.countryBridges = { [weak self] in await TorRoute.fetchCountry(via: self?.enginePath) }
+        // What the user sends through Tor (sites, apps) and opened while it
+        // started: given again, which ends those connections, so the apps
+        // connect again through Tor (a browser keeps one for minutes).
+        t.onReady = { [weak self] in
+            guard let self else { return }
+            self.queue.async {
+                let t = Conns.torEntries()
+                if !t.isEmpty, !self.stopping, let e = self.engine { e.send(t.map { "TOR \($0)" }.joined(separator: "\n")) }
+            }
+        }
         return t
     }()
     private let fileLog = SharedLog(name: "tunnel.log")
@@ -306,6 +316,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let b = Conns.blocked().count, t = Conns.torSites().count
         if b > 0 { said.append("\(b) name\(b == 1 ? "" : "s") you blocked are refused") }
         if t > 0 { said.append("\(t) site\(t == 1 ? "" : "s") you send through Tor go there first") }
+        let apps = Conns.torApps()
+        if !apps.isEmpty { said.append(TorAppsList.apps.filter { apps.contains($0.id) }.map(\.name).joined(separator: ", ") + " always through Tor") }
         if Conns.onlyMode() { said.append("only the \(Conns.onlySites().count) listed sites are worked on, the rest go out as they are") }
         if !said.isEmpty { log("Connections: " + said.joined(separator: "; ")) }
     }

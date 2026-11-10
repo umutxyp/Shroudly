@@ -82,6 +82,47 @@ const site = (status) => tls.createServer(H.testServerOptions(), (s) => {
   }
 
   {
+    /* An app picked in "Apps through Tor" that connects by address
+     * (Telegram): TOR <address>/<bits> sends every address in the range
+     * there at once, without first waiting on the address itself (TEST-NET
+     * ranges answer nobody, so the usual way would wait for the dial). */
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, [...base, '--fallback-file', torFile]);
+    const open = async (host) => {
+      const t0 = Date.now();
+      const n0 = tor.asked.length;
+      try { const s = await H.socks(P, host, 443); s.destroy(); } catch { return { ok: false, ms: Date.now() - t0, asked: null }; }
+      return { ok: true, ms: Date.now() - t0, asked: tor.asked.slice(n0).map((x) => x.host) };
+    };
+    eng.proc.stdin.write('TOR 192.0.2.0/24\nTOR 2001:db8::/32\nTOR 192.0.2.0/33\nTOR 10.0.0.1/8x\n');
+    await H.sleep(300);
+    t.ok((eng.out.match(/"type":"tor_site","ok":1/g) || []).length === 2, 'two ranges taken, the malformed ones not');
+    const a = await open('192.0.2.7');
+    t.ok(a.ok && a.ms < 3000 && a.asked.join() === '192.0.2.7', `an address in the range goes through Tor at once (${a.ms} ms, ${a.asked})`);
+    const b = await open('2001:db8::5');
+    t.ok(b.ok && b.ms < 3000 && b.asked.join() === 'v6', `an IPv6 one too (the stand-in notes an IPv6 address as v6) (${b.ms} ms, ${b.asked})`);
+    const before = eng.out.length;
+    eng.proc.stdin.write('CONNS\n');
+    await H.sleep(300);
+    const row = eng.out.slice(before).split('\n').find((l) => l.includes('"host":"192.0.2.7"'));
+    t.ok(row && /"route":"tor"/.test(row), `the Connections list shows it went through Tor (${row})`);
+    eng.proc.stdin.write('UNTOR 192.0.2.0/24\n');
+    await H.sleep(200);
+    const c = await open('192.0.2.8');
+    t.ok(c.ms > 3000, `UNTOR: the usual way again, the address itself tried first (${c.ms} ms)`);
+    // TOR-CLEAR then the list again (how the Mac app sends a change): what
+    // left the list is forgotten as carried, not kept through Tor.
+    eng.proc.stdin.write('TOR 198.51.100.0/24\n');
+    await H.sleep(200);
+    const d = await open('198.51.100.9');
+    eng.proc.stdin.write('TOR-CLEAR\n');
+    await H.sleep(200);
+    const e = await open('198.51.100.9');
+    t.ok(d.ms < 3000 && e.ms > 3000, `TOR-CLEAR: an address that left the list goes the usual way again (${d.ms} ms, then ${e.ms} ms)`);
+    eng.stop();
+  }
+
+  {
     // No last way out set (the lite APK, or Tor turned off): the usual way.
     const P = await H.freePort();
     const eng = await H.startEngine(P, base);

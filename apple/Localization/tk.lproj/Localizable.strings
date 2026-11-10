@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly ulanýar";
 "connsTitle" = "Saýtlar boýunça birikmeler";
 "connsTor" = "Tor arkaly";
+"connsTorApps" = "Hemişe Tor arkaly gidýän programmalar";
+"connsTorAppsDesc" = "Saýlanan programma, petiklenen bolsa-da, bolmasa-da, doly Tor arkaly gidýär: haýalrak, serwerleri bolsa siziň salgyňyzyň ýerine Tor salgysyny görýär. Saýlamak Tor-a rugsat bermek diýmekdir.";
 "connsTorBack" = "Adaty ýol";
 "connsTorChosen" = "Tor arkaly iberilýär";
 "connsTorDesc" = "Ýurduňyzy özi goýbermeýän saýt (siziň ýeriňizde elýeterli däl diýýän) Tor arkaly açylýar: ýanyndaky «Tor arkaly» düwmesine basyň.";
@@ -209,6 +211,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Mac-da Tor soragy indi salgynyň ýerine programmanyň adyny (meselem, Telegram) agzaýar.";
+"whatsNewApple" = "Mac-da: hemişe Tor arkaly gidýän programmalar (Saýtlar boýunça birikmeler), meselem Instagram ýa-da Telegram; Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";
