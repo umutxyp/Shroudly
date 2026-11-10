@@ -142,6 +142,11 @@ struct ReportView: View {
         #else
         .navigationTitle(tr("reportTitle"))
         #endif
+        #if os(iOS)
+        // iPad: the form sits in the middle (pageWidth); a large title on the
+        // left edge stood apart from it.
+        .navigationBarTitleDisplayMode(UIDevice.current.userInterfaceIdiom == .pad ? .inline : .automatic)
+        #endif
     }
 
     private var platform: String {
