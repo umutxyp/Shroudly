@@ -29,3 +29,19 @@ object Buttons {
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
     }
 }
+
+/* A screen's column on a wide screen (a TV, a tablet): as wide as the other
+ * pages, in the middle, not stretched across. Connections and the report
+ * ran from edge to edge on a TV, the words on the left, the switches far
+ * off on the right. */
+object WideColumn {
+    const val MAX_DP = 760
+
+    fun params(ctx: android.content.Context): android.widget.FrameLayout.LayoutParams {
+        val d = ctx.resources.displayMetrics.density
+        val max = (MAX_DP * d).toInt()
+        val w = if (ctx.resources.displayMetrics.widthPixels > max) max else android.view.ViewGroup.LayoutParams.MATCH_PARENT
+        return android.widget.FrameLayout.LayoutParams(w, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.Gravity.CENTER_HORIZONTAL)
+    }
+}
+
