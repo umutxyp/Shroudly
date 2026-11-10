@@ -606,6 +606,29 @@ function getJson(url, timeout) {
   });
 }
 
+/* Tor for a report that did not get through the usual way: ready already,
+ * or started for it where the user allowed Tor (Settings, or yes to its
+ * question) and waited for, up to REPORT_TOR_WAIT_MS. Russia's networks
+ * freeze Cloudflare's addresses, where the report server is, after about
+ * 16 KB, and a report with its log is more than that: with Tor off, it
+ * could not be sent at all (a Russian user, 2.6.68). */
+const REPORT_TOR_WAIT_MS = 150000;
+async function torReadyForReport(waitMs = REPORT_TOR_WAIT_MS) {
+  const tor = engine && engine.isActive() ? engine.tor : null;
+  if (!tor) return false;
+  if (tor.state === 'ready') return true;
+  if (store.get('torLastResort', true) === false || store.get('torApproved', false) !== true) return false;
+  addLog('info', 'Report: not through the usual way; starting Tor to send it');
+  try { tor.need(); } catch { return false; }
+  const until = Date.now() + waitMs;
+  while (Date.now() < until) {
+    if (tor.state === 'ready') return true;
+    if (tor.state === 'failed') return false;
+    await new Promise((res) => setTimeout(res, 1000));
+  }
+  return tor.state === 'ready';
+}
+
 /* The same through Chromium's network (net.request: Electron 22 has it,
  * net.fetch came in 25), so it follows the session's proxy: through the
  * engine while protection is on (syncOwnProxy). */
@@ -3809,7 +3832,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
     // Not through the usual way, with Tor ready: once more through Tor
     // (Russia's networks slow Cloudflare, where codeshare.me is, down until
     // nothing gets through, and other VPNs there with it).
-    if (!r.ok && r.error === 'network' && engine) {
+    if (!r.ok && r.error === 'network' && engine && await torReadyForReport()) {
       const back = engine.torForNow(new URL(Report.URL_REPORT).hostname);
       if (back) {
         addLog('info', 'Report: not through the usual way; sending it through Tor');

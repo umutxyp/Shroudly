@@ -228,7 +228,7 @@ class ReportActivity : Activity() {
             // Not through the usual way, with Tor ready: once more through
             // Tor (Russia's networks slow Cloudflare, where codeshare.me is,
             // down until nothing gets through, other VPNs there with it).
-            if (!r.ok && r.error == "network" && Protection.socksPort > 0 && TorRoute.state == "ready") {
+            if (!r.ok && r.error == "network" && Protection.socksPort > 0 && torReady(ctx)) {
                 val kept = Report.HOST in Conns.torSites(ctx)
                 Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "TOR ${Report.HOST}")
                 AppLog.add("Report: not through the usual way; sending it through Tor")
@@ -315,5 +315,23 @@ class ReportActivity : Activity() {
         } catch (_: Exception) {
             Toast.makeText(this, url.removePrefix("https://"), Toast.LENGTH_LONG).show()
         }
+    }
+
+    /* Tor for a report that did not get through the usual way: ready
+     * already, or started for it where the user allowed Tor and waited for
+     * (up to 150 s). Russia's networks freeze Cloudflare's addresses, where
+     * the report server is, after about 16 KB, and a report with its log is
+     * more: with Tor off it could not be sent at all (a Russian user, 2.6.68). */
+    private fun torReady(ctx: android.content.Context): Boolean {
+        if (TorRoute.state == "ready") return true
+        if (!TorRoute.enabled(ctx) || !TorRoute.approved(ctx) || !TorRoute.bundled(ctx)) return false
+        AppLog.add("Report: not through the usual way; starting Tor to send it")
+        try { TorRoute.shared(ctx).need() } catch (_: Exception) { return false }
+        val until = System.currentTimeMillis() + 150_000
+        while (System.currentTimeMillis() < until) {
+            when (TorRoute.state) { "ready" -> return true; "failed" -> return false }
+            try { Thread.sleep(1000) } catch (_: InterruptedException) { return false }
+        }
+        return TorRoute.state == "ready"
     }
 }
