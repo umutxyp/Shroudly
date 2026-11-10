@@ -319,7 +319,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Nouveau look : l\'interrupteur rond est le logo de Shroudly, œil fermé à l\'arrêt. Touchez-le pour démarrer ou arrêter.\nOnglets flottants en bas (appuyez et glissez dessus, ou balayez la page), Statistiques avec les débits en direct et onglets des Réglages jamais serrés. Les journaux sont maintenant dans À propos.</string>
+    <string name="whatsNewAndroid">Tor passe même là où ses ponts habituels sont bloqués : il demande les ponts que le Tor Project fournit pour votre pays.\nInstagram, WhatsApp et Facebook sur les réseaux IPv6, et les sites qui se figent en cours de route (Russie), s\'ouvrent plus tôt par Tor.\nUn formulaire de signalement plus court, et TalkBack ne lit plus l\'état chaque seconde.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

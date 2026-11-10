@@ -319,7 +319,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">مظهر جديد: المفتاح الدائري هو شعار Shroudly، وعينه مغمضة عند الإيقاف. انقر عليه للتشغيل أو الإيقاف.\nعلامات تبويب عائمة في الأسفل (اضغط واسحب عليها أو اسحب الصفحة)، وإحصاءات بسرعات مباشرة، وعلامات تبويب للإعدادات لا تتزاحم أبدًا. السجلات الآن في «حول».</string>
+    <string name="whatsNewAndroid">يتصل Tor حتى حيث تُحجب جسوره المعتادة: يطلب الجسور التي يقدّمها مشروع Tor لبلدك.\nInstagram وWhatsApp وFacebook على شبكات IPv6، والمواقع التي تتجمّد في منتصف التحميل (روسيا)، تُفتح عبر Tor أبكر.\nنموذج بلاغ أقصر، ولم يعد TalkBack يقرأ الحالة كل ثانية.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

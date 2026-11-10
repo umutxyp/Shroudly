@@ -319,7 +319,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Neues Aussehen: Der runde Schalter ist das Shroudly-Logo, aus mit geschlossenem Auge. Zum Starten oder Stoppen antippen.\nSchwebende Tabs unten (gedrückt halten und entlangwischen oder die Seite wischen), Statistik mit Live-Geschwindigkeit und Einstellungs-Tabs, die nie gequetscht werden. Protokolle sind jetzt unter Info.</string>
+    <string name="whatsNewAndroid">Tor kommt auch dort durch, wo seine üblichen Bridges gesperrt sind: Es fragt nach den Bridges, die das Tor Project für dein Land anbietet.\nInstagram, WhatsApp und Facebook in IPv6-Netzen sowie Seiten, die mittendrin hängen (Russland), öffnen früher über Tor.\nEin kürzeres Meldeformular, und TalkBack liest den Status nicht mehr jede Sekunde vor.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

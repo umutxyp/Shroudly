@@ -319,7 +319,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Yeni görünüm: ortadaki daire Shroudly logosu, kapalıyken gözü kapalı. Başlatmak ya da durdurmak için ona dokun.\nAltta yüzen sekmeler (basılı tutup üzerlerinde kaydır ya da sayfayı yana kaydır), canlı hızlarla İstatistik ve hiç sıkışmayan Ayarlar sekmeleri. Kayıtlar artık Hakkında\'da.</string>
+    <string name="whatsNewAndroid">Tor, alışılmış köprüleri engellendiğinde de bağlanıyor: Tor Project\'in ülkeniz için verdiği köprüleri istiyor.\nIPv6 ağlarında Instagram, WhatsApp ve Facebook ile yarıda donan siteler (Rusya) Tor üzerinden daha erken açılıyor.\nDaha kısa rapor formu; TalkBack durumu artık her saniye okumuyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

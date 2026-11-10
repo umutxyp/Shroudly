@@ -319,7 +319,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Жаңа көрініс: дөңгелек қосқыш — Shroudly логотипі, өшірулі кезде көзі жұмулы. Бастау не тоқтату үшін түртіңіз.\nТөменде қалқымалы қойындылар (басып тұрып бойымен сырғытыңыз не бетті сырғытыңыз), тікелей жылдамдығы бар Статистика және ешқашан қысылмайтын Баптаулар қойындылары. Журнал енді «Қолданба туралы» бөлімінде.</string>
+    <string name="whatsNewAndroid">Tor әдеттегі көпірлері бұғатталған жерде де қосылады: Tor Project сіздің елге беретін көпірлерді сұрайды.\nIPv6 желілеріндегі Instagram, WhatsApp және Facebook, сондай-ақ жартылай қатып қалатын сайттар (Ресей) Tor арқылы ертерек ашылады.\nҚысқарақ есеп пішіні; TalkBack енді күйді әр секунд сайын оқымайды.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

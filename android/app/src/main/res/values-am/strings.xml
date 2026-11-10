@@ -319,7 +319,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አዲስ ገጽታ፦ ክብ ማብሪያው የShroudly አርማ ነው፣ ሲጠፋ ዓይኑ ተዘግቷል። ለመጀመር ወይም ለማቆም ይንኩት።\nከታች ተንሳፋፊ ትሮች (ተጭነው በላያቸው ያንሸራቱ ወይም ገጹን ያንሸራቱ)፣ የቀጥታ ፍጥነት ያለው ስታቲስቲክስ እና ፈጽሞ የማይጨናነቁ የቅንብሮች ትሮች። ምዝግቦች አሁን በ«ስለ» ውስጥ ናቸው።</string>
+    <string name="whatsNewAndroid">Tor የተለመዱ ድልድዮቹ በታገዱበትም ይገናኛል፤ Tor Project ለአገርዎ የሚሰጣቸውን ድልድዮች ይጠይቃል።\nበIPv6 አውታረ መረቦች ላይ Instagram፣ WhatsApp እና Facebook እንዲሁም በመሃል የሚቀዘቅዙ ጣቢያዎች (ሩሲያ) በTor ቶሎ ይከፈታሉ።\nአጭር የሪፖርት ቅጽ፤ TalkBack ሁኔታውን በየሰከንዱ አያነብም።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

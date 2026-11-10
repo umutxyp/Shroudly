@@ -319,7 +319,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Xuyangeke nû: bişkoka girover logoya Shroudly ye, dema girtî ye çav girtî ye. Ji bo destpêkirin an rawestandinê lê bitikîne.\nTabên ku li jêr diherikin (bigire û li ser wan bişemitîne an rûpelê bişemitîne), Statîstîk bi leza zindî û tabên Mîhengan ku qet teng nabin. Tomar niha di «Derbarê» de ne.</string>
+    <string name="whatsNewAndroid">Tor li cihê ku pirên wê yên asayî hatine astengkirin jî girê dide: pirên ku Tor Project ji bo welatê te dide dixwaze.\nInstagram, WhatsApp û Facebook li ser torên IPv6, û malperên ku di nîvê rê de diqerisin (Rûsya), zûtir bi Tor vedibin.\nFormek raporê ya kurttir, û TalkBack êdî her çirkê rewşê naxwîne.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

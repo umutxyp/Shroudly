@@ -319,7 +319,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Giao diện mới: công tắc tròn là logo Shroudly, mắt nhắm khi tắt. Chạm vào để bật hoặc dừng.\nCác thẻ nổi ở dưới (nhấn giữ và trượt dọc theo chúng, hoặc vuốt trang), Thống kê với tốc độ trực tiếp và các thẻ Cài đặt không bao giờ chật chội. Nhật ký giờ nằm trong Giới thiệu.</string>
+    <string name="whatsNewAndroid">Tor vẫn kết nối được dù các cầu nối thông thường bị chặn: nó xin các cầu nối mà Tor Project cung cấp cho quốc gia của bạn.\nInstagram, WhatsApp và Facebook trên mạng IPv6, cùng các trang bị treo giữa chừng (Nga), mở qua Tor sớm hơn.\nBiểu mẫu báo cáo ngắn hơn, và TalkBack không còn đọc trạng thái mỗi giây.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

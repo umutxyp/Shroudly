@@ -319,7 +319,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">全新外观：圆形开关就是 Shroudly 的标志，关闭时眼睛闭着。轻点即可开始或停止。\n底部悬浮标签（按住后沿标签滑动，或滑动页面）、带实时速度的统计，以及不再拥挤的设置标签。日志现在位于“关于”中。</string>
+    <string name="whatsNewAndroid">即使常用网桥被封锁，Tor 也能连上：它会获取 Tor Project 为你所在国家提供的网桥。\nIPv6 网络上的 Instagram、WhatsApp 和 Facebook，以及中途卡住的网站（俄罗斯），会更早通过 Tor 打开。\n报告表单更简短；TalkBack 不再每秒读出状态。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>
