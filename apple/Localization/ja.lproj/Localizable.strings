@@ -212,6 +212,6 @@
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Mac：常に Tor を通すアプリ（サイト別の接続）を選べるようになりました（Instagram や Telegram など）。Tor の確認にはアドレスではなくアプリ名が表示されます。";
+"whatsNewMac" = "常に Tor を通すアプリ（サイト別の接続）を選べるようになりました（Instagram や Telegram など）。Tor の確認にはアドレスではなくアプリ名が表示されます。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

@@ -212,6 +212,6 @@
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "在 Mac 上：可选择始终通过 Tor 的应用（按网站的连接），如 Instagram 或 Telegram；关于 Tor 的提问也会写出应用名称，而不是一个地址。";
+"whatsNewMac" = "可选择始终通过 Tor 的应用（按网站的连接），如 Instagram 或 Telegram；关于 Tor 的提问也会写出应用名称，而不是一个地址。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

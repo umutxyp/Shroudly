@@ -212,6 +212,6 @@
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Mac'da: doim Tor orqali o'tadigan ilovalar (Saytlar bo'yicha ulanishlar), masalan Instagram yoki Telegram; Tor savoli esa manzil o'rniga ilova nomini aytadi.";
+"whatsNewMac" = "Doim Tor orqali o'tadigan ilovalar (Saytlar bo'yicha ulanishlar), masalan Instagram yoki Telegram; Tor savoli esa manzil o'rniga ilova nomini aytadi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

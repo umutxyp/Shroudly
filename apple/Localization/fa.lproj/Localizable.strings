@@ -212,6 +212,6 @@
 "uptime" = "مدت فعالیت";
 "versionLabel" = "نسخهٔ {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "در Mac: برنامه‌هایی که همیشه از Tor می‌روند (اتصال‌ها بر اساس سایت)، مثل Instagram یا Telegram؛ و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.";
+"whatsNewMac" = "برنامه‌هایی که همیشه از Tor می‌روند (اتصال‌ها بر اساس سایت)، مثل Instagram یا Telegram؛ و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.";
 "whatsNewOk" = "متوجه شدم";
 "whatsNewTitle" = "تازه‌های نسخهٔ {version}";

@@ -933,7 +933,7 @@
   "whatsNewDesktop": "Neu: Apps immer über Tor (Verbindungen nach Seite): Wähle eine App wie Instagram oder Telegram, und sie läuft vollständig über Tor.\nEine App, deren Server das Netz sperrt, läuft jetzt ebenfalls über Tor, und die Tor-Frage nennt die App statt einer Adresse.",
   "whatsNewAndroid": "Neu: Apps immer über Tor (Verbindungen nach Seite): Wähle eine App wie Instagram oder Telegram, und sie läuft vollständig über Tor.\nEine App, deren Server das Netz sperrt, läuft jetzt ebenfalls über Tor, und die Tor-Frage nennt die App statt einer Adresse.",
   "whatsNewApple": "",
-  "whatsNewMac": "Auf dem Mac: Apps immer über Tor (Verbindungen nach Seite), etwa Instagram oder Telegram; und die Tor-Frage nennt die App statt einer Adresse.",
+  "whatsNewMac": "Apps immer über Tor (Verbindungen nach Seite), etwa Instagram oder Telegram; und die Tor-Frage nennt die App statt einer Adresse.",
   "appleVpnNotSigned": "Diese Kopie von Shroudly ist ohne Apples Berechtigung für VPNs signiert, deshalb lässt iOS sie kein VPN starten und fragt auch nie. Kopien, die mit einer kostenlosen Apple-ID signiert sind (AltStore, SideStore, Sideloadly und ähnliche), haben sie nie. Installiere sie mit TrollStore oder signiere sie mit einem kostenpflichtigen Apple-Entwicklerkonto.",
   "appleInstallHelp": "So wird es installiert",
   "snowflakeHow": "So funktioniert es: Sie kommen über Snowflake des Tor-Netzwerks, deshalb verlässt das, was sie öffnen, das Netz über Tors Server, nicht über deine.",

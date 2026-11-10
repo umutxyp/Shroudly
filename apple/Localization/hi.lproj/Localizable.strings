@@ -212,6 +212,6 @@
 "uptime" = "सक्रिय समय";
 "versionLabel" = "संस्करण {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Mac पर: हमेशा Tor से जाने वाले ऐप (साइट के अनुसार कनेक्शन), जैसे Instagram या Telegram; और Tor वाला सवाल पते की जगह ऐप का नाम बताता है।";
+"whatsNewMac" = "हमेशा Tor से जाने वाले ऐप (साइट के अनुसार कनेक्शन), जैसे Instagram या Telegram; और Tor वाला सवाल पते की जगह ऐप का नाम बताता है।";
 "whatsNewOk" = "समझ गया";
 "whatsNewTitle" = "{version} में नया क्या है";
