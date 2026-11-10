@@ -209,6 +209,6 @@
 "upload" = "Вивантаження";
 "uptime" = "Час роботи";
 "versionLabel" = "Версія {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "На Mac питання про Tor тепер називає застосунок (наприклад, Telegram), а не адресу.";
 "whatsNewOk" = "Зрозуміло";
 "whatsNewTitle" = "Що нового у {version}";

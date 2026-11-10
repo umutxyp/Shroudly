@@ -319,7 +319,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">A report that cannot get through (Russia slows the report server) now goes through Tor, started just for it if Tor is not running.</string>
+    <string name="whatsNewAndroid">An app whose servers the network blocks (such as Telegram) now goes through Tor, and the Tor question names the app instead of an address.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

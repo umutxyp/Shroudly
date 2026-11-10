@@ -319,7 +319,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">هغه راپور چې نشي لېږل کېدای (روسیه د راپور سرور ورو کوي) اوس د Tor له لارې ځي؛ که Tor چالان نه وي، یوازې د هغه لپاره پیلېږي.</string>
+    <string name="whatsNewAndroid">هغه اپ چې شبکه یې سرورونه بندوي (لکه Telegram) اوس د Tor له لارې ځي، او د Tor پوښتنه د پتې پر ځای د اپ نوم اخلي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

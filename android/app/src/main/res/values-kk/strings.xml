@@ -319,7 +319,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Жіберілмей тұрған есеп (Ресей есеп серверін баяулатады) енді Tor арқылы кетеді; Tor іске қосылмаған болса, тек сол үшін қосылады.</string>
+    <string name="whatsNewAndroid">Желі серверлерін бұғаттайтын қолданба (мысалы, Telegram) енді Tor арқылы өтеді, ал Tor туралы сұрақ мекенжайдың орнына қолданбаның атын атайды.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

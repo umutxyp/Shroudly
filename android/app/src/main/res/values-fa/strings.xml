@@ -319,7 +319,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">گزارشی که ارسال نمی‌شود (روسیه سرور گزارش‌ها را کند می‌کند) اکنون از طریق Tor می‌رود؛ اگر Tor روشن نباشد، فقط برای همین روشن می‌شود.</string>
+    <string name="whatsNewAndroid">برنامه‌ای که شبکه سرورهایش را مسدود می‌کند (مثل Telegram) اکنون از طریق Tor می‌رود و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

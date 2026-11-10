@@ -43,6 +43,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     /* A site needs Tor and the user has not said yes yet (TorNotice.ask):
      * its name, for the app's card; nil when nothing is asked. */
     private var torAsk: String?
+    // The rank of what torAsk names (TorNotice.label).
+    private var torAskRank = -1
     private lazy var torRoute: TorRoute = {
         let t = TorRoute(log: { [weak self] in self?.log($0) })
         t.usedCount = { [weak self] in ((self?.engine?.lastStats?["fallback"]) as? NSNumber)?.int64Value ?? 0 }
@@ -176,6 +178,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         TorNotice.reset()
         dnsAround = false
         torAsk = nil
+        torAskRank = -1
         upstreamLine = nil
         clearOwnServerDown()
         return clean
@@ -227,8 +230,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     self.queue.async {
                         guard self.torAsk == nil, TorNotice.askAgainDue() else { return }
                         self.log("The last way out is off and a site stays shut; asking again whether to use Tor")
-                        self.torAsk = host.lowercased()
-                        TorNotice.ask(host)
+                        (self.torAsk, self.torAskRank) = TorNotice.label(had: nil, hadRank: -1, host: host)
+                        TorNotice.ask(self.torAsk ?? host)
                     }
                 }
             }
@@ -241,9 +244,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     else {
                         self.queue.async {
                             if self.torAsk == nil { self.log("The last way out: a site needs Tor; asking before it starts") }
-                            self.torAsk = host.isEmpty ? (self.torAsk ?? "") : host.lowercased()
+                            let had = self.torAsk
+                            (self.torAsk, self.torAskRank) = TorNotice.label(had: had, hadRank: had == nil ? -1 : self.torAskRank, host: host)
+                            let shown = self.torAsk ?? ""
+                            let better = had != nil && shown != had
+                            if better { self.log("The last way out: the question now names \(shown)") }
+                            TorNotice.ask(shown, again: better)
                         }
-                        TorNotice.ask(host)
                     }
                 }
             }

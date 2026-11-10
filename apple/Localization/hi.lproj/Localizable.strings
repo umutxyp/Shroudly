@@ -209,6 +209,6 @@
 "upload" = "अपलोड";
 "uptime" = "सक्रिय समय";
 "versionLabel" = "संस्करण {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac पर Tor वाला सवाल अब पते की जगह ऐप का नाम (जैसे Telegram) बताता है।";
 "whatsNewOk" = "समझ गया";
 "whatsNewTitle" = "{version} में नया क्या है";

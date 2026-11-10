@@ -209,6 +209,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac'da Tor savoli endi manzil o'rniga ilova nomini (masalan, Telegram) aytadi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

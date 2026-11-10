@@ -209,6 +209,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "在 Mac 上，关于 Tor 的提问现在会写出应用名称（如 Telegram），而不是一个地址。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

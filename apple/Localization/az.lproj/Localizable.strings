@@ -209,6 +209,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac-da Tor sualı indi ünvan əvəzinə tətbiqin adını (məsələn, Telegram) çəkir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

@@ -319,7 +319,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Отчёт, который не удаётся отправить (в России сервер отчётов замедляют), теперь уходит через Tor; если Tor не запущен, он включается только ради отчёта.</string>
+    <string name="whatsNewAndroid">Приложение, чьи серверы блокирует сеть (например, Telegram), теперь идёт через Tor, а вопрос о Tor называет приложение, а не адрес.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

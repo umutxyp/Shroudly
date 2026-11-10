@@ -209,6 +209,6 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "En el Mac, la pregunta de Tor ahora nombra la app (como Telegram) en lugar de una dirección.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

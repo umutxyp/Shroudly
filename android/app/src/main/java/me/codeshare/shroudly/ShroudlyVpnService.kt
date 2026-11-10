@@ -273,7 +273,7 @@ class ShroudlyVpnService : VpnService() {
     private val told = HashSet<String>()
     // Apps whose own connections (not TLS or HTTP) cannot get through.
     private val rawWatch by lazy {
-        RawWatch(RawApps(try { assets.open("raw-apps.txt").bufferedReader().readLines() } catch (_: Exception) { emptyList() })) {
+        RawWatch(RawApps.of(this)) {
             // Never told without a network under the VPN, nor while nothing
             // else comes back either.
             underlyingId != null && SystemClock.elapsedRealtime() - lastDownAt <= RAW_NETWORK_WORKS_MS
@@ -1401,13 +1401,31 @@ class ShroudlyVpnService : VpnService() {
             is RawWatch.Outcome.Tell -> {
                 val n = o.notice
                 val addrs = n.addrs.joinToString(", ")
-                log(
-                    if (n.kind == RawWatch.Kind.UNREACHABLE) "${n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that"
-                    else "${n.app}: the network stops its connections ($addrs) and no technique got through; only the app's own proxy setting or a VPN gets around that",
-                )
-                // The lite APK: the full one's Tor would carry the app's
-                // connections too (LiteOffer); its card says so instead.
-                if (!(LiteOffer.lite && LiteOffer.offer(this, n.app))) notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app)
+                val what = if (n.kind == RawWatch.Kind.UNREACHABLE) "${n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves"
+                    else "${n.app}: the network stops its connections ($addrs) and no technique got through"
+                // The last way out takes these connections too (the engine's
+                // via_fallback, by address): "use the app's own proxy" was
+                // wrong advice there. An Iran Telegram report: that notice,
+                // and a Tor question naming a bare IPv6 address, so Tor was
+                // never allowed and Telegram stayed shut.
+                when (TorAsk.forRaw(LiteOffer.lite, TorRoute.bundled(this), TorRoute.enabled(this), TorRoute.approved(this),
+                    AppSettings.ownServerTyped(this).isNotBlank() || Protection.ownServerDown != null)) {
+                    TorAsk.Raw.CARRIES -> logSite { "$what; they go through the last way out (Tor)" }
+                    TorAsk.Raw.ASKS -> {
+                        log("$what; the last way out (Tor) gets around that once allowed, asked on the main screen")
+                        TorAsk.askApp(this, n.app)
+                    }
+                    TorAsk.Raw.OFF -> {
+                        if (TorAsk.askAgain(this, n.app, app = true)) log("$what; the last way out (Tor), turned off, would get around that: asked again on the main screen")
+                        else { log("$what; only the app's own proxy setting, a VPN, or the last way out (Tor, Settings) gets around that"); notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app) }
+                    }
+                    TorAsk.Raw.NONE -> {
+                        log("$what; only the app's own proxy setting or a VPN gets around that")
+                        // The lite APK: the full one's Tor would carry the app's
+                        // connections too (LiteOffer); its card says so instead.
+                        if (!(LiteOffer.lite && LiteOffer.offer(this, n.app))) notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app)
+                    }
+                }
             }
             RawWatch.Outcome.Nothing -> {}
         }

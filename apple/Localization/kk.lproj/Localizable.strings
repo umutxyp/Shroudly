@@ -209,6 +209,6 @@
 "upload" = "Жүктеп салу";
 "uptime" = "Жұмыс уақыты";
 "versionLabel" = "Нұсқа {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac-та Tor туралы сұрақ енді мекенжайдың орнына қолданбаның атын (мысалы, Telegram) атайды.";
 "whatsNewOk" = "Түсінікті";
 "whatsNewTitle" = "{version} нұсқасындағы жаңалықтар";

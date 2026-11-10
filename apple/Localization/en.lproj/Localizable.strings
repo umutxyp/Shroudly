@@ -209,6 +209,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "On the Mac, the Tor question now names the app (such as Telegram) instead of an address.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

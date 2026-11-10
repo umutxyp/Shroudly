@@ -319,7 +319,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Гузорише, ки фиристода намешавад (Русия сервери гузоришҳоро суст мекунад), акнун тавассути Tor меравад; агар Tor кор накунад, танҳо барои он оғоз мешавад.</string>
+    <string name="whatsNewAndroid">Барномае, ки шабака серверҳояшро манъ мекунад (масалан, Telegram), акнун тавассути Tor меравад ва саволи Tor ба ҷои суроға номи барномаро мегӯяд.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

@@ -47,6 +47,13 @@ class RawApps(lines: List<String>) {
     }
 
     companion object {
+        @Volatile private var shared: RawApps? = null
+
+        /* The one list (assets/raw-apps.txt), read once. */
+        fun of(ctx: android.content.Context): RawApps = shared ?: synchronized(this) {
+            shared ?: RawApps(try { ctx.assets.open("raw-apps.txt").bufferedReader().readLines() } catch (_: Exception) { emptyList() }).also { shared = it }
+        }
+
         private val V4 = Regex("^\\d{1,3}(\\.\\d{1,3}){3}$")
         private val V6 = Regex("^[0-9a-fA-F:.]+$")
 

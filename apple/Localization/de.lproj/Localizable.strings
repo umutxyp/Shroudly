@@ -209,6 +209,6 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Auf dem Mac nennt die Tor-Frage jetzt die App (etwa Telegram) statt einer Adresse.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

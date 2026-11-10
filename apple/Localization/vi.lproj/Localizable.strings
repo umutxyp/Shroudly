@@ -209,6 +209,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Trên Mac, câu hỏi về Tor giờ nêu tên ứng dụng (như Telegram) thay vì một địa chỉ.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

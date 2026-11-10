@@ -84,8 +84,63 @@ enum TorNotice {
         return true
     }
 
-    static func ask(_ host: String) {
-        guard askDue() else { return }
+    /* What the question names (an Iran Telegram report: "Open
+     * 2001:4188:2:600:10:10:34:35 through Tor?", never answered, so Telegram
+     * stayed shut): an app by its name where its servers are known (Telegram
+     * for 149.154.167.92, t.me; RawAppsList), a site by its name, a bare
+     * address only when nothing better came. A better one replaces the one
+     * asked about; a worse one never does. Rank: 2 an app, 1 a name, 0 an
+     * address, -1 nothing. The desktop's askLabel (raw-apps.js). */
+    static func label(had: String?, hadRank: Int, host: String, appOf: (String) -> String? = appOf) -> (String, Int) {
+        var h = host.trimmingCharacters(in: .whitespaces).lowercased()
+        if h.hasPrefix("[") && h.hasSuffix("]") { h = String(h.dropFirst().dropLast()) }
+        let cand: (String, Int)?
+        if h.isEmpty { cand = nil }
+        else if let app = appOf(h) { cand = (app, 2) }
+        else { cand = (h, addrBytes(h) == nil ? 1 : 0) }
+        guard let had, !had.isEmpty else { return cand ?? ("", -1) }
+        if let cand, cand.1 > hadRank { return cand }
+        return (had, hadRank)
+    }
+
+    /* The service an address or name belongs to (RawAppsList), or nil. */
+    static func appOf(_ host: String) -> String? {
+        let h = host.lowercased()
+        if let a = addrBytes(h) {
+            for (name, what) in RawAppsList.rows where !what.hasPrefix(".") {
+                let parts = what.split(separator: "/")
+                guard parts.count == 2, let bits = Int(parts[1]), let net = addrBytes(String(parts[0])), net.count == a.count else { continue }
+                if prefixEq(a, net, bits) { return name }
+            }
+            return nil
+        }
+        for (name, what) in RawAppsList.rows where what.hasPrefix(".") {
+            if h == String(what.dropFirst()) || h.hasSuffix(what) { return name }
+        }
+        return nil
+    }
+
+    static func addrBytes(_ s: String) -> [UInt8]? {
+        var v4 = in_addr()
+        if s.withCString({ inet_pton(AF_INET, $0, &v4) }) == 1 { return withUnsafeBytes(of: &v4) { Array($0) } }
+        var v6 = in6_addr()
+        if s.contains(":"), s.withCString({ inet_pton(AF_INET6, $0, &v6) }) == 1 { return withUnsafeBytes(of: &v6) { Array($0) } }
+        return nil
+    }
+
+    private static func prefixEq(_ a: [UInt8], _ b: [UInt8], _ bits: Int) -> Bool {
+        var left = bits, i = 0
+        while left > 0 && i < a.count {
+            let m: UInt8 = left >= 8 ? 0xff : UInt8((0xff << (8 - left)) & 0xff)
+            if a[i] & m != b[i] & m { return false }
+            left -= 8; i += 1
+        }
+        return true
+    }
+
+    /* again: a better name than the notice gave; said at once. */
+    static func ask(_ host: String, again: Bool = false) {
+        guard again || askDue() else { return }
         #if os(macOS) || os(iOS)
         guard let text = AppGroup.defaults.string(forKey: askTextKey), !text.isEmpty else { return }
         let c = UNMutableNotificationContent()

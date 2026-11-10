@@ -209,6 +209,6 @@
 "upload" = "העלאה";
 "uptime" = "זמן פעילות";
 "versionLabel" = "גרסה {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "ב-Mac, השאלה על Tor מציינת עכשיו את שם האפליקציה (כמו Telegram) במקום כתובת.";
 "whatsNewOk" = "הבנתי";
 "whatsNewTitle" = "מה חדש בגרסה {version}";

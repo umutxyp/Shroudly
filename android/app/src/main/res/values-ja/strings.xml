@@ -319,7 +319,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">送信できない報告（ロシアでは報告サーバーが遅くされます）は Tor 経由で送られるようになりました。Tor が動いていなければ、そのためだけに起動します。</string>
+    <string name="whatsNewAndroid">ネットワークがサーバーをブロックしているアプリ（Telegram など）は Tor 経由でつながるようになり、Tor の確認にはアドレスではなくアプリ名が表示されます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

@@ -504,6 +504,18 @@ class EngineManager {
    * on a computer that has it and no own server: a site no technique opens
    * has nothing left here, and the user is asked again now and then
    * (main.js askTorAgain). */
+  /* What the last way out does for a connection no technique gets through
+   * (raw-apps.js): 'carries' (allowed: Tor takes it), 'asks' (not allowed
+   * yet: the user is asked), 'off' (turned off in Settings), or null (none
+   * here: no Tor in this build, the user's own server carries everything,
+   * or it could not be set up). */
+  torFor() {
+    if (!this.tor || this.ownServer()) return null;
+    if (this.store.get('torLastResort', true) === false) return 'off';
+    if (!this.active || !this._torFile) return null;
+    return this.store.get('torApproved', false) === true ? 'carries' : 'asks';
+  }
+
   torOffByUser() {
     return !!this.tor && this.store.get('torLastResort', true) === false && !this.ownServer();
   }

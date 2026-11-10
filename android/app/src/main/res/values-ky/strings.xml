@@ -319,7 +319,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Жөнөтүлбөй жаткан билдирүү (Орусия билдирүү серверин жайлатат) эми Tor аркылуу кетет; Tor иштебесе, ошол үчүн гана күйгүзүлөт.</string>
+    <string name="whatsNewAndroid">Тармак серверлерин бөгөттөгөн колдонмо (мисалы, Telegram) эми Tor аркылуу өтөт, ал эми Tor суроосу дарегин эмес, колдонмонун атын айтат.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

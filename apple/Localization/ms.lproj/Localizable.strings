@@ -209,6 +209,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Di Mac, soalan Tor kini menyebut nama aplikasi (seperti Telegram), bukan alamat.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

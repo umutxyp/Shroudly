@@ -209,6 +209,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "በMac ላይ የTor ጥያቄው አሁን ከአድራሻ ይልቅ የመተግበሪያውን ስም (እንደ Telegram) ይጠቅሳል።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

@@ -209,6 +209,6 @@
 "upload" = "อัปโหลด";
 "uptime" = "เวลาทำงาน";
 "versionLabel" = "เวอร์ชัน {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "บน Mac คำถามเรื่อง Tor ตอนนี้จะบอกชื่อแอป (เช่น Telegram) แทนที่อยู่";
 "whatsNewOk" = "เข้าใจแล้ว";
 "whatsNewTitle" = "มีอะไรใหม่ใน {version}";

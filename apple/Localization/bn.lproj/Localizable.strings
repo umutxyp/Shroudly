@@ -209,6 +209,6 @@
 "upload" = "আপলোড";
 "uptime" = "চালু থাকার সময়";
 "versionLabel" = "সংস্করণ {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac-এ Tor-এর প্রশ্নে এখন ঠিকানার বদলে অ্যাপের নাম (যেমন Telegram) থাকে।";
 "whatsNewOk" = "বুঝেছি";
 "whatsNewTitle" = "{version}-এ নতুন যা আছে";
