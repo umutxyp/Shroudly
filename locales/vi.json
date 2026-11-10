@@ -933,7 +933,7 @@
   "whatsNewDesktop": "Mới: ứng dụng luôn đi qua Tor (Kết nối theo trang): chọn một ứng dụng như Instagram hay Telegram và toàn bộ ứng dụng sẽ đi qua Tor.\nỨng dụng có máy chủ bị mạng chặn giờ cũng đi qua Tor, và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.",
   "whatsNewAndroid": "Mới: ứng dụng luôn đi qua Tor (Kết nối theo trang): chọn một ứng dụng như Instagram hay Telegram và toàn bộ ứng dụng sẽ đi qua Tor.\nỨng dụng có máy chủ bị mạng chặn giờ cũng đi qua Tor, và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.",
   "whatsNewApple": "",
-  "whatsNewMac": "Trên Mac: ứng dụng luôn đi qua Tor (Kết nối theo trang), như Instagram hay Telegram; và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.",
+  "whatsNewMac": "Ứng dụng luôn đi qua Tor (Kết nối theo trang), như Instagram hay Telegram; và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
   "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn.",

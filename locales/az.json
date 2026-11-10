@@ -933,7 +933,7 @@
   "whatsNewDesktop": "Yeni: həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar): Instagram və ya Telegram kimi tətbiq seç, tamamilə Tor ilə getsin.\nŞəbəkənin serverlərini blokladığı tətbiq də indi Tor ilə gedir, Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.",
   "whatsNewAndroid": "Yeni: həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar): Instagram və ya Telegram kimi tətbiq seç, tamamilə Tor ilə getsin.\nŞəbəkənin serverlərini blokladığı tətbiq də indi Tor ilə gedir, Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.",
   "whatsNewApple": "",
-  "whatsNewMac": "Mac-da: həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar), məsələn Instagram və ya Telegram; Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.",
+  "whatsNewMac": "Həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar), məsələn Instagram və ya Telegram; Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.",
   "appleVpnNotSigned": "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.",
   "appleInstallHelp": "Necə quraşdırılır",
   "snowflakeHow": "Necə işləyir: onlar Tor şəbəkəsinin Snowflake-i vasitəsilə gəlir, buna görə açdıqları sizin deyil, Tor-un serverlərindən çıxır.",

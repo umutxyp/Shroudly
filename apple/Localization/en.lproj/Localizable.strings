@@ -212,6 +212,6 @@
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "On the Mac: apps always through Tor (Connections by site), such as Instagram or Telegram; and the Tor question names the app instead of an address.";
+"whatsNewMac" = "Apps always through Tor (Connections by site), such as Instagram or Telegram; and the Tor question names the app instead of an address.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

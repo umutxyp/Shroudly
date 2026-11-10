@@ -212,6 +212,6 @@
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Di Mac: aplikasi selalu lewat Tor (Koneksi per situs), seperti Instagram atau Telegram; dan pertanyaan Tor menyebut nama aplikasinya, bukan alamat.";
+"whatsNewMac" = "Aplikasi selalu lewat Tor (Koneksi per situs), seperti Instagram atau Telegram; dan pertanyaan Tor menyebut nama aplikasinya, bukan alamat.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";
