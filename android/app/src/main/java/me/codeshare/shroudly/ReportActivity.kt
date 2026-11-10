@@ -230,7 +230,7 @@ class ReportActivity : Activity() {
             // down until nothing gets through, other VPNs there with it).
             val torDone = if (!r.ok && r.error == "network" && Protection.socksPort > 0) torForReport(ctx) else null
             if (torDone != null) {
-                val kept = Report.HOST in Conns.torSites(ctx)
+                val kept = Report.HOST in Conns.torEntries(ctx)
                 Protector.tell(ctx, ShroudlyVpnService.ACTION_CONNS, "TOR ${Report.HOST}")
                 AppLog.add("Report: not through the usual way; sending it through Tor")
                 try {

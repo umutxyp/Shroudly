@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly ይጠቀማል</string>
     <string name="connsTitle">በድረ ገጽ የተከፋፈሉ ግንኙነቶች</string>
     <string name="connsTor">በTor በኩል</string>
+    <string name="connsTorApps">ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች</string>
+    <string name="connsTorAppsDesc">የተመረጠ መተግበሪያ ታግዶም ባይታገድም ሙሉ በሙሉ በTor ያልፋል፤ ቀርፋፋ ነው፣ አገልጋዮቹም ከእርስዎ አድራሻ ይልቅ የTor አድራሻ ያያሉ። መምረጥ Torን መፍቀድ ነው።</string>
     <string name="connsTorBack">የተለመደው መንገድ</string>
     <string name="connsTorChosen">በTor በኩል እየተላከ ነው</string>
     <string name="connsTorDesc">አገርዎን ራሱ የሚያግድ ድረ-ገጽ (ባሉበት እንደማይገኝ የሚናገር) በTor በኩል ይከፈታል፦ ከጎኑ «በTor በኩል»ን ይምረጡ።</string>
@@ -319,7 +321,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አውታረ መረቡ አገልጋዮቹን የሚያግድበት መተግበሪያ (እንደ Telegram) አሁን በTor በኩል ያልፋል፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።</string>
+    <string name="whatsNewAndroid">አዲስ፦ ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፦ እንደ Instagram ወይም Telegram ያለ መተግበሪያ ይምረጡ፣ ሙሉው በTor ያልፋል።\nአውታረ መረቡ አገልጋዮቹን የሚያግድበት መተግበሪያም አሁን በTor ያልፋል፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

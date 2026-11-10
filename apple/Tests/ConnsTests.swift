@@ -49,4 +49,22 @@ final class ConnsTests: XCTestCase {
         XCTAssertFalse(Conns.isSystem("google.com"))
         XCTAssertFalse(Conns.isSystem("notgithub.com"))
     }
+
+    /* Apps always through Tor: kept as ids, given to the engine as their
+     * names and ranges after the typed sites, each once. */
+    func testAppsThroughTor() {
+        let d = UserDefaults(suiteName: "ConnsTests3")!
+        d.removePersistentDomain(forName: "ConnsTests3")
+        XCTAssertNil(Conns.set(app: "nosuch", tor: true, d))
+        XCTAssertEqual(Conns.set(app: "telegram", tor: true, d), ["telegram"])
+        Conns.set(app: "instagram", tor: true, d)
+        XCTAssertEqual(Conns.torApps(d), ["instagram", "telegram"])
+        Conns.set("geo.example", tor: true, d)
+        let cmds = Conns.commands(d)
+        XCTAssertTrue(cmds.contains("TOR geo.example") && cmds.contains("TOR instagram.com") && cmds.contains("TOR 149.154.160.0/20"))
+        XCTAssertEqual(cmds.filter { $0 == "TOR fbcdn.net" }.count, 1)
+        Conns.set(app: "instagram", tor: false, d)
+        XCTAssertFalse(Conns.commands(d).contains("TOR instagram.com"))
+        XCTAssertEqual(Conns.torApps(d), ["telegram"])
+    }
 }

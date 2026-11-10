@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly истифода мебарад</string>
     <string name="connsTitle">Пайвастҳо аз рӯи сайт</string>
     <string name="connsTor">Тавассути Tor</string>
+    <string name="connsTorApps">Барномаҳое, ки ҳамеша тавассути Tor мераванд</string>
+    <string name="connsTorAppsDesc">Барномаи интихобшуда, манъ бошад ё не, пурра тавассути Tor меравад: сусттар аст ва серверҳояш ба ҷои суроғаи шумо суроғаи Tor-ро мебинанд. Интихоб кардан ба Tor иҷозат додан аст.</string>
     <string name="connsTorBack">Роҳи муқаррарӣ</string>
     <string name="connsTorChosen">Тавассути Tor</string>
     <string name="connsTorDesc">Сайте, ки худаш кишвари шуморо роҳ намедиҳад (мегӯяд дар ҷои шумо дастрас нест), тавассути Tor кушода мешавад: дар паҳлӯяш «Тавассути Tor»-ро интихоб кунед.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Барномае, ки шабака серверҳояшро манъ мекунад (масалан, Telegram), акнун тавассути Tor меравад ва саволи Tor ба ҷои суроға номи барномаро мегӯяд.</string>
+    <string name="whatsNewAndroid">Нав: барномаҳое, ки ҳамеша тавассути Tor мераванд (Пайвастҳо аз рӯи сайт): барномаеро мисли Instagram ё Telegram интихоб кунед, то пурра тавассути Tor равад.\nБарномае, ки шабака серверҳояшро манъ мекунад, низ акнун тавассути Tor меравад ва саволи Tor ба ҷои суроға номи барномаро мегӯяд.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

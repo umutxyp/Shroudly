@@ -126,6 +126,8 @@
     <string name="connsSystem">يستخدمه Shroudly</string>
     <string name="connsTitle">الاتصالات حسب الموقع</string>
     <string name="connsTor">عبر Tor</string>
+    <string name="connsTorApps">تطبيقات تمر دائمًا عبر Tor</string>
+    <string name="connsTorAppsDesc">التطبيق المختار يمر كله عبر Tor، محجوبًا كان أم لا: أبطأ، وترى خوادمه عنوان Tor بدلًا من عنوانك. اختياره يعني السماح بـTor.</string>
     <string name="connsTorBack">الطريق المعتاد</string>
     <string name="connsTorChosen">يُرسل عبر Tor</string>
     <string name="connsTorDesc">الموقع الذي يحجب بلدك بنفسه (يقول إنه غير متاح في منطقتك) يُفتح عبر Tor: اختر «عبر Tor» بجانبه.</string>
@@ -319,7 +321,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">التطبيق الذي تحجب الشبكة خوادمه (مثل Telegram) يمر الآن عبر Tor، ويذكر سؤال Tor اسم التطبيق بدلًا من عنوان.</string>
+    <string name="whatsNewAndroid">جديد: تطبيقات تمر دائمًا عبر Tor (الاتصالات حسب الموقع): اختر تطبيقًا مثل Instagram أو Telegram فيمر كله عبر Tor.\nالتطبيق الذي تحجب الشبكة خوادمه يمر الآن عبر Tor أيضًا، ويذكر سؤال Tor اسم التطبيق بدلًا من عنوان.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

@@ -126,6 +126,8 @@
     <string name="connsSystem">בשימוש Shroudly</string>
     <string name="connsTitle">חיבורים לפי אתר</string>
     <string name="connsTor">דרך Tor</string>
+    <string name="connsTorApps">אפליקציות שתמיד עוברות דרך Tor</string>
+    <string name="connsTorAppsDesc">אפליקציה שנבחרה עוברת כולה דרך Tor, חסומה או לא: איטי יותר, והשרתים שלה רואים כתובת Tor במקום הכתובת שלכם. בחירה בה מאשרת שימוש ב-Tor.</string>
     <string name="connsTorBack">הדרך הרגילה</string>
     <string name="connsTorChosen">נשלח דרך Tor</string>
     <string name="connsTorDesc">אתר שחוסם בעצמו את המדינה שלכם (כותב שאינו זמין באזור שלכם) נפתח דרך Tor: בחרו «דרך Tor» לידו.</string>
@@ -319,7 +321,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">אפליקציה שהרשת חוסמת את השרתים שלה (כמו Telegram) עוברת עכשיו דרך Tor, והשאלה על Tor מציינת את שם האפליקציה במקום כתובת.</string>
+    <string name="whatsNewAndroid">חדש: אפליקציות שתמיד עוברות דרך Tor (חיבורים לפי אתר): בחרו אפליקציה כמו Instagram או Telegram וכולה תעבור דרך Tor.\nאפליקציה שהרשת חוסמת את השרתים שלה עוברת עכשיו גם היא דרך Tor, והשאלה על Tor מציינת את שם האפליקציה במקום כתובת.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

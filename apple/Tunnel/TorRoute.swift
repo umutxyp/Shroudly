@@ -217,6 +217,8 @@ final class TorRoute: @unchecked Sendable {  // its state is touched on `queue` 
     /* The bridges the Tor Project gives for this country (fetchCountry,
      * set by the tunnel), tried when the bundle's got nowhere either. */
     var countryBridges: () async -> [String: [String]]? = { nil }
+    /* Tor has just become ready (the tunnel gives the Tor list again). */
+    var onReady: () -> Void = {}
     private var country: (at: Date, bridges: [String: [String]])?
     /* This country's bridges got Tor through: kept in the app group, so the
      * next start goes to them first (as on the desktop and Android). */
@@ -431,6 +433,7 @@ final class TorRoute: @unchecked Sendable {  // its state is touched on `queue` 
             armIdle()
             if stage == "country" { Self.remember(country?.bridges) }
             log("The last way out is ready: Tor through \(stage == "snowflake" ? "Snowflake" : stage == "country" ? "this country's bridges" : "its bridges")")
+            onReady()
         }
     }
 

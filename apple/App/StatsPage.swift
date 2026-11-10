@@ -256,6 +256,7 @@ struct ConnectionsSection: View {
     @State private var rows: [ConnRow] = []
     @State private var blocked: [String] = Conns.blocked()
     @State private var torSites: [String] = Conns.torSites()
+    @State private var torApps: [String] = Conns.torApps()
     @State private var query = ""
 
     /* Through Tor (the Mac, which has Tor; not with your own server). */
@@ -279,6 +280,7 @@ struct ConnectionsSection: View {
                 Text(tr("connsTorDesc")).font(.system(size: 12)).foregroundStyle(Theme.faintText)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            if torOk { appsThroughTor }
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.faintText)
                 TextField(tr("connsSearch"), text: $query)
@@ -329,9 +331,47 @@ struct ConnectionsSection: View {
                 rows = on ? await controller.conns() : []
                 blocked = Conns.blocked()
                 torSites = Conns.torSites()
+                torApps = Conns.torApps()
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
+    }
+
+    /* "Apps always through Tor": a whole app picked at once (its names, and
+     * its addresses for one that connects by address); the same consent. */
+    private var appsThroughTor: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(tr("connsTorApps")).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(Theme.text)
+            Text(tr("connsTorAppsDesc")).font(.system(size: 11.5)).foregroundStyle(Theme.faintText)
+                .fixedSize(horizontal: false, vertical: true)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 6, alignment: .leading)], alignment: .leading, spacing: 6) {
+                ForEach(TorAppsList.apps, id: \.id) { a in
+                    let picked = torApps.contains(a.id)
+                    Button { torApp(a.id, !picked) } label: {
+                        Text(a.name).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .foregroundStyle(picked ? Theme.background : Theme.secondaryText)
+                            .background(picked ? Theme.accent : Theme.cardRaised, in: Capsule())
+                            .overlay(Capsule().stroke(picked ? Color.clear : Theme.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(picked ? .isSelected : [])
+                }
+            }
+        }
+        .padding(10)
+        .background(Theme.background, in: RoundedRectangle(cornerRadius: Theme.radiusSmall))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radiusSmall).stroke(Theme.line, lineWidth: 1))
+    }
+
+    // The names of the apps picked (their buttons decide those).
+    private var appNames: [String] { Conns.appEntries(torApps).filter { !$0.contains("/") } }
+
+    private func torApp(_ id: String, _ on: Bool) {
+        guard let now = Conns.set(app: id, tor: on) else { return }
+        torApps = now
+        Task { await controller.torSiteChanged(on: on) }
     }
 
     private func row(_ host: String, _ sub: String, _ isBlocked: Bool) -> some View {
@@ -341,7 +381,8 @@ struct ConnectionsSection: View {
                 Text(sub).font(.system(size: 11.5)).foregroundStyle(isBlocked ? Theme.warn : Theme.faintText).lineLimit(1)
             }
             Spacer(minLength: 8)
-            if torOk && !isBlocked && !Conns.isSystem(host, own: own) {
+            // A name an app picked sends there: that app's button brings it back.
+            if torOk && !isBlocked && !Conns.isSystem(host, own: own) && !(Conns.viaTor(host, torSites) == nil && Conns.viaTor(host, appNames) != nil) {
                 let by = Conns.viaTor(host, torSites)
                 Button(by != nil ? tr("connsTorBack") : tr("connsTor")) { if let by { tor(by, false) } else { tor(host, true) } }
                     .buttonStyle(.plain)
@@ -378,7 +419,7 @@ struct ConnectionsSection: View {
         default: break
         }
         if Conns.isSystem(r.host, own: own) { parts.append(tr("connsSystem")) }
-        if r.route != "tor", torOk, Conns.viaTor(r.host, torSites) != nil { parts.append(tr("connsTorChosen")) }
+        if r.route != "tor", torOk, Conns.viaTor(r.host, torSites) != nil || Conns.viaTor(r.host, appNames) != nil { parts.append(tr("connsTorChosen")) }
         return parts.joined(separator: " · ")
     }
 

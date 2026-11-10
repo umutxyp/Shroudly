@@ -44,6 +44,8 @@
 "connsSystem" = "digunakan Shroudly";
 "connsTitle" = "Sambungan mengikut laman";
 "connsTor" = "Melalui Tor";
+"connsTorApps" = "Aplikasi sentiasa melalui Tor";
+"connsTorAppsDesc" = "Aplikasi yang dipilih melalui Tor sepenuhnya, disekat atau tidak: lebih perlahan, dan pelayannya melihat alamat Tor, bukan alamat anda. Memilihnya bermakna membenarkan Tor.";
 "connsTorBack" = "Laluan biasa";
 "connsTorChosen" = "Dihantar melalui Tor";
 "connsTorDesc" = "Laman yang menyekat negara anda sendiri (mengatakan ia tidak tersedia di tempat anda) dibuka melalui Tor: pilih Melalui Tor di sebelahnya.";
@@ -209,6 +211,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Di Mac, soalan Tor kini menyebut nama aplikasi (seperti Telegram), bukan alamat.";
+"whatsNewApple" = "Di Mac: aplikasi sentiasa melalui Tor (Sambungan mengikut laman), seperti Instagram atau Telegram; dan soalan Tor menyebut nama aplikasi, bukan alamat.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

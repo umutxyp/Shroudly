@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly kullanıyor";
 "connsTitle" = "Siteye göre bağlantılar";
 "connsTor" = "Tor'dan";
+"connsTorApps" = "Her zaman Tor'dan giden uygulamalar";
+"connsTorAppsDesc" = "Seçilen uygulama, engelli olsun olmasın, bütünüyle Tor'dan gider: daha yavaştır ve sunucuları senin adresin yerine bir Tor adresi görür. Seçmek, Tor'a izin vermek demektir.";
 "connsTorBack" = "Normal yol";
 "connsTorChosen" = "Tor'dan gönderiliyor";
 "connsTorDesc" = "Ülkeni kendisi engelleyen bir site (bulunduğun yerde kullanılamadığını söyleyen) Tor'dan açılır: yanındaki Tor'dan düğmesine bas.";
@@ -209,6 +211,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Mac'te Tor sorusu artık adres yerine uygulamanın adını (örneğin Telegram) söylüyor.";
+"whatsNewApple" = "Mac'te: her zaman Tor'dan giden uygulamalar (Siteye göre bağlantılar), örneğin Instagram ya da Telegram; Tor sorusu da adres yerine uygulamanın adını söylüyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

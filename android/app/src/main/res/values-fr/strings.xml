@@ -126,6 +126,8 @@
     <string name="connsSystem">utilisé par Shroudly</string>
     <string name="connsTitle">Connexions par site</string>
     <string name="connsTor">Par Tor</string>
+    <string name="connsTorApps">Apps toujours par Tor</string>
+    <string name="connsTorAppsDesc">Une app choisie passe tout entière par Tor, bloquée ou non : plus lent, et ses serveurs voient une adresse Tor au lieu de la tienne. La choisir, c’est autoriser Tor.</string>
     <string name="connsTorBack">Voie normale</string>
     <string name="connsTorChosen">Envoyé par Tor</string>
     <string name="connsTorDesc">Un site qui refuse lui-même ton pays (il dit ne pas être disponible là où tu es) s\'ouvre par Tor : choisis Par Tor à côté.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Une app dont le réseau bloque les serveurs (comme Telegram) passe désormais par Tor, et la question sur Tor nomme l’app au lieu d’une adresse.</string>
+    <string name="whatsNewAndroid">Nouveau : apps toujours par Tor (Connexions par site) : choisis une app comme Instagram ou Telegram et elle passe tout entière par Tor.\nUne app dont le réseau bloque les serveurs passe désormais aussi par Tor, et la question sur Tor nomme l’app au lieu d’une adresse.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

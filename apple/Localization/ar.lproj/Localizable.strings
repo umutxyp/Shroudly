@@ -44,6 +44,8 @@
 "connsSystem" = "يستخدمه Shroudly";
 "connsTitle" = "الاتصالات حسب الموقع";
 "connsTor" = "عبر Tor";
+"connsTorApps" = "تطبيقات تمر دائمًا عبر Tor";
+"connsTorAppsDesc" = "التطبيق المختار يمر كله عبر Tor، محجوبًا كان أم لا: أبطأ، وترى خوادمه عنوان Tor بدلًا من عنوانك. اختياره يعني السماح بـTor.";
 "connsTorBack" = "الطريق المعتاد";
 "connsTorChosen" = "يُرسل عبر Tor";
 "connsTorDesc" = "الموقع الذي يحجب بلدك بنفسه (يقول إنه غير متاح في منطقتك) يُفتح عبر Tor: اختر «عبر Tor» بجانبه.";
@@ -209,6 +211,6 @@
 "upload" = "الرفع";
 "uptime" = "مدة التشغيل";
 "versionLabel" = "الإصدار {version}";
-"whatsNewApple" = "على Mac، يذكر سؤال Tor الآن اسم التطبيق (مثل Telegram) بدلًا من عنوان.";
+"whatsNewApple" = "على Mac: تطبيقات تمر دائمًا عبر Tor (الاتصالات حسب الموقع)، مثل Instagram أو Telegram؛ ويذكر سؤال Tor اسم التطبيق بدلًا من عنوان.";
 "whatsNewOk" = "حسنًا";
 "whatsNewTitle" = "الجديد في {version}";

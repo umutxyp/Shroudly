@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly が使用</string>
     <string name="connsTitle">サイト別の接続</string>
     <string name="connsTor">Tor 経由</string>
+    <string name="connsTorApps">常に Tor を通すアプリ</string>
+    <string name="connsTorAppsDesc">選んだアプリは、ブロックされていてもいなくても、すべて Tor を通ります。遅くなり、アプリのサーバーにはあなたのアドレスではなく Tor のアドレスが見えます。選ぶと Tor を許可したことになります。</string>
     <string name="connsTorBack">通常の経路</string>
     <string name="connsTorChosen">Tor 経由で送信中</string>
     <string name="connsTorDesc">あなたの国を自ら拒むサイト（お住まいの地域では利用できないと表示される）は Tor 経由で開けます：横の「Tor 経由」を選んでください。</string>
@@ -319,7 +321,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">ネットワークがサーバーをブロックしているアプリ（Telegram など）は Tor 経由でつながるようになり、Tor の確認にはアドレスではなくアプリ名が表示されます。</string>
+    <string name="whatsNewAndroid">新機能：常に Tor を通すアプリ（サイト別の接続）。Instagram や Telegram などのアプリを選ぶと、すべて Tor を通ります。\nネットワークがサーバーをブロックしているアプリも Tor 経由でつながるようになり、Tor の確認にはアドレスではなくアプリ名が表示されます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

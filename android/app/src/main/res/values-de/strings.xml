@@ -126,6 +126,8 @@
     <string name="connsSystem">von Shroudly genutzt</string>
     <string name="connsTitle">Verbindungen nach Seite</string>
     <string name="connsTor">Über Tor</string>
+    <string name="connsTorApps">Apps immer über Tor</string>
+    <string name="connsTorAppsDesc">Eine ausgewählte App läuft vollständig über Tor, ob gesperrt oder nicht: langsamer, und ihre Server sehen eine Tor-Adresse statt deiner. Mit der Auswahl erlaubst du Tor.</string>
     <string name="connsTorBack">Normaler Weg</string>
     <string name="connsTorChosen">Über Tor gesendet</string>
     <string name="connsTorDesc">Eine Seite, die dein Land selbst aussperrt (sie sagt, sie sei dort nicht verfügbar), öffnet über Tor: wähle daneben Über Tor.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Eine App, deren Server das Netz sperrt (etwa Telegram), läuft jetzt über Tor, und die Tor-Frage nennt die App statt einer Adresse.</string>
+    <string name="whatsNewAndroid">Neu: Apps immer über Tor (Verbindungen nach Seite): Wähle eine App wie Instagram oder Telegram, und sie läuft vollständig über Tor.\nEine App, deren Server das Netz sperrt, läuft jetzt ebenfalls über Tor, und die Tor-Frage nennt die App statt einer Adresse.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

@@ -135,8 +135,19 @@ function Connections({ active }) {
       if (r && r.ok) setData((d) => ({ ...d, torSites: r.torSites }));
     } catch {}
   };
+  // "Apps always through Tor": a whole app (its names, and its addresses
+  // for one that connects by address), picked once; the same consent.
+  const torApp = async (id, on) => {
+    try {
+      const r = await window.electron.setTorApp(id, on);
+      if (r && r.ok) setData((d) => ({ ...d, torApps: r.torApps, torAppNames: r.torAppNames }));
+    } catch {}
+  };
+  const torApps = data.torApps || [];
   const torSites = data.torSites || [];
   const viaTor = (h) => torSites.some((n) => h === n || h.endsWith(`.${n}`));
+  // A name a picked app sends through Tor: that app's button brings it back.
+  const viaApp = (h) => (data.torAppNames || []).some((n) => h === n || h.endsWith(`.${n}`));
   const needle = q.trim().toLowerCase();
   const rows = data.rows.filter((r) => !needle || r.host.includes(needle)).slice(0, 100);
   const blockedOnly = (data.blocked || []).filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
@@ -156,6 +167,24 @@ function Connections({ active }) {
         <p className="mt-0.5 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsDesc')}</p>
         {data.torOk && <p className="mt-1 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsTorDesc')}</p>}
       </div>
+      {data.torOk && (data.torAppList || []).length > 0 && (
+        <div className="rounded-[8px] px-2.5 py-2" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
+          <p className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>{t('connsTorApps')}</p>
+          <p className="mt-0.5 text-[11px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsTorAppsDesc')}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t('connsTorApps')}>
+            {data.torAppList.map((a) => {
+              const on = torApps.includes(a.id);
+              return (
+                <button key={a.id} type="button" aria-pressed={on} onClick={() => torApp(a.id, !on)}
+                        className="rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
+                        style={on ? { background: 'var(--accent)', color: 'var(--on-accent)' } : { background: 'var(--surface)', color: 'var(--text-dim)', border: '1px solid var(--line)' }}>
+                  {a.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <label className="flex items-center gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
         <SearchIcon className="h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('connsSearch')} dir="ltr" spellCheck={false}
@@ -179,7 +208,7 @@ function Connections({ active }) {
                 <span className="truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }} title={r.host}>{r.host}</span>
                 {r.system && badge(t('connsSystem'), 'var(--accent)')}
                 {route(r) && badge(route(r), 'var(--text-dim)')}
-                {viaTor(r.host) && r.route !== 'tor' && badge(t('connsTorChosen'), 'var(--accent)')}
+                {(viaTor(r.host) || viaApp(r.host)) && r.route !== 'tor' && badge(t('connsTorChosen'), 'var(--accent)')}
               </div>
               <div className="num mt-0.5 flex flex-wrap gap-x-2.5 text-[11px]" dir="ltr" style={{ color: 'var(--text-faint)', justifyContent: 'flex-start' }}>
                 {r.blocked
@@ -190,7 +219,7 @@ function Connections({ active }) {
                     </>}
               </div>
             </div>
-            {!r.blocked && !r.system && data.torOk && (viaTor(r.host)
+            {!r.blocked && !r.system && data.torOk && !(viaApp(r.host) && !viaTor(r.host)) && (viaTor(r.host)
               ? <button type="button" onClick={() => torSite(torSites.find((n) => r.host === n || r.host.endsWith(`.${n}`)), false)} className={btn} style={{ color: 'var(--accent)' }}>{t('connsTorBack')}</button>
               : <button type="button" onClick={() => torSite(r.host, true)} className={btn}>{t('connsTor')}</button>)}
             {r.blocked

@@ -19,6 +19,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const TorApps = require('./tor-apps');
 const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
 const CustomDnsLib = require('./custom-dns');
@@ -1710,11 +1711,50 @@ class EngineManager {
    * Connections list), into a running engine: a site that turns the user's
    * country away itself goes straight through the last way out. */
   _applyTorSites() {
-    const list = this.store.get('torSites', []);
-    if (!Array.isArray(list) || !list.length) return;
+    const sites = this.store.get('torSites', []);
+    const apps = TorApps.clean(this.store.get('torApps', []));
+    const list = this._torEntries();
+    if (!list.length) return;
     this._command('TOR-CLEAR');
     for (const h of list) this._command(`TOR ${h}`);
-    this.log('info', `Connections: ${list.length} site${list.length === 1 ? '' : 's'} you send through Tor go there first`);
+    const n = Array.isArray(sites) ? sites.length : 0;
+    const parts = [];
+    if (n) parts.push(`${n} site${n === 1 ? '' : 's'} you send through Tor go there first`);
+    if (apps.length) parts.push(`${apps.map((id) => TorApps.APPS.find((a) => a.id === id).name).join(', ')} always through Tor`);
+    this.log('info', `Connections: ${parts.join('; ')}`);
+  }
+
+  /* Tor has just become ready: the names and ranges the user sends through
+   * it are given again, which ends their open connections (made the usual
+   * way while Tor was starting), so the apps connect again through Tor. */
+  torReady() {
+    if (!this._torEntries().length) return;
+    this._applyTorSites();
+  }
+
+  /* Every name and range the engine sends through Tor by the user's
+   * choice: the sites typed (torSites) and the apps picked (torApps). */
+  _torEntries() {
+    const sites = this.store.get('torSites', []);
+    return [...new Set([...(Array.isArray(sites) ? sites : []), ...TorApps.entriesOf(this.store.get('torApps', []))])];
+  }
+
+  /* An app picked in "Apps always through Tor", or put back: kept, and the
+   * running engine given what changed (a name another pick or a typed site
+   * still needs stays). */
+  setTorApp(id, on) {
+    const app = TorApps.APPS.find((a) => a.id === id);
+    if (!app) return { ok: false };
+    const before = new Set(this._torEntries());
+    const now = new Set(TorApps.clean(this.store.get('torApps', [])));
+    if (on) now.add(id); else now.delete(id);
+    this.store.set('torApps', TorApps.clean([...now]));
+    const after = new Set(this._torEntries());
+    for (const h of before) if (!after.has(h)) this._command(`UNTOR ${h}`);
+    for (const h of after) if (!before.has(h)) this._command(`TOR ${h}`);
+    this.log('info', on ? `Connections: ${app.name} goes through Tor (the last way out) from now on, all of it` : `Connections: ${app.name} goes the usual way again`);
+    const torApps = this.store.get('torApps', []);
+    return { ok: true, torApps, torAppNames: TorApps.entriesOf(torApps).filter((n) => !n.includes('/')) };
   }
 
   /* For a moment, a name through Tor while it is ready, without keeping it
@@ -1726,8 +1766,8 @@ class EngineManager {
     const h = String(host || '').trim().toLowerCase();
     if (!this.isActive() || !this.tor || this.tor.state !== 'ready' || !/^[a-z0-9.-]{1,253}$/.test(h)) return null;
     if (!this._command(`TOR ${h}`)) return null;
-    const kept = new Set(this.store.get('torSites', []));
-    return () => { if (!kept.has(h) && !new Set(this.store.get('torSites', [])).has(h)) this._command(`UNTOR ${h}`); };
+    const kept = new Set(this._torEntries());
+    return () => { if (!kept.has(h) && !new Set(this._torEntries()).has(h)) this._command(`UNTOR ${h}`); };
   }
 
   /* A name sent through Tor, or back the usual way, from the Connections
@@ -1739,7 +1779,8 @@ class EngineManager {
     const now = new Set(this.store.get('torSites', []));
     if (on) now.add(h); else now.delete(h);
     this.store.set('torSites', [...now].sort());
-    this._command(on ? `TOR ${h}` : `UNTOR ${h}`);
+    // Back the usual way only if no app picked needs it too.
+    if (on || !TorApps.entriesOf(this.store.get('torApps', [])).includes(h)) this._command(on ? `TOR ${h}` : `UNTOR ${h}`);
     this.log('info', on ? `Connections: ${h} goes through Tor (the last way out) from now on` : `Connections: ${h} goes the usual way again`);
     return { ok: true, torSites: [...now] };
   }

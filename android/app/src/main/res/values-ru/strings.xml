@@ -126,6 +126,8 @@
     <string name="connsSystem">использует Shroudly</string>
     <string name="connsTitle">Соединения по сайтам</string>
     <string name="connsTor">Через Tor</string>
+    <string name="connsTorApps">Приложения всегда через Tor</string>
+    <string name="connsTorAppsDesc">Выбранное приложение идёт через Tor целиком, заблокировано оно или нет: медленнее, и его серверы видят адрес Tor вместо вашего. Выбрав его, вы разрешаете Tor.</string>
     <string name="connsTorBack">Обычный путь</string>
     <string name="connsTorChosen">Через Tor</string>
     <string name="connsTorDesc">Сайт, который сам не пускает вашу страну (пишет, что недоступен в вашем регионе), откроется через Tor: нажмите «Через Tor» рядом с ним.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Приложение, чьи серверы блокирует сеть (например, Telegram), теперь идёт через Tor, а вопрос о Tor называет приложение, а не адрес.</string>
+    <string name="whatsNewAndroid">Новое: приложения всегда через Tor (Соединения по сайтам): выберите приложение, например Instagram или Telegram, и оно целиком пойдёт через Tor.\nПриложение, чьи серверы блокирует сеть, теперь тоже идёт через Tor, а вопрос о Tor называет приложение, а не адрес.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly ishlatadi";
 "connsTitle" = "Saytlar bo'yicha ulanishlar";
 "connsTor" = "Tor orqali";
+"connsTorApps" = "Doim Tor orqali o'tadigan ilovalar";
+"connsTorAppsDesc" = "Tanlangan ilova bloklangan bo'lsa ham, bo'lmasa ham to'liq Tor orqali o'tadi: sekinroq, serverlari esa sizning manzilingiz o'rniga Tor manzilini ko'radi. Tanlash Tor'ga ruxsat berish demakdir.";
 "connsTorBack" = "Odatiy yo‘l";
 "connsTorChosen" = "Tor orqali yuboriladi";
 "connsTorDesc" = "Mamlakatingizni o‘zi kiritmaydigan sayt (siz turgan joyda mavjud emasligini aytadigan) Tor orqali ochiladi: yonidagi «Tor orqali» tugmasini bosing.";
@@ -209,6 +211,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac'da Tor savoli endi manzil o'rniga ilova nomini (masalan, Telegram) aytadi.";
+"whatsNewApple" = "Mac'da: doim Tor orqali o'tadigan ilovalar (Saytlar bo'yicha ulanishlar), masalan Instagram yoki Telegram; Tor savoli esa manzil o'rniga ilova nomini aytadi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

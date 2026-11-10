@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly 使用</string>
     <string name="connsTitle">按网站的连接</string>
     <string name="connsTor">经由 Tor</string>
+    <string name="connsTorApps">始终通过 Tor 的应用</string>
+    <string name="connsTorAppsDesc">所选应用无论是否被封锁，都会全部通过 Tor：速度较慢，其服务器看到的是 Tor 地址而不是你的地址。选择即表示允许使用 Tor。</string>
     <string name="connsTorBack">常规路径</string>
     <string name="connsTorChosen">经由 Tor 发送</string>
     <string name="connsTorDesc">自行拒绝你所在国家的网站（提示在你所在地区不可用）可以经由 Tor 打开：点它旁边的“经由 Tor”。</string>
@@ -319,7 +321,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">网络封锁其服务器的应用（如 Telegram）现在会通过 Tor 连接，关于 Tor 的提问也会写出应用名称，而不是一个地址。</string>
+    <string name="whatsNewAndroid">新功能：始终通过 Tor 的应用（按网站的连接）：选择 Instagram 或 Telegram 等应用，它的全部连接都会通过 Tor。\n网络封锁其服务器的应用现在也会通过 Tor 连接，关于 Tor 的提问也会写出应用名称，而不是一个地址。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

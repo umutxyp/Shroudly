@@ -56,6 +56,33 @@ const store = { get: (k, d) => (k in mem ? mem[k] : d), set: (k, v) => { mem[k] 
   em._applyTorSites();
   t.ok(sent[0] === 'TOR-CLEAR' && sent.includes('TOR geo.example'), 'after a start the Tor sites are given to the engine again');
 
+  // Apps always through Tor (a user in Iran asked for Instagram always
+  // through Tor): a whole app picked at once, its names and, for one that
+  // connects by address (Telegram), its ranges.
+  const TorApps = require('../../electron/tor-apps');
+  t.ok(TorApps.APPS.length >= 10 && TorApps.APPS.every((a) => /^[a-z]+$/.test(a.id) && a.name && a.names.length && a.names.every((n) => /^[a-z0-9.-]+\.[a-z]+$/.test(n))),
+    'every app has an id, a name and well-formed names');
+  t.ok(TorApps.entriesOf(['telegram']).includes('149.154.160.0/20') && TorApps.entriesOf(['telegram']).includes('t.me'), 'Telegram: its names and its address ranges');
+  t.ok(TorApps.entriesOf(['nosuch']).length === 0 && TorApps.clean(['nosuch', 'instagram', 'instagram']).join() === 'instagram', 'an unknown id is left out, each kept once');
+  sent.length = 0;
+  r = em.setTorApp('instagram', true);
+  t.ok(r.ok && mem.torApps.join() === 'instagram' && ['instagram.com', 'cdninstagram.com', 'fbcdn.net'].every((n) => sent.includes(`TOR ${n}`)), 'Instagram picked: kept, and each of its names sent at once');
+  em.setTorApp('facebook', true);
+  sent.length = 0;
+  em.setTorApp('instagram', false);
+  t.ok(sent.includes('UNTOR instagram.com') && !sent.includes('UNTOR fbcdn.net'), 'Instagram put back: its names go back, but not fbcdn.net, which Facebook (still picked) needs too');
+  em.setTorApp('telegram', true);
+  sent.length = 0;
+  em._applyTorSites();
+  t.ok(sent[0] === 'TOR-CLEAR' && sent.includes('TOR geo.example') && sent.includes('TOR facebook.com') && sent.includes('TOR 2001:67c:4e8::/48') && !sent.includes('TOR instagram.com'),
+    'after a start: the typed sites and the picked apps\' names and ranges, nothing of the one put back');
+  sent.length = 0;
+  em.setTorSite('facebook.com', true);
+  em.setTorSite('facebook.com', false);
+  t.ok(!sent.includes('UNTOR facebook.com'), 'a typed site taken back that a picked app needs stays through Tor');
+  t.ok(!em.setTorApp('nosuch', true).ok, 'an unknown app is refused');
+  em.setTorApp('facebook', false); em.setTorApp('telegram', false);
+
   // Not running: nothing asked, an empty list.
   em.proc = null;
   t.ok((await em.connsList()).length === 0, 'not running: an empty list');

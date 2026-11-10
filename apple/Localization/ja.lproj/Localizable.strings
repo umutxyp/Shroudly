@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly が使用";
 "connsTitle" = "サイト別の接続";
 "connsTor" = "Tor 経由";
+"connsTorApps" = "常に Tor を通すアプリ";
+"connsTorAppsDesc" = "選んだアプリは、ブロックされていてもいなくても、すべて Tor を通ります。遅くなり、アプリのサーバーにはあなたのアドレスではなく Tor のアドレスが見えます。選ぶと Tor を許可したことになります。";
 "connsTorBack" = "通常の経路";
 "connsTorChosen" = "Tor 経由で送信中";
 "connsTorDesc" = "あなたの国を自ら拒むサイト（お住まいの地域では利用できないと表示される）は Tor 経由で開けます：横の「Tor 経由」を選んでください。";
@@ -209,6 +211,6 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "Mac では、Tor の確認にアドレスではなくアプリ名（Telegram など）が表示されるようになりました。";
+"whatsNewApple" = "Mac：常に Tor を通すアプリ（サイト別の接続）を選べるようになりました（Instagram や Telegram など）。Tor の確認にはアドレスではなくアプリ名が表示されます。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

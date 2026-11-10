@@ -126,6 +126,8 @@
     <string name="connsSystem">Shroudly استعمال کرتا ہے</string>
     <string name="connsTitle">سائٹ کے لحاظ سے کنکشن</string>
     <string name="connsTor">Tor سے</string>
+    <string name="connsTorApps">ایپس جو ہمیشہ Tor سے جائیں</string>
+    <string name="connsTorAppsDesc">منتخب ایپ، رکی ہو یا نہیں، پوری Tor سے جاتی ہے: سست ہے، اور اس کے سرور آپ کے پتے کی جگہ Tor کا پتہ دیکھتے ہیں۔ منتخب کرنا Tor کی اجازت دینا ہے۔</string>
     <string name="connsTorBack">عام راستہ</string>
     <string name="connsTorChosen">Tor سے بھیجا جا رہا ہے</string>
     <string name="connsTorDesc">جو سائٹ خود آپ کے ملک کو روکتی ہے (کہتی ہے کہ آپ کے علاقے میں دستیاب نہیں) وہ Tor سے کھلتی ہے: اس کے ساتھ «Tor سے» چنیں۔</string>
@@ -319,7 +321,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">جس ایپ کے سرور نیٹ ورک روکتا ہے (جیسے Telegram) وہ اب Tor کے ذریعے جاتی ہے، اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔</string>
+    <string name="whatsNewAndroid">نیا: ایپس جو ہمیشہ Tor سے جائیں (سائٹ کے لحاظ سے کنکشن): Instagram یا Telegram جیسی کوئی ایپ منتخب کریں، پوری Tor سے جائے گی۔\nجس ایپ کے سرور نیٹ ورک روکتا ہے وہ بھی اب Tor سے جاتی ہے، اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

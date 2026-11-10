@@ -126,6 +126,8 @@
     <string name="connsSystem">выкарыстоўвае Shroudly</string>
     <string name="connsTitle">Злучэнні па сайтах</string>
     <string name="connsTor">Праз Tor</string>
+    <string name="connsTorApps">Праграмы заўсёды праз Tor</string>
+    <string name="connsTorAppsDesc">Абраная праграма ідзе праз Tor цалкам, заблакаваная яна ці не: павольней, і яе серверы бачаць адрас Tor замест вашага. Абраўшы яе, вы дазваляеце Tor.</string>
     <string name="connsTorBack">Звычайны шлях</string>
     <string name="connsTorChosen">Праз Tor</string>
     <string name="connsTorDesc">Сайт, які сам не пускае вашу краіну (піша, што недаступны ў вашым рэгіёне), адкрыецца праз Tor: націсніце «Праз Tor» побач з ім.</string>
@@ -319,7 +321,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Праграма, серверы якой блакуе сетка (напрыклад, Telegram), цяпер ідзе праз Tor, а пытанне пра Tor называе праграму, а не адрас.</string>
+    <string name="whatsNewAndroid">Новае: праграмы заўсёды праз Tor (Злучэнні па сайтах): абярыце праграму, напрыклад Instagram ці Telegram, і яна ўся пойдзе праз Tor.\nПраграма, серверы якой блакуе сетка, цяпер таксама ідзе праз Tor, а пытанне пра Tor называе праграму, а не адрас.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

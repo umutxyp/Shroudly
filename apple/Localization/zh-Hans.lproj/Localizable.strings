@@ -44,6 +44,8 @@
 "connsSystem" = "Shroudly 使用";
 "connsTitle" = "按网站的连接";
 "connsTor" = "经由 Tor";
+"connsTorApps" = "始终通过 Tor 的应用";
+"connsTorAppsDesc" = "所选应用无论是否被封锁，都会全部通过 Tor：速度较慢，其服务器看到的是 Tor 地址而不是你的地址。选择即表示允许使用 Tor。";
 "connsTorBack" = "常规路径";
 "connsTorChosen" = "经由 Tor 发送";
 "connsTorDesc" = "自行拒绝你所在国家的网站（提示在你所在地区不可用）可以经由 Tor 打开：点它旁边的“经由 Tor”。";
@@ -209,6 +211,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "在 Mac 上，关于 Tor 的提问现在会写出应用名称（如 Telegram），而不是一个地址。";
+"whatsNewApple" = "在 Mac 上：可选择始终通过 Tor 的应用（按网站的连接），如 Instagram 或 Telegram；关于 Tor 的提问也会写出应用名称，而不是一个地址。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";
