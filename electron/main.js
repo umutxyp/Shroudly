@@ -606,6 +606,27 @@ function getJson(url, timeout) {
   });
 }
 
+/* The same through Chromium's network (net.request: Electron 22 has it,
+ * net.fetch came in 25), so it follows the session's proxy: through the
+ * engine while protection is on (syncOwnProxy). */
+function netJson(url, timeout) {
+  return new Promise((resolve, reject) => {
+    const req = require('electron').net.request({ url, redirect: 'follow' });
+    let done = false;
+    const end = (e, v) => { if (done) return; done = true; clearTimeout(timer); if (e) { try { req.abort(); } catch {} reject(e); } else resolve(v); };
+    const timer = setTimeout(() => end(new Error('timed out')), timeout);
+    req.on('response', (res) => {
+      if (res.statusCode !== 200) { end(new Error(`HTTP ${res.statusCode}`)); return; }
+      let body = '';
+      res.on('data', (d) => { body += d; if (body.length > 1 << 20) end(new Error('too large')); });
+      res.on('end', () => { try { end(null, JSON.parse(body)); } catch (e) { end(e); } });
+      res.on('error', end);
+    });
+    req.on('error', end);
+    req.end();
+  });
+}
+
 /* Advanced mode on or off, told to the window. Where the system proxy is
  * set by the computer's administrator (system-proxy.js, machine_policy) it
  * is what carries browsers, so the tray and the status follow it too. */
@@ -748,7 +769,9 @@ function syncOwnProxy() {
   ownProxyReady = Promise.all([
     ...[session.defaultSession, session.fromPartition('electron-updater', { cache: false })].map((s) => s.setProxy(cfg)),
     // Chromium's own requests that belong to no session (Windows makes some).
-    app.setProxy(cfg),
+    // app.setProxy came in Electron 28: the Windows 7 and 8 build (22) has
+    // none, and calling it there failed every Start and Stop.
+    typeof app.setProxy === 'function' ? app.setProxy(cfg) : null,
   ].map((p) => Promise.resolve(p).catch(() => {})));
   Updater.setSystemRoute(cfg);
   return ownProxyReady;
@@ -1349,9 +1372,7 @@ app.whenReady().then(async () => {
     // Shroudly's own server (bridges.torproject.org is blocked where they
     // are needed), through the engine while it runs (tor-route.js).
     countryBridges: async () => {
-      const r = await require('electron').net.fetch('https://shroudly.codeshare.me/v1/bridges', { signal: AbortSignal.timeout(20000) });
-      if (!r.ok) return null;
-      const j = await r.json();
+      const j = await netJson('https://shroudly.codeshare.me/v1/bridges', 20000);
       return j && j.bridges && typeof j.bridges === 'object' ? j.bridges : null;
     },
     onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())),
@@ -3140,6 +3161,9 @@ async function startAdvanced() {
     const blocked = (e.code === 'security_blocked' || e.code === 'files_missing') && e.info;
     if (blocked) securityBlocked(e.info);
     else addLog('error', `Advanced mode failed: ${e.message}`);
+    // Windows 7 without the SHA-2 update: it fails the same way until the
+    // update is in; not asked for again by itself this session.
+    if (e.code === 'needs_sha2') advancedBlocked = true;
     return {
       success: false, error: e.message, code: e.code || 'start_failed',
       kind: blocked ? e.info.kind : null, win32: blocked ? e.info.win32 : null, certain: blocked ? e.info.certain !== false : null,

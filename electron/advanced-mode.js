@@ -49,6 +49,13 @@ const ALIVE_CHECK_MS = 5000;
 
 function archKey() { return process.arch === 'arm64' ? 'arm64' : process.arch === 'ia32' ? 'ia32' : process.arch === 'arm' ? 'armv7l' : 'x64'; }
 
+/* The 32-bit Shroudly on a 64-bit Intel/AMD Windows (WOW64 says so in
+ * PROCESSOR_ARCHITEW6432): the 64-bit one runs there and has Advanced mode,
+ * which this one cannot have (a TTNet report: Windows 11, the 32-bit build). */
+function wrongBuild({ platform = process.platform, arch = process.arch, env = process.env } = {}) {
+  return platform === 'win32' && arch === 'ia32' && String(env.PROCESSOR_ARCHITEW6432 || '').toUpperCase() === 'AMD64';
+}
+
 /* The machine's own processor, not this build's: the x64 build runs on
  * Windows on ARM too (emulated), where process.arch says x64 but the WinDivert
  * driver, a kernel driver, cannot load. Windows records the real one for the
@@ -114,6 +121,7 @@ function noexec(dir, mounts = null) {
 
 const REASONS = {
   mac_unsupported: 'Advanced mode is not available on macOS: the system offers no packet-divert interface without a signed Network Extension. The default engine still works.',
+  wrong_build: 'This is the 32-bit Shroudly on a 64-bit Windows: Advanced mode needs the 64-bit one (Shroudly-<version>-Windows-x64-Setup.exe). Install it over this one; your settings stay.',
   arch_unsupported: 'Advanced mode is not available on this processor (Windows: the WinDivert driver is 64-bit Intel/AMD only; Linux: 64-bit processors only).',
   platform_unsupported: `Advanced mode is not available on ${process.platform}.`,
   not_built: 'The advanced engine is not included in this build. Run: npm run build:core:advanced',
@@ -264,6 +272,8 @@ class AdvancedMode {
   constructor(log) {
     this.log = log || (() => {});
     this.platform = process.platform;
+    // Windows' version (os.release()): error 577 means another thing on 7.
+    this.osRelease = require('os').release();
     this.active = false;
     this.dir = null;
     this.statusFile = null;
@@ -313,6 +323,7 @@ class AdvancedMode {
   reasonCode() {
     if (this.platform === 'darwin') return 'mac_unsupported';
     if (this.platform !== 'win32' && this.platform !== 'linux') return 'platform_unsupported';
+    if (this.platform === 'win32' && wrongBuild()) return 'wrong_build';
     if (this.platform === 'win32' && (archKey() !== 'x64' || windowsHostIsArm())) return 'arch_unsupported';
     // Linux: its packet engine is built for 64-bit processors (x64, ARM64).
     if (this.platform === 'linux' && archKey() !== 'x64' && archKey() !== 'arm64') return 'arch_unsupported';
@@ -373,7 +384,7 @@ class AdvancedMode {
    * the engine's own last lines. */
   _failure(s, fallback) {
     const said = (s.errors || []).slice(-3).join(' | ');
-    const c = SecurityBlock.classifyWinDivert(s.fault);
+    const c = SecurityBlock.classifyWinDivert(s.fault, { release: this.osRelease });
     // "Not found" from Windows while every file is there is no antivirus
     // taking them (#69): said as what it is, with Windows' code.
     if (c && c.code === 'files_missing' && !this._badFile()) return this._notFound(s.fault, s.stale, s.copy);
@@ -385,6 +396,7 @@ class AdvancedMode {
       });
     }
     if (c && c.code === 'rival') return new AdvError('start_failed', 'Another program has a different version of the WinDivert driver loaded (error 654). Close it (GoodbyeDPI, zapret and the like), or restart Windows.');
+    if (c && c.code === 'needs_sha2') return new AdvError('needs_sha2', "Windows 7 cannot check the WinDivert driver's signature (error 577): it needs Microsoft's SHA-2 code signing update, KB4474419. Install it from Windows Update or the Microsoft Update Catalog, restart Windows, then turn Advanced mode on again.");
     if (c && c.code === 'bfe_off') return new AdvError('start_failed', "Windows' Base Filtering Engine service is off (error 1753); Advanced mode needs it.");
     return new AdvError('start_failed', said || fallback);
   }
@@ -634,5 +646,6 @@ module.exports.winQuoteArg = winQuoteArg;
 module.exports.buildAdvancedArgs = ({ fakeTtl, opts, ...rest }) => buildArgs({ ...rest, ttl: fakeTtl, opts });
 module.exports.ADV_DEFAULTS = ADV_DEFAULTS;
 module.exports.AdvError = AdvError;
+module.exports.wrongBuild = wrongBuild;
 module.exports.launcherArgs = launcherArgs;
 module.exports.workBase = workBase;

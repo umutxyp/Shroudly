@@ -236,6 +236,29 @@ function windowsArgv(line) {
     t.ok(e && e.code === 'start_failed' && /different version of the WinDivert driver/.test(e.message), 'another WinDivert loaded (654): start_failed, saying so');
   }
   {
+    // The 32-bit Shroudly on a 64-bit Intel/AMD Windows (WOW64): the 64-bit
+    // one has Advanced mode, said as that rather than "this processor".
+    const wb = AdvancedMode.wrongBuild;
+    t.ok(wb({ platform: 'win32', arch: 'ia32', env: { PROCESSOR_ARCHITEW6432: 'AMD64' } }), 'ia32 on 64-bit Intel/AMD Windows: the wrong build');
+    t.ok(!wb({ platform: 'win32', arch: 'ia32', env: {} }) && !wb({ platform: 'win32', arch: 'ia32', env: { PROCESSOR_ARCHITEW6432: 'ARM64' } })
+      && !wb({ platform: 'win32', arch: 'x64', env: { PROCESSOR_ARCHITEW6432: 'AMD64' } }) && !wb({ platform: 'linux', arch: 'ia32', env: { PROCESSOR_ARCHITEW6432: 'AMD64' } }),
+    'a 32-bit Windows, Windows on ARM, the 64-bit build, another system: not that');
+  }
+  {
+    // Windows 7 without Microsoft's SHA-2 update refuses the driver's
+    // signature (577): the update is the fix, no antivirus is to blame.
+    const am = fresh('sha2');
+    am.osRelease = '6.1.7601';
+    statusOf(am, [{ type: 'error', code: 'windivert_open', win32: 577, msg: 'WinDivertOpen failed (577)' }, { type: 'stopped' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'needs_sha2' && /KB4474419/.test(e.message) && !e.info, 'Windows 7, 577: needs_sha2, naming the update, not a security block');
+    const ten = fresh('sha2-10');
+    ten.osRelease = '10.0.19045';
+    statusOf(ten, [{ type: 'error', code: 'windivert_open', win32: 577, msg: 'WinDivertOpen failed (577)' }, { type: 'stopped' }]);
+    const r = await failOf(ten);
+    t.ok(r.e && r.e.code === 'security_blocked', 'Windows 10, 577: a security block, as before');
+  }
+  {
     const am = fresh('old');
     // An engine from before these lines: its plain words, as before.
     statusOf(am, ['WinDivertOpen failed (5). Run as Administrator.', { type: 'stopped' }]);

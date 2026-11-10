@@ -628,6 +628,9 @@ class Autopilot {
       // files gone, not available at all. Where it only may have (ended
       // without a word), the plain line, and the window's banner says "may".
       this.tell('autoSecurityAdvanced', told);
+    } else if (r && r.code === 'needs_sha2') {
+      // Windows 7 without Microsoft's SHA-2 update: the update is the fix.
+      this.tell('advErrorNeedsSha2', told);
     } else {
       this.tell('autoAdvancedFailed', told);
     }
