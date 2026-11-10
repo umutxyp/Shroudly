@@ -318,10 +318,10 @@ struct ContentView: View {
         case .stats:
             StatsPage(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
                       stats: watch.preview ? Self.previewStats : stats)
-        case .settings: SettingsView()
-        case .logs: LogsView()
+        case .settings: SettingsView().pageWidth()
+        case .logs: LogsView().pageWidth()
         case .follow: FollowView()
-        case .about: AboutView()
+        case .about: AboutView().pageWidth()
         }
     }
 
@@ -374,7 +374,7 @@ struct ContentView: View {
                         .frame(maxWidth: 320)
                         .padding(.horizontal, 24)
                     #endif
-                    NavigationLink { ReportView(watch: watch) } label: {
+                    NavigationLink { ReportView(watch: watch).pageWidth().background(Theme.background.ignoresSafeArea()) } label: {
                         Label(tr("reportLink"), systemImage: "ladybug")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Theme.text.opacity(0.85))
@@ -436,7 +436,7 @@ struct ContentView: View {
                     // form beside it, not stretched across the TV.
                     TVPage(title: tr("reportTitle"), symbol: "exclamationmark.bubble") { ReportView(watch: watch) }
                     #else
-                    ReportView(watch: watch)
+                    ReportView(watch: watch).pageWidth().background(Theme.background.ignoresSafeArea())
                     #endif
                 } label: {
                     Label(tr("reportLink"), systemImage: "exclamationmark.bubble")
@@ -955,5 +955,14 @@ extension View {
         #else
         sheet(isPresented: isPresented, content: content)
         #endif
+    }
+}
+
+extension View {
+    /* A page that is a list (Settings, About, Logs, the report): as wide as
+     * Stats and Follow, in the middle. On an iPad they ran from edge to
+     * edge, rows a whole screen long, beside pages that did not. */
+    func pageWidth() -> some View {
+        frame(maxWidth: 600).frame(maxWidth: .infinity)
     }
 }
