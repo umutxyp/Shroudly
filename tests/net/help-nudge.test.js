@@ -78,13 +78,13 @@ function load(rel) {
     const WN = require(path.join(ROOT, 'electron', 'whats-new.js'));
     const store = (init = {}) => { const m = { ...init }; return { get: (k) => m[k], set: (k, v) => { m[k] = v; }, m }; };
     let s = store();
-    t.ok(WN.note(s, { current: '2.6.48', firstRun: true }) === null && s.m.lastVersionSeen === '2.6.48' && s.m.whatsNew === undefined, 'a new install: nothing to tell');
+    t.ok(WN.note(s, { current: '2.6.48', firstRun: true, text: 'A' }) === null && s.m.lastVersionSeen === '2.6.48' && s.m.whatsNew === undefined, 'a new install: nothing to tell');
     s = store({ language: 'tr' });
-    t.ok(WN.note(s, { current: '2.6.48', firstRun: false }) === '2.6.48' && s.m.whatsNew === '2.6.48', 'from before 2.6.48 (no version kept): told');
-    t.ok(WN.note(s, { current: '2.6.48' }) === null && s.m.whatsNew === '2.6.48', 'the same version again: kept until the card is closed');
+    t.ok(WN.note(s, { current: '2.6.48', firstRun: false, text: 'A' }) === '2.6.48' && s.m.whatsNew === '2.6.48', 'from before 2.6.48 (no version kept): told');
+    t.ok(WN.note(s, { current: '2.6.48', text: 'A' }) === null && s.m.whatsNew === '2.6.48', 'the same version again: kept until the card is closed');
     s.m.whatsNew = null;
-    t.ok(WN.note(s, { current: '2.6.48' }) === null && s.m.whatsNew === null, 'closed: not again');
-    t.ok(WN.note(s, { current: '2.6.49' }) === '2.6.49' && s.m.whatsNew === '2.6.49' && s.m.lastVersionSeen === '2.6.49', 'the next update: told again');
+    t.ok(WN.note(s, { current: '2.6.48', text: 'A' }) === null && s.m.whatsNew === null, 'closed: not again');
+    t.ok(WN.note(s, { current: '2.6.49', text: 'B' }) === '2.6.49' && s.m.whatsNew === '2.6.49' && s.m.lastVersionSeen === '2.6.49', 'the next update: told again');
     const ktW = src('android/app/src/main/java/me/codeshare/shroudly/WhatsNew.kt');
     const swW = src('apple/Shared/WhatsNew.swift');
     t.ok(/lastSeen == null -> if \(updatedSinceInstall\) current else null/.test(ktW) && /if lastSeen == nil \{ return usedBefore \? current : nil \}/.test(swW),
@@ -95,7 +95,8 @@ function load(rel) {
     // changes with every release; that each platform has some does not.
     const en = JSON.parse(src('locales/en.json'));
     const lines = (k) => en[k].split('\n').filter(Boolean).length;
-    t.ok(['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].every((k) => lines(k) >= 1 && en[k].split('\n').every((l) => l.trim() && l.length <= 200)),
+    // None for a platform a version changes nothing on: no window there.
+    t.ok(['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].every((k) => en[k].trim() === '' || en[k].split('\n').every((l) => l.trim() && l.length <= 200)),
       'the notes, a short line each, for every platform');
     for (const f of fs.readdirSync(path.join(ROOT, 'locales'))) {
       const j = JSON.parse(src(`locales/${f}`));
