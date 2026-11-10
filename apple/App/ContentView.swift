@@ -109,7 +109,7 @@ struct ContentView: View {
             default: break
             }
             #endif
-            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen) {
+            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen, notes: tr("whatsNewApple")) {
                 newsVersion = v
                 showNews = true
             }

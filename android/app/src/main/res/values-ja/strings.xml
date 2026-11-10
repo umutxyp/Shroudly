@@ -319,7 +319,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">新しいデザイン：丸いスイッチは Shroudly のロゴで、オフのときは目を閉じています。タップして開始・停止できます。\n下部にフローティングタブ（押したままなぞる、またはページをスワイプ）、リアルタイムの速度を表示する統計、窮屈にならない設定タブ。ログは「情報」に移りました。</string>
+    <string name="whatsNewAndroid">いつものブリッジがブロックされていても Tor がつながるように：Tor Project があなたの国向けに提供するブリッジを取得します。\nIPv6 ネットワーク上の Instagram・WhatsApp・Facebook や、途中で止まるサイト（ロシア）が、より早く Tor 経由で開きます。\n報告フォームが短くなり、TalkBack が毎秒状態を読み上げなくなりました。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

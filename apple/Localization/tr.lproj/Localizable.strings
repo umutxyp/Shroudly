@@ -209,6 +209,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Başlatmak ya da durdurmak için ortadaki daireye dokun: Shroudly logosu, kapalıyken gözü kapalı, açılınca açık.\nAltta Liquid Glass sekmeler: basılı tutup üzerlerinde kaydır ya da sayfayı yana kaydır. Kayıtlar artık Hakkında'da.";
+"whatsNewApple" = "Mac: Tor, alışılmış köprüleri engellendiğinde de bağlanıyor: Tor Project'in ülkeniz için verdiği köprüleri istiyor.\nGoogle'ın kendi siteleri (Docs görselleri, YouTube) en yakın sunucular için önce Google'ın şifreli DNS'ine soruyor.\nDaha kısa rapor formu: internet sağlayıcısı ya da ülke doldurmak yok.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

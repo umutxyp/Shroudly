@@ -319,7 +319,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Намуди нав: калиди мудаввар логотипи Shroudly аст, хомӯш — чашмаш пӯшида. Барои оғоз ё қатъ онро пахш кунед.\nҶадвалҳои шинокунанда дар поён (пахш карда дар болояшон лағжонед ё саҳифаро лағжонед), Омор бо суръати зинда ва ҷадвалҳои Танзимот, ки ҳеҷ гоҳ танг намешаванд. Сабтҳо акнун дар «Дар бораи барнома».</string>
+    <string name="whatsNewAndroid">Tor ҳатто дар ҷое, ки пулҳои муқаррариаш баста шудаанд, пайваст мешавад: пулҳоеро мепурсад, ки Tor Project барои кишвари шумо медиҳад.\nInstagram, WhatsApp ва Facebook дар шабакаҳои IPv6 ва сомонаҳое, ки дар нимароҳ ях мекунанд (Русия), барвақттар тавассути Tor кушода мешаванд.\nШакли кӯтоҳтари гузориш; TalkBack дигар ҳолатро ҳар сония намехонад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

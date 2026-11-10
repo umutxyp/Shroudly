@@ -35,9 +35,10 @@ function note(store, { current, firstRun = false, text = null } = {}) {
   try {
     store.set('lastVersionSeen', current);
     if (d) store.set('whatsNewSeen', d);
-    if (!firstRun && !again) store.set('whatsNew', current);
+    if (!firstRun && !again && d) store.set('whatsNew', current);
   } catch {}
-  return firstRun || again ? null : current;
+  // No notes for this system (a version that changes nothing here): no card.
+  return firstRun || again || !d ? null : current;
 }
 
 module.exports = { note, digest, SHOWN_BY };

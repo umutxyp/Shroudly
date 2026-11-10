@@ -72,11 +72,17 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertEqual(WhatsNew.decide(lastSeen: "2.6.47", current: "2.6.48", usedBefore: true), "2.6.48")
         XCTAssertNil(WhatsNew.decide(lastSeen: "2.6.48", current: "2.6.48", usedBefore: true))
         let d = try XCTUnwrap(UserDefaults(suiteName: "whats-new-test-\(UUID().uuidString)"))
-        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.48", usedBefore: true), "2.6.48")
-        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.48", usedBefore: true), "2.6.48", "until it is closed")
+        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.48", usedBefore: true, notes: "a"), "2.6.48")
+        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.48", usedBefore: true, notes: "a"), "2.6.48", "until it is closed")
         WhatsNew.seen(d)
-        XCTAssertNil(WhatsNew.pending(d, current: "2.6.48", usedBefore: true))
-        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.49", usedBefore: true), "2.6.49")
+        XCTAssertNil(WhatsNew.pending(d, current: "2.6.48", usedBefore: true, notes: "a"))
+        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.49", usedBefore: true, notes: "b"), "2.6.49")
+        WhatsNew.seen(d)
+        // A version whose notes were not rewritten: the old ones are not shown
+        // again under its number (2.6.65 to 2.6.70 said 2.6.64's); none, nothing.
+        XCTAssertNil(WhatsNew.pending(d, current: "2.6.50", usedBefore: true, notes: "b"), "the same notes: not again")
+        XCTAssertNil(WhatsNew.pending(d, current: "2.6.51", usedBefore: true, notes: "  "), "no notes: nothing")
+        XCTAssertEqual(WhatsNew.pending(d, current: "2.6.52", usedBefore: true, notes: "c"), "2.6.52", "new notes: shown")
         XCTAssertEqual(WhatsNew.lines(" one \n\ntwo\n"), "• one\n• two")
     }
 

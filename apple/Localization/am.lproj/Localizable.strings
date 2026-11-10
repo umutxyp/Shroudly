@@ -209,6 +209,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "ለመጀመር ወይም ለማቆም ክብ ማብሪያውን ይንኩ፦ የShroudly አርማ፣ ሲጠፋ ዓይኑ የተዘጋ ሲበራ የተከፈተ።\nከታች የLiquid Glass ትሮች፦ ተጭነው በላያቸው ያንሸራቱ ወይም ገጹን ያንሸራቱ። ምዝግቦች አሁን በ«ስለ» ውስጥ ናቸው።";
+"whatsNewApple" = "Mac፦ Tor የተለመዱ ድልድዮቹ በታገዱበትም ይገናኛል፤ Tor Project ለአገርዎ የሚሰጣቸውን ድልድዮች ይጠይቃል።\nየGoogle የራሱ ጣቢያዎች (የDocs ምስሎች፣ YouTube) ለቅርብ አገልጋዮች መጀመሪያ የGoogleን የተመሰጠረ DNS ይጠይቃሉ።\nአጭር የሪፖርት ቅጽ፤ የኢንተርኔት አቅራቢ ወይም አገር መሙላት አያስፈልግም።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

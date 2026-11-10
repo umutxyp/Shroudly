@@ -319,7 +319,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Жаңы көрүнүш: тегерек которгуч — Shroudly логотиби, өчүк кезде көзү жумук. Баштоо же токтотуу үчүн басыңыз.\nТөмөндө калкыма өтмөктөр (басып туруп бою менен жылдырыңыз же баракты жылдырыңыз), түз ылдамдыгы бар Статистика жана эч качан кысылбаган Жөндөөлөр өтмөктөрү. Журнал эми «Колдонмо жөнүндө» бөлүмүндө.</string>
+    <string name="whatsNewAndroid">Tor адаттагы көпүрөлөрү бөгөттөлгөн жерде да туташат: Tor Project сиздин өлкөгө берген көпүрөлөрдү сурайт.\nIPv6 тармактарындагы Instagram, WhatsApp жана Facebook, ошондой эле жарым жолдо катып калган сайттар (Орусия) Tor аркылуу эртерээк ачылат.\nКыскараак билдирүү формасы; TalkBack абалды эми ар секунд сайын окубайт.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

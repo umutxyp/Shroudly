@@ -209,6 +209,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Yoqish yoki to‘xtatish uchun dumaloq tugmani bosing: Shroudly logotipi, o‘chiq paytda ko‘zi yumuq, yoqilganda ochiq.\nPastda Liquid Glass bo‘limlar: bosib turib ustidan suring yoki sahifani suring. Jurnallar endi «Ilova haqida» bo‘limida.";
+"whatsNewApple" = "Mac: Tor odatdagi ko'priklari bloklangan joyda ham ulanadi: Tor Project mamlakatingiz uchun beradigan ko'priklarni so'raydi.\nGoogle'ning o'z saytlari (Docs rasmlari, YouTube) eng yaqin serverlar uchun avval Google'ning shifrlangan DNS'idan so'raydi.\nQisqaroq hisobot shakli: provayder va mamlakatni to'ldirish shart emas.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

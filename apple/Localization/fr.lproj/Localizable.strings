@@ -209,6 +209,6 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Touchez l'interrupteur rond pour démarrer ou arrêter : le logo de Shroudly, œil fermé à l'arrêt et ouvert une fois activé.\nOnglets en Liquid Glass en bas : appuyez et glissez dessus, ou balayez la page. Les journaux sont maintenant dans À propos.";
+"whatsNewApple" = "Mac : Tor passe même là où ses ponts habituels sont bloqués : il demande les ponts que le Tor Project fournit pour votre pays.\nLes sites de Google (images de Docs, YouTube) interrogent d'abord le DNS chiffré de Google, pour les serveurs les plus proches.\nUn formulaire de signalement plus court : ni fournisseur ni pays à remplir.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

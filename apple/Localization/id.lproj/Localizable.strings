@@ -209,6 +209,6 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Ketuk sakelar bundar untuk memulai atau menghentikan: logo Shroudly, matanya tertutup saat mati dan terbuka saat aktif.\nTab Liquid Glass di bawah: tekan dan geser di atasnya, atau geser halaman. Log kini ada di Tentang.";
+"whatsNewApple" = "Mac: Tor tetap tersambung meski bridge biasanya diblokir: ia meminta bridge yang diberikan Tor Project untuk negara Anda.\nSitus milik Google sendiri (gambar Docs, YouTube) bertanya dulu ke DNS terenkripsi Google, demi server terdekat.\nFormulir laporan lebih singkat: tak perlu mengisi penyedia internet atau negara.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

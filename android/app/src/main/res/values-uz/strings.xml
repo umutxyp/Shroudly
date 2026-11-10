@@ -319,7 +319,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Yangi ko‘rinish: dumaloq tugma Shroudly logotipi, o‘chiq paytda ko‘zi yumuq. Yoqish yoki to‘xtatish uchun bosing.\nPastda suzuvchi bo‘limlar (bosib turib ustidan suring yoki sahifani suring), jonli tezlikli Statistika va hech qachon siqilmaydigan Sozlamalar bo‘limlari. Jurnallar endi «Ilova haqida» bo‘limida.</string>
+    <string name="whatsNewAndroid">Tor odatdagi ko\'priklari bloklangan joyda ham ulanadi: Tor Project mamlakatingiz uchun beradigan ko\'priklarni so\'raydi.\nIPv6 tarmoqlaridagi Instagram, WhatsApp va Facebook hamda yarim yo\'lda qotib qoladigan saytlar (Rossiya) Tor orqali ertaroq ochiladi.\nQisqaroq hisobot shakli; TalkBack endi holatni har soniyada o\'qimaydi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

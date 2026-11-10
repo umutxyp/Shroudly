@@ -209,6 +209,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Tap the round switch to start or stop: Shroudly's logo, its eye shut while off and open once on.\nLiquid Glass tabs at the bottom: press and slide along them, or swipe the page. Logs is now in About.";
+"whatsNewApple" = "Mac: Tor gets through where its usual bridges are blocked: it asks for the bridges the Tor Project gives for your country.\nGoogle's own sites (Docs images, YouTube) ask Google's encrypted DNS first, for the nearest servers.\nA shorter report form: no internet provider or country to fill in.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

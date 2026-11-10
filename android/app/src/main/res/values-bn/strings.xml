@@ -319,7 +319,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">নতুন চেহারা: গোল সুইচটি Shroudly-র লোগো, বন্ধ থাকলে চোখ বন্ধ। চালু বা বন্ধ করতে এটিতে ট্যাপ করুন।\nনিচে ভাসমান ট্যাব (চেপে ধরে সেগুলোর ওপর সরান বা পাতা সরান), লাইভ গতিসহ পরিসংখ্যান আর সেটিংসের ট্যাব যা কখনো চাপাচাপি হয় না। লগ এখন «সম্পর্কে»-তে।</string>
+    <string name="whatsNewAndroid">সাধারণ ব্রিজগুলো ব্লক থাকলেও Tor সংযোগ করে: Tor Project আপনার দেশের জন্য যে ব্রিজ দেয় সেগুলো চায়।\nIPv6 নেটওয়ার্কে Instagram, WhatsApp ও Facebook এবং মাঝপথে আটকে যাওয়া সাইট (রাশিয়া) আগেই Tor দিয়ে খোলে।\nছোট রিপোর্ট ফর্ম, আর TalkBack এখন আর প্রতি সেকেন্ডে অবস্থা পড়ে না।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

@@ -319,7 +319,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Täze görnüş: tegelek düwme Shroudly logotipi, öçükkä gözi ýumuk. Başlatmak ýa-da togtatmak üçin oňa basyň.\nAşakda ýüzýän bölümler (basyp durup olaryň üstünden süýşüriň ýa-da sahypany süýşüriň), göni tizlikli Statistika we hiç haçan gysylmaýan Sazlamalar bölümleri. Ýazgylar indi «Programma barada» bölüminde.</string>
+    <string name="whatsNewAndroid">Tor adaty köprüleri petiklenen ýerde-de birigýär: Tor Project-iň ýurduňyz üçin berýän köprülerini soraýar.\nIPv6 torlaryndaky Instagram, WhatsApp we Facebook hem-de ýarym ýolda doňýan saýtlar (Russiýa) Tor arkaly has ir açylýar.\nHas gysga hasabat görnüşi; TalkBack indi ýagdaýy her sekuntda okamaýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

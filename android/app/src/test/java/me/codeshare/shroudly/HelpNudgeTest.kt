@@ -48,6 +48,12 @@ class HelpNudgeTest {
         assertEquals("from before 2.6.48", "2.6.48", WhatsNew.decide(null, "2.6.48", true))
         assertEquals("2.6.48", WhatsNew.decide("2.6.47", "2.6.48", false))
         assertNull(WhatsNew.decide("2.6.48", "2.6.48", true))
+        // Notes that were not rewritten are not shown again under a new number
+        // (2.6.65 to 2.6.70 said 2.6.64's).
+        assertNull("the same notes", WhatsNew.decide("2.6.70", "2.6.71", true, sameNotes = true))
+        assertEquals(WhatsNew.digest(" a\n"), WhatsNew.digest("a"))
+        assertNull("no notes", WhatsNew.digest("  "))
+        assertTrue(WhatsNew.digest("a") != WhatsNew.digest("b"))
         assertEquals("• one\n• two", WhatsNew.lines(" one \n\ntwo\n"))
     }
 

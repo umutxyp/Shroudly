@@ -319,7 +319,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">หน้าตาใหม่: สวิตช์วงกลมคือโลโก้ Shroudly ปิดอยู่ตาจะหลับ แตะเพื่อเริ่มหรือหยุด\nแท็บลอยด้านล่าง (กดค้างแล้วเลื่อนไปตามแท็บ หรือปัดหน้า) สถิติพร้อมความเร็วสด และแท็บการตั้งค่าที่ไม่เบียดกันอีกต่อไป บันทึกย้ายไปอยู่ในเกี่ยวกับแล้ว</string>
+    <string name="whatsNewAndroid">Tor เชื่อมต่อได้แม้บริดจ์ปกติถูกบล็อก โดยขอบริดจ์ที่ Tor Project ให้สำหรับประเทศของคุณ\nInstagram, WhatsApp และ Facebook บนเครือข่าย IPv6 รวมถึงเว็บที่ค้างกลางทาง (รัสเซีย) เปิดผ่าน Tor ได้เร็วขึ้น\nแบบฟอร์มรายงานสั้นลง และ TalkBack ไม่อ่านสถานะทุกวินาทีอีกต่อไป</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

@@ -319,7 +319,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">מראה חדש: המתג העגול הוא הלוגו של Shroudly, והעין עצומה כשהוא כבוי. הקישו עליו כדי להפעיל או לעצור.\nלשוניות צפות בתחתית (לחצו והחליקו לאורכן או החליקו את הדף), סטטיסטיקה עם מהירויות בזמן אמת ולשוניות הגדרות שלעולם לא נדחסות. היומנים נמצאים עכשיו ב«אודות».</string>
+    <string name="whatsNewAndroid">‏Tor מתחבר גם היכן שהגשרים הרגילים שלו חסומים: הוא מבקש את הגשרים ש-Tor Project נותן למדינה שלך.\n‏Instagram,‏ WhatsApp ו-Facebook ברשתות IPv6, ואתרים שנתקעים באמצע (רוסיה), נפתחים דרך Tor מוקדם יותר.\nטופס דיווח קצר יותר, ו-TalkBack כבר לא מקריא את המצב בכל שנייה.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

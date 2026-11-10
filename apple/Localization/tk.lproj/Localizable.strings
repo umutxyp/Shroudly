@@ -209,6 +209,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Başlatmak ýa-da togtatmak üçin tegelek düwmä basyň: Shroudly logotipi, öçükkä gözi ýumuk, açykka açyk.\nAşakda Liquid Glass bölümleri: basyp durup olaryň üstünden süýşüriň ýa-da sahypany süýşüriň. Ýazgylar indi «Programma barada» bölüminde.";
+"whatsNewApple" = "Mac: Tor adaty köprüleri petiklenen ýerde-de birigýär: Tor Project-iň ýurduňyz üçin berýän köprülerini soraýar.\nGoogle-yň öz saýtlary (Docs suratlary, YouTube) iň ýakyn serwerler üçin ilki Google-yň şifrlenen DNS-inden soraýar.\nHas gysga hasabat görnüşi: üpjün edijini we ýurdy doldurmak gerek däl.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

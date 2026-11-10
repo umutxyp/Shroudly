@@ -209,6 +209,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Chạm vào công tắc tròn để bật hoặc dừng: logo Shroudly, mắt nhắm khi tắt và mở khi bật.\nCác thẻ Liquid Glass ở dưới: nhấn giữ và trượt dọc theo chúng, hoặc vuốt trang. Nhật ký giờ nằm trong Giới thiệu.";
+"whatsNewApple" = "Mac: Tor vẫn kết nối được dù các cầu nối thông thường bị chặn: nó xin các cầu nối mà Tor Project cung cấp cho quốc gia của bạn.\nCác trang của chính Google (ảnh Docs, YouTube) hỏi DNS mã hóa của Google trước, để dùng máy chủ gần nhất.\nBiểu mẫu báo cáo ngắn hơn: không cần điền nhà mạng hay quốc gia.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

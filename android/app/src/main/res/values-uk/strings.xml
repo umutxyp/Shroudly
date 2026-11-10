@@ -319,7 +319,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Новий вигляд: круглий перемикач — логотип Shroudly, вимкнено — око заплющене. Торкніться, щоб увімкнути чи зупинити.\nПлаваючі вкладки внизу (затисніть і ведіть по них або гортайте сторінку), статистика зі швидкістю наживо та вкладки налаштувань без тісноти. Журнал тепер у розділі «Про застосунок».</string>
+    <string name="whatsNewAndroid">Tor підключається й там, де його звичайні мости заблоковано: він запитує мости, які Tor Project дає для вашої країни.\nInstagram, WhatsApp і Facebook у мережах з IPv6 та сайти, що зависають на півдорозі (Росія), раніше відкриваються через Tor.\nКоротша форма звіту, і TalkBack більше не читає стан щосекунди.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

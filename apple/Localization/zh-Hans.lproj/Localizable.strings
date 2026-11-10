@@ -209,6 +209,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "轻点圆形开关即可开始或停止：Shroudly 的标志，关闭时眼睛闭着，开启后睁开。\n底部 Liquid Glass 标签：按住后沿标签滑动，或滑动页面。日志现在位于“关于”中。";
+"whatsNewApple" = "Mac：即使常用网桥被封锁，Tor 也能连上：它会获取 Tor Project 为你所在国家提供的网桥。\nGoogle 自家的网站（Docs 图片、YouTube）会先询问 Google 的加密 DNS，以连到最近的服务器。\n报告表单更简短：无需填写网络服务商或国家。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";
