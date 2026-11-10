@@ -209,6 +209,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Mac: Tor gets through where its usual bridges are blocked: it asks for the bridges the Tor Project gives for your country.\nGoogle's own sites (Docs images, YouTube) ask Google's encrypted DNS first, for the nearest servers.\nA shorter report form: no internet provider or country to fill in.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

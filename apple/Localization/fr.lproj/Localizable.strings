@@ -209,6 +209,6 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Mac : Tor passe même là où ses ponts habituels sont bloqués : il demande les ponts que le Tor Project fournit pour votre pays.\nLes sites de Google (images de Docs, YouTube) interrogent d'abord le DNS chiffré de Google, pour les serveurs les plus proches.\nUn formulaire de signalement plus court : ni fournisseur ni pays à remplir.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

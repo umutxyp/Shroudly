@@ -209,6 +209,6 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "Mac：いつものブリッジがブロックされていても Tor がつながるように：Tor Project があなたの国向けに提供するブリッジを取得します。\nGoogle 自身のサイト（Docs の画像、YouTube）は、最寄りのサーバーのためにまず Google の暗号化 DNS に問い合わせます。\n報告フォームが短くなりました：プロバイダーや国の入力は不要です。";
+"whatsNewApple" = "";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

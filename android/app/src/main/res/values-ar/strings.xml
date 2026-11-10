@@ -319,7 +319,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">يتصل Tor حتى حيث تُحجب جسوره المعتادة: يطلب الجسور التي يقدّمها مشروع Tor لبلدك.\nInstagram وWhatsApp وFacebook على شبكات IPv6، والمواقع التي تتجمّد في منتصف التحميل (روسيا)، تُفتح عبر Tor أبكر.\nنموذج بلاغ أقصر، ولم يعد TalkBack يقرأ الحالة كل ثانية.</string>
+    <string name="whatsNewAndroid">البلاغ الذي يتعذّر إرساله (روسيا تُبطئ خادم البلاغات) يُرسَل الآن عبر Tor؛ وإن لم يكن Tor يعمل فإنه يُشغَّل من أجله فقط.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

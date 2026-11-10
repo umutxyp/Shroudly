@@ -319,7 +319,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Tor vẫn kết nối được dù các cầu nối thông thường bị chặn: nó xin các cầu nối mà Tor Project cung cấp cho quốc gia của bạn.\nInstagram, WhatsApp và Facebook trên mạng IPv6, cùng các trang bị treo giữa chừng (Nga), mở qua Tor sớm hơn.\nBiểu mẫu báo cáo ngắn hơn, và TalkBack không còn đọc trạng thái mỗi giây.</string>
+    <string name="whatsNewAndroid">Báo cáo không gửi được (Nga làm chậm máy chủ báo cáo) giờ được gửi qua Tor; nếu Tor chưa chạy, nó được bật chỉ để gửi báo cáo.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

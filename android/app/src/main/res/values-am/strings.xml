@@ -319,7 +319,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">Tor የተለመዱ ድልድዮቹ በታገዱበትም ይገናኛል፤ Tor Project ለአገርዎ የሚሰጣቸውን ድልድዮች ይጠይቃል።\nበIPv6 አውታረ መረቦች ላይ Instagram፣ WhatsApp እና Facebook እንዲሁም በመሃል የሚቀዘቅዙ ጣቢያዎች (ሩሲያ) በTor ቶሎ ይከፈታሉ።\nአጭር የሪፖርት ቅጽ፤ TalkBack ሁኔታውን በየሰከንዱ አያነብም።</string>
+    <string name="whatsNewAndroid">መላክ ያልቻለ ሪፖርት (ሩሲያ የሪፖርት አገልጋዩን ታዘገያለች) አሁን በTor ይላካል፤ Tor ካልሰራ ለዚህ ብቻ ይጀመራል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

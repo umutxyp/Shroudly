@@ -319,7 +319,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">Tor وہاں بھی جڑ جاتا ہے جہاں اس کے عام برج بلاک ہوں: یہ وہ برج مانگتا ہے جو Tor Project آپ کے ملک کے لیے دیتا ہے۔\nIPv6 نیٹ ورکس پر Instagram، WhatsApp اور Facebook، اور آدھے میں رک جانے والی سائٹس (روس)، Tor کے ذریعے جلد کھلتی ہیں۔\nمختصر رپورٹ فارم، اور TalkBack اب ہر سیکنڈ حالت نہیں پڑھتا۔</string>
+    <string name="whatsNewAndroid">جو رپورٹ نہیں جا پاتی (روس رپورٹ سرور کو سست کرتا ہے) اب Tor کے ذریعے جاتی ہے؛ اگر Tor نہ چل رہا ہو تو صرف اسی کے لیے شروع ہوتا ہے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

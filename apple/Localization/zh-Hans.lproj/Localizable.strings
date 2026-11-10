@@ -209,6 +209,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "Mac：即使常用网桥被封锁，Tor 也能连上：它会获取 Tor Project 为你所在国家提供的网桥。\nGoogle 自家的网站（Docs 图片、YouTube）会先询问 Google 的加密 DNS，以连到最近的服务器。\n报告表单更简短：无需填写网络服务商或国家。";
+"whatsNewApple" = "";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

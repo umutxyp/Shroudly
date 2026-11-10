@@ -606,27 +606,29 @@ function getJson(url, timeout) {
   });
 }
 
-/* Tor for a report that did not get through the usual way: ready already,
- * or started for it where the user allowed Tor (Settings, or yes to its
- * question) and waited for, up to REPORT_TOR_WAIT_MS. Russia's networks
- * freeze Cloudflare's addresses, where the report server is, after about
- * 16 KB, and a report with its log is more than that: with Tor off, it
- * could not be sent at all (a Russian user, 2.6.68). */
+/* Tor for a report that did not get through the usual way: running
+ * already, or started for it, whether or not the user has said yes to Tor
+ * for sites (the report alone goes through it; Tor is stopped again after
+ * it where they have not), and waited for up to REPORT_TOR_WAIT_MS. Russia's
+ * networks freeze Cloudflare's addresses, where the report server is, after
+ * about 16 KB, and a report with its log is more than that: with Tor off it
+ * could not be sent at all (a Russian user, 2.6.68). Resolves to a function
+ * to call once the report is through (null: no Tor). Not where Tor is
+ * turned off in Settings: the engine then has no way to it. */
 const REPORT_TOR_WAIT_MS = 150000;
-async function torReadyForReport(waitMs = REPORT_TOR_WAIT_MS) {
+async function torForReport(waitMs = REPORT_TOR_WAIT_MS) {
   const tor = engine && engine.isActive() ? engine.tor : null;
-  if (!tor) return false;
-  if (tor.state === 'ready') return true;
-  if (store.get('torLastResort', true) === false || store.get('torApproved', false) !== true) return false;
-  addLog('info', 'Report: not through the usual way; starting Tor to send it');
-  try { tor.need(); } catch { return false; }
+  if (!tor || store.get('torLastResort', true) === false) return null;
+  if (tor.state === 'ready') return () => {};
+  const allowed = store.get('torApproved', false) === true;
+  addLog('info', `Report: not through the usual way; starting Tor to send it${allowed ? '' : ' (for the report alone)'}`);
+  try { tor.need(); } catch { return null; }
+  const done = () => { if (!allowed) { try { tor.stop(); } catch {} } };
   const until = Date.now() + waitMs;
-  while (Date.now() < until) {
-    if (tor.state === 'ready') return true;
-    if (tor.state === 'failed') return false;
-    await new Promise((res) => setTimeout(res, 1000));
-  }
-  return tor.state === 'ready';
+  while (Date.now() < until && tor.state !== 'ready' && tor.state !== 'failed') await new Promise((res) => setTimeout(res, 1000));
+  if (tor.state === 'ready') return done;
+  done();
+  return null;
 }
 
 /* The same through Chromium's network (net.request: Electron 22 has it,
@@ -3832,12 +3834,15 @@ ipcMain.handle('report:send', async (_e, fields) => {
     // Not through the usual way, with Tor ready: once more through Tor
     // (Russia's networks slow Cloudflare, where codeshare.me is, down until
     // nothing gets through, and other VPNs there with it).
-    if (!r.ok && r.error === 'network' && engine && await torReadyForReport()) {
+    const torDone = !r.ok && r.error === 'network' && engine ? await torForReport() : null;
+    if (torDone) {
       const back = engine.torForNow(new URL(Report.URL_REPORT).hostname);
       if (back) {
         addLog('info', 'Report: not through the usual way; sending it through Tor');
+        // The same report, every part of it, only by another way.
         try { r = await Report.send((o) => require('electron').net.request(o), body, { timeoutMs: 90000 }); } finally { back(); }
       }
+      torDone();
     }
     if (r.ok) {
       store.set('reports', Report.history([{ ref: r.ref, at: Date.now() }, ...past]));

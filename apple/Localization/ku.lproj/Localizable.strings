@@ -209,6 +209,6 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Mac: Tor li cihê ku pirên wê yên asayî hatine astengkirin jî girê dide: pirên ku Tor Project ji bo welatê te dide dixwaze.\nMalperên Google bi xwe (wêneyên Docs, YouTube) ji bo serverên herî nêzîk pêşî ji DNS a şîfrekirî ya Google dipirsin.\nFormek raporê ya kurttir: ne pêşkêşkar ne jî welat ku tije bikî.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

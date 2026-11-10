@@ -319,7 +319,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">O Tor conecta mesmo onde as suas pontes habituais estão bloqueadas: pede as pontes que o Tor Project dá para o seu país.\nInstagram, WhatsApp e Facebook em redes IPv6, e sites que travam no meio (Rússia), abrem antes pelo Tor.\nUm formulário de relato mais curto, e o TalkBack não lê mais o estado a cada segundo.</string>
+    <string name="whatsNewAndroid">Um relato que não consegue ser enviado (a Rússia desacelera o servidor de relatos) agora vai pelo Tor; se o Tor não estiver rodando, ele é iniciado só para isso.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

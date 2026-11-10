@@ -319,7 +319,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Tor tetap tersambung meski bridge biasanya diblokir: ia meminta bridge yang diberikan Tor Project untuk negara Anda.\nInstagram, WhatsApp, dan Facebook di jaringan IPv6, serta situs yang macet di tengah jalan (Rusia), lebih cepat terbuka lewat Tor.\nFormulir laporan lebih singkat, dan TalkBack tidak lagi membacakan status setiap detik.</string>
+    <string name="whatsNewAndroid">Laporan yang tidak bisa terkirim (Rusia memperlambat server laporan) kini dikirim lewat Tor; jika Tor belum berjalan, Tor dinyalakan hanya untuknya.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

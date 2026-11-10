@@ -319,7 +319,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Tor ҳатто дар ҷое, ки пулҳои муқаррариаш баста шудаанд, пайваст мешавад: пулҳоеро мепурсад, ки Tor Project барои кишвари шумо медиҳад.\nInstagram, WhatsApp ва Facebook дар шабакаҳои IPv6 ва сомонаҳое, ки дар нимароҳ ях мекунанд (Русия), барвақттар тавассути Tor кушода мешаванд.\nШакли кӯтоҳтари гузориш; TalkBack дигар ҳолатро ҳар сония намехонад.</string>
+    <string name="whatsNewAndroid">Гузорише, ки фиристода намешавад (Русия сервери гузоришҳоро суст мекунад), акнун тавассути Tor меравад; агар Tor кор накунад, танҳо барои он оғоз мешавад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

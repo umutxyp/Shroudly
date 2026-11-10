@@ -319,7 +319,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Tor адаттагы көпүрөлөрү бөгөттөлгөн жерде да туташат: Tor Project сиздин өлкөгө берген көпүрөлөрдү сурайт.\nIPv6 тармактарындагы Instagram, WhatsApp жана Facebook, ошондой эле жарым жолдо катып калган сайттар (Орусия) Tor аркылуу эртерээк ачылат.\nКыскараак билдирүү формасы; TalkBack абалды эми ар секунд сайын окубайт.</string>
+    <string name="whatsNewAndroid">Жөнөтүлбөй жаткан билдирүү (Орусия билдирүү серверин жайлатат) эми Tor аркылуу кетет; Tor иштебесе, ошол үчүн гана күйгүзүлөт.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

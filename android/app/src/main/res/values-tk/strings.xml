@@ -319,7 +319,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Tor adaty köprüleri petiklenen ýerde-de birigýär: Tor Project-iň ýurduňyz üçin berýän köprülerini soraýar.\nIPv6 torlaryndaky Instagram, WhatsApp we Facebook hem-de ýarym ýolda doňýan saýtlar (Russiýa) Tor arkaly has ir açylýar.\nHas gysga hasabat görnüşi; TalkBack indi ýagdaýy her sekuntda okamaýar.</string>
+    <string name="whatsNewAndroid">Iberip bolmaýan hasabat (Russiýa hasabat serwerini haýalladýar) indi Tor arkaly gidýär; Tor işlemeýän bolsa, diňe şonuň üçin açylýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

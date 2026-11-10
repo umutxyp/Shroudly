@@ -41,6 +41,10 @@ enum WhatsNew {
 
     static func seen(_ d: UserDefaults = .standard) { d.removeObject(forKey: pendingKey) }
 
+    /* The notes as the strings give them; none when the key itself came
+     * back (no such string): a version with nothing new here leaves them empty. */
+    static func notes(_ text: String, key: String) -> String { text == key ? "" : text }
+
     /* The notes, as a short digest: the same notes, the same digest; nil for
      * no notes. */
     static func digest(_ text: String) -> String? {

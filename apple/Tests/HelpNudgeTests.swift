@@ -84,6 +84,10 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertNil(WhatsNew.pending(d, current: "2.6.51", usedBefore: true, notes: "  "), "no notes: nothing")
         XCTAssertEqual(WhatsNew.pending(d, current: "2.6.52", usedBefore: true, notes: "c"), "2.6.52", "new notes: shown")
         XCTAssertEqual(WhatsNew.lines(" one \n\ntwo\n"), "• one\n• two")
+        XCTAssertEqual(WhatsNew.notes("whatsNewApple", key: "whatsNewApple"), "", "the key itself: no notes")
+        XCTAssertEqual(WhatsNew.notes("", key: "whatsNewApple"), "")
+        WhatsNew.seen(d)
+        XCTAssertNil(WhatsNew.pending(d, current: "2.6.72", usedBefore: true, notes: ""), "a version with nothing new here: no window")
     }
 
     func testTheAddressSitesSee() {

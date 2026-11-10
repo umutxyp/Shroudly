@@ -319,7 +319,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Tor passe même là où ses ponts habituels sont bloqués : il demande les ponts que le Tor Project fournit pour votre pays.\nInstagram, WhatsApp et Facebook sur les réseaux IPv6, et les sites qui se figent en cours de route (Russie), s\'ouvrent plus tôt par Tor.\nUn formulaire de signalement plus court, et TalkBack ne lit plus l\'état chaque seconde.</string>
+    <string name="whatsNewAndroid">Un signalement qui ne passe pas (la Russie ralentit le serveur des signalements) passe maintenant par Tor ; si Tor ne tourne pas, il démarre juste pour lui.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

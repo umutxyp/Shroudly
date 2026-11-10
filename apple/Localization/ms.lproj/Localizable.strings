@@ -209,6 +209,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Mac: Tor tetap bersambung walaupun jambatan biasanya disekat: ia meminta jambatan yang diberikan Tor Project untuk negara anda.\nLaman Google sendiri (imej Docs, YouTube) bertanya dahulu kepada DNS tersulit Google, untuk pelayan terdekat.\nBorang laporan lebih pendek: tiada penyedia internet atau negara untuk diisi.";
+"whatsNewApple" = "";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";
