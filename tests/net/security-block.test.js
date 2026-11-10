@@ -77,10 +77,15 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-sb-'));
   t.ok(early({ code: null }) === 'weak', 'ended by a signal (no code): weak');
 
   // ── classifyWinDivert ──
-  const wd = (code, win32) => SB.classifyWinDivert({ code, win32 });
+  const wd = (code, win32, release = '10.0.19045') => SB.classifyWinDivert({ code, win32 }, { release });
   t.ok(wd('windivert_open', 1275).code === 'security_blocked' && wd('windivert_open', 1275).kind === 'driver', '1275 (driver blocked): security_blocked, the driver');
   t.ok(wd('windivert_open', 577).code === 'security_blocked' && wd('windivert_open', 5).code === 'security_blocked'
     && wd('windivert_open', 225).code === 'security_blocked', '577 (signature refused), 5 (denied though elevated), 225: security_blocked');
+  // Windows 7 (6.1) and Vista (6.0) cannot check SHA-2 signatures without
+  // KB4474419: 577 there is that, not an antivirus; Windows 8 (6.2) can.
+  t.ok(wd('windivert_open', 577, '6.1.7601').code === 'needs_sha2' && wd('windivert_load', 577, '6.0.6002').code === 'needs_sha2'
+    && wd('windivert_open', 577, '6.2.9200').code === 'security_blocked' && wd('windivert_open', 5, '6.1.7601').code === 'security_blocked',
+  '577 on Windows 7 or Vista: needs_sha2; on Windows 8 and later, and other codes on 7: as before');
   t.ok(wd('windivert_open', 2).code === 'files_missing', '2 (the driver file not there): files_missing');
   t.ok(wd('windivert_load', 126).code === 'files_missing' && wd('windivert_load', 193).code === 'files_missing', 'WinDivert.dll not there (126) or not a program (193): files_missing');
   t.ok(wd('windivert_load', 5).code === 'security_blocked', 'WinDivert.dll refused (5): security_blocked');

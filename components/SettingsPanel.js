@@ -33,6 +33,8 @@ const STRATEGIES = [
 const ADV_REASON_KEYS = {
   mac_unsupported: 'advReasonMacUnsupported',
   arch_unsupported: 'advReasonArchUnsupported',
+  // The 32-bit Shroudly on a 64-bit Windows: the 64-bit one has it.
+  wrong_build: 'advReasonWrongBuild',
   not_built: 'advReasonNotBuilt',
   windivert_missing: 'advReasonWindivertMissing',
   platform_unsupported: 'advReasonPlatformUnsupported',
@@ -50,6 +52,8 @@ const ADV_ERROR_KEYS = {
   // An antivirus refused it, or took its files (main.js securityBlocked).
   security_blocked: 'advErrorSecurity',
   files_missing: 'advReasonFilesMissing',
+  // Windows 7 without the SHA-2 update cannot check the driver's signature.
+  needs_sha2: 'advErrorNeedsSha2',
 };
 const PROBE_TIMEOUT_MS = 25000;
 

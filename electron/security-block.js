@@ -132,11 +132,15 @@ function classifyEarlyExit({ code = null, ms, quiet, platform = process.platform
  *       driver support);
  *   { code: 'rival' }                    another WinDivert version is loaded (654);
  *   { code: 'bfe_off' }                  the Base Filtering Engine service is off (1753);
+ *   { code: 'needs_sha2' }               Windows 7 (or Vista) refused the signature
+ *       (577) because it cannot check SHA-2 signatures without Microsoft's
+ *       update KB4474419: no antivirus in it (a Russian report, 2.6.70);
  * or null for anything else.
  */
-function classifyWinDivert(fault) {
+function classifyWinDivert(fault, { release = require('os').release() } = {}) {
   if (!fault || !fault.code || fault.win32 == null) return null;
   const w = Number(fault.win32) >>> 0;
+  if (w === 577 && /^6\.[01]\./.test(String(release))) return { code: 'needs_sha2' };
   if (fault.code === 'windivert_load') {
     if ([2, 3, 126].includes(w)) return { code: 'files_missing', kind: 'missing' };
     if (w === 193) return { code: 'files_missing', kind: 'damaged' };
