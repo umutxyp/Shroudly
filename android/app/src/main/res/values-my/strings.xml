@@ -319,7 +319,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ပို့၍မရသော အစီရင်ခံစာ (ရုရှားက အစီရင်ခံဆာဗာကို နှေးစေသည်) ကို ယခု Tor မှတစ်ဆင့် ပို့သည်၊ Tor မဖွင့်ထားလျှင် ၎င်းအတွက်သာ ဖွင့်သည်။</string>
+    <string name="whatsNewAndroid">ကွန်ရက်က ဆာဗာများကို ပိတ်ထားသော အက်ပ် (ဥပမာ Telegram) သည် ယခု Tor မှတစ်ဆင့် သွားပြီး Tor မေးခွန်းတွင် လိပ်စာအစား အက်ပ်အမည်ကို ဖော်ပြသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

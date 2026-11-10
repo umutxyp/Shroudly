@@ -234,6 +234,31 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop(); own.close();
   }
 
+  /* An app's own connection to an address the network blocks (Telegram's
+   * 149.154.167.92 in Iran): no name, no TLS, and still the last way out
+   * carries it, asked by that address (TEST-NET-1 answers nobody). */
+  {
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, [...base, '--fallback-file', torFile]);
+    const n0 = tor.asked.length;
+    const tr = Date.now();
+    let r = 'refused';
+    try {
+      const s = await H.socks(P, '192.0.2.1', 443);
+      r = await new Promise((res) => {
+        let o = '';
+        s.on('data', (d) => { o += d; }); s.on('end', () => res(o)); s.on('error', () => res('error'));
+        s.write('\x00\x01 an app protocol, not TLS');
+        setTimeout(() => res(`timeout ${o}`), 30000);
+      });
+    } catch {}
+    // The stand-in world speaks TLS, so it closes on these bytes: what
+    // counts is that the engine said yes and went through the last way out.
+    t.ok(r !== 'refused' && tor.asked.length === n0 + 1 && tor.asked[n0].atyp === 1 && tor.asked[n0].host === '192.0.2.1',
+      `an app's connection to an address that does not answer goes through the last way out by address (${Date.now() - tr} ms, ${JSON.stringify(tor.asked.slice(n0))})`);
+    eng.stop();
+  }
+
   // Not running yet: the connection fails as before, and the engine says so.
   {
     const deadPort = await H.freePort();

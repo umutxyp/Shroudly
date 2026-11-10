@@ -209,6 +209,6 @@
 "upload" = "Жөнөтүү";
 "uptime" = "Иштөө убактысы";
 "versionLabel" = "Версия {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac'те Tor суроосу эми даректин ордуна колдонмонун атын (мисалы, Telegram) айтат.";
 "whatsNewOk" = "Түшүнүктүү";
 "whatsNewTitle" = "{version} версиясындагы жаңылыктар";

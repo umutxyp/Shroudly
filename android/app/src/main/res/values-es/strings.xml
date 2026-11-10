@@ -319,7 +319,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Un reporte que no consigue enviarse (Rusia frena el servidor de reportes) ahora va por Tor; si Tor no está en marcha, se inicia solo para él.</string>
+    <string name="whatsNewAndroid">Una app cuyos servidores bloquea la red (como Telegram) ahora pasa por Tor, y la pregunta de Tor nombra la app en lugar de una dirección.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

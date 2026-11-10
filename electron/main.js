@@ -52,7 +52,7 @@ const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const Diagnostics = require('./diagnostics');
 const ProcNet = require('./procnet');
-const { RawWatch, programName } = require('./raw-apps');
+const { RawWatch, programName, serviceOf, askLabel } = require('./raw-apps');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
@@ -191,6 +191,11 @@ const rawWatch = new RawWatch({
     const r = await BlockCheck.check(service.probe, { socksPort: engine.port, connect: DiscordRelay.socksConnect });
     return r && r.blocked ? 'blocked' : r && !r.unknown ? 'open' : 'unknown';
   },
+  // The last way out carries the app's connections too: said so, or asked
+  // for naming the app, instead of "use the app's own proxy".
+  tor: () => (engine && engine.isActive() && engine.torFor ? engine.torFor() : null),
+  askTor: (app) => askTor(app),
+  askTorAgain: (app) => askTorAgain(app),
 });
 let storeApps = null;
 // A full-screen game, video or presentation in front: what Shroudly does by
@@ -532,10 +537,15 @@ let torAskedAt = 0;
 function askTor(host) {
   const h = String(host || '').toLowerCase();
   const had = torAsk;
-  torAsk = { host: h || (had && had.host) || '' };
-  if (!had) addLog('info', `The last way out: ${torAsk.host || 'a site'} needs Tor; asking before it starts`);
+  // Named as people know it: Telegram rather than one of its addresses
+  // (askLabel; a program the engine's connection was traced to counts too).
+  torAsk = askLabel(had, h, (x) => { const s = serviceOf(x); return s ? s.name : rawWatch.hostApp.get(x) || null; });
+  const better = !!had && torAsk !== had;
+  if (!had) addLog('info', `The last way out: ${torAsk.host && torAsk.host !== h && h ? `${torAsk.host} (${h})` : torAsk.host || 'a site'} needs Tor; asking before it starts`);
+  else if (better) addLog('info', `The last way out: the question now names ${torAsk.host}${h && h !== torAsk.host.toLowerCase() ? ` (${h})` : ''}`);
   const now = Date.now();
-  if (now - torAskedAt >= TOR_ASK_MS) {
+  // A better name is said again at once: the notice named an address.
+  if (now - torAskedAt >= TOR_ASK_MS || better) {
     torAskedAt = now;
     const text = String(tr().torAskNotice || '').replace(/\{host\}/g, torAsk.host || '');
     if (text) notifyAuto(text);

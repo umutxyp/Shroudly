@@ -319,7 +319,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">जो रिपोर्ट नहीं जा पाती (रूस रिपोर्ट सर्वर को धीमा करता है), वह अब Tor से जाती है; Tor न चल रहा हो तो वह सिर्फ़ उसी के लिए शुरू होता है।</string>
+    <string name="whatsNewAndroid">जिस ऐप के सर्वर नेटवर्क रोकता है (जैसे Telegram), वह अब Tor से होकर जाता है, और Tor वाला सवाल पते की जगह ऐप का नाम बताता है।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

@@ -319,7 +319,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">መላክ ያልቻለ ሪፖርት (ሩሲያ የሪፖርት አገልጋዩን ታዘገያለች) አሁን በTor ይላካል፤ Tor ካልሰራ ለዚህ ብቻ ይጀመራል።</string>
+    <string name="whatsNewAndroid">አውታረ መረቡ አገልጋዮቹን የሚያግድበት መተግበሪያ (እንደ Telegram) አሁን በTor በኩል ያልፋል፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

@@ -319,7 +319,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">যে রিপোর্ট পাঠানো যায় না (রাশিয়া রিপোর্ট সার্ভার ধীর করে), সেটি এখন Tor দিয়ে যায়; Tor চালু না থাকলে শুধু সেটির জন্যই চালু হয়।</string>
+    <string name="whatsNewAndroid">যে অ্যাপের সার্ভার নেটওয়ার্ক আটকে দেয় (যেমন Telegram), সেটি এখন Tor দিয়ে যায়, আর Tor-এর প্রশ্নে ঠিকানার বদলে অ্যাপের নাম থাকে।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

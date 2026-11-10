@@ -319,7 +319,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Справаздача, якую не ўдаецца адправіць (у Расіі сервер справаздач запавольваюць), цяпер ідзе праз Tor; калі Tor не запушчаны, ён уключаецца толькі дзеля яе.</string>
+    <string name="whatsNewAndroid">Праграма, серверы якой блакуе сетка (напрыклад, Telegram), цяпер ідзе праз Tor, а пытанне пра Tor называе праграму, а не адрас.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

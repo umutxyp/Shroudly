@@ -319,7 +319,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Gönderilemeyen bir rapor (Rusya rapor sunucusunu yavaşlatıyor) artık Tor üzerinden gidiyor; Tor çalışmıyorsa sadece onun için açılıyor.</string>
+    <string name="whatsNewAndroid">Ağın sunucularını engellediği bir uygulama (örneğin Telegram) artık Tor üzerinden gidiyor; Tor sorusu da adres yerine uygulamanın adını söylüyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

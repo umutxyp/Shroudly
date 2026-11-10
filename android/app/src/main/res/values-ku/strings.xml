@@ -319,7 +319,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Raporek ku nayê şandin (Rûsya servera raporan hêdî dike) êdî bi Tor diçe; heke Tor ne vekirî be, tenê ji bo wê vedibe.</string>
+    <string name="whatsNewAndroid">Sepana ku tor serverên wê asteng dike (wek Telegram) êdî bi Tor diçe, û pirsa Tor li şûna navnîşanekê navê sepanê dibêje.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

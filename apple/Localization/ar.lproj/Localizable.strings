@@ -209,6 +209,6 @@
 "upload" = "الرفع";
 "uptime" = "مدة التشغيل";
 "versionLabel" = "الإصدار {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "على Mac، يذكر سؤال Tor الآن اسم التطبيق (مثل Telegram) بدلًا من عنوان.";
 "whatsNewOk" = "حسنًا";
 "whatsNewTitle" = "الجديد في {version}";

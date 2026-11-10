@@ -209,6 +209,6 @@
 "upload" = "اپلوډ";
 "uptime" = "د کار موده";
 "versionLabel" = "نسخه {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "په Mac کې د Tor پوښتنه اوس د پتې پر ځای د اپ نوم (لکه Telegram) اخلي.";
 "whatsNewOk" = "پوه شوم";
 "whatsNewTitle" = "په {version} کې نوي څه";

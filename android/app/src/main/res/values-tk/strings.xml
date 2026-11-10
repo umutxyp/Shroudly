@@ -319,7 +319,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Iberip bolmaýan hasabat (Russiýa hasabat serwerini haýalladýar) indi Tor arkaly gidýär; Tor işlemeýän bolsa, diňe şonuň üçin açylýar.</string>
+    <string name="whatsNewAndroid">Ulgamyň serwerlerini petikleýän programmasy (meselem, Telegram) indi Tor arkaly geçýär, Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

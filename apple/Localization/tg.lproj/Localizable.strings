@@ -209,6 +209,6 @@
 "upload" = "Ирсол";
 "uptime" = "Вақти кор";
 "versionLabel" = "Версияи {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Дар Mac саволи Tor акнун ба ҷои суроға номи барномаро (масалан, Telegram) мегӯяд.";
 "whatsNewOk" = "Фаҳмо";
 "whatsNewTitle" = "Навигариҳои {version}";

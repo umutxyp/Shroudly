@@ -209,6 +209,6 @@
 "upload" = "آپلود";
 "uptime" = "مدت فعالیت";
 "versionLabel" = "نسخهٔ {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "در Mac، پرسش Tor اکنون به‌جای یک نشانی، نام برنامه (مثل Telegram) را می‌گوید.";
 "whatsNewOk" = "متوجه شدم";
 "whatsNewTitle" = "تازه‌های نسخهٔ {version}";

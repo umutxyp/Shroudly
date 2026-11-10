@@ -319,7 +319,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Yuborib bo\'lmayotgan hisobot (Rossiya hisobot serverini sekinlashtiradi) endi Tor orqali ketadi; Tor ishlamayotgan bo\'lsa, faqat shu uchun yoqiladi.</string>
+    <string name="whatsNewAndroid">Tarmoq serverlarini bloklaydigan ilova (masalan, Telegram) endi Tor orqali o\'tadi, Tor savoli esa manzil o\'rniga ilova nomini aytadi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

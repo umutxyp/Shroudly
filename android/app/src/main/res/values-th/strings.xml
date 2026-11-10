@@ -319,7 +319,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">รายงานที่ส่งไม่ได้ (รัสเซียทำให้เซิร์ฟเวอร์รายงานช้าลง) ตอนนี้จะส่งผ่าน Tor หาก Tor ยังไม่ทำงาน จะเปิดขึ้นเพื่อรายงานนี้เท่านั้น</string>
+    <string name="whatsNewAndroid">แอปที่เครือข่ายบล็อกเซิร์ฟเวอร์ (เช่น Telegram) ตอนนี้จะผ่าน Tor และคำถามเรื่อง Tor จะบอกชื่อแอปแทนที่อยู่</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

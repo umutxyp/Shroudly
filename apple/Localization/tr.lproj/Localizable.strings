@@ -209,6 +209,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "";
+"whatsNewApple" = "Mac'te Tor sorusu artık adres yerine uygulamanın adını (örneğin Telegram) söylüyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

@@ -133,6 +133,48 @@ const t = suite('raw-apps');
       'a minute on: the 17 others in one line, then the new address');
   }
 
+  /* 4. the last way out (an Iran Telegram report: told to use Telegram's
+   * own proxy, and asked about Tor for a bare IPv6 address; Tor was never
+   * allowed and Telegram stayed shut) */
+  {
+    const run = async (state, again = false) => {
+      const lines = [], notes = [], asked = [];
+      const x = new raw.RawWatch({ log: (l, m) => lines.push(m), tell: (id) => notes.push(id), now: () => now,
+        tor: () => state, askTor: (app) => asked.push(app), askTorAgain: (app) => { asked.push(`again ${app}`); return again; } });
+      now += 3600 * 1000;
+      await x.onEvent('unreachable', { host: '149.154.167.92', port: 443 });
+      const r = await x.onEvent('unreachable', { host: '2001:67c:4e8:f004::a', port: 443 });
+      return { r, lines, notes, asked };
+    };
+    let o = await run('carries');
+    t.ok(o.r === 'tor' && o.notes.length === 0 && o.asked.length === 0 && /they go through the last way out \(Tor\)$/.test(o.lines.pop()), 'Tor allowed: it carries them; no notice, no question, no "own proxy" advice');
+    o = await run('asks');
+    t.ok(o.r === 'asked' && o.notes.length === 0 && o.asked.join() === 'Telegram' && /once allowed, asked in the window$/.test(o.lines.pop()), 'Tor not allowed yet: asked for, naming Telegram; no "own proxy" notice');
+    o = await run('off', true);
+    t.ok(o.r === 'asked' && o.notes.length === 0 && o.asked.join() === 'again Telegram', 'Tor turned off: asked again (when its rest is over), instead of the notice');
+    o = await run('off', false);
+    t.ok(o.r === 'notified' && o.notes.join() === 'autoRawUnreachable' && /own proxy setting or a VPN/.test(o.lines.pop()), 'turned off and not asked again: the notice, as before');
+    o = await run(null);
+    t.ok(o.r === 'notified' && o.notes.join() === 'autoRawUnreachable', 'no Tor here (or an own server): the notice, as before');
+  }
+
+  /* 5. what the Tor question names */
+  {
+    let q = raw.askLabel(null, '2001:4188:2:600:10:10:34:35');
+    t.ok(q.host === '2001:4188:2:600:10:10:34:35' && q.rank === 0, 'only an unknown address: that address');
+    q = raw.askLabel(q, 't.me');
+    t.ok(q.host === 'Telegram' && q.rank === 2, 'then t.me: the question names Telegram');
+    const keep = q;
+    t.ok(raw.askLabel(q, '2001:b28:f23d:f001::a') === keep && raw.askLabel(q, 'example.com') === keep && raw.askLabel(q, '') === keep, 'and keeps it: neither an address nor a site name replaces an app');
+    q = raw.askLabel(null, '[2001:67c:4e8:f004::a]');
+    t.ok(q.host === 'Telegram', 'a Telegram address (IPv6, in brackets) is Telegram from the start');
+    q = raw.askLabel(null, 'www.youtube.com');
+    t.ok(q.host === 'www.youtube.com' && q.rank === 1 && raw.askLabel(q, '172.217.117.4') === q, 'a site by its name, never replaced by an address');
+    t.ok(raw.askLabel({ host: '192.0.2.1', rank: 0 }, 'x.example').host === 'x.example', 'a name replaces a bare address');
+    t.ok(raw.askLabel(null, '198.51.100.7', (h) => (h === '198.51.100.7' ? 'SomeGame' : null)).host === 'SomeGame', 'a program the connection was traced to names it too');
+    t.ok(raw.askLabel(null, '').host === '' , 'nothing at all: empty, as before ("a site")');
+  }
+
   console.log(`raw-apps: ${t.count} checks passed`);
   process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });

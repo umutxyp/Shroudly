@@ -319,7 +319,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Laporan yang tidak bisa terkirim (Rusia memperlambat server laporan) kini dikirim lewat Tor; jika Tor belum berjalan, Tor dinyalakan hanya untuknya.</string>
+    <string name="whatsNewAndroid">Aplikasi yang servernya diblokir jaringan (seperti Telegram) kini lewat Tor, dan pertanyaan Tor menyebut nama aplikasinya, bukan alamat.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>
