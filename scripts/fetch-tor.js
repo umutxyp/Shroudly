@@ -36,7 +36,6 @@ const { execFileSync } = require('child_process');
 // (electron/tor-files.js, electron/tor-download.js).
 const T = require('../electron/tor-files.js');
 const { VERSION, SHA256, PT, DESKTOP, ANDROID, COMMON } = T;
-const [BASE, MIRROR] = T.SOURCES;
 const ROOT = path.join(__dirname, '..');
 
 function download(url, dest) {
@@ -63,7 +62,8 @@ async function bundle(name, work) {
   const file = `tor-expert-bundle-${name}-${VERSION}.tar.gz`;
   const tgz = path.join(work, file);
   let last = null;
-  for (const base of [BASE, MIRROR]) {
+  // Every source in turn (the Tor Project's, then its mirrors).
+  for (const base of T.SOURCES) {
     try {
       console.log(`[tor] downloading ${base}${file}`);
       await download(base + file, tgz);

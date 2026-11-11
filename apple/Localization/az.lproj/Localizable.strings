@@ -212,6 +212,6 @@
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Həmişə Tor ilə gedən tətbiqlər (Saytlara görə bağlantılar), məsələn Instagram və ya Telegram; Tor sualı isə ünvan əvəzinə tətbiqin adını çəkir.";
+"whatsNewMac" = "Daha sürətli: Tor-un bir dəfə daşıdığı sayt Tor-da qalmaq əvəzinə 15 dəqiqə sonra adi yollara qayıdır.\nTor yavaş körpüləri (Rusiya) daha uzun gözləyir, beləliklə Telegram onun üzərindən keçir.\nGemini və AI Studio tamamilə Tor ilə göndərilə bilər (Saytlara görə bağlantılar).";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

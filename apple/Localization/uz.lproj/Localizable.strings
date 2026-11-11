@@ -212,6 +212,6 @@
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Doim Tor orqali o'tadigan ilovalar (Saytlar bo'yicha ulanishlar), masalan Instagram yoki Telegram; Tor savoli esa manzil o'rniga ilova nomini aytadi.";
+"whatsNewMac" = "Tezroq: Tor bir marta o'tkazgan sayt Tor'da qolmay, 15 daqiqadan so'ng odatiy yo'llarga qaytadi.\nTor sekin ko'priklarni (Rossiya) uzoqroq kutadi, shuning uchun Telegram u orqali o'tadi.\nGemini va AI Studio to'liq Tor orqali yuborilishi mumkin (Saytlar bo'yicha ulanishlar).";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

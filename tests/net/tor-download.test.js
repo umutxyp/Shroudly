@@ -43,6 +43,8 @@ const spec = T.DESKTOP[target];
     asked.push(req.url);
     if (req.url === `/a/${name}`) { res.writeHead(302, { Location: `/b/${name}` }); res.end(); return; }
     if (req.url === `/b/${name}`) { res.writeHead(200, { 'Content-Length': body.length }); res.end(body); return; }
+    // A network that cuts the name: the connection ends before any answer.
+    if (req.url === `/cut/${name}`) { req.socket.destroy(); return; }
     if (req.url === `/bad/${name}`) { const x = Buffer.from('not the bundle'); res.writeHead(200, { 'Content-Length': x.length }); res.end(x); return; }
     res.writeHead(404); res.end();
   }).listen(0, '127.0.0.1');
@@ -77,6 +79,15 @@ const spec = T.DESKTOP[target];
   let err = null;
   try { await TD.ensure(dir2, opts(['https://tor.example/bad/'])); } catch (e) { err = e; }
   t.ok(err && /SHA-256/.test(err.message) && !fs.existsSync(dir2), 'no good source: refused, and no folder made');
+
+  // Cut before any answer (Russia, torproject.org): said so, not "ENOENT
+  // bundle.tar.gz", and the next source tried.
+  const dir3 = path.join(root, 'tor3');
+  const said = [];
+  const got3 = await TD.ensure(dir3, { ...opts(['https://tor.example/cut/', 'https://tor.example/b/']), log: (l, m) => said.push(m) });
+  t.ok(got3 === dir3 && said.some((m) => /cut before any answer/.test(m)) && !said.some((m) => /ENOENT/.test(m)), `a source cut before any answer is said as such, and the next one used (${said.join(' | ')})`);
+  t.ok(T.SOURCES.some((u) => u.startsWith('https://github.com/umutxyp/Shroudly/releases/download/tor-')) && T.SOURCES[0].includes('torproject.org'),
+    'the Tor Project first, then the same files on Shroudly\'s GitHub (checked by the same SHA-256)');
 
   site.close(); socks.close();
   fs.rmSync(root, { recursive: true, force: true });

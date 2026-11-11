@@ -321,7 +321,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Yeni: her zaman Tor\'dan giden uygulamalar (Siteye göre bağlantılar): Instagram ya da Telegram gibi bir uygulama seç, tamamı Tor\'dan gitsin.\nAğın sunucularını engellediği bir uygulama da artık Tor\'dan gidiyor; Tor sorusu adres yerine uygulamanın adını söylüyor.</string>
+    <string name="whatsNewAndroid">Daha hızlı: Tor\'un bir kez taşıdığı site, Tor\'da kalmak yerine 15 dakika sonra olağan yollara geri dönüyor.\nTor yavaş köprüleri (Rusya) daha uzun bekliyor; böylece Telegram onun üzerinden geçebiliyor.\nGemini ve AI Studio bütünüyle Tor\'dan gönderilebiliyor (Siteye göre bağlantılar).</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

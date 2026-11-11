@@ -321,7 +321,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">新功能：始终通过 Tor 的应用（按网站的连接）：选择 Instagram 或 Telegram 等应用，它的全部连接都会通过 Tor。\n网络封锁其服务器的应用现在也会通过 Tor 连接，关于 Tor 的提问也会写出应用名称，而不是一个地址。</string>
+    <string name="whatsNewAndroid">更快：Tor 曾经承载过的网站，15 分钟后会回到常规方式，而不会一直走 Tor。\nTor 会更久地等待缓慢的网桥（俄罗斯），因此 Telegram 可以通过它连接。\n可以让 Gemini 和 AI Studio 全部通过 Tor（按网站的连接）。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

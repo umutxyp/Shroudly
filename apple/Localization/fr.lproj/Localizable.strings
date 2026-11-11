@@ -212,6 +212,6 @@
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Apps toujours par Tor (Connexions par site), comme Instagram ou Telegram ; et la question sur Tor nomme l’app au lieu d’une adresse.";
+"whatsNewMac" = "Plus rapide : un site que Tor a porté une fois reprend les voies habituelles au bout de 15 minutes au lieu de rester sur Tor.\nTor attend plus longtemps les ponts lents (Russie), pour que Telegram passe par lui.\nGemini et AI Studio peuvent passer tout entiers par Tor (Connexions par site).";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

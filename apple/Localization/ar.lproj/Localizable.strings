@@ -212,6 +212,6 @@
 "uptime" = "مدة التشغيل";
 "versionLabel" = "الإصدار {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "تطبيقات تمر دائمًا عبر Tor (الاتصالات حسب الموقع)، مثل Instagram أو Telegram؛ ويذكر سؤال Tor اسم التطبيق بدلًا من عنوان.";
+"whatsNewMac" = "أسرع: الموقع الذي حمله Tor مرة يعود إلى الطرق المعتادة بعد 15 دقيقة بدلًا من البقاء على Tor.\nينتظر Tor الجسور البطيئة (روسيا) مدة أطول، فيمر Telegram عبره.\nيمكن إرسال Gemini وAI Studio بالكامل عبر Tor (الاتصالات حسب الموقع).";
 "whatsNewOk" = "حسنًا";
 "whatsNewTitle" = "الجديد في {version}";

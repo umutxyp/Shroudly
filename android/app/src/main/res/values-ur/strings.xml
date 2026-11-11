@@ -321,7 +321,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">نیا: ایپس جو ہمیشہ Tor سے جائیں (سائٹ کے لحاظ سے کنکشن): Instagram یا Telegram جیسی کوئی ایپ منتخب کریں، پوری Tor سے جائے گی۔\nجس ایپ کے سرور نیٹ ورک روکتا ہے وہ بھی اب Tor سے جاتی ہے، اور Tor والا سوال پتے کی جگہ ایپ کا نام بتاتا ہے۔</string>
+    <string name="whatsNewAndroid">تیز تر: جس سائٹ کو Tor نے ایک بار پہنچایا، وہ Tor پر رہنے کے بجائے 15 منٹ بعد عام راستوں پر لوٹ آتی ہے۔\nTor سست برجز (روس) کا زیادہ دیر انتظار کرتا ہے، تاکہ Telegram اس کے ذریعے جا سکے۔\nGemini اور AI Studio کو پورا Tor سے بھیجا جا سکتا ہے (سائٹ کے لحاظ سے کنکشن)۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

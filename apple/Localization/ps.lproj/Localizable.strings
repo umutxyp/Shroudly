@@ -212,6 +212,6 @@
 "uptime" = "د کار موده";
 "versionLabel" = "نسخه {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "هغه اپونه چې تل د Tor له لارې ځي (د سایټ له مخې اتصالونه)، لکه Instagram یا Telegram؛ او د Tor پوښتنه د پتې پر ځای د اپ نوم اخلي.";
+"whatsNewMac" = "ګړندی: هغه سایټ چې Tor یو ځل وړی، پر Tor د پاتې کېدو پر ځای له ۱۵ دقیقو وروسته عادي لارو ته ورګرځي.\nTor د ورو پلونو (روسیه) لپاره ډېر انتظار کوي، نو Telegram د هغه له لارې ځي.\nGemini او AI Studio په بشپړه توګه د Tor له لارې لېږل کېدای شي (د سایټ له مخې اتصالونه).";
 "whatsNewOk" = "پوه شوم";
 "whatsNewTitle" = "په {version} کې نوي څه";

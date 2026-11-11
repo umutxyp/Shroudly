@@ -321,7 +321,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Mới: ứng dụng luôn đi qua Tor (Kết nối theo trang): chọn một ứng dụng như Instagram hay Telegram và toàn bộ ứng dụng sẽ đi qua Tor.\nỨng dụng có máy chủ bị mạng chặn giờ cũng đi qua Tor, và câu hỏi về Tor nêu tên ứng dụng thay vì một địa chỉ.</string>
+    <string name="whatsNewAndroid">Nhanh hơn: trang mà Tor từng mang đi sẽ quay về cách thông thường sau 15 phút thay vì ở lại Tor.\nTor chờ các cầu chậm (Nga) lâu hơn, nên Telegram đi qua được.\nCó thể cho Gemini và AI Studio đi toàn bộ qua Tor (Kết nối theo trang).</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

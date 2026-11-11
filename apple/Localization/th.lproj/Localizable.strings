@@ -212,6 +212,6 @@
 "uptime" = "เวลาทำงาน";
 "versionLabel" = "เวอร์ชัน {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "แอปที่ผ่าน Tor เสมอ (การเชื่อมต่อตามเว็บไซต์) เช่น Instagram หรือ Telegram และคำถามเรื่อง Tor จะบอกชื่อแอปแทนที่อยู่";
+"whatsNewMac" = "เร็วขึ้น: ไซต์ที่ Tor เคยพาไปครั้งหนึ่ง จะกลับไปใช้ทางปกติหลัง 15 นาทีแทนที่จะค้างอยู่บน Tor\nTor รอบริดจ์ที่ช้า (รัสเซีย) นานขึ้น Telegram จึงผ่าน Tor ได้\nส่ง Gemini และ AI Studio ผ่าน Tor ได้ทั้งหมด (การเชื่อมต่อตามเว็บไซต์)";
 "whatsNewOk" = "เข้าใจแล้ว";
 "whatsNewTitle" = "มีอะไรใหม่ใน {version}";

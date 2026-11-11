@@ -321,7 +321,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">新機能：常に Tor を通すアプリ（サイト別の接続）。Instagram や Telegram などのアプリを選ぶと、すべて Tor を通ります。\nネットワークがサーバーをブロックしているアプリも Tor 経由でつながるようになり、Tor の確認にはアドレスではなくアプリ名が表示されます。</string>
+    <string name="whatsNewAndroid">高速化：一度 Tor を通ったサイトは、Tor のままにならず 15 分後に通常の方法へ戻ります。\n遅いブリッジ（ロシア）を Tor がより長く待つため、Telegram が Tor を通れるようになりました。\nGemini と AI Studio をまとめて Tor に通せます（サイト別の接続）。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>
