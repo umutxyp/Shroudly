@@ -221,6 +221,7 @@
     <string name="ownServerOk">ใช้งานได้: เปิดเว็บไซต์ผ่านเซิร์ฟเวอร์นี้ได้ใน {ms} ms กำลังใช้งาน</string>
     <string name="ownServerWhyAsks">เซิร์ฟเวอร์ขอชื่อผู้ใช้และรหัสผ่าน</string>
     <string name="ownServerWhyAuth">เซิร์ฟเวอร์ปฏิเสธชื่อผู้ใช้หรือรหัสผ่าน</string>
+    <string name="ownServerWhyLocal">ที่อยู่ของมันเป็นของเครือข่ายบ้านหรือสำนักงาน จึงใช้ได้เฉพาะในเครือข่ายนั้น หากใช้จากที่อื่น เราเตอร์ของผู้ที่แชร์ต้องเปิดพอร์ตออกสู่อินเทอร์เน็ต</string>
     <string name="ownServerWhyNoAnswer">เซิร์ฟเวอร์ไม่ตอบกลับ</string>
     <string name="ownServerWhyProtocol">เซิร์ฟเวอร์ไม่ใช้โปรโตคอลที่เลือก</string>
     <string name="ownServerWhyRefused">เซิร์ฟเวอร์ปฏิเสธการเชื่อมต่อ</string>

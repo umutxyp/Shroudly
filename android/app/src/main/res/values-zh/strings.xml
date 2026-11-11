@@ -221,6 +221,7 @@
     <string name="ownServerOk">可用：通过它在 {ms} 毫秒内打开了一个网站。使用中。</string>
     <string name="ownServerWhyAsks">它要求提供用户名和密码</string>
     <string name="ownServerWhyAuth">它拒绝了用户名或密码</string>
+    <string name="ownServerWhyLocal">它的地址属于家庭或办公室网络，只能在同一网络内使用；在其他地方使用，需要分享者的路由器把端口转发到互联网</string>
     <string name="ownServerWhyNoAnswer">它没有响应</string>
     <string name="ownServerWhyProtocol">它不支持所选的协议</string>
     <string name="ownServerWhyRefused">它拒绝了连接</string>

@@ -737,7 +737,7 @@ class SettingsActivity : Activity() {
                 status.text = getString(R.string.testing)
                 Thread {
                     val t0 = System.nanoTime()
-                    val why = OwnServer.test(l!!)
+                    val why = OwnServer.test(l!!)?.let { OwnServer.localIf(it, l.host) }
                     val ms = (System.nanoTime() - t0) / 1_000_000
                     runOnUiThread {
                         if (isFinishing || !dialog.isShowing) return@runOnUiThread

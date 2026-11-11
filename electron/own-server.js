@@ -20,6 +20,7 @@
 const net = require('net');
 const tls = require('tls');
 const SS = require('./shadowsocks');
+const UPnP = require('./upnp');
 
 const { METHODS } = SS;
 
@@ -131,6 +132,20 @@ const whyCode = (text) => WHY[text] || 'protocol';
 const WHY_TEXT = Object.fromEntries(Object.entries(WHY).map(([k, v]) => [v, k]));
 WHY_TEXT.silent = 'nothing came back (the password or the method may be wrong)';
 WHY_TEXT.tls = 'it answers, but no site\'s certificate came through it';
+WHY_TEXT.local = 'its address is on a home or office network: it works only on that network';
+
+/* A link's address that only its own network reaches (192.168.x.x, 10.x,
+ * a provider's shared 100.64.x.x, fe80::, fc00::): a link "Share my
+ * connection" made where no way in from the internet opened, sent to a
+ * friend in another country (Vietnam to Turkey: "nothing came back; the
+ * password or the method may be wrong", which sent them looking at the
+ * wrong thing). Such a link failing says why. */
+function localHost(host) {
+  const h = String(host || '').replace(/^\[|\]$/g, '').toLowerCase();
+  // This computer itself (a proxy program of its own) is not a network.
+  if (/^127\./.test(h) || h === '::1' || h === '0.0.0.0' || h === '::') return false;
+  return net.isIP(h) !== 0 && UPnP.privateAddress(h);
+}
 
 class Why extends Error {
   constructor(code) { super(WHY_TEXT[code] || code); this.why = code; }
@@ -229,7 +244,12 @@ function traceLoc(text) {
  * 'tls'). With `trace`, the same connection then asks the site's trace
  * page which address it sees, the server's way out (issue #66): { ok:
  * true, ms, ip, loc }, each null when the page did not say. */
-async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000, trace = false } = {}) {
+async function test(p, opts = {}) {
+  const r = await testOnce(p, opts);
+  return !r.ok && p && localHost(p.host) ? { ...r, why: 'local' } : r;
+}
+
+async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000, trace = false } = {}) {
   const t0 = Date.now();
   let s = null;
   let client = null;
@@ -288,4 +308,4 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
   }
 }
 
-module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, traceLoc, whyCode, WHY_TEXT };
+module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, traceLoc, whyCode, WHY_TEXT, localHost };

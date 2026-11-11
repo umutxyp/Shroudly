@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "它不支持所选的协议",
   "ownServerWhySilent": "没有任何返回；密码或加密方式可能有误",
   "ownServerWhyTls": "它有响应，但没有网站能通过它打开",
+  "ownServerWhyLocal": "它的地址属于家庭或办公室网络，只能在同一网络内使用；在其他地方使用，需要分享者的路由器把端口转发到互联网",
   "logOwnServerOn": "自己的服务器：{server}；所有网站都经过它",
   "logOwnServerOff": "自己的服务器：已关闭；网站重新直接连接",
   "logOwnServerDown": "无法使用自己的服务器（{server}）：{why}",

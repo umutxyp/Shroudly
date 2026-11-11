@@ -401,7 +401,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func ownServerDown(_ why: String?) {
         let d = AppGroup.defaults
-        d.set(OwnServer.whyCode(why), forKey: OwnServer.Down.why)
+        d.set(OwnServer.localIf(OwnServer.whyCode(why), host: settings.ownServerLink?.host), forKey: OwnServer.Down.why)
         d.set(Date().timeIntervalSince1970, forKey: OwnServer.Down.at)
         d.set(settings.ownServerLink.map(OwnServer.describe) ?? "", forKey: OwnServer.Down.server)
     }

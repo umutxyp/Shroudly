@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "server tidak memakai protokol yang dipilih",
   "ownServerWhySilent": "tidak ada yang kembali; kata sandi atau metodenya mungkin salah",
   "ownServerWhyTls": "server menjawab, tetapi tidak ada situs yang lewat",
+  "ownServerWhyLocal": "alamatnya milik jaringan rumah atau kantor, jadi hanya bekerja di jaringan itu; dari tempat lain, router orang yang berbagi harus meneruskan port-nya ke internet",
   "logOwnServerOn": "Server sendiri: {server}; setiap situs lewat server ini",
   "logOwnServerOff": "Server sendiri: mati; situs kembali dibuka langsung",
   "logOwnServerDown": "Server sendiri ({server}) tidak bisa dipakai: {why}",

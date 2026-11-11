@@ -135,6 +135,7 @@
 "ownServerOff" = "停止使用";
 "ownServerWhyAsks" = "它要求提供用户名和密码";
 "ownServerWhyAuth" = "它拒绝了用户名或密码";
+"ownServerWhyLocal" = "它的地址属于家庭或办公室网络，只能在同一网络内使用；在其他地方使用，需要分享者的路由器把端口转发到互联网";
 "ownServerWhyNoAnswer" = "它没有响应";
 "ownServerWhyProtocol" = "它不支持所选的协议";
 "ownServerWhyRefused" = "它拒绝了连接";

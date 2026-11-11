@@ -135,6 +135,7 @@
 "ownServerOff" = "使用をやめる";
 "ownServerWhyAsks" = "ユーザー名とパスワードを求めています";
 "ownServerWhyAuth" = "ユーザー名またはパスワードが拒否されました";
+"ownServerWhyLocal" = "アドレスが家庭やオフィスのネットワークのもので、そのネットワーク内でしか使えません。別の場所から使うには、共有する人のルーターがポートをインターネットへ転送する必要があります";
 "ownServerWhyNoAnswer" = "応答がありません";
 "ownServerWhyProtocol" = "選んだプロトコルに対応していません";
 "ownServerWhyRefused" = "接続が拒否されました";

@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "ele não fala o protocolo escolhido",
   "ownServerWhySilent": "nada voltou; a senha ou o método podem estar errados",
   "ownServerWhyTls": "ele responde, mas nenhum site passou por ele",
+  "ownServerWhyLocal": "o endereço dele é de uma rede de casa ou escritório, então só funciona nessa mesma rede; de outro lugar, o roteador de quem compartilha precisa abrir a porta para a internet",
   "logOwnServerOn": "Seu próprio servidor: {server}; todos os sites passam por ele",
   "logOwnServerOff": "Seu próprio servidor: desligado; os sites voltam a ir direto",
   "logOwnServerDown": "Não foi possível usar seu próprio servidor ({server}): {why}",

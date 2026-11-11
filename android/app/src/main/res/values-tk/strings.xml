@@ -221,6 +221,7 @@
     <string name="ownServerOk">Işleýär: saýt onuň üsti bilen {ms} ms-da açyldy. Ulanylýar.</string>
     <string name="ownServerWhyAsks">ol ulanyjy adyny we paroly soraýar</string>
     <string name="ownServerWhyAuth">ol ulanyjy adyny ýa-da paroly kabul etmedi</string>
+    <string name="ownServerWhyLocal">onuň salgysy öý ýa-da edara ulgamyna degişli, şonuň üçin diňe şol ulgamda işleýär; başga ýerden paýlaşýan adamyň routeri porty internete açmaly</string>
     <string name="ownServerWhyNoAnswer">ol jogap bermeýär</string>
     <string name="ownServerWhyProtocol">ol saýlanan protokoly düşünmeýär</string>
     <string name="ownServerWhyRefused">ol baglanyşykdan ýüz öwürdi</string>

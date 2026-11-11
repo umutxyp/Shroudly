@@ -135,6 +135,7 @@
 "ownServerOff" = "Kullanmayı bırak";
 "ownServerWhyAsks" = "kullanıcı adı ve şifre istiyor";
 "ownServerWhyAuth" = "kullanıcı adını ya da şifreyi kabul etmedi";
+"ownServerWhyLocal" = "adresi bir ev ya da iş ağına ait; yalnızca o ağda çalışır. Başka bir yerden kullanmak için paylaşan kişinin modemi portu internete açmalı";
 "ownServerWhyNoAnswer" = "cevap vermiyor";
 "ownServerWhyProtocol" = "seçilen protokolü konuşmuyor";
 "ownServerWhyRefused" = "bağlantıyı reddetti";

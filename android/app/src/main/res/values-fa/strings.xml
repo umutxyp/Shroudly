@@ -221,6 +221,7 @@
     <string name="ownServerOk">کار می‌کند: یک سایت در {ms} میلی‌ثانیه از طریق آن باز شد. در حال استفاده.</string>
     <string name="ownServerWhyAsks">نام کاربری و رمز عبور می‌خواهد</string>
     <string name="ownServerWhyAuth">نام کاربری یا رمز عبور را نپذیرفت</string>
+    <string name="ownServerWhyLocal">نشانی آن مال یک شبکهٔ خانگی یا اداری است و فقط در همان شبکه کار می‌کند؛ از جای دیگر، مسیریاب کسی که به اشتراک می‌گذارد باید درگاه را به اینترنت باز کند</string>
     <string name="ownServerWhyNoAnswer">پاسخ نمی‌دهد</string>
     <string name="ownServerWhyProtocol">با پروتکل انتخاب‌شده کار نمی‌کند</string>
     <string name="ownServerWhyRefused">اتصال را رد کرد</string>

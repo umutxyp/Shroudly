@@ -221,6 +221,7 @@
     <string name="ownServerOk">Çalışıyor: bir site onun üzerinden {ms} ms\'de açıldı. Kullanımda.</string>
     <string name="ownServerWhyAsks">kullanıcı adı ve şifre istiyor</string>
     <string name="ownServerWhyAuth">kullanıcı adını ya da şifreyi kabul etmedi</string>
+    <string name="ownServerWhyLocal">adresi bir ev ya da iş ağına ait; yalnızca o ağda çalışır. Başka bir yerden kullanmak için paylaşan kişinin modemi portu internete açmalı</string>
     <string name="ownServerWhyNoAnswer">cevap vermiyor</string>
     <string name="ownServerWhyProtocol">seçilen protokolü konuşmuyor</string>
     <string name="ownServerWhyRefused">bağlantıyı reddetti</string>

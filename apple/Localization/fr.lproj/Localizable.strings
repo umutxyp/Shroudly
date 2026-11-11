@@ -135,6 +135,7 @@
 "ownServerOff" = "Ne plus l’utiliser";
 "ownServerWhyAsks" = "il demande un nom d’utilisateur et un mot de passe";
 "ownServerWhyAuth" = "il a refusé le nom d’utilisateur ou le mot de passe";
+"ownServerWhyLocal" = "son adresse appartient à un réseau domestique ou de bureau, il ne fonctionne donc que sur ce même réseau ; ailleurs, le routeur de la personne qui partage doit ouvrir le port vers internet";
 "ownServerWhyNoAnswer" = "il ne répond pas";
 "ownServerWhyProtocol" = "il ne parle pas le protocole choisi";
 "ownServerWhyRefused" = "il a refusé la connexion";

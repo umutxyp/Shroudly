@@ -221,6 +221,7 @@
     <string name="ownServerOk">کام کر رہا ہے: اس کے ذریعے ایک سائٹ {ms} ms میں کھلی۔ استعمال میں۔</string>
     <string name="ownServerWhyAsks">یہ یوزر نیم اور پاس ورڈ مانگتا ہے</string>
     <string name="ownServerWhyAuth">اس نے یوزر نیم یا پاس ورڈ قبول نہیں کیا</string>
+    <string name="ownServerWhyLocal">اس کا پتہ کسی گھر یا دفتر کے نیٹ ورک کا ہے، اس لیے یہ صرف اسی نیٹ ورک پر چلتا ہے؛ کہیں اور سے، شیئر کرنے والے کے راؤٹر کو پورٹ انٹرنیٹ پر کھولنا ہوگا</string>
     <string name="ownServerWhyNoAnswer">یہ جواب نہیں دیتا</string>
     <string name="ownServerWhyProtocol">یہ منتخب پروٹوکول نہیں سمجھتا</string>
     <string name="ownServerWhyRefused">اس نے کنکشن رد کر دیا</string>

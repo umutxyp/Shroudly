@@ -221,6 +221,7 @@
     <string name="ownServerOk">काम कर रहा है: इसके ज़रिए एक साइट {ms} ms में खुली। इस्तेमाल में।</string>
     <string name="ownServerWhyAsks">यह यूज़र नेम और पासवर्ड माँगता है</string>
     <string name="ownServerWhyAuth">इसने यूज़र नेम या पासवर्ड नहीं माना</string>
+    <string name="ownServerWhyLocal">इसका पता किसी घर या दफ़्तर के नेटवर्क का है, इसलिए यह सिर्फ़ उसी नेटवर्क पर चलता है; कहीं और से, शेयर करने वाले के राउटर को पोर्ट इंटरनेट पर खोलना होगा</string>
     <string name="ownServerWhyNoAnswer">यह जवाब नहीं देता</string>
     <string name="ownServerWhyProtocol">यह चुना गया प्रोटोकॉल नहीं समझता</string>
     <string name="ownServerWhyRefused">इसने कनेक्शन ठुकरा दिया</string>

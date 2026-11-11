@@ -221,6 +221,7 @@
     <string name="ownServerOk">Berfungsi: satu laman terbuka melaluinya dalam {ms} ms. Sedang digunakan.</string>
     <string name="ownServerWhyAsks">ia meminta nama pengguna dan kata laluan</string>
     <string name="ownServerWhyAuth">ia menolak nama pengguna atau kata laluan</string>
+    <string name="ownServerWhyLocal">alamatnya milik rangkaian rumah atau pejabat, jadi ia hanya berfungsi pada rangkaian itu; dari tempat lain, penghala orang yang berkongsi mesti memajukan port ke internet</string>
     <string name="ownServerWhyNoAnswer">ia tidak menjawab</string>
     <string name="ownServerWhyProtocol">ia tidak memahami protokol yang dipilih</string>
     <string name="ownServerWhyRefused">ia menolak sambungan</string>

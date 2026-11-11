@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "nó không dùng giao thức đã chọn",
   "ownServerWhySilent": "không có gì trả về; có thể mật khẩu hoặc phương thức bị sai",
   "ownServerWhyTls": "nó trả lời, nhưng không trang nào đi qua được",
+  "ownServerWhyLocal": "địa chỉ của nó thuộc mạng gia đình hoặc văn phòng, nên chỉ dùng được trong chính mạng đó; từ nơi khác, router của người chia sẻ phải mở cổng ra internet",
   "logOwnServerOn": "Máy chủ riêng: {server}; mọi trang đều đi qua nó",
   "logOwnServerOff": "Máy chủ riêng: tắt; các trang lại mở trực tiếp",
   "logOwnServerDown": "Không thể dùng máy chủ riêng ({server}): {why}",

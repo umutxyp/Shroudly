@@ -135,6 +135,7 @@
 "ownServerOff" = "Nicht mehr verwenden";
 "ownServerWhyAsks" = "er verlangt Benutzername und Passwort";
 "ownServerWhyAuth" = "er hat Benutzername oder Passwort abgelehnt";
+"ownServerWhyLocal" = "seine Adresse gehört zu einem Heim- oder Büronetz, er funktioniert nur in diesem Netz; von anderswo muss der Router der teilenden Person den Port ins Internet weiterleiten";
 "ownServerWhyNoAnswer" = "er antwortet nicht";
 "ownServerWhyProtocol" = "er spricht das gewählte Protokoll nicht";
 "ownServerWhyRefused" = "er hat die Verbindung abgelehnt";

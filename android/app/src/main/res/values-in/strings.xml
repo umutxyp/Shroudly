@@ -221,6 +221,7 @@
     <string name="ownServerOk">Berfungsi: sebuah situs terbuka lewat server ini dalam {ms} md. Dipakai.</string>
     <string name="ownServerWhyAsks">server meminta nama pengguna dan kata sandi</string>
     <string name="ownServerWhyAuth">server menolak nama pengguna atau kata sandi</string>
+    <string name="ownServerWhyLocal">alamatnya milik jaringan rumah atau kantor, jadi hanya bekerja di jaringan itu; dari tempat lain, router orang yang berbagi harus meneruskan port-nya ke internet</string>
     <string name="ownServerWhyNoAnswer">server tidak menjawab</string>
     <string name="ownServerWhyProtocol">server tidak memakai protokol yang dipilih</string>
     <string name="ownServerWhyRefused">server menolak koneksi</string>

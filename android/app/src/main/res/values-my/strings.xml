@@ -221,6 +221,7 @@
     <string name="ownServerOk">အလုပ်လုပ်သည်- ဆိုက်တစ်ခု ၎င်းမှတစ်ဆင့် {ms} ms အတွင်း ပွင့်သည်။ အသုံးပြုနေသည်။</string>
     <string name="ownServerWhyAsks">၎င်းက အသုံးပြုသူအမည်နှင့် စကားဝှက် တောင်းသည်</string>
     <string name="ownServerWhyAuth">၎င်းက အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက်ကို လက်မခံပါ</string>
+    <string name="ownServerWhyLocal">၎င်း၏ လိပ်စာသည် အိမ် သို့မဟုတ် ရုံး ကွန်ရက်ပိုင်ဖြစ်၍ ထိုကွန်ရက်တွင်သာ အလုပ်လုပ်သည်။ အခြားနေရာမှ အသုံးပြုရန် မျှဝေသူ၏ router က port ကို အင်တာနက်သို့ ဖွင့်ပေးရမည်</string>
     <string name="ownServerWhyNoAnswer">၎င်း မဖြေကြားပါ</string>
     <string name="ownServerWhyProtocol">၎င်းသည် ရွေးထားသော ပရိုတိုကောကို မသုံးပါ</string>
     <string name="ownServerWhyRefused">၎င်းက ချိတ်ဆက်မှုကို ငြင်းပယ်သည်</string>

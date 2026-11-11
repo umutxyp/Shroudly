@@ -135,6 +135,7 @@
 "ownServerOff" = "Dejar de usarlo";
 "ownServerWhyAsks" = "pide un nombre de usuario y una contraseña";
 "ownServerWhyAuth" = "rechazó el nombre de usuario o la contraseña";
+"ownServerWhyLocal" = "su dirección es de una red de casa u oficina, así que solo funciona en esa misma red; desde otro lugar, el router de quien comparte debe abrir el puerto a internet";
 "ownServerWhyNoAnswer" = "no responde";
 "ownServerWhyProtocol" = "no habla el protocolo elegido";
 "ownServerWhyRefused" = "rechazó la conexión";

@@ -135,6 +135,7 @@
 "ownServerOff" = "کارول بند کړئ";
 "ownServerWhyAsks" = "د کارن نوم او پټنوم غواړي";
 "ownServerWhyAuth" = "د کارن نوم یا پټنوم یې ونه منل";
+"ownServerWhyLocal" = "پته یې د کور یا دفتر د شبکې ده، نو یوازې په همغه شبکه کې کار کوي؛ له بل ځای څخه، د شریکوونکي روټر باید پورټ انټرنیټ ته پرانیزي";
 "ownServerWhyNoAnswer" = "ځواب نه ورکوي";
 "ownServerWhyProtocol" = "په ټاکل شوي پروتوکول نه پوهېږي";
 "ownServerWhyRefused" = "اړیکه یې رد کړه";

@@ -221,6 +221,7 @@
     <string name="ownServerOk">Кор мекунад: сайт тавассути он дар {ms} мс кушода шуд. Дар истифода.</string>
     <string name="ownServerWhyAsks">он номи корбар ва паролро талаб мекунад</string>
     <string name="ownServerWhyAuth">он номи корбар ё паролро қабул накард</string>
+    <string name="ownServerWhyLocal">суроғаи он ба шабакаи хонагӣ ё идоравӣ тааллуқ дорад, бинобар ин танҳо дар ҳамон шабака кор мекунад; аз ҷои дигар роутери шахси мубодилакунанда бояд портро ба интернет кушояд</string>
     <string name="ownServerWhyNoAnswer">он ҷавоб намедиҳад</string>
     <string name="ownServerWhyProtocol">он протоколи интихобшударо намефаҳмад</string>
     <string name="ownServerWhyRefused">он пайвастро рад кард</string>

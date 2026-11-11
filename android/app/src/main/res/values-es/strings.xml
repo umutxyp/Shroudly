@@ -221,6 +221,7 @@
     <string name="ownServerOk">Funciona: un sitio se abrió a través de él en {ms} ms. En uso.</string>
     <string name="ownServerWhyAsks">pide un nombre de usuario y una contraseña</string>
     <string name="ownServerWhyAuth">rechazó el nombre de usuario o la contraseña</string>
+    <string name="ownServerWhyLocal">su dirección es de una red de casa u oficina, así que solo funciona en esa misma red; desde otro lugar, el router de quien comparte debe abrir el puerto a internet</string>
     <string name="ownServerWhyNoAnswer">no responde</string>
     <string name="ownServerWhyProtocol">no habla el protocolo elegido</string>
     <string name="ownServerWhyRefused">rechazó la conexión</string>

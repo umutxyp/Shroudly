@@ -136,9 +136,28 @@ object OwnServer {
         "does not speak the protocol chosen" to "protocol",
     )
     val WHY_TEXT: Map<String, String> = WHY.entries.associate { (k, v) -> v to k } +
-        mapOf("silent" to "nothing came back (the password or the method may be wrong)", "tls" to "it answers, but no site's certificate came through it")
+        mapOf("silent" to "nothing came back (the password or the method may be wrong)", "tls" to "it answers, but no site's certificate came through it",
+            "local" to "its address is on a home or office network: it works only on that network")
 
     fun whyCode(text: String?): String = WHY[text] ?: "protocol"
+
+    /* A link's address that only its own network reaches (192.168.x.x, 10.x,
+     * a provider's shared 100.64.x.x, fe80::, fc00::): a link "Share my
+     * connection" made where no way in from the internet opened, used from
+     * another country. Such a link failing says why ("local"). This device
+     * itself (127.x, ::1) is not a network. Never a lookup by name. */
+    fun localHost(host: String?): Boolean {
+        val h = (host ?: "").trim().removePrefix("[").removeSuffix("]").lowercase()
+        val a = RawApps.literal(h) ?: return false
+        val ip = try { java.net.InetAddress.getByAddress(a) } catch (_: Exception) { return false }
+        if (ip.isLoopbackAddress || ip.isAnyLocalAddress) return false
+        if (ip.isSiteLocalAddress || ip.isLinkLocalAddress) return true
+        if (a.size == 4) return (a[0].toInt() and 0xff) == 100 && (a[1].toInt() and 0xc0) == 64
+        return (a[0].toInt() and 0xfe) == 0xfc
+    }
+
+    /* The reason, or "local" for such a link. */
+    fun localIf(code: String, host: String?): String = if (localHost(host)) "local" else code
 
     fun whyRes(code: String?): Int = when (code) {
         "noAnswer" -> R.string.ownServerWhyNoAnswer
@@ -147,6 +166,7 @@ object OwnServer {
         "refused" -> R.string.ownServerWhyRefused
         "silent" -> R.string.ownServerWhySilent
         "tls" -> R.string.ownServerWhyTls
+        "local" -> R.string.ownServerWhyLocal
         else -> R.string.ownServerWhyProtocol
     }
 

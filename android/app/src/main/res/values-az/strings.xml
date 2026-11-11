@@ -221,6 +221,7 @@
     <string name="ownServerOk">İşləyir: sayt onun üzərindən {ms} ms-də açıldı. İstifadədədir.</string>
     <string name="ownServerWhyAsks">istifadəçi adı və şifrə istəyir</string>
     <string name="ownServerWhyAuth">istifadəçi adını və ya şifrəni qəbul etmədi</string>
+    <string name="ownServerWhyLocal">ünvanı ev və ya ofis şəbəkəsinə aiddir, yalnız həmin şəbəkədə işləyir; başqa yerdən paylaşan şəxsin router-i portu internetə açmalıdır</string>
     <string name="ownServerWhyNoAnswer">cavab vermir</string>
     <string name="ownServerWhyProtocol">seçilmiş protokolu başa düşmür</string>
     <string name="ownServerWhyRefused">bağlantını rədd etdi</string>

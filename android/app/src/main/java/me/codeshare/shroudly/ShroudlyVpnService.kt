@@ -1330,7 +1330,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Refused -> onRefused(ev)
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
-            is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
+            is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.localIf(OwnServer.whyCode(ev.why), AppSettings.ownServer(this)?.host))
             // Nothing was listening: Tor is started for the next connection.
             // Tor only once the user said yes (issue #77); until then asked.
             is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) { if (ev.host.isNotEmpty() && TorRoute.state != "ready" && torNeedTold.add(ev.host)) ShroudlyVpnService.logSite("${ev.host}: no technique got through; the last way out (Tor) is needed for it"); torRoute.need() } else TorAsk.ask(this, ev.host) } } else {
