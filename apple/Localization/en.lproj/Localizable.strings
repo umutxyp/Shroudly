@@ -212,6 +212,6 @@
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Apps always through Tor (Connections by site), such as Instagram or Telegram; and the Tor question names the app instead of an address.";
+"whatsNewMac" = "Faster: a site Tor carried once goes back to the usual ways after 15 minutes instead of staying on Tor.\nTor waits longer for slow bridges (Russia), so Telegram gets through it.\nGemini and AI Studio can go through Tor as a whole (Connections by site).";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

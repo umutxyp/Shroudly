@@ -212,6 +212,6 @@
 "uptime" = "זמן פעילות";
 "versionLabel" = "גרסה {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "אפליקציות שתמיד עוברות דרך Tor (חיבורים לפי אתר), כמו Instagram או Telegram; והשאלה על Tor מציינת את שם האפליקציה במקום כתובת.";
+"whatsNewMac" = "מהיר יותר: אתר ש-Tor העביר פעם אחת חוזר לדרכים הרגילות אחרי 15 דקות במקום להישאר ב-Tor.\nTor מחכה יותר לגשרים איטיים (רוסיה), כך ש-Telegram עובר דרכו.\nאפשר לשלוח את Gemini ו-AI Studio כולם דרך Tor (חיבורים לפי אתר).";
 "whatsNewOk" = "הבנתי";
 "whatsNewTitle" = "מה חדש בגרסה {version}";

@@ -321,7 +321,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Yangi: doim Tor orqali o\'tadigan ilovalar (Saytlar bo\'yicha ulanishlar): Instagram yoki Telegram kabi ilovani tanlang, u to\'liq Tor orqali o\'tadi.\nTarmoq serverlarini bloklaydigan ilova ham endi Tor orqali o\'tadi, Tor savoli esa manzil o\'rniga ilova nomini aytadi.</string>
+    <string name="whatsNewAndroid">Tezroq: Tor bir marta o\'tkazgan sayt Tor\'da qolmay, 15 daqiqadan so\'ng odatiy yo\'llarga qaytadi.\nTor sekin ko\'priklarni (Rossiya) uzoqroq kutadi, shuning uchun Telegram u orqali o\'tadi.\nGemini va AI Studio to\'liq Tor orqali yuborilishi mumkin (Saytlar bo\'yicha ulanishlar).</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

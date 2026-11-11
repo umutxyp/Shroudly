@@ -212,6 +212,6 @@
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Sepanên ku her tim bi Tor diçin (Girêdan li gorî malperê), wek Instagram an Telegram; û pirsa Tor li şûna navnîşanekê navê sepanê dibêje.";
+"whatsNewMac" = "Bileztir: malpera ku Tor carekê biribû, li şûna ku li ser Tor bimîne, piştî 15 deqeyan vedigere rêyên asayî.\nTor ji bo pirên hêdî (Rûsya) zêdetir li bendê dimîne, da ku Telegram bi wê derbas bibe.\nGemini û AI Studio dikarin bi tevahî bi Tor biçin (Girêdan li gorî malperê).";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

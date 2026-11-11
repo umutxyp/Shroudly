@@ -321,7 +321,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">جدید: برنامه‌هایی که همیشه از Tor می‌روند (اتصال‌ها بر اساس سایت): برنامه‌ای مثل Instagram یا Telegram را انتخاب کنید تا به‌طور کامل از Tor برود.\nبرنامه‌ای که شبکه سرورهایش را مسدود می‌کند هم اکنون از Tor می‌رود و پرسش Tor به‌جای یک نشانی، نام برنامه را می‌گوید.</string>
+    <string name="whatsNewAndroid">سریع‌تر: سایتی که Tor یک بار آن را برده، به‌جای ماندن روی Tor، پس از ۱۵ دقیقه به راه‌های معمول برمی‌گردد.\nTor برای پل‌های کند (روسیه) بیشتر صبر می‌کند، تا Telegram از طریق آن برود.\nGemini و AI Studio را می‌توان به‌طور کامل از Tor فرستاد (اتصال‌ها بر اساس سایت).</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

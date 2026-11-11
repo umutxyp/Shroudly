@@ -321,7 +321,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Жаңы: дайыма Tor аркылуу өткөн колдонмолор (Сайттар боюнча туташуулар): Instagram же Telegram сыяктуу колдонмону тандаңыз, ал толугу менен Tor аркылуу өтөт.\nТармак серверлерин бөгөттөгөн колдонмо да эми Tor аркылуу өтөт, ал эми Tor суроосу даректин ордуна колдонмонун атын айтат.</string>
+    <string name="whatsNewAndroid">Тезирээк: Tor бир жолу өткөргөн сайт Tor\'до калбай, 15 мүнөттөн кийин кадимки жолдорго кайтат.\nTor жай көпүрөлөрдү (Орусия) узагыраак күтөт, ошондуктан Telegram ал аркылуу өтөт.\nGemini менен AI Studio толугу менен Tor аркылуу жөнөтүлө алат (Сайттар боюнча туташуулар).</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

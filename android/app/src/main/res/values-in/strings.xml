@@ -321,7 +321,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Baru: aplikasi selalu lewat Tor (Koneksi per situs): pilih aplikasi seperti Instagram atau Telegram dan seluruhnya lewat Tor.\nAplikasi yang servernya diblokir jaringan kini juga lewat Tor, dan pertanyaan Tor menyebut nama aplikasinya, bukan alamat.</string>
+    <string name="whatsNewAndroid">Lebih cepat: situs yang pernah dibawa Tor kembali ke jalur biasa setelah 15 menit, tidak terus lewat Tor.\nTor menunggu jembatan yang lambat (Rusia) lebih lama, sehingga Telegram bisa lewat.\nGemini dan AI Studio bisa lewat Tor sepenuhnya (Koneksi per situs).</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

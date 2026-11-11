@@ -321,7 +321,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">အသစ်- Tor မှတစ်ဆင့် အမြဲသွားသော အက်ပ်များ (ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ)- Instagram သို့မဟုတ် Telegram ကဲ့သို့ အက်ပ်ကို ရွေးပါ၊ အားလုံး Tor မှတစ်ဆင့် သွားမည်။\nကွန်ရက်က ဆာဗာများကို ပိတ်ထားသော အက်ပ်သည်လည်း ယခု Tor မှတစ်ဆင့် သွားပြီး Tor မေးခွန်းတွင် လိပ်စာအစား အက်ပ်အမည်ကို ဖော်ပြသည်။</string>
+    <string name="whatsNewAndroid">ပိုမြန်သည်- Tor က တစ်ကြိမ် သယ်ဆောင်ခဲ့သော ဆိုက်သည် Tor ပေါ်တွင် မနေတော့ဘဲ ၁၅ မိနစ်အကြာတွင် ပုံမှန်လမ်းကြောင်းများသို့ ပြန်သွားသည်။\nTor သည် နှေးသော ဘရစ်ဂျ်များ (ရုရှား) ကို ပိုကြာကြာ စောင့်သဖြင့် Telegram ၎င်းမှတစ်ဆင့် သွားနိုင်သည်။\nGemini နှင့် AI Studio ကို Tor မှတစ်ဆင့် အပြည့် ပို့နိုင်သည် (ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ)။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

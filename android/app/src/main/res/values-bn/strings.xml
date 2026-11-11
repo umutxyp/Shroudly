@@ -321,7 +321,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">নতুন: যেসব অ্যাপ সবসময় Tor দিয়ে যায় (সাইট অনুযায়ী সংযোগ): Instagram বা Telegram-এর মতো একটি অ্যাপ বেছে নিন, পুরোটাই Tor দিয়ে যাবে।\nযে অ্যাপের সার্ভার নেটওয়ার্ক আটকে দেয়, সেটিও এখন Tor দিয়ে যায়, আর Tor-এর প্রশ্নে ঠিকানার বদলে অ্যাপের নাম থাকে।</string>
+    <string name="whatsNewAndroid">আরও দ্রুত: Tor একবার যে সাইট বহন করেছে, সেটি Tor-এ থেকে না গিয়ে ১৫ মিনিট পরে স্বাভাবিক পথে ফিরে যায়।\nTor ধীর ব্রিজের (রাশিয়া) জন্য বেশি সময় অপেক্ষা করে, তাই Telegram এর মধ্য দিয়ে যেতে পারে।\nGemini আর AI Studio পুরোপুরি Tor দিয়ে পাঠানো যায় (সাইট অনুযায়ী সংযোগ)।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

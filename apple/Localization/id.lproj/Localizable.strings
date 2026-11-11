@@ -212,6 +212,6 @@
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Aplikasi selalu lewat Tor (Koneksi per situs), seperti Instagram atau Telegram; dan pertanyaan Tor menyebut nama aplikasinya, bukan alamat.";
+"whatsNewMac" = "Lebih cepat: situs yang pernah dibawa Tor kembali ke jalur biasa setelah 15 menit, tidak terus lewat Tor.\nTor menunggu jembatan yang lambat (Rusia) lebih lama, sehingga Telegram bisa lewat.\nGemini dan AI Studio bisa lewat Tor sepenuhnya (Koneksi per situs).";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

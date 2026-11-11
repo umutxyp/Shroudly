@@ -11,7 +11,11 @@
 const VERSION = '16.0';
 const SOURCES = [
   `https://dist.torproject.org/torbrowser/${VERSION}/`,
-  // The same files, for a network that will not reach the first.
+  // The same files on Shroudly's GitHub, for a network that cuts
+  // torproject.org (Russia: both names below cut, Tor never fetched, the
+  // last way out never there). Checked against the same pinned SHA-256, so
+  // only the Tor Project's own file is ever used.
+  `https://github.com/umutxyp/Shroudly/releases/download/tor-${VERSION}/`,
   `https://archive.torproject.org/tor-package-archive/torbrowser/${VERSION}/`,
 ];
 const SHA256 = {

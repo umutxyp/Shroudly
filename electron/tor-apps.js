@@ -36,6 +36,10 @@ const APPS = [
   { id: 'tiktok', name: 'TikTok', names: ['tiktok.com', 'tiktokv.com', 'tiktokcdn.com', 'tiktokcdn-us.com', 'ibytedtos.com', 'byteoversea.com', 'muscdn.com'] },
   { id: 'spotify', name: 'Spotify', names: ['spotify.com', 'scdn.co', 'spotifycdn.com', 'spoti.fi'] },
   { id: 'chatgpt', name: 'ChatGPT', names: ['chatgpt.com', 'openai.com', 'oaistatic.com', 'oaiusercontent.com'] },
+  // Google's AI, turned away in Iran and Russia: the pages and the APIs the
+  // prompts go to together (an Iran report: AI Studio opened through Tor, its
+  // prompt API did not, and nothing could be written).
+  { id: 'gemini', name: 'Gemini & AI Studio', names: ['gemini.google.com', 'aistudio.google.com', 'makersuite.google.com', 'alkalimakersuite-pa.clients6.google.com', 'geminiweb-pa.clients6.google.com', 'generativelanguage.googleapis.com', 'ai.google.dev', 'notebooklm.google.com'] },
 ];
 
 /* What the engine is given for the picked apps: their names and ranges,

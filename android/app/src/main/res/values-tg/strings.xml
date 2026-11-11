@@ -321,7 +321,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Нав: барномаҳое, ки ҳамеша тавассути Tor мераванд (Пайвастҳо аз рӯи сайт): барномаеро мисли Instagram ё Telegram интихоб кунед, то пурра тавассути Tor равад.\nБарномае, ки шабака серверҳояшро манъ мекунад, низ акнун тавассути Tor меравад ва саволи Tor ба ҷои суроға номи барномаро мегӯяд.</string>
+    <string name="whatsNewAndroid">Тезтар: сайте, ки Tor як бор бурд, ба ҷои дар Tor мондан, пас аз 15 дақиқа ба роҳҳои муқаррарӣ бармегардад.\nTor пулҳои сустро (Русия) дарозтар интизор мешавад, то Telegram тавассути он гузарад.\nGemini ва AI Studio-ро пурра тавассути Tor фиристодан мумкин аст (Пайвастҳо аз рӯи сайт).</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

@@ -212,6 +212,6 @@
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፣ እንደ Instagram ወይም Telegram፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።";
+"whatsNewMac" = "ፈጣን፦ Tor አንድ ጊዜ ያሳለፈው ጣቢያ በTor ላይ ከመቆየት ይልቅ ከ15 ደቂቃ በኋላ ወደ ተለመዱት መንገዶች ይመለሳል።\nTor ቀርፋፋ ድልድዮችን (ሩሲያ) ረዘም ላለ ጊዜ ይጠብቃል፤ ስለዚህ Telegram በእሱ በኩል ያልፋል።\nGemini እና AI Studio ሙሉ በሙሉ በTor ሊያልፉ ይችላሉ (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

@@ -321,7 +321,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Nouveau : apps toujours par Tor (Connexions par site) : choisis une app comme Instagram ou Telegram et elle passe tout entière par Tor.\nUne app dont le réseau bloque les serveurs passe désormais aussi par Tor, et la question sur Tor nomme l’app au lieu d’une adresse.</string>
+    <string name="whatsNewAndroid">Plus rapide : un site que Tor a porté une fois reprend les voies habituelles au bout de 15 minutes au lieu de rester sur Tor.\nTor attend plus longtemps les ponts lents (Russie), pour que Telegram passe par lui.\nGemini et AI Studio peuvent passer tout entiers par Tor (Connexions par site).</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

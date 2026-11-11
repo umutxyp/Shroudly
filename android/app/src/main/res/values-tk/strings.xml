@@ -321,7 +321,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Täze: hemişe Tor arkaly gidýän programmalar (Saýtlar boýunça birikmeler): Instagram ýa-da Telegram ýaly programmany saýlaň, ol doly Tor arkaly gider.\nUlgamyň serwerlerini petikleýän programmasy hem indi Tor arkaly gidýär, Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.</string>
+    <string name="whatsNewAndroid">Has çalt: Tor-yň bir gezek geçiren saýty Tor-da galman, 15 minutdan soň adaty ýollara gaýdýar.\nTor haýal köprüleri (Russiýa) has uzak garaşýar, şonuň üçin Telegram onuň üsti bilen geçýär.\nGemini we AI Studio doly Tor arkaly iberilip bilner (Saýtlar boýunça birikmeler).</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

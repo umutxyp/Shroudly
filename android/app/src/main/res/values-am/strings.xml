@@ -321,7 +321,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አዲስ፦ ሁልጊዜ በTor የሚያልፉ መተግበሪያዎች (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)፦ እንደ Instagram ወይም Telegram ያለ መተግበሪያ ይምረጡ፣ ሙሉው በTor ያልፋል።\nአውታረ መረቡ አገልጋዮቹን የሚያግድበት መተግበሪያም አሁን በTor ያልፋል፤ የTor ጥያቄውም ከአድራሻ ይልቅ የመተግበሪያውን ስም ይጠቅሳል።</string>
+    <string name="whatsNewAndroid">ፈጣን፦ Tor አንድ ጊዜ ያሳለፈው ጣቢያ በTor ላይ ከመቆየት ይልቅ ከ15 ደቂቃ በኋላ ወደ ተለመዱት መንገዶች ይመለሳል።\nTor ቀርፋፋ ድልድዮችን (ሩሲያ) ረዘም ላለ ጊዜ ይጠብቃል፤ ስለዚህ Telegram በእሱ በኩል ያልፋል።\nGemini እና AI Studio ሙሉ በሙሉ በTor ሊያልፉ ይችላሉ (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

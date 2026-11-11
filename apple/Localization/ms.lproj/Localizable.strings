@@ -212,6 +212,6 @@
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Aplikasi sentiasa melalui Tor (Sambungan mengikut laman), seperti Instagram atau Telegram; dan soalan Tor menyebut nama aplikasi, bukan alamat.";
+"whatsNewMac" = "Lebih pantas: laman yang pernah dibawa Tor kembali ke laluan biasa selepas 15 minit, bukan terus melalui Tor.\nTor menunggu jambatan yang perlahan (Rusia) lebih lama, supaya Telegram dapat melaluinya.\nGemini dan AI Studio boleh melalui Tor sepenuhnya (Sambungan mengikut laman).";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

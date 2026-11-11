@@ -212,6 +212,6 @@
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
 "whatsNewApple" = "";
-"whatsNewMac" = "Hemişe Tor arkaly gidýän programmalar (Saýtlar boýunça birikmeler), meselem Instagram ýa-da Telegram; Tor soragy bolsa salgynyň ýerine programmanyň adyny agzaýar.";
+"whatsNewMac" = "Has çalt: Tor-yň bir gezek geçiren saýty Tor-da galman, 15 minutdan soň adaty ýollara gaýdýar.\nTor haýal köprüleri (Russiýa) has uzak garaşýar, şonuň üçin Telegram onuň üsti bilen geçýär.\nGemini we AI Studio doly Tor arkaly iberilip bilner (Saýtlar boýunça birikmeler).";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

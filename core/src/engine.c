@@ -424,12 +424,16 @@ static int cool_is(const char *h) {
 
 /* ── names the last way out carries ──────────────────────────────────────
  * A name that nothing but the last way out (--fallback-file) got through to,
- * and when it last did: its next connections go straight there instead of
- * paying the whole ladder again, until FB_MS pass without one. Keyed by the
- * name itself, never its site: one name of a site needing it says nothing
- * about the others (an API that turns this client away, say). */
+ * and when it first did: its next connections go straight there instead of
+ * paying the whole ladder again, for FB_MS. Then the techniques are tried
+ * again: until 2.6.74 each connection Tor carried renewed the time, so a
+ * name Tor took once (a moment the network failed, a wake from sleep) stayed
+ * on Tor for as long as it was used, and everything crawled ("since the Tor
+ * feature it always uses Tor"). Keyed by the name itself, never its site:
+ * one name of a site needing it says nothing about the others (an API that
+ * turns this client away, say). */
 #define FB_SLOTS 128
-#define FB_MS    (30 * 60 * 1000)
+#define FB_MS    (15 * 60 * 1000)
 static struct { char host[256]; char site[256]; uint64_t t; } g_fb[FB_SLOTS];
 static mutex_t g_fb_mx;
 
@@ -443,9 +447,12 @@ static int fb_put(const char *h) {
     if (g_fb[i].host[0] && strcmp(g_fb[i].host, h) == 0) { slot = i; had = age_ms(now, g_fb[i].t) < FB_MS; break; }
     if (g_fb[i].t < g_fb[slot].t) slot = i;   /* else the oldest (or an empty one) */
   }
-  snprintf(g_fb[slot].host, sizeof(g_fb[slot].host), "%s", h);
-  if (!site_reg(h, g_fb[slot].site, sizeof(g_fb[slot].site))) g_fb[slot].site[0] = 0;
-  g_fb[slot].t = now;
+  /* Kept already: its time stays, so the techniques get their turn again. */
+  if (!had) {
+    snprintf(g_fb[slot].host, sizeof(g_fb[slot].host), "%s", h);
+    if (!site_reg(h, g_fb[slot].site, sizeof(g_fb[slot].site))) g_fb[slot].site[0] = 0;
+    g_fb[slot].t = now;
+  }
   mutex_unlock(&g_fb_mx);
   return !had;
 }
@@ -4065,7 +4072,11 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
   dial_info di;
   sock_t s = dial(x->host, x->port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
   if (s == SOCK_INVALID) { proxy_report(x, "does not answer", host); return SOCK_INVALID; }
-  sock_set_timeouts(s, 15000);
+  /* Tor through bridges takes longer to reach a site than a server of the
+   * user's own (Russia: webtunnel or meek, a new circuit): 15 s cut it off,
+   * every time, and nothing went through it. */
+  sock_set_timeouts(s, x->fallback ? 45000 : 15000);
+  int greeted = 0;
   sock_set_nodelay(s, 1);
   size_t hl = strlen(host);
   if (hl == 0 || hl > 255) { sock_close(s); return SOCK_INVALID; }
@@ -4074,6 +4085,7 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
     int auth = x->user[0] != 0;
     uint8_t hello[4] = { 5, (uint8_t)(auth ? 2 : 1), (uint8_t)(auth ? 0 : 0), 2 };
     if (sock_send_all(s, hello, auth ? 4 : 3, 0) != 0 || recv_exact(s, b, 2) != 0 || b[0] != 5) goto bad;
+    greeted = 1;
     if (b[1] == 2 && auth) {
       size_t ul = strlen(x->user), pl = strlen(x->pass), k = 0;
       b[k++] = 1; b[k++] = (uint8_t)ul; memcpy(b + k, x->user, ul); k += ul;
@@ -4131,7 +4143,9 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
   if (x->fallback) atomic_store(&g_fb_ok_at, now_ms());
   return s;
 bad:
-  proxy_report(x, "does not speak the protocol chosen", host);
+  /* It spoke SOCKS, then gave no answer to the site in time (or broke off):
+   * slow, not a server of another protocol. */
+  proxy_report(x, greeted ? "did not reach the site in time" : "does not speak the protocol chosen", host);
 quiet:
   sock_close(s);
   return SOCK_INVALID;

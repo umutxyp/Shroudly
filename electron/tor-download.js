@@ -58,8 +58,11 @@ async function fetchTo(url, file, { socksPort, connect, onProgress = () => {}, t
         const rest = head.subarray(end + 4);
         got = rest.length; out.write(rest); onProgress(got, total);
       });
-      s.on('end', () => finish({ done: true, got, total }));
-      s.on('close', () => finish({ done: true, got, total }));
+      // Ended before an answer (a network that cuts the name): said so, not
+      // taken for an empty file ("ENOENT bundle.tar.gz" in a Russian report).
+      const ended = () => (out ? finish({ done: true, got, total }) : finish(null, new Error('the connection was cut before any answer')));
+      s.on('end', ended);
+      s.on('close', ended);
       s.on('error', (e) => finish(null, e));
     });
     if (res.redirect) { u = new URL(res.redirect, u); continue; }
