@@ -221,6 +221,7 @@
     <string name="ownServerOk">يعمل: فُتح موقع عبره خلال {ms} ملّي ثانية. قيد الاستخدام.</string>
     <string name="ownServerWhyAsks">يطلب اسم مستخدم وكلمة مرور</string>
     <string name="ownServerWhyAuth">رفض اسم المستخدم أو كلمة المرور</string>
+    <string name="ownServerWhyLocal">عنوانه تابع لشبكة منزلية أو مكتبية، فهو يعمل على تلك الشبكة فقط؛ ومن مكان آخر يجب أن يوجّه موجّه الشخص المشارك المنفذ إلى الإنترنت</string>
     <string name="ownServerWhyNoAnswer">لا يجيب</string>
     <string name="ownServerWhyProtocol">لا يتحدث البروتوكول المختار</string>
     <string name="ownServerWhyRefused">رفض الاتصال</string>

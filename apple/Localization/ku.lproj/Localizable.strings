@@ -135,6 +135,7 @@
 "ownServerOff" = "Bikaranînê rawestîne";
 "ownServerWhyAsks" = "ew nav û şîfreya bikarhêner dixwaze";
 "ownServerWhyAuth" = "wê navê bikarhêner an şîfreyê qebûl nekir";
+"ownServerWhyLocal" = "navnîşana wê ya torek malê an ofîsê ye, ji ber vê tenê li wê torê dixebite; ji cihekî din, router-a kesê ku parve dike divê portê ji înternetê re veke";
 "ownServerWhyNoAnswer" = "ew bersiv nade";
 "ownServerWhyProtocol" = "ew bi protokola hilbijartî napeyive";
 "ownServerWhyRefused" = "wê girêdan red kir";

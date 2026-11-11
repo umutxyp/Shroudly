@@ -623,6 +623,8 @@ class EngineManager {
    * the window until a minute and a half passes without it. */
   _onOwnServerDown(why) {
     if (!this.active || !this._upstreamFile) return;
+    // A link to a home network's address, from outside it: that is why.
+    { const p = this.ownServer(); if (p && OwnServer.localHost(p.host)) why = 'local'; }
     const server = this._ownServerShown || '';
     if (this.logGate.allow('own-server-down', `${server} ${why}`)) {
       this.log('warning', `Your own server (${server}) could not be used: ${OwnServer.WHY_TEXT[why] || why}`);

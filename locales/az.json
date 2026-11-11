@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "seçilmiş protokolu başa düşmür",
   "ownServerWhySilent": "heç nə geri gəlmədi; şifrə və ya metod səhv ola bilər",
   "ownServerWhyTls": "cavab verir, amma onun üzərindən heç bir sayt gəlmədi",
+  "ownServerWhyLocal": "ünvanı ev və ya ofis şəbəkəsinə aiddir, yalnız həmin şəbəkədə işləyir; başqa yerdən paylaşan şəxsin router-i portu internetə açmalıdır",
   "logOwnServerOn": "Öz serveriniz: {server}; hər sayt onun üzərindən keçir",
   "logOwnServerOff": "Öz serveriniz: söndürülüb; saytlar yenə birbaşa açılır",
   "logOwnServerDown": "Öz serverinizdən ({server}) istifadə etmək olmadı: {why}",

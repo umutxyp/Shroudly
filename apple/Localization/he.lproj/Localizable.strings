@@ -135,6 +135,7 @@
 "ownServerOff" = "הפסקת השימוש";
 "ownServerWhyAsks" = "הוא מבקש שם משתמש וסיסמה";
 "ownServerWhyAuth" = "הוא דחה את שם המשתמש או הסיסמה";
+"ownServerWhyLocal" = "הכתובת שלו שייכת לרשת ביתית או משרדית, ולכן הוא עובד רק באותה רשת; ממקום אחר, הנתב של מי שמשתף צריך להעביר את הפורט לאינטרנט";
 "ownServerWhyNoAnswer" = "הוא לא עונה";
 "ownServerWhyProtocol" = "הוא לא מדבר בפרוטוקול שנבחר";
 "ownServerWhyRefused" = "הוא דחה את החיבור";

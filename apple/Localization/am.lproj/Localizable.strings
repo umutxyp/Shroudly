@@ -135,6 +135,7 @@
 "ownServerOff" = "መጠቀም አቁም";
 "ownServerWhyAsks" = "የተጠቃሚ ስም እና የይለፍ ቃል ይጠይቃል";
 "ownServerWhyAuth" = "የተጠቃሚ ስሙን ወይም የይለፍ ቃሉን አልተቀበለም";
+"ownServerWhyLocal" = "አድራሻው የቤት ወይም የቢሮ አውታረ መረብ ነው፤ በዚያው አውታረ መረብ ብቻ ይሰራል። ከሌላ ቦታ ለመጠቀም የሚያጋራው ሰው ራውተር ፖርቱን ወደ ኢንተርኔት ማስተላለፍ አለበት";
 "ownServerWhyNoAnswer" = "ምላሽ አይሰጥም";
 "ownServerWhyProtocol" = "የተመረጠውን ፕሮቶኮል አይናገርም";
 "ownServerWhyRefused" = "ግንኙነቱን አልተቀበለም";

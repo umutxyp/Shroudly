@@ -135,6 +135,7 @@
 "ownServerOff" = "إيقاف الاستخدام";
 "ownServerWhyAsks" = "يطلب اسم مستخدم وكلمة مرور";
 "ownServerWhyAuth" = "رفض اسم المستخدم أو كلمة المرور";
+"ownServerWhyLocal" = "عنوانه تابع لشبكة منزلية أو مكتبية، فهو يعمل على تلك الشبكة فقط؛ ومن مكان آخر يجب أن يوجّه موجّه الشخص المشارك المنفذ إلى الإنترنت";
 "ownServerWhyNoAnswer" = "لا يجيب";
 "ownServerWhyProtocol" = "لا يتحدث البروتوكول المختار";
 "ownServerWhyRefused" = "رفض الاتصال";

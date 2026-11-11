@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "ew bi protokola hilbijartî napeyive",
   "ownServerWhySilent": "tiştek venegeriya; dibe ku şîfre an rêbaz şaş be",
   "ownServerWhyTls": "ew bersiv dide, lê tu malper di ser wê re nehat",
+  "ownServerWhyLocal": "navnîşana wê ya torek malê an ofîsê ye, ji ber vê tenê li wê torê dixebite; ji cihekî din, router-a kesê ku parve dike divê portê ji înternetê re veke",
   "logOwnServerOn": "Pêşkêşkara te ya xwe: {server}; hemû malper di ser wê re derbas dibin",
   "logOwnServerOff": "Pêşkêşkara te ya xwe: girtî; malper dîsa rasterast vedibin",
   "logOwnServerDown": "Pêşkêşkara te ya xwe ({server}) nehat bikaranîn: {why}",

@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "seçilen protokolü konuşmuyor",
   "ownServerWhySilent": "hiçbir şey geri gelmedi; şifre ya da yöntem yanlış olabilir",
   "ownServerWhyTls": "cevap veriyor ama üzerinden hiçbir site gelmedi",
+  "ownServerWhyLocal": "adresi bir ev ya da iş ağına ait; yalnızca o ağda çalışır. Başka bir yerden kullanmak için paylaşan kişinin modemi portu internete açmalı",
   "logOwnServerOn": "Kendi sunucun: {server}; her site onun üzerinden geçiyor",
   "logOwnServerOff": "Kendi sunucun: kapalı; siteler yine doğrudan açılıyor",
   "logOwnServerDown": "Kendi sunucun ({server}) kullanılamadı: {why}",

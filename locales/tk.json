@@ -873,6 +873,7 @@
   "ownServerWhyProtocol": "ol saýlanan protokoly düşünmeýär",
   "ownServerWhySilent": "hiç zat gaýdyp gelmedi; parol ýa-da usul nädogry bolup biler",
   "ownServerWhyTls": "ol jogap berýär, ýöne onuň üsti bilen hiç bir saýt gelmedi",
+  "ownServerWhyLocal": "onuň salgysy öý ýa-da edara ulgamyna degişli, şonuň üçin diňe şol ulgamda işleýär; başga ýerden paýlaşýan adamyň routeri porty internete açmaly",
   "logOwnServerOn": "Öz serweriňiz: {server}; her bir saýt onuň üsti bilen geçýär",
   "logOwnServerOff": "Öz serweriňiz: öçürildi; saýtlar ýene göni açylýar",
   "logOwnServerDown": "Öz serweriňizi ({server}) ulanyp bolmady: {why}",

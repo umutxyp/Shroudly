@@ -129,6 +129,22 @@ function socksMethodWithout(port) {
     && /ownServerDown \? t\('ownServerDown'\)/.test(panel) && /t\('ownServerDownBody'/.test(panel),
   'the window: Settings tests then saves, the status says when the server does not work');
 
+  // A link "Share my connection" made on a home network, used from another
+  // country (Vietnam and Turkey): its address says why it cannot work.
+  t.ok(Own.localHost('192.168.1.102') && Own.localHost('10.0.0.5') && Own.localHost('100.64.3.4') && Own.localHost('[fd00::1]')
+    && !Own.localHost('127.0.0.1') && !Own.localHost('::1') && !Own.localHost('8.8.8.8') && !Own.localHost('example.com'),
+  'a home or office network\'s address is known as one (this computer itself and the internet are not)');
+  {
+    const deadPort = await H.freePort();
+    const p = Own.parseLink(`ss://${Buffer.from('aes-256-gcm:pw').toString('base64')}@127.0.0.1:${deadPort}#x`);
+    const r = await Own.test(p, { timeout: 2000 });
+    t.ok(!r.ok && r.why !== 'local', `a failing link on this computer keeps its own reason (${r.why})`);
+    const lan = await Own.test({ ...p, host: '10.255.255.1' }, { timeout: 1500 });
+    t.ok(!lan.ok && lan.why === 'local', `a failing link to a home network's address: "local" (${lan.why})`);
+    t.ok(/ownServerWhyLocal/.test(src('components/ownServerText.js')) && typeof require(path.join(H.ROOT, 'locales', 'en.json')).ownServerWhyLocal === 'string',
+      'the window says it in every language');
+  }
+
   web.close(); up.close();
   fs.rmSync(dir, { recursive: true, force: true });
   console.log(`own-server: ${t.count} passed`);

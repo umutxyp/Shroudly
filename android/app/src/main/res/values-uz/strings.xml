@@ -221,6 +221,7 @@
     <string name="ownServerOk">Ishlayapti: sayt u orqali {ms} ms da ochildi. Foydalanilmoqda.</string>
     <string name="ownServerWhyAsks">u foydalanuvchi nomi va parol soʻrayapti</string>
     <string name="ownServerWhyAuth">u foydalanuvchi nomi yoki parolni qabul qilmadi</string>
+    <string name="ownServerWhyLocal">uning manzili uy yoki ofis tarmog\'iga tegishli, shuning uchun faqat o\'sha tarmoqda ishlaydi; boshqa joydan ulashayotgan odamning routeri portni internetga ochishi kerak</string>
     <string name="ownServerWhyNoAnswer">u javob bermayapti</string>
     <string name="ownServerWhyProtocol">u tanlangan protokolni tushunmaydi</string>
     <string name="ownServerWhyRefused">u ulanishni rad etdi</string>

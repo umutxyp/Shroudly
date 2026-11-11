@@ -221,6 +221,7 @@
     <string name="ownServerOk">Hoạt động: một trang đã mở qua nó trong {ms} ms. Đang dùng.</string>
     <string name="ownServerWhyAsks">nó yêu cầu tên người dùng và mật khẩu</string>
     <string name="ownServerWhyAuth">nó từ chối tên người dùng hoặc mật khẩu</string>
+    <string name="ownServerWhyLocal">địa chỉ của nó thuộc mạng gia đình hoặc văn phòng, nên chỉ dùng được trong chính mạng đó; từ nơi khác, router của người chia sẻ phải mở cổng ra internet</string>
     <string name="ownServerWhyNoAnswer">nó không trả lời</string>
     <string name="ownServerWhyProtocol">nó không dùng giao thức đã chọn</string>
     <string name="ownServerWhyRefused">nó từ chối kết nối</string>

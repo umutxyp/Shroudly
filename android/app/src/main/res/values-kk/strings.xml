@@ -221,6 +221,7 @@
     <string name="ownServerOk">Жұмыс істейді: сайт ол арқылы {ms} мс ішінде ашылды. Қолданылуда.</string>
     <string name="ownServerWhyAsks">ол пайдаланушы аты мен құпиясөзді сұрайды</string>
     <string name="ownServerWhyAuth">ол пайдаланушы атын немесе құпиясөзді қабылдамады</string>
+    <string name="ownServerWhyLocal">оның мекенжайы үй не кеңсе желісіне тиесілі, сондықтан тек сол желіде жұмыс істейді; басқа жерден бөлісетін адамның роутері портты интернетке ашуы керек</string>
     <string name="ownServerWhyNoAnswer">ол жауап бермейді</string>
     <string name="ownServerWhyProtocol">ол таңдалған хаттаманы түсінбейді</string>
     <string name="ownServerWhyRefused">ол қосылымнан бас тартты</string>

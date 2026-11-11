@@ -135,6 +135,7 @@
 "ownServerOff" = "Stop using";
 "ownServerWhyAsks" = "it asks for a user name and password";
 "ownServerWhyAuth" = "it refused the user name or password";
+"ownServerWhyLocal" = "its address belongs to a home or office network, so it works only on that same network; from elsewhere, the router of the person sharing must forward its port to the internet";
 "ownServerWhyNoAnswer" = "it does not answer";
 "ownServerWhyProtocol" = "it does not speak the protocol chosen";
 "ownServerWhyRefused" = "it refused the connection";

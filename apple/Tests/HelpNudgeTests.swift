@@ -120,4 +120,14 @@ final class HelpNudgeTests: XCTestCase {
         for c in ["TR", "DE", "PK"] { XCTAssertFalse(HelpNudge.torBlocked(c), c) }
         XCTAssertFalse(HelpNudge.torBlocked(nil))
     }
+
+    /* A link to a home network's address, used from elsewhere (Vietnam and
+     * Turkey): "local", never a wrong guess at the password. */
+    func testAHomeNetworksAddressIsLocal() {
+        for h in ["192.168.1.102", "10.0.0.5", "172.20.1.1", "100.64.3.4", "fe80::1", "fd00::1", "[fd00::1]"] { XCTAssertTrue(OwnServer.localHost(h), h) }
+        for h in ["127.0.0.1", "::1", "8.8.8.8", "100.128.0.1", "2a00::1", "example.com", ""] { XCTAssertFalse(OwnServer.localHost(h), h) }
+        XCTAssertEqual(OwnServer.localIf("silent", host: "192.168.1.102"), "local")
+        XCTAssertEqual(OwnServer.localIf("silent", host: "203.0.113.5"), "silent")
+        XCTAssertEqual(OwnServer.whyKey("local"), "ownServerWhyLocal")
+    }
 }

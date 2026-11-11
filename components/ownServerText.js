@@ -13,6 +13,7 @@ export const OWN_SERVER_WHY = {
   protocol: 'ownServerWhyProtocol',
   silent: 'ownServerWhySilent',
   tls: 'ownServerWhyTls',
+  local: 'ownServerWhyLocal',
 };
 
 /* Under "the site itself refuses you": what does change it, a trusted

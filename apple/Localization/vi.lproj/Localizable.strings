@@ -135,6 +135,7 @@
 "ownServerOff" = "Ngừng dùng";
 "ownServerWhyAsks" = "nó yêu cầu tên người dùng và mật khẩu";
 "ownServerWhyAuth" = "nó từ chối tên người dùng hoặc mật khẩu";
+"ownServerWhyLocal" = "địa chỉ của nó thuộc mạng gia đình hoặc văn phòng, nên chỉ dùng được trong chính mạng đó; từ nơi khác, router của người chia sẻ phải mở cổng ra internet";
 "ownServerWhyNoAnswer" = "nó không trả lời";
 "ownServerWhyProtocol" = "nó không dùng giao thức đã chọn";
 "ownServerWhyRefused" = "nó từ chối kết nối";

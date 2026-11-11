@@ -221,6 +221,7 @@
     <string name="ownServerOk">ይሠራል፦ አንድ ጣቢያ በእሱ በኩል በ{ms} ms ውስጥ ተከፍቷል። ጥቅም ላይ ነው።</string>
     <string name="ownServerWhyAsks">የተጠቃሚ ስም እና የይለፍ ቃል ይጠይቃል</string>
     <string name="ownServerWhyAuth">የተጠቃሚ ስሙን ወይም የይለፍ ቃሉን አልተቀበለም</string>
+    <string name="ownServerWhyLocal">አድራሻው የቤት ወይም የቢሮ አውታረ መረብ ነው፤ በዚያው አውታረ መረብ ብቻ ይሰራል። ከሌላ ቦታ ለመጠቀም የሚያጋራው ሰው ራውተር ፖርቱን ወደ ኢንተርኔት ማስተላለፍ አለበት</string>
     <string name="ownServerWhyNoAnswer">ምላሽ አይሰጥም</string>
     <string name="ownServerWhyProtocol">የተመረጠውን ፕሮቶኮል አይናገርም</string>
     <string name="ownServerWhyRefused">ግንኙነቱን አልተቀበለም</string>

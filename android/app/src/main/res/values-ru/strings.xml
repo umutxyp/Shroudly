@@ -221,6 +221,7 @@
     <string name="ownServerOk">Работает: сайт открылся через него за {ms} мс. Используется.</string>
     <string name="ownServerWhyAsks">он требует имя пользователя и пароль</string>
     <string name="ownServerWhyAuth">он не принял имя пользователя или пароль</string>
+    <string name="ownServerWhyLocal">его адрес относится к домашней или офисной сети, поэтому он работает только в этой сети; из другого места роутер того, кто делится, должен открыть порт в интернет</string>
     <string name="ownServerWhyNoAnswer">он не отвечает</string>
     <string name="ownServerWhyProtocol">он не понимает выбранный протокол</string>
     <string name="ownServerWhyRefused">он отказал в соединении</string>

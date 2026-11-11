@@ -221,6 +221,7 @@
     <string name="ownServerOk">עובד: אתר נפתח דרכו תוך {ms} אלפיות שנייה. בשימוש.</string>
     <string name="ownServerWhyAsks">הוא מבקש שם משתמש וסיסמה</string>
     <string name="ownServerWhyAuth">הוא דחה את שם המשתמש או הסיסמה</string>
+    <string name="ownServerWhyLocal">הכתובת שלו שייכת לרשת ביתית או משרדית, ולכן הוא עובד רק באותה רשת; ממקום אחר, הנתב של מי שמשתף צריך להעביר את הפורט לאינטרנט</string>
     <string name="ownServerWhyNoAnswer">הוא לא עונה</string>
     <string name="ownServerWhyProtocol">הוא לא מדבר בפרוטוקול שנבחר</string>
     <string name="ownServerWhyRefused">הוא דחה את החיבור</string>

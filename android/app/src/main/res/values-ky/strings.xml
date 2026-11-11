@@ -221,6 +221,7 @@
     <string name="ownServerOk">Иштейт: сайт ал аркылуу {ms} мс ичинде ачылды. Колдонулууда.</string>
     <string name="ownServerWhyAsks">ал колдонуучу аты менен сырсөздү сурайт</string>
     <string name="ownServerWhyAuth">ал колдонуучу атын же сырсөздү кабыл алган жок</string>
+    <string name="ownServerWhyLocal">анын дареги үй же кеңсе тармагына таандык, ошондуктан ошол тармакта гана иштейт; башка жерден бөлүшкөн адамдын роутери портту интернетке ачышы керек</string>
     <string name="ownServerWhyNoAnswer">ал жооп бербейт</string>
     <string name="ownServerWhyProtocol">ал тандалган протоколду түшүнбөйт</string>
     <string name="ownServerWhyRefused">ал туташуудан баш тартты</string>

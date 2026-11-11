@@ -221,6 +221,7 @@
     <string name="ownServerOk">使えます：このサーバー経由でサイトが {ms} ms で開きました。使用中です。</string>
     <string name="ownServerWhyAsks">ユーザー名とパスワードを求めています</string>
     <string name="ownServerWhyAuth">ユーザー名またはパスワードが拒否されました</string>
+    <string name="ownServerWhyLocal">アドレスが家庭やオフィスのネットワークのもので、そのネットワーク内でしか使えません。別の場所から使うには、共有する人のルーターがポートをインターネットへ転送する必要があります</string>
     <string name="ownServerWhyNoAnswer">応答がありません</string>
     <string name="ownServerWhyProtocol">選んだプロトコルに対応していません</string>
     <string name="ownServerWhyRefused">接続が拒否されました</string>

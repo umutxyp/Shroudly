@@ -221,6 +221,7 @@
     <string name="ownServerOk">کار کوي: یو سایټ د هغه له لارې په {ms} ملي‌ثانیو کې پرانیستل شو. په کار کې.</string>
     <string name="ownServerWhyAsks">د کارن نوم او پټنوم غواړي</string>
     <string name="ownServerWhyAuth">د کارن نوم یا پټنوم یې ونه منل</string>
+    <string name="ownServerWhyLocal">پته یې د کور یا دفتر د شبکې ده، نو یوازې په همغه شبکه کې کار کوي؛ له بل ځای څخه، د شریکوونکي روټر باید پورټ انټرنیټ ته پرانیزي</string>
     <string name="ownServerWhyNoAnswer">ځواب نه ورکوي</string>
     <string name="ownServerWhyProtocol">په ټاکل شوي پروتوکول نه پوهېږي</string>
     <string name="ownServerWhyRefused">اړیکه یې رد کړه</string>

@@ -228,4 +228,16 @@ class OwnServerTest {
         assertFalse(Engine.args(1080, 0, emptyList()).contains("--upstream-file"))
         assertEquals(EngineEvent.Upstream(false, "does not answer"), EngineEvent.parse("{\"type\":\"upstream\",\"ok\":0,\"why\":\"does not answer\"}"))
     }
+
+    /* A link to a home network's address, used from elsewhere (Vietnam and
+     * Turkey): "local", never a wrong guess at the password. */
+    @Test fun aHomeNetworksAddressIsLocal() {
+        for (h in listOf("192.168.1.102", "10.0.0.5", "172.20.1.1", "100.64.3.4", "fe80::1", "fd00::1", "[fd00::1]"))
+            org.junit.Assert.assertTrue(h, OwnServer.localHost(h))
+        for (h in listOf("127.0.0.1", "::1", "8.8.8.8", "100.128.0.1", "2a00::1", "example.com", ""))
+            org.junit.Assert.assertFalse(h, OwnServer.localHost(h))
+        org.junit.Assert.assertEquals("local", OwnServer.localIf("silent", "192.168.1.102"))
+        org.junit.Assert.assertEquals("silent", OwnServer.localIf("silent", "203.0.113.5"))
+        org.junit.Assert.assertEquals(R.string.ownServerWhyLocal, OwnServer.whyRes("local"))
+    }
 }

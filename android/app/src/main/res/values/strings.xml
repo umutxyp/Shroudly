@@ -221,6 +221,7 @@
     <string name="ownServerOk">Works: a site opened through it in {ms} ms. In use.</string>
     <string name="ownServerWhyAsks">it asks for a user name and password</string>
     <string name="ownServerWhyAuth">it refused the user name or password</string>
+    <string name="ownServerWhyLocal">its address belongs to a home or office network, so it works only on that same network; from elsewhere, the router of the person sharing must forward its port to the internet</string>
     <string name="ownServerWhyNoAnswer">it does not answer</string>
     <string name="ownServerWhyProtocol">it does not speak the protocol chosen</string>
     <string name="ownServerWhyRefused">it refused the connection</string>

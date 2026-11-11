@@ -135,6 +135,7 @@
 "ownServerOff" = "Berhenti memakai";
 "ownServerWhyAsks" = "server meminta nama pengguna dan kata sandi";
 "ownServerWhyAuth" = "server menolak nama pengguna atau kata sandi";
+"ownServerWhyLocal" = "alamatnya milik jaringan rumah atau kantor, jadi hanya bekerja di jaringan itu; dari tempat lain, router orang yang berbagi harus meneruskan port-nya ke internet";
 "ownServerWhyNoAnswer" = "server tidak menjawab";
 "ownServerWhyProtocol" = "server tidak memakai protokol yang dipilih";
 "ownServerWhyRefused" = "server menolak koneksi";

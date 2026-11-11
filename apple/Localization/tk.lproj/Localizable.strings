@@ -135,6 +135,7 @@
 "ownServerOff" = "Ulanmagy bes et";
 "ownServerWhyAsks" = "ol ulanyjy adyny we paroly soraýar";
 "ownServerWhyAuth" = "ol ulanyjy adyny ýa-da paroly kabul etmedi";
+"ownServerWhyLocal" = "onuň salgysy öý ýa-da edara ulgamyna degişli, şonuň üçin diňe şol ulgamda işleýär; başga ýerden paýlaşýan adamyň routeri porty internete açmaly";
 "ownServerWhyNoAnswer" = "ol jogap bermeýär";
 "ownServerWhyProtocol" = "ol saýlanan protokoly düşünmeýär";
 "ownServerWhyRefused" = "ol baglanyşykdan ýüz öwürdi";

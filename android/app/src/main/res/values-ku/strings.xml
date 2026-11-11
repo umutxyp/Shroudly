@@ -221,6 +221,7 @@
     <string name="ownServerOk">Dixebite: malperek di ser wê re di {ms} ms de vebû. Tê bikaranîn.</string>
     <string name="ownServerWhyAsks">ew nav û şîfreya bikarhêner dixwaze</string>
     <string name="ownServerWhyAuth">wê navê bikarhêner an şîfreyê qebûl nekir</string>
+    <string name="ownServerWhyLocal">navnîşana wê ya torek malê an ofîsê ye, ji ber vê tenê li wê torê dixebite; ji cihekî din, router-a kesê ku parve dike divê portê ji înternetê re veke</string>
     <string name="ownServerWhyNoAnswer">ew bersiv nade</string>
     <string name="ownServerWhyProtocol">ew bi protokola hilbijartî napeyive</string>
     <string name="ownServerWhyRefused">wê girêdan red kir</string>

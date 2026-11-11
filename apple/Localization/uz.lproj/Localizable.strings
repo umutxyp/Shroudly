@@ -135,6 +135,7 @@
 "ownServerOff" = "Foydalanishni toʻxtatish";
 "ownServerWhyAsks" = "u foydalanuvchi nomi va parol soʻrayapti";
 "ownServerWhyAuth" = "u foydalanuvchi nomi yoki parolni qabul qilmadi";
+"ownServerWhyLocal" = "uning manzili uy yoki ofis tarmog'iga tegishli, shuning uchun faqat o'sha tarmoqda ishlaydi; boshqa joydan ulashayotgan odamning routeri portni internetga ochishi kerak";
 "ownServerWhyNoAnswer" = "u javob bermayapti";
 "ownServerWhyProtocol" = "u tanlangan protokolni tushunmaydi";
 "ownServerWhyRefused" = "u ulanishni rad etdi";

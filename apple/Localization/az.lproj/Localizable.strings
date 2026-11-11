@@ -135,6 +135,7 @@
 "ownServerOff" = "İstifadəni dayandır";
 "ownServerWhyAsks" = "istifadəçi adı və şifrə istəyir";
 "ownServerWhyAuth" = "istifadəçi adını və ya şifrəni qəbul etmədi";
+"ownServerWhyLocal" = "ünvanı ev və ya ofis şəbəkəsinə aiddir, yalnız həmin şəbəkədə işləyir; başqa yerdən paylaşan şəxsin router-i portu internetə açmalıdır";
 "ownServerWhyNoAnswer" = "cavab vermir";
 "ownServerWhyProtocol" = "seçilmiş protokolu başa düşmür";
 "ownServerWhyRefused" = "bağlantını rədd etdi";

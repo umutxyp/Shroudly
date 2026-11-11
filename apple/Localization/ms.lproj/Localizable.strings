@@ -135,6 +135,7 @@
 "ownServerOff" = "Berhenti guna";
 "ownServerWhyAsks" = "ia meminta nama pengguna dan kata laluan";
 "ownServerWhyAuth" = "ia menolak nama pengguna atau kata laluan";
+"ownServerWhyLocal" = "alamatnya milik rangkaian rumah atau pejabat, jadi ia hanya berfungsi pada rangkaian itu; dari tempat lain, penghala orang yang berkongsi mesti memajukan port ke internet";
 "ownServerWhyNoAnswer" = "ia tidak menjawab";
 "ownServerWhyProtocol" = "ia tidak memahami protokol yang dipilih";
 "ownServerWhyRefused" = "ia menolak sambungan";

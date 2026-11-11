@@ -221,6 +221,7 @@
     <string name="ownServerOk">কাজ করছে: এর মাধ্যমে একটি সাইট {ms} ms-এ খুলেছে। ব্যবহার হচ্ছে।</string>
     <string name="ownServerWhyAsks">এটি ব্যবহারকারীর নাম ও পাসওয়ার্ড চাইছে</string>
     <string name="ownServerWhyAuth">এটি ব্যবহারকারীর নাম বা পাসওয়ার্ড গ্রহণ করেনি</string>
+    <string name="ownServerWhyLocal">এর ঠিকানা কোনো বাড়ি বা অফিসের নেটওয়ার্কের, তাই এটি শুধু সেই নেটওয়ার্কেই কাজ করে; অন্য জায়গা থেকে যে শেয়ার করছে তার রাউটারকে পোর্টটি ইন্টারনেটে খুলে দিতে হবে</string>
     <string name="ownServerWhyNoAnswer">এটি সাড়া দিচ্ছে না</string>
     <string name="ownServerWhyProtocol">এটি নির্বাচিত প্রোটোকল বোঝে না</string>
     <string name="ownServerWhyRefused">এটি সংযোগ প্রত্যাখ্যান করেছে</string>
