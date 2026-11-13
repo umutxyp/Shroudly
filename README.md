@@ -14,6 +14,7 @@
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
   [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#android)
   [![Android TV](https://img.shields.io/badge/Android%20TV-3DDC84?logo=android&logoColor=white)](#android-tv-and-google-tv)
+  [![Google Play](https://img.shields.io/badge/Google%20Play-Get%20it-414141?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=me.codeshare.shroudly)
   [![iOS](https://img.shields.io/badge/iPhone%20%26%20iPad-000000?logo=apple)](#iphone-ipad-mac-and-apple-tv)
   [![Apple TV](https://img.shields.io/badge/Apple%20TV-000000?logo=apple)](#iphone-ipad-mac-and-apple-tv)
   [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6)
@@ -787,7 +788,7 @@ directly. That list maintains itself:
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64, 32-bit ARM), plus native packages: .deb for Debian/Ubuntu (x64 and 32-bit ARM, armhf), .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. 32-bit ARM (Raspberry Pi OS 32-bit) has everything but Advanced mode and Tor. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
 | iPhone, iPad, Mac, Apple TV | **iOS 16**, **macOS 13**, **tvOS 17** or newer | The App Store (in review); an `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID) meanwhile ([details](#iphone-ipad-mac-and-apple-tv)). |
-| Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | Google Play (in review), or an APK from the releases page: the main APK runs on every device, 32-bit ARM phones included; the smaller *arm64* APK on 64-bit ARM phones only. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
+| Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | [Google Play](https://play.google.com/store/apps/details?id=me.codeshare.shroudly), or an APK from the releases page: the main APK runs on every device, 32-bit ARM phones included; the smaller *arm64* APK on 64-bit ARM phones only. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 
@@ -814,7 +815,7 @@ These links always download the newest version (see [Releases](https://github.co
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **32-bit ARM Linux** (Raspberry Pi OS 32-bit, armhf) | | [AppImage](https://shroudly.codeshare.me/dl/linux-armv7l) · [.deb](https://shroudly.codeshare.me/dl/linux-armhf-deb) |
-| **Android 8+, Android TV, Google TV** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone, tablet and TV) |
+| **Android 8+, Android TV, Google TV** | **[Google Play](https://play.google.com/store/apps/details?id=me.codeshare.shroudly)** · [APK](https://shroudly.codeshare.me/dl/android) | **[Google Play](https://play.google.com/store/apps/details?id=me.codeshare.shroudly)** · [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone, tablet and TV) |
 | **iPhone / iPad (iOS 16+)** | | [.ipa on the releases page](https://github.com/umutxyp/Shroudly/releases/latest) (TrollStore, or a paid developer account; App Store soon) |
 
 - **Windows** — run the installer. On Windows 7, 8 or 8.1, use the Windows 7 and 8 installer (the Windows 10 one offers to download it).
@@ -824,7 +825,8 @@ These links always download the newest version (see [Releases](https://github.co
 - **Fedora / RHEL** — `sudo dnf install ./Shroudly-*-Linux-x86_64.rpm`
 - **openSUSE** — `sudo zypper install ./Shroudly-*-Linux-x86_64.rpm`
 - **AppImage** — `chmod +x Shroudly-*.AppImage` and run it.
-- **Android** — download `Shroudly-…-Android.apk` on the phone and open it.
+- **Android** — get it on [Google Play](https://play.google.com/store/apps/details?id=me.codeshare.shroudly) (updates come from Play), or
+  download `Shroudly-…-Android.apk` on the phone and open it.
   Android asks once to allow installs from your browser; then tap the big
   button and allow the VPN request. Every app on the phone, Discord and games
   included, then goes through Shroudly. The app tells you when a newer version
