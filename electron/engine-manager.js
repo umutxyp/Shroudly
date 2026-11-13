@@ -644,6 +644,41 @@ class EngineManager {
     return OwnServer.test(p, { trace: true });
   }
 
+  /* The engine asks for the last way out (fallback ok:0): Tor starts, once
+   * the user has said yes to it (issue #77); until then they are asked.
+   * Neither while another bypass tool or VPN is running: two tools changing
+   * the same connections is what makes every technique fail then, and Tor
+   * does not mend that. A first start on Türk Telekom beside GoodbyeDPI had
+   * all 20 techniques refused for discord.com, which worked without
+   * Shroudly, and asked "Open discord.com through Tor?" five seconds after
+   * the app first opened. The warning that names the tool is what is said
+   * (see _afterDiagnostics); looked for here too, since the question can
+   * come before the first look at the system has finished. */
+  async _torWanted(host) {
+    let tools = this.advice.conflicts || [];
+    if (!tools.length) {
+      try { tools = await this._runningTools(); } catch { tools = []; }
+      if (!this.active || !this.tor) return;
+    }
+    if (tools.length) {
+      if (this.logGate.allow('fallback-conflict', host || '*')) {
+        this.log('info', `The last way out: not ${this.store.get('torApproved', false) === true ? 'started' : 'asked'} for ${host || 'a site'} while ${tools.join(', ')} is running; two tools changing the same connections is why nothing got through`);
+      }
+      return;
+    }
+    if (this.store.get('torApproved', false) === true) {
+      // Which site needed it: "starting Tor" alone left a report unable
+      // to tell whether the app in question (Discord) was the one.
+      if (host && this.tor.status().state !== 'ready' && this.logGate.allow('fallback-need', host)) {
+        this.log('info', `${host}: no technique got through; the last way out (Tor) is needed for it`);
+      }
+      this.tor.need();
+    } else { try { this.onTorAsk(host); } catch {} }
+  }
+
+  /* The bypass tools and VPNs running now (a seam for the tests). */
+  _runningTools() { return diagnostics.runningTools({ ownTor: this.tor && this.tor.proc ? 1 : 0 }); }
+
   /* While another VPN or bypass tool is running, look again every half
    * minute, so the warning goes away by itself once the user quits it. */
   _watchConflicts() {
@@ -1479,15 +1514,7 @@ class EngineManager {
         if (!msg.ok) {
           // Not for an engine being stopped: a late line must not start Tor.
           if (!this.active || !this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
-          if (this.store.get('torApproved', false) === true) {
-            // Which site needed it: "starting Tor" alone left a report unable
-            // to tell whether the app in question (Discord) was the one.
-            if (msg.host && this.tor.status().state !== 'ready' && this.logGate.allow('fallback-need', msg.host)) {
-              this.log('info', `${msg.host}: no technique got through; the last way out (Tor) is needed for it`);
-            }
-            this.tor.need();
-          }
-          else { try { this.onTorAsk(msg.host || ''); } catch {} }
+          this._torWanted(msg.host || '');
           break;
         }
         if (msg.host && this.logGate.allow('fallback', msg.host)) {

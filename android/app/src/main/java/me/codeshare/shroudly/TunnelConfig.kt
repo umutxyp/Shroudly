@@ -22,8 +22,11 @@ package me.codeshare.shroudly
  * minute, Java's resolver for 30 seconds), so with one range an address an
  * app kept for one site would soon be given to another, and the app would
  * reach the wrong site. So each hev gets the next of MAPPED_RANGES: an
- * address from before is in none of the new hev's names, the engine refuses
- * it at once (--fake-net), and the app looks the name up again. The tunnel
+ * address from before is in none of the new hev's names and reaches the
+ * engine as it is (--fake-net), which takes the connection by the name in
+ * its first bytes instead (standin_name in core/src/engine.c: TikTok keeps
+ * addresses far longer than a minute and never looked the name up again),
+ * and closes one that names nothing. The tunnel
  * also starts again when the phone moves to another network (2.6.42), so
  * there are seven: with four, a phone at the edge of a Wi-Fi, dropping it
  * and joining it again, went round them within the minute an app keeps an

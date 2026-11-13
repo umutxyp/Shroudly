@@ -48,10 +48,11 @@ class Engine(
         // How long a run told to stop may take to return.
         const val STOP_WAIT_MS = 5000L
 
-        /* Addresses the engine refuses at once instead of trying to reach:
-         * the tunnel's own range (TunnelConfig). An app that still holds a
-         * stand-in address from before hev was restarted gets an error right
-         * away, looks the name up again, and gets a fresh one. */
+        /* Addresses the engine never tries to reach: the tunnel's own range
+         * (TunnelConfig). An app that still holds a stand-in address from
+         * before hev was restarted is taken by the name in what it sends
+         * first (its TLS handshake, or an http:// Host), and one that names
+         * nothing is closed (core/src/engine.c, standin_name). */
         const val FAKE_NET_OPTION = "--fake-net"
         const val FAKE_NET = "198.18.0.0/15"
 

@@ -3,16 +3,23 @@
 /* --fake-net <CIDR>: address ranges that stand in for names (the Android
  * app's tunnel answers names with addresses from 198.18.0.0/15 and maps
  * them back before they reach the engine). One that does reach it outlived
- * its mapping, so a CONNECT to it is refused at once (SOCKS5 0x02, SOCKS4
- * 0x5B) and a datagram to it is dropped, instead of waiting out a connect
- * timeout. Addresses outside the ranges are untouched; a range that does
+ * its mapping (a new tunnel after the phone changed network). It cannot be
+ * dialled, and it used to be refused at once so that the app looks the name
+ * up again; an app that keeps addresses itself never did (TikTok: hundreds
+ * of connections to the old ones in the minute after a network change, "it
+ * freezes all the time"). Now the client is told yes and the name it means
+ * is read from what it sends first, the server name of its TLS handshake or
+ * the Host of an http:// request: the connection goes on by that name. One
+ * that names nothing is closed. A datagram to a stand-in address is still
+ * dropped. Addresses outside the ranges are untouched; a range that does
  * not parse stops the engine. Also: the ready line carries the engine's
  * pid, which a supervisor without a process handle kills a hung engine by. */
 
 const net = require('net');
 const os = require('os');
 const dgram = require('dgram');
-const { startEngine, sleep, freePort, socks, socks4, dnsStub, suite } = require('./helpers');
+const tls = require('tls');
+const { startEngine, sleep, freePort, socks, socks4, dnsStub, suite, testServerOptions, testClientOptions } = require('./helpers');
 
 const t = suite('engine-fakenet');
 
@@ -83,17 +90,69 @@ const hdr4 = (ip, port) => Buffer.from([0, 0, 0, 1, ...ip.split('.').map(Number)
   t.ok(ready.pid === eng.proc.pid, `the ready line carries the engine's pid (${ready.pid})`);
   t.ok(ready.port === P && typeof ready.techniques === 'number', 'next to the fields it always had');
 
-  // ── CONNECT
+  // ── CONNECT: told yes, then closed when the client names no site
   for (const host of ['198.18.0.1', '198.19.255.254', '203.0.113.77', 'fd00:5::1', '::ffff:198.18.7.7']) {
     const r = await connect5(P, host, 443);
-    t.ok(r.rep === 2 && r.ms < 1000, `SOCKS5 CONNECT to ${host}: refused with 0x02 at once (${r.ms} ms)`);
+    t.ok(r.rep === 0 && r.ms < 1000, `SOCKS5 CONNECT to ${host}: taken at once (${r.ms} ms)`);
   }
-  const s4 = await socks4(P, '198.18.1.2', 443).then(() => 'granted', (err) => err.message);
-  t.ok(/SOCKS4 reply 91/.test(s4), `SOCKS4 CONNECT to 198.18.1.2: refused (${s4})`);
+  /* What becomes of a connection to a stand-in address after `send`
+   * (nothing when null): 'closed' and after how long, or what came back. */
+  const after = async (send) => {
+    const s = await socks(P, '198.19.64.9', 443);
+    const t0 = Date.now();
+    return new Promise((resolve) => {
+      let got = Buffer.alloc(0);
+      s.on('data', (d) => { got = Buffer.concat([got, d]); });
+      s.on('error', () => {}); s.on('close', () => resolve({ ms: Date.now() - t0, got }));
+      if (send) s.write(send);
+      setTimeout(() => { s.destroy(); resolve({ ms: -1, got }); }, 8000);
+    });
+  };
+  let quiet = await after(null);
+  t.ok(quiet.ms >= 0 && quiet.ms < 2000 && quiet.got.length === 0, `a client that says nothing: closed (${quiet.ms} ms), nothing dialled`);
+  quiet = await after(Buffer.from('SSH-2.0-OpenSSH_9.6\r\n'));
+  t.ok(quiet.ms >= 0 && quiet.ms < 2000 && quiet.got.length === 0, `one whose first bytes name no site (not TLS, not HTTP): closed (${quiet.ms} ms)`);
+  const s4 = await socks4(P, '198.18.1.2', 443).then((s) => { s.destroy(); return 'granted'; }, (err) => err.message);
+  t.ok(s4 === 'granted', `SOCKS4 CONNECT to 198.18.1.2: taken too (${s4})`);
   const outside = await socks(P, '127.0.0.1', e.port).then((s) => { s.destroy(); return true; }, () => false);
   t.ok(outside, 'an address outside the ranges is connected to as always');
   const r20 = await connect5(P, '198.20.0.1', 9);
   t.ok(r20.rep !== 2, `198.20.0.1 (just past 198.18.0.0/15) is not refused as a stand-in (reply ${r20.rep})`);
+
+  // ── the name in what the client sends first: the connection goes on by it
+  {
+    const OK = 'HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok';
+    const site = tls.createServer(testServerOptions(), (x) => { x.on('error', () => {}); x.once('data', () => x.end(OK)); });
+    await new Promise((r) => site.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const web = net.createServer((x) => { x.on('error', () => {}); x.once('data', (d) => x.end(/Host: old\.example/.test(d) ? OK : 'HTTP/1.1 400 Bad\r\n\r\n')); });
+    await new Promise((r) => web.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const dns6 = await dnsStub({ 'kept.example': { AAAA: ['::1'] }, 'old.example': { AAAA: ['::1'] } });
+    const P6 = await freePort();
+    const e6 = await startEngine(P6, ['--auto', '--doh', '--doh-port', String(dns6.port), '--ipv6', '--fake-net', '198.18.0.0/15']);
+    const raw = await socks(P6, '198.19.65.42', site.address().port);
+    const page = await new Promise((resolve) => {
+      const x = tls.connect({ socket: raw, servername: 'kept.example', ...testClientOptions(), ALPNProtocols: ['http/1.1'] });
+      let out = '';
+      x.on('secureConnect', () => x.write('GET / HTTP/1.1\r\nHost: kept.example\r\nConnection: close\r\n\r\n'));
+      x.on('data', (d) => { out += d; }); x.on('end', () => resolve(out.split('\r\n')[0])); x.on('error', (err) => resolve(`error ${err.message}`));
+      setTimeout(() => resolve('timeout'), 15000);
+    });
+    t.ok(page === 'HTTP/1.1 200 OK', `an address kept from an earlier tunnel, a TLS handshake that names the site: the site comes (${page})`);
+    const raw2 = await socks(P6, '198.19.65.43', web.address().port);
+    const plain = await new Promise((resolve) => {
+      let out = '';
+      raw2.on('data', (d) => { out += d; }); raw2.on('close', () => resolve(out.split('\r\n')[0])); raw2.on('error', () => {});
+      raw2.write('GET / HTTP/1.1\r\nHost: old.example\r\nConnection: close\r\n\r\n');
+      setTimeout(() => resolve('timeout'), 15000);
+    });
+    t.ok(plain === 'HTTP/1.1 200 OK', `and an http:// request by its Host (${plain})`);
+    await sleep(300);
+    e6.proc.stdin.write('CONNS\n');
+    await sleep(400);
+    t.ok(/"host":"kept\.example"/.test(e6.out) && !/"host":"198\.19\.65\.42"/.test(e6.out), 'listed under the site\'s name, not the address');
+    t.ok(e6.exited === null && !/AddressSanitizer|runtime error:/.test(e6.err), 'engine still up, no sanitizer errors');
+    e6.stop(); site.close(); web.close(); dns6.close();
+  }
 
   // ── UDP
   const ifaces = Object.values(os.networkInterfaces()).flat().filter((i) => i && !i.internal);

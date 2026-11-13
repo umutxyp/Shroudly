@@ -30,14 +30,23 @@ final class EngineTests: XCTestCase {
         XCTAssertLessThan(code, 0, "the login is refused")
     }
 
-    func testStandInAddressesFailAtOnce() throws {
+    /* A stand-in address that outlived its mapping (core/src/engine.c,
+     * standin_name): taken at once, so that the name in the app's first
+     * bytes can be read; an app that sends nothing is let go, and the
+     * address itself is never dialled. */
+    func testStandInAddressesAreNeverDialled() throws {
         let e = try TestEngine()
         defer { e.engine.stop() }
         let began = Date()
         let (fd, code) = TestNet.socks(e.port, user: e.auth.user, pass: e.auth.pass, to: .ipv4("198.19.1.2"), 443)
         defer { close(fd) }
-        XCTAssertNotEqual(code, 0)
-        XCTAssertLessThan(Date().timeIntervalSince(began), 2, "--fake-net refuses it without trying")
+        XCTAssertEqual(code, 0, "--fake-net takes it without trying the address")
+        var tv = timeval(tv_sec: 3, tv_usec: 0)
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+        var byte: UInt8 = 0
+        let n = recv(fd, &byte, 1, 0)
+        XCTAssertEqual(n, 0, "nothing sent, no name: the connection is closed")
+        XCTAssertLessThan(Date().timeIntervalSince(began), 2, "and soon")
     }
 
     func testRunsAgainInTheSameProcess() throws {

@@ -115,7 +115,7 @@ class ShroudlyVpnService : VpnService() {
         private const val RECHECK_MS = 35_000L
         // How long hev may take to stop.
         private const val TUNNEL_STOP_MS = 5_000L
-        /* A stop not through by then ends the process (requestStop). */
+        /* A stop not through by then ends the process (StopDeadline). */
         const val STOP_DEADLINE_MS = 15_000L
         private const val LOG_FILE = "log.txt"
 
@@ -459,16 +459,8 @@ class ShroudlyVpnService : VpnService() {
     private fun requestStop(errorRes: Int, detail: String?) {
         if (Protection.state == Protection.State.OFF || Protection.state == Protection.State.STOPPING) return
         Protection.set(Protection.State.STOPPING)
-        // Whatever holds the work thread up, a stop always ends: not off
-        // after STOP_DEADLINE_MS, the process ends, and the VPN interface,
-        // which belongs to it, with it. Never "stopping" for good.
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            if (Protection.state == Protection.State.STOPPING) {
-                log("Stopping took more than ${STOP_DEADLINE_MS / 1000} s; ending the app's process so protection is off")
-                AppLog.flush()
-                android.os.Process.killProcess(android.os.Process.myPid())
-            }
-        }, STOP_DEADLINE_MS)
+        // Whatever holds the work thread up, a stop always ends (StopDeadline).
+        StopDeadline.arm { log(it) }
         // Off by the user's choice (or another VPN's): it stays off. Ended by
         // itself: it comes back once a network is there (KeepOn).
         if (errorRes == 0 || errorRes == R.string.androidVpnRevoked) KeepOn.stoppedByUser(this)
