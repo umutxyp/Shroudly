@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Qoruma kəsilsə və ya cihaz yenidən başlasa, siz dayandırana qədər özü yenidən açılır.";
 "appleLanguageDesc" = "Shroudly cihazınızın dilindən istifadə edir. Yalnız Shroudly üçün başqa dili sistem ayarlarında seçə bilərsiniz.";
 "appleLocalNetworkUsage" = "Shroudly tətbiqlərinizin bağlantılarını, o cümlədən yerli şəbəkənizdəki cihazlara, məsələn, routerinizə olan bağlantıları ötürür.";
+"appleMoveBody" = "Yeniləmələri App Store-dan avtomatik al: Shroudly-ni oradan quraşdır, sonra bu nüsxəni sil. Dəyişdirdiyin ayarlar yenidən başlayır.";
+"appleMoveTitle" = "Shroudly App Store-dadır";
 "appleNoticeBody" = "Shroudly tətbiqlərinizin bağlantılarını yalnız bu cihazda işləyən mühərriki vasitəsilə ötürmək üçün VPN konfiqurasiyası əlavə edir. Shroudly serveri və hesab yoxdur, Shroudly heç bir məlumat toplamır: ziyarət etdiyiniz saytlar qeydə alınmır və bizə göndərilmir. Adlar şifrələnmiş DNS ilə ictimai serverlərdə (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) axtarılır.";
 "appleNoticeContinue" = "Davam et";
 "appleNoticeTitle" = "Başlamazdan əvvəl";
 "appleOpenSettings" = "Ayarları aç";
+"appleUpdateBody" = "Shroudly {version} App Store-dadır. Zəhmət olmasa indi yenilə: yeni bloklara qarşı düzəlişlər yalnız ən yeni versiyaya gəlir. Bu arada qoruma açıq qalır.";
+"appleUpdateOpen" = "Yenilə";
+"appleUpdateTitle" = "Shroudly-ni yenilə";
 "appleVpnNotSigned" = "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.";
 "appleVpnRevoked" = "Qoruma sistem tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.";
 "bypassed" = "Yan keçilən";
@@ -113,6 +118,7 @@
 "macAllApps" = "Bütün tətbiqlər Shroudly ilə (VPN)";
 "macAllAppsDesc" = "Söndürülüb: Shroudly bu Mac-in proksisidir, GitHub-dakı versiya kimi: brauzerlər və sistem proksisindən istifadə edən tətbiqlər onun üzərindən keçir, qalanları birbaşa gedir və Mac sürətli qalır. Yanılı: proksiyə məhəl qoymayanlar (Discord tətbiqi, oyunlar) daxil, bütün tətbiqlər Shroudly ilə keçir, amma Mac yavaşlayır.";
 "madeBy" = "Codeshare Technology Ltd məhsulu";
+"masOpen" = "App Store-u aç";
 "nationalOnlyBody" = "Dünyanın qalan hissəsi ilə bağlantı kəsilib; ölkə daxilindəki saytlar hələ açılır. Heç bir tətbiq və ya VPN bunu keçə bilməz. Bağlantı qayıdanda Shroudly özü davam edir.";
 "nationalOnlyHelp" = "Hələ nə kömək edə bilər";
 "nationalOnlyTitle" = "Yalnız bu ölkənin şəbəkəsi işləyir";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor-dan istifadə et";
 "torUsedDesktop" = "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; bu kompüterdəki digər saytlar əvvəlki kimi işləyir.";
 "totalCount" = "Cəmi: {count}";
+"updLater" = "Sonra";
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";

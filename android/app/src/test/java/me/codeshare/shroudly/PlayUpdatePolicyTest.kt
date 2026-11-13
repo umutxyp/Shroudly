@@ -8,9 +8,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
-/* Google Play's in-app updates (the copy Play updates): offered gently,
- * pushed only when it matters, never locking the user out, and never
- * filling the screen by itself. */
+/* Google Play's in-app updates (the copy Play updates): every newer
+ * version required with Play's full-screen update, asked each time the
+ * window opens, never stopping protection. */
 class PlayUpdatePolicyTest {
     private val day = 24L * 60 * 60 * 1000
 
@@ -34,16 +34,11 @@ class PlayUpdatePolicyTest {
     }
 
     @Test
-    fun pushedOnlyWhenUrgentFarBehindOrLeftWaiting() {
-        assertFalse(PlayUpdatePolicy.pushed(20643, 20644, priority = 0, staleDays = 0))
-        // A hand-uploaded release a dozen tags ahead is still only offered.
-        assertFalse(PlayUpdatePolicy.pushed(20643, 20655, priority = 0, staleDays = 2))
-        assertFalse(PlayUpdatePolicy.pushed(20643, 20700, priority = 3, staleDays = 6))
-        assertTrue(PlayUpdatePolicy.pushed(20643, 20644, priority = 4, staleDays = 0))
-        assertTrue(PlayUpdatePolicy.pushed(20643, 20644, priority = 5, staleDays = 0))
-        assertTrue(PlayUpdatePolicy.pushed(20643, 20643 + PlayUpdatePolicy.FAR_BEHIND, priority = 0, staleDays = 0))
+    fun everyNewerVersionIsRequired() {
+        assertTrue(PlayUpdatePolicy.pushed(20643, 20644, priority = 0, staleDays = 0))
         assertTrue(PlayUpdatePolicy.pushed(20643, 30000, priority = 0, staleDays = 0))
-        assertTrue(PlayUpdatePolicy.pushed(20643, 20644, priority = 0, staleDays = 7))
+        assertFalse(PlayUpdatePolicy.pushed(20643, 20643, priority = 5, staleDays = 9))
+        assertFalse(PlayUpdatePolicy.pushed(20644, 20643, priority = 5, staleDays = 9))
     }
 
     @Test
@@ -72,11 +67,11 @@ class PlayUpdatePolicyTest {
     }
 
     @Test
-    fun askedAtMostOnceADay() {
+    fun askedEachTimeTheWindowOpensButNotAgainAtOnce() {
         val now = 100 * day
         assertFalse(PlayUpdatePolicy.due(now - 60_000, now, PlayUpdatePolicy.ASK_EVERY_MS))
-        assertFalse(PlayUpdatePolicy.due(now - day, now, PlayUpdatePolicy.ASK_EVERY_MS))
-        assertTrue(PlayUpdatePolicy.due(now - day - 1, now, PlayUpdatePolicy.ASK_EVERY_MS))
+        assertTrue(PlayUpdatePolicy.due(now - 3 * 60_000, now, PlayUpdatePolicy.ASK_EVERY_MS))
+        assertTrue(PlayUpdatePolicy.due(now - 61 * 60_000, now, PlayUpdatePolicy.CHECK_EVERY_MS))
         assertTrue(PlayUpdatePolicy.due(0, now, PlayUpdatePolicy.CHECK_EVERY_MS))
         // The clock set back: a time "in the future" counts as long ago.
         assertTrue(PlayUpdatePolicy.due(now + day, now, PlayUpdatePolicy.ASK_EVERY_MS))

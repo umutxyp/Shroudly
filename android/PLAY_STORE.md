@@ -254,8 +254,12 @@ Kullanıcının gördüğü:
 - Play, kurulu sürümle en yeni sürüm arasındaki tüm sürümlerin önceliğine
   bakar: tek bir acil sürüm, kullanıcı onu geçene kadar hemen güncellemeyi
   ister.
-- Eşikler kodda: `PlayUpdatePolicy.URGENT_PRIORITY` (4), `FAR_BEHIND` (20),
-  `STALE_DAYS` (7), `ASK_EVERY_MS` (1 gün).
+- **2026-11-13'ten beri her yeni sürüm zorunlu:** Play kopyası her yeni sürümü
+  Play'in tam ekran (immediate) güncellemesiyle ister; pencere her açıldığında
+  yeniden sorar (bir "hayır"dan sonra en az `ASK_EVERY_MS`, 2 dakika arayla),
+  Play'e saatte bir bakar (`CHECK_EVERY_MS`). Koruma güncelleme yüzünden hiç
+  durdurulmaz: sansürlü bir ağda güncellemenin kendisi Shroudly'ye muhtaç
+  olabilir. Öncelik (`inAppUpdatePriority`) artık gerekmiyor.
 
 Test etmek (dahili uygulama paylaşımı, Internal app sharing):
 

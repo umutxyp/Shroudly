@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Mati: Shroudly menjadi proxy Mac ini, seperti versi dari GitHub: browser dan aplikasi yang memakai proxy sistem lewat Shroudly, sisanya langsung, dan Mac tetap cepat. Nyala: semua aplikasi lewat Shroudly, termasuk yang mengabaikan proxy (aplikasi Discord, game), tetapi Mac lebih lambat.",
   "reportBadContact": "Masukkan alamat email yang kamu baca. Alamat sementara atau karangan dan nama Telegram tidak diterima.",
   "reportBadWhat": "Ceritakan dengan kata-katamu sendiri, dalam beberapa kalimat, apa yang terjadi.",
-  "reportBadSite": "Sebutkan situs atau aplikasi yang tidak berfungsi."
+  "reportBadSite": "Sebutkan situs atau aplikasi yang tidak berfungsi.",
+  "appleUpdateTitle": "Perbarui Shroudly",
+  "appleUpdateBody": "Shroudly {version} sudah ada di App Store. Harap perbarui sekarang: perbaikan untuk blokir baru hanya hadir di versi terbaru. Perlindungan tetap aktif sementara itu.",
+  "appleUpdateOpen": "Perbarui",
+  "appleMoveTitle": "Shroudly ada di App Store",
+  "appleMoveBody": "Dapatkan pembaruan otomatis dari App Store: pasang Shroudly dari sana, lalu hapus salinan ini. Pengaturan yang Anda ubah dimulai dari awal."
 }

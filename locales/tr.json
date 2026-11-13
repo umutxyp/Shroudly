@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Kapalı: Shroudly bu Mac'in vekil sunucusu olur, GitHub'daki sürüm gibi: tarayıcılar ve sistem vekilini kullanan uygulamalar ondan geçer, diğerleri doğrudan gider ve Mac hızlı kalır. Açık: vekili dinlemeyen uygulamalar (Discord uygulaması, oyunlar) dahil her uygulama Shroudly'den geçer, ama Mac yavaşlar.",
   "reportBadContact": "Okuduğun bir e-posta adresi yaz. Geçici veya uydurma adresler ve Telegram kullanıcı adları kabul edilmiyor.",
   "reportBadWhat": "Ne olduğunu birkaç cümleyle, kendi sözlerinle anlat.",
-  "reportBadSite": "Çalışmayan site veya uygulamanın adını yaz."
+  "reportBadSite": "Çalışmayan site veya uygulamanın adını yaz.",
+  "appleUpdateTitle": "Shroudly'yi güncelle",
+  "appleUpdateBody": "Shroudly {version} App Store'da. Lütfen şimdi güncelle: yeni engellere karşı düzeltmeler yalnızca en yeni sürüme gelir. Koruma bu arada açık kalır.",
+  "appleUpdateOpen": "Güncelle",
+  "appleMoveTitle": "Shroudly App Store'da",
+  "appleMoveBody": "Güncellemeleri App Store'dan kendiliğinden al: Shroudly'yi oradan yükle, sonra bu kopyayı sil. Değiştirdiğin ayarlar sıfırdan başlar."
 }

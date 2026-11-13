@@ -3,13 +3,13 @@ package me.codeshare.shroudly
 /*
  * When a copy Google Play updates is told about a new version, and how hard
  * (PlayUpdates; the build made for Play only). Every newer version is
- * offered with Play's flexible update: downloaded while Shroudly is in use,
- * installed when the user restarts it. It is pushed with Play's immediate
- * update (full screen; Play installs it and opens Shroudly again) when the
- * release was marked urgent, when this copy is far behind, or when an
- * update has waited a week. Either way the user may say no: Shroudly keeps
- * working, and Play's dialog comes back the next day at the earliest.
- * Pure, for the tests.
+ * required (the owner's word, 2026-11-13): it is pushed with Play's
+ * immediate update (full screen; Play installs it and opens Shroudly
+ * again), whenever the window opens, ASK_EVERY_MS apart at the least so a
+ * "no" still lets the user reach the window for a moment. Protection is
+ * never stopped for it: on a censored network the update itself may need
+ * Shroudly. Where Play allows only the flexible flow (a release just out,
+ * a phone short of space), that one. Pure, for the tests.
  */
 object PlayUpdatePolicy {
     enum class Type { NONE, FLEXIBLE, IMMEDIATE }
@@ -31,13 +31,17 @@ object PlayUpdatePolicy {
     // Days an update has waited from which it is pushed.
     const val STALE_DAYS = 7
     // Play is asked at most this often, unless an update is on its way.
-    const val CHECK_EVERY_MS = 24L * 60 * 60 * 1000
-    // Play's dialog comes up by itself at most this often.
-    const val ASK_EVERY_MS = 24L * 60 * 60 * 1000
+    const val CHECK_EVERY_MS = 60L * 60 * 1000
+    // Play's update screen comes up by itself at most this often: each time
+    // the window opens, but not again at once after a "no".
+    const val ASK_EVERY_MS = 2L * 60 * 1000
     private const val DAY_MS = 24L * 60 * 60 * 1000
 
+    /* Every newer version is required. (priority, staleDays: what Play
+     * says, kept for the log.) */
+    @Suppress("UNUSED_PARAMETER")
     fun pushed(installedCode: Int, availableCode: Int, priority: Int, staleDays: Int): Boolean =
-        priority >= URGENT_PRIORITY || Versions.behind(installedCode, availableCode) >= FAR_BEHIND || staleDays >= STALE_DAYS
+        availableCode > installedCode
 
     /* The flow to start, from what Play allows: the immediate one only when
      * pushed, or when it is the only one allowed. */

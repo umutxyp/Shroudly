@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar.",
   "reportBadContact": "Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.",
   "reportBadWhat": "Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.",
-  "reportBadSite": "Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň."
+  "reportBadSite": "Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň.",
+  "appleUpdateTitle": "Shroudly-ni täzeläň",
+  "appleUpdateBody": "Shroudly {version} App Store-da bar. Häzir täzeläň: täze böwetlere garşy düzedişler diňe iň täze wersiýa gelýär. Şol wagt gorag açyk galýar.",
+  "appleUpdateOpen": "Täzele",
+  "appleMoveTitle": "Shroudly App Store-da bar",
+  "appleMoveBody": "Täzelenmeleri App Store-dan awtomatik alyň: Shroudly-ni şol ýerden guruň, soňra bu nusgany pozuň. Üýtgeden sazlamalaryňyz täzeden başlaýar."
 }

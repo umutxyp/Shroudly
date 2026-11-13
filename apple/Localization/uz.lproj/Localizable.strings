@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Himoya uzilsa yoki qurilma qayta ishga tushsa, siz toʻxtatmaguningizcha u oʻzi qayta yoqiladi.";
 "appleLanguageDesc" = "Shroudly qurilmangiz tilidan foydalanadi. Faqat Shroudly uchun boshqa tilni tizim sozlamalarida tanlashingiz mumkin.";
 "appleLocalNetworkUsage" = "Shroudly ilovalaringiz ulanishlarini, jumladan mahalliy tarmogʻingizdagi qurilmalarga, masalan, routerga ulanishlarni oʻtkazadi.";
+"appleMoveBody" = "Yangilanishlarni App Store'dan avtomatik oling: Shroudly'ni o'sha yerdan o'rnating, so'ng bu nusxani o'chiring. O'zgartirgan sozlamalaringiz boshidan boshlanadi.";
+"appleMoveTitle" = "Shroudly App Store'da";
 "appleNoticeBody" = "Shroudly ilovalaringiz ulanishlarini faqat shu qurilmada ishlaydigan oʻz dvigateli orqali oʻtkazish uchun VPN konfiguratsiyasini qoʻshadi. Shroudly serveri ham, hisob ham yoʻq va Shroudly hech qanday maʼlumot toʻplamaydi: siz kiradigan saytlar yozib olinmaydi va bizga yuborilmaydi. Nomlar shifrlangan DNS orqali ommaviy rezolverlarda (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) qidiriladi.";
 "appleNoticeContinue" = "Davom etish";
 "appleNoticeTitle" = "Boshlashdan oldin";
 "appleOpenSettings" = "Sozlamalarni ochish";
+"appleUpdateBody" = "Shroudly {version} App Store'da. Iltimos, hozir yangilang: yangi bloklarga qarshi tuzatishlar faqat eng yangi versiyaga keladi. Shu orada himoya yoniq qoladi.";
+"appleUpdateOpen" = "Yangilash";
+"appleUpdateTitle" = "Shroudly'ni yangilang";
 "appleVpnNotSigned" = "Shroudly’ning bu nusxasi Apple’ning VPN uchun ruxsatisiz imzolangan, shuning uchun iOS unga VPN ishga tushirishga ruxsat bermaydi va umuman soʻramaydi. Bepul Apple ID bilan imzolangan nusxalarda (AltStore, SideStore, Sideloadly va shunga oʻxshashlar) bu ruxsat hech qachon boʻlmaydi. Uni TrollStore bilan oʻrnating yoki pullik Apple dasturchi hisobi bilan imzolang.";
 "appleVpnRevoked" = "Himoya tizim tomonidan oʻchirildi, odatda boshqa VPN ilovasi yoqilgani uchun.";
 "bypassed" = "Chetlab oʻtilgan";
@@ -113,6 +118,7 @@
 "macAllApps" = "Barcha ilovalar Shroudly orqali (VPN)";
 "macAllAppsDesc" = "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi.";
 "madeBy" = "Codeshare Technology Ltd mahsuloti";
+"masOpen" = "App Storeʼni ochish";
 "nationalOnlyBody" = "Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.";
 "nationalOnlyHelp" = "Yana nima yordam berishi mumkin";
 "nationalOnlyTitle" = "Faqat shu mamlakat tarmogʻi ishlayapti";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor'dan foydalanish";
 "torUsedDesktop" = "{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; bu kompyuterdagi boshqa saytlar avvalgidek ishlaydi.";
 "totalCount" = "Jami: {count}";
+"updLater" = "Keyinroq";
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";

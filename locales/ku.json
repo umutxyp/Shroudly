@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Girtî: Shroudly proxyya vê Mac e, wekî guhertoya ji GitHub: gerok û sepanên ku proxyya pergalê bi kar tînin di wê re derbas dibin, yên din rasterast diçin û Mac bilez dimîne. Vekirî: hemû sepan, yên ku proxyyê paşguh dikin jî (sepana Discord, lîstik), di Shroudly re derbas dibin, lê Mac hêdîtir dibe.",
   "reportBadContact": "Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.",
   "reportBadWhat": "Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.",
-  "reportBadSite": "Navê malper an sepana ku naxebite binivîse."
+  "reportBadSite": "Navê malper an sepana ku naxebite binivîse.",
+  "appleUpdateTitle": "Shroudly nû bike",
+  "appleUpdateBody": "Shroudly {version} li App Store e. Ji kerema xwe niha nû bike: çareserên ji bo astengiyên nû tenê digihîjin guhertoya herî nû. Parastin di vê navberê de vekirî dimîne.",
+  "appleUpdateOpen": "Nû bike",
+  "appleMoveTitle": "Shroudly li App Store e",
+  "appleMoveBody": "Nûkirinan bixweber ji App Store bistîne: Shroudly ji wir saz bike, paşê vê kopiyê jê bibe. Mîhengên ku te guhertine ji nû ve dest pê dikin."
 }

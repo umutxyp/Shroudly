@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "关闭：Shroudly 作为这台 Mac 的代理，与 GitHub 上的版本相同：浏览器和使用系统代理的应用经过它，其余直接连接，Mac 保持快速。开启：所有应用都经过 Shroudly，包括忽略代理的应用（Discord 应用、游戏），但 Mac 会变慢。",
   "reportBadContact": "请填写你会查看的电子邮箱。不接受临时或编造的地址，也不接受 Telegram 用户名。",
   "reportBadWhat": "请用你自己的话，用几句话说明发生了什么。",
-  "reportBadSite": "请写出无法使用的网站或应用。"
+  "reportBadSite": "请写出无法使用的网站或应用。",
+  "appleUpdateTitle": "更新 Shroudly",
+  "appleUpdateBody": "Shroudly {version} 已在 App Store 上架。请立即更新：针对新封锁的修复只会进入最新版本。更新前保护仍保持开启。",
+  "appleUpdateOpen": "更新",
+  "appleMoveTitle": "Shroudly 已在 App Store 上架",
+  "appleMoveBody": "从 App Store 自动获取更新：从那里安装 Shroudly，然后删除此副本。你更改过的设置将重新开始。"
 }

@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Gorag kesilse ýa-da enjam täzeden açylsa, siz ony duruzýançaňyz özi gaýtadan açylýar.";
 "appleLanguageDesc" = "Shroudly enjamyňyzyň dilini ulanýar. Diňe Shroudly üçin başga dili ulgam sazlamalarynda saýlap bilersiňiz.";
 "appleLocalNetworkUsage" = "Shroudly programmalaryňyzyň baglanyşyklaryny, şol sanda ýerli toruňyzdaky enjamlara, meselem, routere baglanyşyklary geçirýär.";
+"appleMoveBody" = "Täzelenmeleri App Store-dan awtomatik alyň: Shroudly-ni şol ýerden guruň, soňra bu nusgany pozuň. Üýtgeden sazlamalaryňyz täzeden başlaýar.";
+"appleMoveTitle" = "Shroudly App Store-da bar";
 "appleNoticeBody" = "Shroudly programmalaryňyzyň baglanyşyklaryny diňe şu enjamda işleýän öz hereketlendirijisi arkaly geçirmek üçin VPN sazlamasyny goşýar. Shroudly serweri hem hasaby ýok, Shroudly hiç hili maglumat ýygnamaýar: girýän saýtlaryňyz ýazylmaýar we bize iberilmeýär. Atlar şifrlenen DNS arkaly umumy rezolwerlerde (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) gözlenýär.";
 "appleNoticeContinue" = "Dowam et";
 "appleNoticeTitle" = "Başlamazdan öň";
 "appleOpenSettings" = "Sazlamalary aç";
+"appleUpdateBody" = "Shroudly {version} App Store-da bar. Häzir täzeläň: täze böwetlere garşy düzedişler diňe iň täze wersiýa gelýär. Şol wagt gorag açyk galýar.";
+"appleUpdateOpen" = "Täzele";
+"appleUpdateTitle" = "Shroudly-ni täzeläň";
 "appleVpnNotSigned" = "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.";
 "appleVpnRevoked" = "Gorag ulgam tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.";
 "bypassed" = "Aýlanyp geçilen";
@@ -113,6 +118,7 @@
 "macAllApps" = "Ähli programmalar Shroudly arkaly (VPN)";
 "macAllAppsDesc" = "Öçük: Shroudly bu Mac-yň proksisi, GitHub-daky wersiýa ýaly: brauzerler we ulgam proksisini ulanýan programmalar ondan geçýär, galanlary göni gidýär we Mac çalt galýar. Açyk: proksini äsgermeýänleri (Discord programmasy, oýunlar) hem goşup, ähli programmalar Shroudly arkaly geçýär, ýöne Mac haýallaýar.";
 "madeBy" = "Codeshare Technology Ltd önümi";
+"masOpen" = "App Store-y aç";
 "nationalOnlyBody" = "Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.";
 "nationalOnlyHelp" = "Ýene näme kömek edip biler";
 "nationalOnlyTitle" = "Diňe şu ýurduň tory işleýär";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor ulan";
 "torUsedDesktop" = "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; bu kompýuterdäki beýleki saýtlar öňküsi ýaly işleýär.";
 "totalCount" = "Jemi: {count}";
+"updLater" = "Soňra";
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";

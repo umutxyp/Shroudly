@@ -81,3 +81,67 @@ final class StoreFlagCache {
         return data
     }
 }
+
+/*
+ * The App Store copy and its updates (the owner's word, 2026-11-13), as on
+ * Android: a copy the App Store installed is asked to update as soon as the
+ * store has a newer version, each time the window comes to the front
+ * (askEvery apart at the least, so a "later" still reaches the window), with
+ * protection left on: on a censored network the update itself may need
+ * Shroudly. Any other copy on iPhone and iPad (an .ipa through TrollStore or
+ * a developer account) is offered the App Store, never pushed: some devices
+ * cannot reach it. A "not now" waits moveFirstWaitDays, then twice as long
+ * each time. Nothing while stores.json says the listing is not live; never
+ * on Apple TV. Pure, for the tests; StoreUpdateCheck (App) does the asking.
+ */
+enum StoreUpdate {
+    enum Source: Equatable { case appStore, testing, other }
+
+    static let pageURL = URL(string: "https://apps.apple.com/app/id6830329471")!
+    #if os(macOS)
+    static let lookupURL = URL(string: "https://itunes.apple.com/lookup?bundleId=me.codeshare.shroudly&entity=macSoftware")!
+    #else
+    static let lookupURL = URL(string: "https://itunes.apple.com/lookup?bundleId=me.codeshare.shroudly")!
+    #endif
+    static let askEvery: TimeInterval = 120
+    static let checkEvery: TimeInterval = 3600
+    static let moveFirstWaitDays = 14
+
+    /* The copy's source from its receipt's file name: the App Store's is
+     * "receipt", TestFlight's "sandboxReceipt"; none at all for an .ipa put
+     * on the device another way. */
+    static func source(receiptName: String?, receiptExists: Bool) -> Source {
+        guard receiptExists, let n = receiptName else { return .other }
+        return n == "sandboxReceipt" ? .testing : .appStore
+    }
+
+    /* "2.6.76" newer than "2.6.75"; numbers compared one by one, missing ones 0. */
+    static func newer(_ a: String, than b: String) -> Bool {
+        let x = a.split(separator: ".").map { Int($0) ?? 0 }, y = b.split(separator: ".").map { Int($0) ?? 0 }
+        for i in 0..<max(x.count, y.count) {
+            let p = i < x.count ? x[i] : 0, q = i < y.count ? y[i] : 0
+            if p != q { return p > q }
+        }
+        return false
+    }
+
+    /* The App Store's version in an iTunes lookup answer; nil when it has none. */
+    static func version(inLookup data: Data) -> String? {
+        guard let all = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let results = all["results"] as? [[String: Any]],
+              let v = results.first?["version"] as? String, !v.isEmpty else { return nil }
+        return v
+    }
+
+    /* Days to wait after the n-th "not now" (n >= 1): 14, 28, 56... */
+    static func moveWaitDays(afterNoes n: Int) -> Int {
+        guard n >= 1 else { return 0 }
+        return moveFirstWaitDays << min(n - 1, 16)
+    }
+
+    /* Due again: never done, long enough ago, or a time in the future (the clock set back). */
+    static func due(_ last: Date?, now: Date, every: TimeInterval) -> Bool {
+        guard let last else { return true }
+        return last > now || now.timeIntervalSince(last) >= every
+    }
+}

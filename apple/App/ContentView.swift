@@ -19,6 +19,8 @@ struct ContentView: View {
     // What changed in this version, once after an update (WhatsNew).
     @State private var newsVersion: String?
     @State private var showNews = false
+    // The App Store's required update, or the App Store offered (StoreUpdateCheck).
+    @State private var storeAsk: StoreUpdateCheck.Ask?
     // The engine's counters, asked every two seconds while on and in front.
     @State private var stats: EngineStats?
     #if !os(tvOS)
@@ -112,6 +114,25 @@ struct ContentView: View {
             if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen, notes: WhatsNew.forThisSystem()) {
                 newsVersion = v
                 showNews = true
+                return
+            }
+            // Not over the first run's notice nor What's new.
+            guard noticeSeen, !showNotice else { return }
+            if let ask = await StoreUpdateCheck.next(), scenePhase == .active, !showNews { storeAsk = ask }
+        }
+        .alert(storeAskTitle, isPresented: Binding(get: { storeAsk != nil }, set: { if !$0 { storeAsk = nil } }), presenting: storeAsk) { ask in
+            switch ask {
+            case .update:
+                Button(tr("appleUpdateOpen")) { openURL(StoreUpdate.pageURL) }
+                Button(tr("updLater"), role: .cancel) {}
+            case .move:
+                Button(tr("masOpen")) { StoreUpdateCheck.moveTapped(); openURL(StoreUpdate.pageURL) }
+                Button(tr("supportBannerLater"), role: .cancel) {}
+            }
+        } message: { ask in
+            switch ask {
+            case .update(let v): Text(tr("appleUpdateBody", ["version": v]))
+            case .move: Text(tr("appleMoveBody"))
             }
         }
         .alert(tr("whatsNewTitle", ["version": newsVersion ?? ""]), isPresented: $showNews) {
@@ -119,6 +140,10 @@ struct ContentView: View {
         } message: {
             Text(WhatsNew.lines(WhatsNew.forThisSystem()))
         }
+    }
+
+    private var storeAskTitle: String {
+        storeAsk == .move ? tr("appleMoveTitle") : tr("appleUpdateTitle")
     }
 
     /* The Mac's small window: tighter spacing (Orb.size too). */

@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Koruma kesilirse ya da cihaz yeniden başlarsa, siz durdurana kadar kendiliğinden yeniden açılır.";
 "appleLanguageDesc" = "Shroudly cihazınızın dilini kullanır. Yalnızca Shroudly için başka bir dili sistem ayarlarından seçebilirsiniz.";
 "appleLocalNetworkUsage" = "Shroudly, uygulamalarınızın bağlantılarını taşır; yerel ağınızdaki modem gibi cihazlara giden bağlantılar da buna dahildir.";
+"appleMoveBody" = "Güncellemeleri App Store'dan kendiliğinden al: Shroudly'yi oradan yükle, sonra bu kopyayı sil. Değiştirdiğin ayarlar sıfırdan başlar.";
+"appleMoveTitle" = "Shroudly App Store'da";
 "appleNoticeBody" = "Shroudly, uygulamalarınızın bağlantılarını yalnızca bu cihazda çalışan motorundan geçirebilmek için bir VPN yapılandırması ekler. Shroudly sunucusu da hesap da yoktur ve Shroudly hiçbir veri toplamaz: girdiğiniz siteler kaydedilmez ve bize gönderilmez. Adlar, şifreli DNS ile herkese açık çözümleyicilerde (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) sorgulanır.";
 "appleNoticeContinue" = "Devam";
 "appleNoticeTitle" = "Başlamadan önce";
 "appleOpenSettings" = "Ayarları aç";
+"appleUpdateBody" = "Shroudly {version} App Store'da. Lütfen şimdi güncelle: yeni engellere karşı düzeltmeler yalnızca en yeni sürüme gelir. Koruma bu arada açık kalır.";
+"appleUpdateOpen" = "Güncelle";
+"appleUpdateTitle" = "Shroudly'yi güncelle";
 "appleVpnNotSigned" = "Bu Shroudly kopyası Apple'ın VPN izni olmadan imzalanmış; bu yüzden iOS onun VPN başlatmasına izin vermiyor ve hiç sormuyor. Ücretsiz bir Apple kimliğiyle imzalanan kopyalarda (AltStore, SideStore, Sideloadly ve benzerleri) bu izin hiç olmaz. TrollStore ile kur ya da ücretli bir Apple geliştirici hesabıyla imzala.";
 "appleVpnRevoked" = "Koruma sistem tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.";
 "bypassed" = "Atlatılan";
@@ -113,6 +118,7 @@
 "macAllApps" = "Tüm uygulamalar Shroudly'den (VPN)";
 "macAllAppsDesc" = "Kapalı: Shroudly bu Mac'in vekil sunucusu olur, GitHub'daki sürüm gibi: tarayıcılar ve sistem vekilini kullanan uygulamalar ondan geçer, diğerleri doğrudan gider ve Mac hızlı kalır. Açık: vekili dinlemeyen uygulamalar (Discord uygulaması, oyunlar) dahil her uygulama Shroudly'den geçer, ama Mac yavaşlar.";
 "madeBy" = "Bir Codeshare Technology Ltd ürünü";
+"masOpen" = "App Store'u aç";
 "nationalOnlyBody" = "Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.";
 "nationalOnlyHelp" = "Hâlâ ne işe yarar";
 "nationalOnlyTitle" = "Sadece ülkenin kendi ağı çalışıyor";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor'u kullan";
 "torUsedDesktop" = "{host} yalnızca Shroudly'nin son çaresi olan Tor ağı üzerinden açıldı: bu ağda başka hiçbir yol işe yaramadı. Daha yavaştır ve bazı siteler doğrulama (captcha) ister; bu bilgisayardaki diğer siteler eskisi gibi çalışır.";
 "totalCount" = "Toplam: {count}";
+"updLater" = "Sonra";
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";

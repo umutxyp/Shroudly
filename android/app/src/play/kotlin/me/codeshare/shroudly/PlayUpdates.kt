@@ -157,7 +157,8 @@ object PlayUpdates {
                 }
                 p.edit().putInt("playCode", code).putBoolean("playPushed", pushed).remove("playType").apply()
                 tell(Card(version, Stage.AVAILABLE, pushed))
-                // Play's own dialog by itself: at most once a day, only while
+                // Play's own screen by itself: each time the window opens (not
+                // again within ASK_EVERY_MS), only while
                 // the window is still in front with nothing else going on, and
                 // the full screen only for an update that is pushed (otherwise
                 // the card's button starts it).
@@ -213,7 +214,7 @@ object PlayUpdates {
                 // tomorrow) or ActivityResult.RESULT_IN_APP_UPDATE_FAILED.
                 p.edit().remove("playType").apply()
                 unlisten()
-                ShroudlyVpnService.log(if (result == Activity.RESULT_CANCELED) "The update to $version was declined; asked again in a day" else "Google Play could not update to $version")
+                ShroudlyVpnService.log(if (result == Activity.RESULT_CANCELED) "The update to $version was declined; asked again when the window opens" else "Google Play could not update to $version")
             }
             .addOnFailureListener { e ->
                 p.edit().remove("playType").apply()

@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "If protection drops or the device restarts, it comes back on by itself until you stop it.";
 "appleLanguageDesc" = "Shroudly uses your device's language. You can choose another language for Shroudly alone in the system settings.";
 "appleLocalNetworkUsage" = "Shroudly carries your apps' connections, including those to devices on your local network, such as your router.";
+"appleMoveBody" = "Get updates automatically from the App Store: install Shroudly there, then delete this copy. Settings you changed start fresh.";
+"appleMoveTitle" = "Shroudly is on the App Store";
 "appleNoticeBody" = "Shroudly adds a VPN configuration so it can carry your apps' connections through its engine, which runs only on this device. There is no Shroudly server and no account, and Shroudly collects no data: the sites you visit are not recorded or sent to us. Names are looked up over encrypted DNS at public resolvers (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
 "appleNoticeContinue" = "Continue";
 "appleNoticeTitle" = "Before you start";
 "appleOpenSettings" = "Open Settings";
+"appleUpdateBody" = "Shroudly {version} is on the App Store. Please update now: fixes for new blocks reach only the newest version. Protection stays on meanwhile.";
+"appleUpdateOpen" = "Update";
+"appleUpdateTitle" = "Update Shroudly";
 "appleVpnNotSigned" = "This copy of Shroudly is signed without Apple's permission for VPNs, so iOS does not let it start one, and never asks. Copies signed with a free Apple ID (AltStore, SideStore, Sideloadly and the like) never have it. Install it with TrollStore, or sign it with a paid Apple developer account.";
 "appleVpnRevoked" = "Protection was switched off by the system, usually because another VPN app was turned on.";
 "bypassed" = "Bypassed";
@@ -113,6 +118,7 @@
 "macAllApps" = "All apps through Shroudly (VPN)";
 "macAllAppsDesc" = "Off: Shroudly is this Mac's proxy, like the version from GitHub: browsers and apps that use the system proxy go through it, the rest go straight, and the Mac stays fast. On: every app goes through Shroudly, including apps that ignore the proxy (the Discord app, games), but the Mac is slower.";
 "madeBy" = "A Codeshare Technology Ltd product";
+"masOpen" = "Open the App Store";
 "nationalOnlyBody" = "The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.";
 "nationalOnlyHelp" = "What can still help";
 "nationalOnlyTitle" = "Only this country's network works";
@@ -215,6 +221,7 @@
 "torAskYes" = "Use Tor";
 "torUsedDesktop" = "{host} opened only through the Tor network, Shroudly's last way out: nothing else got through on this network. It is slower, and some sites ask for a captcha; every other site on this computer goes as before.";
 "totalCount" = "Total: {count}";
+"updLater" = "Later";
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
