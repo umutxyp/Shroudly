@@ -18,7 +18,7 @@ const { startEngine, sleep, freePort, socks, testServerOptions, suite } = requir
 
 const t = suite('engine-late-reset');
 const NAME = 'rst.late-reset.local';
-const RESET_AFTER = 16000;   // after the ladder's 15 s budget
+const RESET_AFTER = 26000;   // after the longest a ladder may take (ATT_BUDGET_ALL_MS, 24 s)
 
 /* The shape of a first flight, once the whole ClientHello is in: 'one' (one
  * record holding the whole name: untouched, or split at the TCP level only),

@@ -303,15 +303,21 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop();
   }
 
-  // Not running yet: the connection fails as before, and the engine says so.
+  // Not running yet: the connection fails as before, and the engine says so
+  // once the name has stayed out of reach for ten seconds (BG_ASK_MS in
+  // engine.c: a network gone for a moment is not what Tor is started, or the
+  // user asked, for; engine-search.test.js has the name that comes back).
   {
     const deadPort = await H.freePort();
     const P = await H.freePort();
     const eng = await H.startEngine(P, [...base, '--fallback-file', file('dead.txt', `socks5://127.0.0.1:${deadPort}`)]);
-    const r = await get(P, 'gone.example', 443, 15000);
+    const said = () => /"type":"fallback","ok":0,"why":"does not answer","host":"www\.roblox\.com"/.test(eng.out);
+    const r = await get(P, 'www.roblox.com', await H.freePort(), 15000);   // its address takes no connection
     await H.sleep(300);
-    t.ok(r !== 'HTTP/1.1 200 OK' && /"type":"fallback","ok":0,"why":"does not answer","host":"gone\.example"/.test(eng.out),
-      `not running: the connection fails as before (${r}), and the engine says so, which starts it`);
+    const atOnce = said();
+    for (let i = 0; i < 300 && !said(); i++) await H.sleep(100);
+    t.ok(r !== 'HTTP/1.1 200 OK' && !atOnce && said(),
+      `not running: the connection fails as before (${r}), and the engine says so a moment later, which starts it`);
     eng.stop();
   }
 

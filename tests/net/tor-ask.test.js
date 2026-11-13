@@ -33,26 +33,54 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
   const em = new EngineManager(store, { torRoute: tor, onTorAsk: (h) => asked.push(h) });
   em._torFile = '/tmp/tor-route.txt';
   em.active = true;
-  const fallback = (host) => em._onLine(JSON.stringify({ type: 'fallback', ok: 0, why: 'does not answer', host }));
+  // The other bypass tools and VPNs running (diagnostics.runningTools): none.
+  let tools = [];
+  em._runningTools = async () => tools;
+  const logged = [];
+  em.log = (level, text) => logged.push(text);
+  const tick = () => new Promise((r) => setTimeout(r, 20));
+  const fallback = async (host) => { em._onLine(JSON.stringify({ type: 'fallback', ok: 0, why: 'does not answer', host })); await tick(); };
 
-  fallback('x.com');
+  await fallback('x.com');
   t.ok(asked.join() === 'x.com' && needs === 0, 'not yet allowed: the user is asked about the site, Tor does not start');
   store.set('torApproved', true);
-  fallback('y.com');
+  await fallback('y.com');
   t.ok(needs === 1 && asked.length === 1, 'allowed: Tor starts, nothing asked');
   store.set('torLastResort', false);
-  fallback('z.com');
+  await fallback('z.com');
   t.ok(needs === 1 && asked.length === 1, 'the last way out turned off: neither');
   store.set('torLastResort', true); store.set('torApproved', false);
   em._onLine(JSON.stringify({ type: 'fallback', ok: 0, why: 'file unusable' }));
+  await tick();
   t.ok(needs === 1 && asked.length === 1, 'an unusable file asks nothing');
 
   em.active = false;
   store.set('torApproved', true);
-  fallback('late.example');
+  await fallback('late.example');
   t.ok(needs === 1, 'an engine being stopped: a late line starts no Tor');
   store.set('torApproved', false);
   em.active = true;
+
+  // Another bypass tool beside Shroudly (a report from Türk Telekom:
+  // GoodbyeDPI running, all 20 techniques refused for discord.com, and
+  // "Open discord.com through Tor?" five seconds after the first start):
+  // what fails then fails because of the two together. Not asked, not started.
+  tools = ['GoodbyeDPI'];
+  await fallback('discord.com');
+  t.ok(asked.length === 1 && needs === 1 && logged.some((l) => /not asked for discord\.com while GoodbyeDPI is running/.test(l)),
+    'another bypass tool is running: Tor is not asked for, and the log says why');
+  store.set('torApproved', true);
+  await fallback('discord.com');
+  t.ok(needs === 1 && asked.length === 1, 'nor started, where the user had allowed it before');
+  store.set('torApproved', false);
+  tools = [];
+  em.advice.conflicts = ['zapret'];          // known from the look at the system
+  await fallback('roblox.com');
+  t.ok(asked.length === 1, 'a tool the first look at the system found counts the same');
+  em.advice.conflicts = [];
+  await fallback('roblox.com');
+  t.ok(asked.length === 2 && asked[1] === 'roblox.com', 'the tool gone: asked again as before');
+  asked.length = 1;
 
   const main = read('electron', 'main.js');
   const ask = main.slice(main.indexOf('function askTor('), main.indexOf('function torUsed('));

@@ -110,13 +110,14 @@ async function echoes(sock, text) {
   t.ok(r.auth === 1 && r.rep === null, 'nor one with a wrong password: no relay port is ever handed out without the password');
 
   // With --fake-net as well (the Android app passes both): a stand-in
-  // address is refused at once, after the password, like any CONNECT.
+  // address is taken at once, after the password, like any CONNECT (it goes
+  // on by the name in the client's first bytes: engine-fakenet.test.js).
   const Pf = await freePort();
   fs.writeFileSync(file, `${USER}:${PASS}\n`);
   const engf = await startEngine(Pf, ['--auto', '--auth-file', file, '--fake-net', '198.18.0.0/15']);
   const t0 = Date.now();
   r = await attempt(Pf, { user: USER, pass: PASS, port: 443, addr: [198, 18, 3, 4] });
-  t.ok(r.auth === 0 && r.rep === 2 && Date.now() - t0 < 1000, `with --fake-net: 198.18.3.4 is refused with 0x02 at once (${Date.now() - t0} ms)`);
+  t.ok(r.auth === 0 && r.rep === 0 && Date.now() - t0 < 1000, `with --fake-net: 198.18.3.4 is taken at once (${Date.now() - t0} ms)`);
   r = await attempt(Pf, { user: USER, pass: 'wrong', port: 443, addr: [198, 18, 3, 4] });
   t.ok(r.auth === 1 && r.rep === null, 'and without the password nothing is said about it at all');
   engf.stop();

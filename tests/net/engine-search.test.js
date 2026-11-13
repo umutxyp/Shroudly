@@ -14,7 +14,14 @@
  *     technique had its turn;
  *   - the network is itself again: the name leaves Tor ("direct") instead of
  *     staying there for a quarter of an hour; so does one Tor took because
- *     no address of it answered for a moment;
+ *     no address of it answered for a moment. Another name of a site Tor
+ *     carries gets the whole list too, quickly, not six seconds and Tor;
+ *   - no address answers while Tor is not running: Tor is asked for (which
+ *     starts it, or asks the user) only if the name is still out of reach
+ *     ten seconds later, not for a network that went away for a moment;
+ *   - the names and addresses of public DNS resolvers never go to Tor, and
+ *     Tor is never asked for them ("Open cloudflare-dns.com through Tor?"
+ *     was Shroudly's own lookup);
  *   - plain http:// the network drops without a word (a report from Türk
  *     Telekom: "no http:// site opens, by Tor or without"): the ladder
  *     stopped at the second silence, as for a slow server, so no technique
@@ -123,10 +130,12 @@ async function torStandIn() {
   fs.writeFileSync(f, `socks5://127.0.0.1:${tor.address().port}\n`, { mode: 0o600 });
   return { tor, file: f };
 }
+/* Wait (up to ms) until ok() holds; whether it did. */
+async function until(ok, ms) { const t0 = Date.now(); while (!ok() && Date.now() - t0 < ms) await H.sleep(200); return ok(); }
 const events = (eng, type) => eng.out.split('\n').filter((l) => l.includes(`"type":"${type}"`)).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
 
 (async () => {
-  const names = ['late.example', 'six.example', 'hole.example', 'back.example', 'hdrop.example', 'hhole.example', 'hslow.example', 'hnone.example'];
+  const names = ['late.example', 'six.example', 'cdn.hole.example', 'gone.example', 'blip.example', 'cloudflare-dns.com', 'mozilla.cloudflare-dns.com', 'hole.example', 'back.example', 'hdrop.example', 'hhole.example', 'hslow.example', 'hnone.example'];
   const table = {}; for (const n of names) table[n] = { AAAA: ['::1'] };
   const dns = await H.dnsStub(table);
   const base = ['--strategy', 'split(sni)', '--auto', '--doh', '--doh-port', String(dns.port), '--ipv6'];
@@ -173,8 +182,16 @@ const events = (eng, type) => eng.out.split('\n').filter((l) => l.includes(`"typ
     t.ok(a.ms < 26000, `in one visit's time (${a.ms} ms)`);
     const b = await visit(P, 'hole.example', f.address().port);
     t.ok(b.r === 'HTTP/1.1 200 OK' && b.ms < 2000 && tor.asked.length === 2, 'its next connection goes straight there');
+    // Another name of that site, which a technique does open: the whole list
+    // for it too, quickly, and never the last way out (until 2.6.75 its
+    // ladder was six seconds, the untouched request alone, and then Tor).
+    const fc = await lateFilter(site.address().port, 'cdn.hole.example');
+    const s1 = await visit(P, 'cdn.hole.example', fc.address().port);
+    t.ok(s1.r === 'HTTP/1.1 200 OK' && s1.ms < 10000 && !tor.asked.some((x) => x.host === 'cdn.hole.example'),
+      `another name of a site Tor carries, one a technique opens: opened by it, not by Tor (${s1.ms} ms)`);
+    fc.close();
     open = true;                       // the network is itself again
-    await H.sleep(48000);
+    await until(() => events(eng, 'direct').some((e) => e.host === 'hole.example'), 80000);
     const d = events(eng, 'direct').find((e) => e.host === 'hole.example');
     t.ok(!!d, `looked at again behind the last way out: reached without it (${JSON.stringify(d)})`);
     const before = tor.asked.length;
@@ -192,11 +209,58 @@ const events = (eng, type) => eng.out.split('\n').filter((l) => l.includes(`"typ
     t.ok(a.r === 'HTTP/1.1 200 OK' && tor.asked.length === 1, `nothing answers at its address: the last way out (${a.r})`);
     const site = tls.createServer(H.testServerOptions(), (c) => { c.on('error', () => {}); c.once('data', () => c.end(OK)); });
     await new Promise((r) => site.listen({ port, host: '::1', ipv6Only: true }, r));
-    await H.sleep(13000);
+    await until(() => events(eng, 'direct').some((e) => e.host === 'back.example'), 40000);
     const d = events(eng, 'direct').find((e) => e.host === 'back.example');
     const b = await visit(P, 'back.example', port);
     t.ok(!!d && b.r === 'HTTP/1.1 200 OK' && tor.asked.length === 1, 'it answers again: back on its own way within seconds');
     eng.stop(); tor.close(); site.close();
+  }
+
+  { // No address answers and Tor is not running: it is asked for only if the name stays out of reach.
+    const deadTor = await H.freePort();
+    const file = path.join(dir, 'tor-dead.txt');
+    fs.writeFileSync(file, `socks5://127.0.0.1:${deadTor}\n`, { mode: 0o600 });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, [...base, '--fallback-file', file]);
+    const port = await H.freePort();
+    const a = await visit(P, 'blip.example', port, { timeoutMs: 8000 });
+    const site = tls.createServer(H.testServerOptions(), (c) => { c.on('error', () => {}); c.once('data', () => c.end(OK)); });
+    await new Promise((r) => site.listen({ port, host: '::1', ipv6Only: true }, r));   // the network is back
+    const gone = await H.freePort();
+    const g = await visit(P, 'gone.example', gone, { timeoutMs: 8000 });
+    await H.sleep(3000);
+    t.ok(a.r !== 'HTTP/1.1 200 OK' && g.r !== 'HTTP/1.1 200 OK' && events(eng, 'fallback').length === 0,
+      'no address answers and Tor is not running: the connection fails, and Tor is not asked for at once');
+    await until(() => events(eng, 'fallback').length > 0, 40000);
+    await H.sleep(3000);               // and nothing more after it
+    const asked = events(eng, 'fallback');
+    t.ok(asked.length === 1 && asked[0].ok === 0 && asked[0].host === 'gone.example',
+      `still out of reach ten seconds later: now it is asked for, for that name (${JSON.stringify(asked)})`);
+    t.ok(!asked.some((e) => e.host === 'blip.example'), 'a name that answers again by then (a network gone for a moment) asks for nothing');
+    eng.stop(); site.close();
+  }
+
+  { // A DNS resolver nothing gets through to: never Tor's, and Tor is never asked for it.
+    const { tor, file } = await torStandIn();
+    const hole = await filter(0, () => false);
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, [...base, '--fallback-file', file]);
+    const a = await visit(P, 'cloudflare-dns.com', hole.address().port, { timeoutMs: 28000 });
+    const b = await visit(P, 'mozilla.cloudflare-dns.com', await H.freePort(), { timeoutMs: 8000 });
+    await H.sleep(12000);
+    t.ok(a.r !== 'HTTP/1.1 200 OK' && b.r !== 'HTTP/1.1 200 OK' && tor.asked.length === 0 && events(eng, 'fallback').length === 0,
+      `a DNS resolver no technique opens, and one whose address is out of reach: neither goes to the last way out (${a.r}, ${b.r})`);
+    eng.stop(); tor.close(); hole.close();
+    // Every name and address Shroudly's own encrypted DNS reaches through the engine is one of them.
+    const core = fs.readFileSync(path.join(H.ROOT, 'core', 'src', 'engine.c'), 'utf8');
+    const list = (core.match(/DNS_RESOLVERS\[\] = \{([\s\S]*?)\};/) || ['', ''])[1];
+    const known = (x) => list.includes(`"${x}"`);
+    const desktop = fs.readFileSync(path.join(H.ROOT, 'electron', 'doh-forwarder.js'), 'utf8');
+    const android = fs.readFileSync(path.join(H.ROOT, 'android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'DohForwarder.kt'), 'utf8');
+    const via = [...desktop.matchAll(/ip: '([^']+)', sni: '([^']+)', viaEngine: true/g)].flatMap((m) => [m[1], m[2]])
+      .concat([...android.matchAll(/DohRoute\("[^"]+", "[^"]+", "([^"]+)", [^)]*sni = "([^"]+)"\)/g)].flatMap((m) => [m[1], m[2]]));
+    const missing = [...new Set(via)].filter((x) => !known(x));
+    t.ok(via.length >= 6 && missing.length === 0, `the engine knows every route of our own encrypted DNS that goes through it (${[...new Set(via)].length}; missing: ${missing.join(', ') || 'none'})`);
   }
 
   { // Plain http:// the network drops without a word.

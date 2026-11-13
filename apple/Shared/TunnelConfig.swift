@@ -18,8 +18,9 @@ import Security
  * which no real host uses: the tunnel and its DNS server in 198.18.0.0/16,
  * the stand-in addresses in 198.19.0.0/16. Each hev started gets the next
  * quarter of that range, so an address an app kept from an earlier one is in
- * none of the new one's names; the engine refuses it at once (--fake-net)
- * and the app looks the name up again, never reaching another site.
+ * none of the new one's names; it reaches the engine as it is (--fake-net),
+ * which takes the connection by the name in its first bytes (standin_name
+ * in core/src/engine.c) and closes one that names nothing: never another site.
  *
  * Memory: iOS ends a packet tunnel that holds more than about 50 MB. A
  * busy connection through the engine holds up to about 140 KB (its four
