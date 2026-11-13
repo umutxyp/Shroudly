@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Endirilmiş {version} yeniləməsi yoxdur və ya zədələnib; yenidən endirilir",
   "logUpdateManualFolder": "{version} yeniləməsi: Shroudly {folder} qovluğunda özünü əvəz edə bilmir; onu endirmə səhifəsindən endir",
   "logUpdateMetered": "{version} yeniləməsi limitli bağlantıda özü endirilmir",
+  "logUpdateTo64": "{version} yeniləməsi: bu, 64 bitlik Windows-da 32 bitlik Shroudly-dir, ona görə 64 bitlik olan quraşdırılır (Təkmil rejim orada işləyir; ayarlar qalır)",
   "logUpdateMoveFailed": "Shroudly Applications qovluğuna köçürülə bilmədi ({detail})",
   "appStoreEdition": "Roblox-un Microsoft Store versiyası Shroudly-yə qoşula bilmir. Bunun əvəzinə adi versiyanı roblox.com saytından quraşdır.",
   "quitApp": "Shroudly-dən çıx",

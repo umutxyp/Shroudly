@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Ýüklenen {version} täzelenmesi ýok ýa-da zaýalanypdyr; täzeden ýüklenýär",
   "logUpdateManualFolder": "{version} täzelenmesi: Shroudly {folder} bukjasynda özüni çalşyp bilmeýär; ony ýükleme sahypasyndan ýükläp alyň",
   "logUpdateMetered": "{version} täzelenmesi trafik üçin töleg alynýan baglanyşykda özi ýüklenmeýär",
+  "logUpdateTo64": "{version} täzelenmesi: bu 64 bitli Windows-daky 32 bitli Shroudly, şonuň üçin 64 bitlisi gurulýar (giňişleýin tertip şonda işleýär; sazlamalar galýar)",
   "logUpdateMoveFailed": "Shroudly Applications bukjasyna geçirilip bilinmedi ({detail})",
   "appStoreEdition": "Roblox-yň Microsoft Store görnüşi Shroudly bilen birigip bilmeýär. Onuň ýerine adaty görnüşini roblox.com saýtyndan gurnaň.",
   "quitApp": "Shroudly-den çykyň",

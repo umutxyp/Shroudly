@@ -385,6 +385,7 @@
   "logUpdateRedownload": "The downloaded update {version} is missing or damaged; downloading it again",
   "logUpdateManualFolder": "Update {version}: Shroudly cannot replace itself in {folder}; download it from the download page",
   "logUpdateMetered": "Update {version} is not downloaded by itself on a metered connection",
+  "logUpdateTo64": "Update {version}: this is the 32-bit Shroudly on a 64-bit Windows, so the 64-bit one is installed (Advanced mode works there; settings stay)",
   "logUpdateMoveFailed": "Shroudly could not be moved to the Applications folder ({detail})",
   "appStoreEdition": "The Microsoft Store edition of Roblox cannot reach Shroudly. Install the regular edition from roblox.com instead.",
   "quitApp": "Quit Shroudly",

@@ -385,6 +385,7 @@
   "logUpdateRedownload": "A atualização {version} baixada está faltando ou danificada; baixando-a novamente",
   "logUpdateManualFolder": "Atualização {version}: o Shroudly não consegue se substituir em {folder}; baixe-a na página de download",
   "logUpdateMetered": "A atualização {version} não é baixada sozinha em uma conexão limitada",
+  "logUpdateTo64": "Atualização {version}: este é o Shroudly de 32 bits num Windows de 64 bits, então o de 64 bits é instalado (o modo avançado funciona nele; as configurações ficam)",
   "logUpdateMoveFailed": "Não foi possível mover o Shroudly para a pasta Aplicativos ({detail})",
   "appStoreEdition": "A edição do Roblox da Microsoft Store não consegue se conectar ao Shroudly. Instale a edição normal pelo roblox.com.",
   "quitApp": "Sair do Shroudly",

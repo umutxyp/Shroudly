@@ -385,6 +385,7 @@
   "logUpdateRedownload": "የወረደው ዝማኔ {version} የለም ወይም ተበላሽቷል፤ እንደገና እየወረደ ነው",
   "logUpdateManualFolder": "ዝማኔ {version}፦ Shroudly በ{folder} ውስጥ ራሱን መተካት አይችልም፤ ከማውረጃ ገጹ ያውርዱት",
   "logUpdateMetered": "ዝማኔ {version} በዳታ መጠን በሚከፈልበት ግንኙነት ላይ በራሱ አይወርድም",
+  "logUpdateTo64": "ዝማኔ {version}፦ ይህ በ64-ቢት Windows ላይ ያለ የ32-ቢት Shroudly ነው፤ ስለዚህ የ64-ቢቱ ይጫናል (የላቀ ሁነታ እዚያ ይሰራል፤ ቅንብሮች ይቆያሉ)",
   "logUpdateMoveFailed": "Shroudly ወደ Applications አቃፊ ሊንቀሳቀስ አልቻለም ({detail})",
   "appStoreEdition": "የRoblox የMicrosoft Store እትም ከShroudly ጋር መገናኘት አይችልም። በምትኩ መደበኛውን እትም ከroblox.com ይጫኑ።",
   "quitApp": "ከShroudly ይውጡ",

@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Завантаженого оновлення {version} немає або його пошкоджено; воно завантажується знову",
   "logUpdateManualFolder": "Оновлення {version}: Shroudly не може замінити себе в {folder}; завантажте його зі сторінки завантаження",
   "logUpdateMetered": "Оновлення {version} не завантажується саме через лімітне підключення",
+  "logUpdateTo64": "Оновлення {version}: це 32-бітний Shroudly на 64-бітній Windows, тому встановлюється 64-бітний (у ньому працює розширений режим; налаштування зберігаються)",
   "logUpdateMoveFailed": "Не вдалося перемістити Shroudly до папки «Програми» ({detail})",
   "appStoreEdition": "Версія Roblox із Microsoft Store не може під’єднатися до Shroudly. Натомість встановіть звичайну версію з roblox.com.",
   "quitApp": "Вийти з Shroudly",

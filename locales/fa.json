@@ -385,6 +385,7 @@
   "logUpdateRedownload": "به‌روزرسانی دانلودشدهٔ {version} پیدا نشد یا آسیب دیده است؛ دوباره دانلود می‌شود",
   "logUpdateManualFolder": "به‌روزرسانی {version}: Shroudly نمی‌تواند در {folder} خودش را جایگزین کند؛ آن را از صفحهٔ دانلود دانلود کنید",
   "logUpdateMetered": "به‌روزرسانی {version} روی اتصال حجمی خودبه‌خود دانلود نمی‌شود",
+  "logUpdateTo64": "به‌روزرسانی {version}: این Shroudly نسخهٔ ۳۲ بیتی روی ویندوز ۶۴ بیتی است، پس نسخهٔ ۶۴ بیتی نصب می‌شود (حالت پیشرفته در آن کار می‌کند؛ تنظیمات می‌ماند)",
   "logUpdateMoveFailed": "Shroudly به پوشهٔ Applications منتقل نشد ({detail})",
   "appStoreEdition": "نسخهٔ Microsoft Store از Roblox نمی‌تواند به Shroudly وصل شود. به‌جای آن، نسخهٔ معمولی را از roblox.com نصب کنید.",
   "quitApp": "خروج از Shroudly",

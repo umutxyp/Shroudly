@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Bản cập nhật {version} đã tải về bị thiếu hoặc bị hỏng; đang tải lại",
   "logUpdateManualFolder": "Bản cập nhật {version}: Shroudly không thể tự thay thế trong {folder}; hãy tải về từ trang tải xuống",
   "logUpdateMetered": "Bản cập nhật {version} không tự tải xuống trên kết nối bị giới hạn dữ liệu",
+  "logUpdateTo64": "Bản cập nhật {version}: đây là Shroudly 32-bit trên Windows 64-bit, nên bản 64-bit được cài (chế độ nâng cao chạy được trên đó; cài đặt vẫn giữ nguyên)",
   "logUpdateMoveFailed": "Không thể chuyển Shroudly vào thư mục Ứng dụng ({detail})",
   "appStoreEdition": "Phiên bản Roblox từ Microsoft Store không thể kết nối tới Shroudly. Thay vào đó, hãy cài phiên bản thông thường từ roblox.com.",
   "quitApp": "Thoát Shroudly",

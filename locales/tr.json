@@ -385,6 +385,7 @@
   "logUpdateRedownload": "İndirilen {version} güncellemesi eksik veya bozuk; yeniden indiriliyor",
   "logUpdateManualFolder": "{version} güncellemesi: Shroudly {folder} klasöründe kendini değiştiremiyor; indirme sayfasından indir",
   "logUpdateMetered": "{version} güncellemesi tarifeli bağlantıda kendiliğinden indirilmez",
+  "logUpdateTo64": "{version} güncellemesi: bu, 64 bit Windows üzerinde 32 bit Shroudly; bu yüzden 64 bit olanı kurulacak (Gelişmiş mod orada çalışır; ayarlar kalır)",
   "logUpdateMoveFailed": "Shroudly Uygulamalar klasörüne taşınamadı ({detail})",
   "appStoreEdition": "Roblox'un Microsoft Store sürümü Shroudly'ye ulaşamıyor. Bunun yerine normal sürümü roblox.com'dan kur.",
   "quitApp": "Shroudly'den çık",

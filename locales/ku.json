@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Nûvekirina {version} ya daxistî tune ye an xera bûye; dîsa tê daxistin",
   "logUpdateManualFolder": "Nûvekirina {version}: Shroudly nikare di {folder} de xwe biguherîne; wê ji rûpela daxistinê daxe",
   "logUpdateMetered": "Nûvekirina {version} li ser girêdaneke bi daneyên sînorkirî bi xwe nayê daxistin",
+  "logUpdateTo64": "Nûvekirina {version}: ev Shroudly ya 32-bit li ser Windows a 64-bit e, ji ber vê yekê ya 64-bit tê sazkirin (moda pêşketî li wir dixebite; mîheng dimînin)",
   "logUpdateMoveFailed": "Shroudly nehat birin peldanka Applications ({detail})",
   "appStoreEdition": "Guhertoya Microsoft Store ya Robloxê nikare bigihîje Shroudly. Li şûna wê guhertoya asayî ji roblox.com saz bike.",
   "quitApp": "Ji Shroudly derkeve",

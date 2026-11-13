@@ -385,6 +385,7 @@
   "logUpdateRedownload": "التحديث {version} الذي نُزّل مفقود أو تالف؛ جارٍ تنزيله من جديد",
   "logUpdateManualFolder": "التحديث {version}: لا يمكن لـ Shroudly أن يستبدل نفسه في {folder}؛ نزّله من صفحة التنزيل",
   "logUpdateMetered": "لا يُنزَّل التحديث {version} تلقائيًا على اتصال محدود البيانات",
+  "logUpdateTo64": "التحديث {version}: هذا هو Shroudly بإصدار 32 بت على Windows بإصدار 64 بت، لذا يُثبَّت إصدار 64 بت (يعمل فيه الوضع المتقدم؛ تبقى الإعدادات)",
   "logUpdateMoveFailed": "تعذّر نقل Shroudly إلى مجلد التطبيقات ({detail})",
   "appStoreEdition": "لا يستطيع إصدار Microsoft Store من Roblox الوصول إلى Shroudly. ثبّت الإصدار العادي من roblox.com بدلًا منه.",
   "quitApp": "الخروج من Shroudly",

@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Навсозии боргиришудаи {version} нест ё вайрон шудааст; аз нав боргирӣ мешавад",
   "logUpdateManualFolder": "Навсозии {version}: Shroudly дар {folder} худро иваз карда наметавонад; онро аз саҳифаи боргирӣ боргирӣ кунед",
   "logUpdateMetered": "Навсозии {version} дар пайвасте, ки барои трафик пул гирифта мешавад, худ ба худ боргирӣ намешавад",
+  "logUpdateTo64": "Навсозии {version}: ин Shroudly-и 32-битӣ дар Windows-и 64-битӣ аст, бинобар ин Shroudly-и 64-битӣ насб мешавад (реҷаи пешрафта дар он кор мекунад; танзимот боқӣ мемонад)",
   "logUpdateMoveFailed": "Shroudly ба ҷузвдони Applications интиқол дода нашуд ({detail})",
   "appStoreEdition": "Версияи Roblox аз Microsoft Store ба Shroudly пайваст шуда наметавонад. Ба ҷои он версияи оддиро аз roblox.com насб кунед.",
   "quitApp": "Баромадан аз Shroudly",

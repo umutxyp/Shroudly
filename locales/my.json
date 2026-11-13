@@ -385,6 +385,7 @@
   "logUpdateRedownload": "ဒေါင်းလုဒ်လုပ်ထားသော အပ်ဒိတ် {version} မရှိတော့ပါ သို့မဟုတ် ပျက်စီးနေပါသည်။ ပြန်လည် ဒေါင်းလုဒ်လုပ်နေပါသည်",
   "logUpdateManualFolder": "အပ်ဒိတ် {version}: Shroudly သည် {folder} တွင် ကိုယ့်ကိုယ်ကို အစားထိုး၍ မရပါ။ ဒေါင်းလုဒ် စာမျက်နှာမှ ဒေါင်းလုဒ်လုပ်ပါ",
   "logUpdateMetered": "ဒေတာပမာဏအလိုက် ငွေပေးရသော ချိတ်ဆက်မှုတွင် အပ်ဒိတ် {version} ကို အလိုအလျောက် ဒေါင်းလုဒ် မလုပ်ပါ",
+  "logUpdateTo64": "အပ်ဒိတ် {version}- ဤသည် 64-bit Windows ပေါ်ရှိ 32-bit Shroudly ဖြစ်သောကြောင့် 64-bit ဗားရှင်းကို ထည့်သွင်းပါမည် (အဆင့်မြင့်မုဒ် ထိုတွင် အလုပ်လုပ်သည်၊ ဆက်တင်များ ဆက်ရှိနေမည်)",
   "logUpdateMoveFailed": "Shroudly ကို Applications ဖိုင်တွဲသို့ ရွှေ့၍ မရပါ ({detail})",
   "appStoreEdition": "Microsoft Store မှ Roblox ဗားရှင်းသည် Shroudly နှင့် ချိတ်ဆက်၍ မရပါ။ ၎င်းအစား roblox.com မှ ပုံမှန်ဗားရှင်းကို ထည့်သွင်းပါ။",
   "quitApp": "Shroudly မှ ထွက်ရန်",
