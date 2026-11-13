@@ -328,7 +328,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">আরও দ্রুত: প্রথমবারেই প্রতিটি কৌশল চেষ্টা করা হয়, তাই সাইটগুলো আর ধীর Tor-এ গিয়ে পড়ে না; অন্য কিছু কাজ না করলে বা বেছে নিলে তবেই Tor ব্যবহার হয়।\nWi-Fi আর মোবাইল ডেটার মধ্যে বদলের পর TikTok ও অন্যান্য অ্যাপ আর আটকে যায় না; নেটওয়ার্কের ফেলে দেওয়া http:// সাইটগুলো আবার খোলে।\nবেছে নেওয়ার জন্য হোম স্ক্রিনের নতুন আইকন: শৈলী, বিশেষ দিন ও দেশ (সেটিংস)।</string>
+    <string name="whatsNewAndroid">সেটিংসে আইকন বাছাই আবার প্রতিটি আইকন দেখায়; সবগুলো ক্লাসিক আইকনের মতো দেখাত।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

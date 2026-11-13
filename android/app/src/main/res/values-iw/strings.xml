@@ -328,7 +328,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">מהיר יותר: כל הטכניקות נוסות כבר בביקור הראשון, ואתרים כבר לא נגמרים ב-Tor האיטי; ב-Tor משתמשים רק כששום דבר אחר לא עובד או כשהוא נבחר.\nTikTok ואפליקציות אחרות כבר לא נתקעות אחרי מעבר בין Wi-Fi לנתונים סלולריים; אתרי http:// שהרשת זורקת נפתחים שוב.\nסמלים חדשים למסך הבית לבחירה: סגנונות, ימים מיוחדים ומדינות (הגדרות).</string>
+    <string name="whatsNewAndroid">בחירת הסמל בהגדרות מציגה שוב כל סמל; כולם נראו כמו הסמל הקלאסי.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

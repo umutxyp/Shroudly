@@ -328,7 +328,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Хутчэй: усе тэхнікі спрабуюцца ўжо пры першым заходзе, і сайты больш не трапляюць у павольны Tor; Tor выкарыстоўваецца, толькі калі нішто іншае не дапамагло або ён абраны.\nTikTok і іншыя праграмы больш не завісаюць пасля пераключэння паміж Wi-Fi і мабільным інтэрнэтам; сайты http://, якія сетка адкідае, зноў адкрываюцца.\nНовыя значкі для галоўнага экрана на выбар: стылі, асаблівыя дні і краіны (Налады).</string>
+    <string name="whatsNewAndroid">Выбар значка ў наладах зноў паказвае кожны значок; усе выглядалі як класічны.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

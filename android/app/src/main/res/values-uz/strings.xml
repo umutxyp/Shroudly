@@ -328,7 +328,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Tezroq: har bir usul birinchi kirishdayoq sinab ko\'riladi, saytlar endi sekin Tor\'ga tushib qolmaydi; Tor faqat boshqa hech narsa ish bermasa yoki tanlangan bo\'lsa ishlatiladi.\nTikTok va boshqa ilovalar Wi-Fi bilan mobil internet o\'rtasida almashgandan keyin endi qotib qolmaydi; tarmoq tashlagan http:// saytlari yana ochiladi.\nTanlash uchun bosh ekranning yangi belgilari: uslublar, maxsus kunlar va mamlakatlar (Sozlamalar).</string>
+    <string name="whatsNewAndroid">Sozlamalardagi belgi tanlash har bir belgini yana ko\'rsatadi; hammasi klassik belgi kabi ko\'rinardi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

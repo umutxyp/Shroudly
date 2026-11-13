@@ -218,7 +218,7 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Aplikasi seperti TikTok tidak lagi tersekat selepas bertukar antara Wi-Fi dan data mudah alih.\nLaman http:// yang dibuang rangkaian secara senyap dibuka semula.\niPhone dan iPad: ikon aplikasi baharu untuk dipilih: gaya, hari istimewa dan negara (Tetapan).";
-"whatsNewMac" = "Lebih pantas: setiap teknik dicuba sejak lawatan pertama, jadi laman tidak lagi berakhir di Tor yang perlahan; Tor hanya digunakan jika tiada cara lain berjaya atau jika dipilih.\nLaman http:// yang dibuang rangkaian secara senyap dibuka semula.\nIkon baharu untuk Dock: gaya, hari istimewa dan negara (Tetapan).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

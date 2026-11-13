@@ -218,7 +218,7 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Les applis comme TikTok ne se figent plus après un passage entre Wi-Fi et données mobiles.\nLes sites http:// que le réseau abandonne sans rien dire s’ouvrent à nouveau.\niPhone et iPad : de nouvelles icônes d’app au choix : styles, jours particuliers et pays (Réglages).";
-"whatsNewMac" = "Plus rapide : chaque technique est essayée dès la première visite, les sites ne finissent plus sur Tor, plus lent ; Tor ne sert que si rien d’autre ne marche ou s’il est choisi.\nLes sites http:// que le réseau abandonne sans rien dire s’ouvrent à nouveau.\nDe nouvelles icônes pour le Dock au choix : styles, jours particuliers et pays (Réglages).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

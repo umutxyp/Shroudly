@@ -328,7 +328,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">أسرع: تُجرَّب كل التقنيات من الزيارة الأولى، فلم تعد المواقع تنتهي على Tor البطيء؛ لا يُستخدم Tor إلا إذا لم ينجح شيء آخر أو إذا اختير.\nلم يعد TikTok والتطبيقات الأخرى تتجمد بعد الانتقال بين Wi-Fi وبيانات الجوال؛ ومواقع http:// التي تُسقطها الشبكة تُفتح من جديد.\nأيقونات جديدة للشاشة الرئيسية للاختيار: أنماط وأيام خاصة وبلدان (الإعدادات).</string>
+    <string name="whatsNewAndroid">اختيار الأيقونة في الإعدادات يعرض كل أيقونة من جديد؛ كانت كلها تبدو مثل الأيقونة الكلاسيكية.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

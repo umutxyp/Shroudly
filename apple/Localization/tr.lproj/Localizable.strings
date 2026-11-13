@@ -218,7 +218,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "TikTok gibi uygulamalar Wi-Fi ile mobil veri arasında geçişten sonra artık donmuyor.\nAğın sessizce düşürdüğü http:// siteleri yeniden açılıyor.\niPhone ve iPad: seçilebilen yeni uygulama simgeleri: tarzlar, özel günler ve ülkeler (Ayarlar).";
-"whatsNewMac" = "Daha hızlı: her teknik ilk ziyarette deneniyor, siteler artık yavaş Tor'a düşmüyor; Tor yalnızca başka hiçbir şey işe yaramadığında ya da seçildiğinde kullanılıyor.\nAğın sessizce düşürdüğü http:// siteleri yeniden açılıyor.\nDock için seçilebilen yeni simgeler: tarzlar, özel günler ve ülkeler (Ayarlar).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

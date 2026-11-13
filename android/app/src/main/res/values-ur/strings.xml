@@ -328,7 +328,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">تیز تر: ہر طریقہ پہلی بار ہی آزمایا جاتا ہے، اس لیے سائٹیں اب سست Tor پر نہیں جاتیں؛ Tor صرف تب استعمال ہوتا ہے جب کوئی اور طریقہ کام نہ کرے یا اسے چنا گیا ہو۔\nWi-Fi اور موبائل ڈیٹا کے درمیان بدلنے کے بعد TikTok اور دوسری ایپس اب نہیں اٹکتیں؛ نیٹ ورک کی گرائی ہوئی http:// سائٹیں پھر کھلتی ہیں۔\nچننے کے لیے ہوم اسکرین کے نئے آئیکن: انداز، خاص دن اور ممالک (ترتیبات)۔</string>
+    <string name="whatsNewAndroid">ترتیبات میں آئیکن کا انتخاب ہر آئیکن کو دوبارہ دکھاتا ہے؛ سب کلاسک آئیکن جیسے نظر آتے تھے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

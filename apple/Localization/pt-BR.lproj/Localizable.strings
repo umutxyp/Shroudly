@@ -218,7 +218,7 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "Apps como o TikTok não travam mais depois de trocar entre Wi-Fi e dados móveis.\nSites http:// que a rede descarta sem aviso voltam a abrir.\niPhone e iPad: novos ícones do app para escolher: estilos, dias especiais e países (Ajustes).";
-"whatsNewMac" = "Mais rápido: cada técnica é tentada já na primeira visita, então os sites não acabam mais no Tor, que é lento; o Tor só é usado se nada mais funcionar ou se for escolhido.\nSites http:// que a rede descarta sem aviso voltam a abrir.\nNovos ícones para o Dock para escolher: estilos, dias especiais e países (Ajustes).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

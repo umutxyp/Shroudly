@@ -328,7 +328,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Has çalt: her usul ilkinji girilende synanylýar, saýtlar indi haýal Tor-a düşmeýär; Tor diňe başga hiç zat kömek etmese ýa-da saýlanan bolsa ulanylýar.\nTikTok we beýleki programmalar Wi-Fi bilen mobil internetiň arasynda geçenden soň indi doňmaýar; ulgamyň taşlaýan http:// saýtlary ýene açylýar.\nSaýlamak üçin baş ekranyň täze nyşanlary: stiller, aýratyn günler we ýurtlar (Sazlamalar).</string>
+    <string name="whatsNewAndroid">Sazlamalardaky nyşan saýlawy her nyşany ýene görkezýär; hemmesi klassik nyşan ýaly görünýärdi.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

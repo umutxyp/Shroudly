@@ -328,7 +328,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">高速化：最初のアクセスからすべての手法を試すため、サイトが遅い Tor に回ることはなくなりました。Tor は他に手がないときか、選んだときだけ使います。\nWi-Fi とモバイルデータを切り替えたあとに TikTok などのアプリが固まらなくなり、ネットワークが捨てる http:// サイトも再び開きます。\nホーム画面の新しいアイコンを選べます：スタイル、特別な日、国（設定）。</string>
+    <string name="whatsNewAndroid">設定のアイコン選択で、各アイコンが再び正しく表示されます。すべてクラシックのように見えていました。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

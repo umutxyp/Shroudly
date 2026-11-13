@@ -218,7 +218,7 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Apps wie TikTok hängen nach einem Wechsel zwischen WLAN und mobilen Daten nicht mehr.\nhttp://-Seiten, die das Netz stillschweigend verwirft, öffnen wieder.\niPhone und iPad: neue App-Symbole zur Auswahl: Stile, besondere Tage und Länder (Optionen).";
-"whatsNewMac" = "Schneller: Jede Technik wird schon beim ersten Besuch versucht, Seiten landen nicht mehr im langsamen Tor; Tor nur, wenn nichts anderes hilft oder es gewählt ist.\nhttp://-Seiten, die das Netz stillschweigend verwirft, öffnen wieder.\nNeue Symbole für das Dock zur Auswahl: Stile, besondere Tage und Länder (Optionen).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";
