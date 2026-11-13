@@ -225,7 +225,7 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "La copie de l'App Store demande la mise à jour dès qu'une nouvelle version sort ; la protection reste active en attendant.";
+"whatsNewMac" = "La copie de l'App Store demande la mise à jour dès qu'une nouvelle version sort ; la protection reste active en attendant.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

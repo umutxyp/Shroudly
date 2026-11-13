@@ -225,7 +225,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "La copia de la App Store pide actualizar en cuanto sale una versión nueva; la protección sigue activa mientras tanto.";
+"whatsNewMac" = "La copia de la App Store pide actualizar en cuanto sale una versión nueva; la protección sigue activa mientras tanto.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

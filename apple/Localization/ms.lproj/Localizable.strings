@@ -225,7 +225,7 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "Salinan App Store meminta kemas kini sebaik sahaja versi baharu keluar; perlindungan kekal aktif sementara itu.";
+"whatsNewMac" = "Salinan App Store meminta kemas kini sebaik sahaja versi baharu keluar; perlindungan kekal aktif sementara itu.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

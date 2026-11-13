@@ -225,7 +225,7 @@
 "upload" = "Запампоўка";
 "uptime" = "Час працы";
 "versionLabel" = "Версія {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "Копія з App Store просіць абнавіцца адразу пасля выхаду новай версіі; ахова тым часам застаецца ўключанай.";
+"whatsNewMac" = "Копія з App Store просіць абнавіцца адразу пасля выхаду новай версіі; ахова тым часам застаецца ўключанай.";
 "whatsNewOk" = "Зразумела";
 "whatsNewTitle" = "Што новага ў {version}";

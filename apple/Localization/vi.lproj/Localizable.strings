@@ -225,7 +225,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "Bản từ App Store yêu cầu cập nhật ngay khi có phiên bản mới; trong lúc đó bảo vệ vẫn bật.";
+"whatsNewMac" = "Bản từ App Store yêu cầu cập nhật ngay khi có phiên bản mới; trong lúc đó bảo vệ vẫn bật.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

@@ -328,7 +328,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">सेटिंग्स में आइकन चुनने पर हर आइकन फिर से अपना दिखता है; सभी क्लासिक आइकन जैसे दिखते थे।</string>
+    <string name="whatsNewAndroid">Shroudly अब Google Play पर है। Google Play वाली कॉपी हर नया संस्करण आते ही इंस्टॉल करती है; GitHub वाला APK इसे बिना ज़ोर दिए सुझाता है।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

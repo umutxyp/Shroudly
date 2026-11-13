@@ -328,7 +328,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Sazlamalardaky nyşan saýlawy her nyşany ýene görkezýär; hemmesi klassik nyşan ýaly görünýärdi.</string>
+    <string name="whatsNewAndroid">Shroudly Google Play-de bar. Google Play-den gurlan nusga her täze wersiýany çykan badyna gurýar; GitHub-daky APK ony mejbur etmän hödürleýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

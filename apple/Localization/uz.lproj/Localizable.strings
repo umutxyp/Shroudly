@@ -225,7 +225,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "App Store nusxasi yangi versiya chiqishi bilan yangilashni so'raydi; shu orada himoya yoniq qoladi.";
+"whatsNewMac" = "App Store nusxasi yangi versiya chiqishi bilan yangilashni so'raydi; shu orada himoya yoniq qoladi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

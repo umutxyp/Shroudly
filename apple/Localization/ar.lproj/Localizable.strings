@@ -225,7 +225,7 @@
 "upload" = "الرفع";
 "uptime" = "مدة التشغيل";
 "versionLabel" = "الإصدار {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "نسخة App Store تطلب التحديث فور صدور إصدار جديد؛ وتبقى الحماية مفعّلة في الأثناء.";
+"whatsNewMac" = "نسخة App Store تطلب التحديث فور صدور إصدار جديد؛ وتبقى الحماية مفعّلة في الأثناء.";
 "whatsNewOk" = "حسنًا";
 "whatsNewTitle" = "الجديد في {version}";

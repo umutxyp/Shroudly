@@ -225,7 +225,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "The App Store copy asks to update as soon as a new version is out; protection stays on meanwhile.";
+"whatsNewMac" = "The App Store copy asks to update as soon as a new version is out; protection stays on meanwhile.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

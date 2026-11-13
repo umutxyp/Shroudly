@@ -328,7 +328,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Phần chọn biểu tượng trong Cài đặt lại hiển thị đúng từng biểu tượng; trước đó tất cả trông như biểu tượng cổ điển.</string>
+    <string name="whatsNewAndroid">Shroudly đã có trên Google Play. Bản từ Google Play cài mỗi phiên bản mới ngay khi phát hành; APK từ GitHub gợi ý bản này, không ép buộc.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

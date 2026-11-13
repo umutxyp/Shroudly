@@ -225,7 +225,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "App Store kopyası yeni bir sürüm çıkar çıkmaz güncellemeyi ister; koruma bu arada açık kalır.";
+"whatsNewMac" = "App Store kopyası yeni bir sürüm çıkar çıkmaz güncellemeyi ister; koruma bu arada açık kalır.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

@@ -225,7 +225,7 @@
 "upload" = "Выгрузка";
 "uptime" = "Время работы";
 "versionLabel" = "Версия {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "Копия из App Store просит обновиться сразу после выхода новой версии; защита пока остаётся включённой.";
+"whatsNewMac" = "Копия из App Store просит обновиться сразу после выхода новой версии; защита пока остаётся включённой.";
 "whatsNewOk" = "Понятно";
 "whatsNewTitle" = "Что нового в {version}";
