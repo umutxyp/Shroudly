@@ -222,6 +222,50 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop(); freezer.close(); site.close(); dns3.close();
   }
 
+  /* Frozen at the same amount each time while the site's other names answer
+   * (Iran, Shatel: abs.twimg.com at 43 to 46 KB beside x.com working): the
+   * third time says it is the network, and the next connection goes to the
+   * last way out. */
+  {
+    const big = 'x'.repeat(200 * 1024);
+    const site = tls.createServer(H.testServerOptions(), (s) => {
+      s.on('error', () => {});
+      s.once('data', () => s.write(`HTTP/1.1 200 OK\r\nContent-Length: ${big.length}\r\nConnection: close\r\n\r\n${big}`));
+    });
+    await new Promise((r) => site.listen(0, '127.0.0.1', r));
+    const small = tls.createServer(H.testServerOptions(), (s) => {
+      s.on('error', () => {});
+      s.once('data', () => s.end('HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok'));
+    });
+    await new Promise((r) => small.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const LIMIT = 46 * 1024;
+    const freezer = net.createServer((c) => {
+      const u = net.connect(site.address().port, '127.0.0.1');
+      let down = 0;
+      c.on('error', () => {}); u.on('error', () => {});
+      c.on('data', (d) => u.write(d));
+      u.on('data', (d) => { if (down >= LIMIT || c.destroyed) return; const part = d.subarray(0, LIMIT - down); down += part.length; c.write(part); });
+    });
+    await new Promise((r) => freezer.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const dns4 = await H.dnsStub({ 'cdn.slowed.example': { AAAA: ['::1'] }, 'www.slowed.example': { AAAA: ['::1'] } });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, ['--auto', '--doh', '--doh-port', String(dns4.port), '--ipv6', '--fallback-file', torFile]);
+    const n0 = tor.asked.length;
+    const seen = [];
+    for (let i = 0; i < 3; i++) {
+      // The site's own page answers each time: every cut is "site_ok".
+      await get(P, 'www.slowed.example', small.address().port, 8000);
+      seen.push(await get(P, 'cdn.slowed.example', freezer.address().port, 12000));
+      await H.sleep(300);
+    }
+    const cuts = (eng.out.match(/"type":"cut","host":"cdn\.slowed\.example","strategy":"stall","attempts":4[3-7][^\n]*site_ok/g) || []).length;
+    const before = tor.asked.length;
+    const after = await get(P, 'cdn.slowed.example', freezer.address().port, 20000);
+    t.ok(cuts === 3 && before === n0 && after === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 1 && tor.asked[tor.asked.length - 1].host === 'cdn.slowed.example',
+      `frozen at about 46 KB three times beside a site that answers: the next connection goes through the last way out (${cuts} cuts, ${seen.join(', ')}, then ${after})`);
+    eng.stop(); freezer.close(); site.close(); small.close(); dns4.close();
+  }
+
   // The user's own server set: it carries everything, the last way out is not used.
   {
     const own = H.socksServer(world.address().port);

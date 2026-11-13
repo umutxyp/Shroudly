@@ -125,12 +125,16 @@ function hello(buf) {
 
   // Answers after the ladder's whole 15 s budget: "blocked" is said when the
   // time is up, but the connections stay open and the late answer is used —
-  // as 2.5.4 did, which relayed its last attempt with no time limit.
+  // as 2.5.4 did, which relayed its last attempt with no time limit. By then
+  // the rest of the list has gone out too (two unanswered attempts: see
+  // BURST_BATCH in engine.c), a connection is kept for two waits, and the
+  // one that answers first is one of those still open: a technique this
+  // filter lets through (a handshake in records), whichever of them it is.
   sites['crawl.slowpath3.local'] = { blocked: true, delay: 11000 };
   r = await visit('crawl.slowpath3.local');
-  t.ok(r.ok && r.ms < 19000, `technique answered after the ladder's budget: the page still loads (${r.ms} ms)`);
-  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === FIRST,
-    `and that technique is learned: ${JSON.stringify(r.bypass[0])}`);
+  t.ok(r.ok && r.ms < 21000, `technique answered after the ladder's budget: the page still loads (${r.ms} ms)`);
+  t.ok(r.bypass.length === 1 && /tlsrec/.test(r.bypass[0].strategy) && r.bypass[0].note === 'silent',
+    `and the technique that answered is learned: ${JSON.stringify(r.bypass[0])}`);
   sites['crawl.slowpath3.local'].delay = 0;
   r = await visit('crawl.slowpath3.local');
   t.ok(r.ok && r.tries.length === 1 && r.tries[0].passed && r.ms < 2000,

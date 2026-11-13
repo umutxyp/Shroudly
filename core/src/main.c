@@ -166,6 +166,7 @@ static void usage(void) {
     "  --adblock <path>      block the names of an ad and tracker list (adblock.h)\n"
     "  --allow <domain>      never block it, nor a name under it (repeatable)\n"
     "  --raw-local           tests: search techniques for non-TLS streams on local addresses too\n"
+    "  --local-unacked       tests: a request sent to a local address counts as not acknowledged\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
@@ -228,6 +229,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--ipv4-only")) g_cfg.ipv4_only = 1;
     else if (!strcmp(argv[i], "--drop-quic")) g_cfg.drop_quic = 1;
     else if (!strcmp(argv[i], "--raw-local")) g_cfg.raw_local = 1;
+    else if (!strcmp(argv[i], "--local-unacked")) g_cfg.local_unacked = 1;
     else if (!strcmp(argv[i], "--doh-ip") && i+1<argc) strncpy(g_doh_fwd_ip, argv[++i], sizeof(g_doh_fwd_ip)-1);
     else if (!strcmp(argv[i], "--doh-port") && i+1<argc) g_doh_fwd_port = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--dns-strict")) dns_strict = 1;

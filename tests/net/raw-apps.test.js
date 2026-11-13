@@ -173,6 +173,11 @@ const t = suite('raw-apps');
     t.ok(raw.askLabel({ host: '192.0.2.1', rank: 0 }, 'x.example').host === 'x.example', 'a name replaces a bare address');
     t.ok(raw.askLabel(null, '198.51.100.7', (h) => (h === '198.51.100.7' ? 'SomeGame' : null)).host === 'SomeGame', 'a program the connection was traced to names it too');
     t.ok(raw.askLabel(null, '').host === '' , 'nothing at all: empty, as before ("a site")');
+    const TorApps = require('../../electron/tor-apps');
+    const both = (x) => { const sv = raw.serviceOf(x); return sv ? sv.name : TorApps.appOfName(x); };
+    t.ok(raw.askLabel(null, 'abs.twimg.com', both).host === 'X (Twitter)' && raw.askLabel(null, 'rr3---sn-x.googlevideo.com', both).host === 'YouTube'
+      && TorApps.appOfName('nottwimg.com') === null && TorApps.appOfName('') === null,
+    'one of an app\'s many names is asked about as the app (X for abs.twimg.com, YouTube for a googlevideo.com server)');
   }
 
   console.log(`raw-apps: ${t.count} checks passed`);

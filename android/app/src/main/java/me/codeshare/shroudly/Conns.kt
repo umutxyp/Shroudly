@@ -96,6 +96,15 @@ object Conns {
         return TorAppsList.apps.map { it.id }.filter { it in kept }.toSet()
     }
 
+    /* The app a name belongs to (its own name or one under it), or null:
+     * what the Tor question says instead of one of the app's many names
+     * ("Open X (Twitter) through Tor?", not abs.twimg.com). */
+    fun appOfName(host: String): String? {
+        val h = host.trim().lowercase().trimEnd('.')
+        if (h.isEmpty()) return null
+        return TorAppsList.apps.firstOrNull { a -> a.entries.any { !it.contains('/') && (h == it || h.endsWith(".$it")) } }?.name
+    }
+
     /* The names and ranges of the apps `ids` (pure, for the tests). */
     fun appEntries(ids: Set<String>): Set<String> =
         TorAppsList.apps.filter { it.id in ids }.flatMap { it.entries }.toCollection(LinkedHashSet())

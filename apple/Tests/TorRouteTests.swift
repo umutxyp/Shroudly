@@ -94,9 +94,15 @@ final class TorRouteTests: XCTestCase {
         }
         XCTAssertEqual(TorNotice.label(had: nil, hadRank: -1, host: "[2001:67c:4e8:f004::a]").0, "Telegram")
         XCTAssertEqual(TorNotice.label(had: nil, hadRank: -1, host: "149.154.167.92").0, "Telegram")
-        let site = TorNotice.label(had: nil, hadRank: -1, host: "www.youtube.com")
+        let site = TorNotice.label(had: nil, hadRank: -1, host: "www.example.org")
         XCTAssertEqual(site.1, 1)
-        XCTAssertEqual(TorNotice.label(had: site.0, hadRank: site.1, host: "172.217.117.4").0, "www.youtube.com")
+        XCTAssertEqual(TorNotice.label(had: site.0, hadRank: site.1, host: "172.217.117.4").0, "www.example.org")
+        // One of an app's many names: the app, not the name (X's files
+        // come from abs.twimg.com, which says nothing to the user).
+        let x = TorNotice.label(had: site.0, hadRank: site.1, host: "abs.twimg.com")
+        XCTAssertEqual(x.0, "X (Twitter)"); XCTAssertEqual(x.1, 2)
+        XCTAssertEqual(TorNotice.label(had: nil, hadRank: -1, host: "www.youtube.com").0, "YouTube")
+        XCTAssertNil(TorNotice.appOf("notyoutube.com"))
         XCTAssertEqual(TorNotice.label(had: "192.0.2.1", hadRank: 0, host: "x.example").0, "x.example")
         XCTAssertNil(TorNotice.appOf("149.154.176.1"))
         XCTAssertNil(TorNotice.appOf("nottelegram.org"))

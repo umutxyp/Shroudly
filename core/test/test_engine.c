@@ -138,47 +138,62 @@ int main(void) {
    *    (an outage of one name says nothing about the others); a resume point
    *    before a learned technique; something learned for any name of a site
    *    stops every name of it searching */
-  rs_put("a.silent.example", 6);
+  rs_put("a.silent.example", 6, 0);
   CHECK(start_of("a.silent.example") == 6 && start_of("b.silent.example") == -1);
-  rs_put("b.silent.example", 9);
+  rs_put("b.silent.example", 9, 0);
   CHECK(start_of("a.silent.example") == 6 && start_of("b.silent.example") == 9);
   CHECK(start_of("c.silent.example") == -1 && start_of("silent.example") == -1);
   rs_drop("c.silent.example");                                /* another name answered: no change */
   CHECK(start_of("a.silent.example") == 6 && start_of("b.silent.example") == 9);
   rs_drop("b.silent.example");                                /* answered: its own goes */
   CHECK(start_of("b.silent.example") == -1 && start_of("a.silent.example") == 6);
-  rs_put("b.silent.example", 9);
+  rs_put("b.silent.example", 9, 0);
   hs_put("a.silent.example", 1);
   CHECK(start_of("a.silent.example") == 101 && start_of("b.silent.example") == 201);
   hs_put("x.prec.example", 2);
-  rs_put("y.prec.example", 5);             /* a sibling's search */
+  rs_put("y.prec.example", 5, 0);             /* a sibling's search */
   CHECK(start_of("x.prec.example") == 102);                   /* its own technique wins */
   CHECK(start_of("y.prec.example") == 5);                     /* its own search */
   CHECK(start_of("z.prec.example") == 202);                   /* the site's technique, not y's search */
   hs_put("w.prec.example", 3);
   CHECK(start_of("z.prec.example") == 203 && start_of("y.prec.example") == 203);
   hs_put("m.own.example", 2);
-  rs_put("m.own.example", 8);              /* its own technique came to nothing since */
+  rs_put("m.own.example", 8, 0);              /* its own technique came to nothing since */
   CHECK(start_of("m.own.example") == 8);
-  rs_put("q.github.io", 7);
+  rs_put("q.github.io", 7, 0);
   CHECK(start_of("q.github.io") == 7 && start_of("r.github.io") == -1);
   { int f, l, i, st, sf; ladder_start("q.github.io", 0, &f, &l, &i, &st, &sf); CHECK(f == -1); }   /* not TLS */
   /* a site's search goes on with its next name (issue #37: googlevideo.com) */
-  rs_put("vid2.example", 4);                 /* where the site's last name left off */
+  rs_put("vid2.example", 4, 0);                 /* where the site's last name left off */
   CHECK(start_of("rr7.vid2.example") == 4);
   { int f, l, i, st, sf; ladder_start("rr7.vid2.example", 1, &f, &l, &i, &st, &sf); CHECK(f == 4 && sf == 1); }
   { int f, l, i, st, sf; ladder_start("rr7.vid2.example", 0, &f, &l, &i, &st, &sf); CHECK(f == -1 && sf == 0); }   /* not TLS */
-  rs_put("rr8.vid2.example", 9);             /* a name's own search comes first */
+  /* A plain-HTTP ladder (2) carries on only where a plain-HTTP ladder left
+   * off: a name's handshake being dropped says nothing of its http://. */
+  { int f, l, i, st, sf; ladder_start("q.github.io", 2, &f, &l, &i, &st, &sf); CHECK(f == -1); }
+  { int f, l, i, st, sf; ladder_start("rr7.vid2.example", 2, &f, &l, &i, &st, &sf); CHECK(f == -1 && sf == 0); }
+  rs_put("plain.http.example", 11, 1);
+  { int f, l, i, st, sf; ladder_start("plain.http.example", 2, &f, &l, &i, &st, &sf); CHECK(f == 11); }
+  { int f, l, i, st, sf; ladder_start("plain.http.example", 1, &f, &l, &i, &st, &sf); CHECK(f == 11); }
+  /* Names every technique failed on (ex_put), until something answers. */
+  CHECK(!ex_recent("ex.example"));
+  ex_put("ex.example");
+  CHECK(ex_recent("ex.example") && !ex_recent("other.ex.example"));
+  cool_drop("ex.example");
+  CHECK(!ex_recent("ex.example"));
+  ex_put("ex2.example"); ex_forget();
+  CHECK(!ex_recent("ex2.example"));
+  rs_put("rr8.vid2.example", 9, 0);             /* a name's own search comes first */
   CHECK(start_of("rr8.vid2.example") == 9);
   hs_put("rr9.vid2.example", 5);             /* something works: the site's search is over */
   CHECK(start_of("rr7.vid2.example") == 205);
   /* an expired entry is no entry */
-  rs_put("old.example", 4);
+  rs_put("old.example", 4, 0);
   { int i = rs_find("old.example"); CHECK(i >= 0); if (i >= 0) g_rs[i].t -= RS_TTL_MS + 1; }
   CHECK(start_of("old.example") == -1);
   /* one stored by another thread after this one read the clock is the newest
    * there is, not one that expired half a billion years ago */
-  rs_put("future.example", 4);
+  rs_put("future.example", 4, 0);
   { int i = rs_find("future.example"); CHECK(i >= 0); if (i >= 0) g_rs[i].t = now_ms() + 5000; }
   CHECK(start_of("future.example") == 4 && start_of("future.example") == 4);
   CHECK(age_ms(1000, 2000) == 0 && age_ms(2000, 1000) == 1000);
@@ -221,7 +236,7 @@ int main(void) {
   hs_on_cut("fresh.rotate3.example");     /* nothing learned: the first technique */
   CHECK(hs_get("fresh.rotate3.example", NULL) == next_usable(-1));
   /* a cut is a guess, not the end of a silent search */
-  rs_put("cut.keep.example", 5);
+  rs_put("cut.keep.example", 5, 0);
   hs_on_cut("cut.keep.example");
   CHECK(start_of("cut.keep.example") == 5);
   printf("  cut rotation skips what cannot work here, keeps a search: OK\n");
@@ -469,7 +484,7 @@ int main(void) {
   {
     engine_init_once();
     hs_put("forget.example", 1);
-    rs_put("forget2.example", 2);
+    rs_put("forget2.example", 2, 0);
     cool_put("forget3.example");
     ok_put("forget4.example");
     struct sockaddr_storage w; memset(&w, 0, sizeof(w)); w.ss_family = AF_INET;

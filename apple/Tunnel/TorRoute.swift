@@ -117,6 +117,10 @@ enum TorNotice {
         for (name, what) in RawAppsList.rows where what.hasPrefix(".") {
             if h == String(what.dropFirst()) || h.hasSuffix(what) { return name }
         }
+        // One of an app's many names (abs.twimg.com): the app (X).
+        for a in TorAppsList.apps {
+            if a.entries.contains(where: { !$0.contains("/") && (h == $0 || h.hasSuffix("." + $0)) }) { return a.name }
+        }
         return nil
     }
 

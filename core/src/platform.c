@@ -125,6 +125,53 @@ int sock_set_ttl(sock_t s, int family, int ttl) {
   return setsockopt(s, IPPROTO_IP, IP_TTL, (const char *)&v, sizeof(v));
 }
 
+#ifdef _WIN32
+/* SIO_TCP_INFO (Windows 10 1703 and later), spelled out: older SDKs and
+ * MinGW headers do not have it. */
+#ifndef SIO_TCP_INFO
+#define SIO_TCP_INFO _WSAIORW(IOC_VENDOR, 39)
+#endif
+typedef struct {
+  ULONG   State, Mss;
+  ULONG64 ConnectionTimeMs;
+  BOOLEAN TimestampsEnabled;
+  ULONG   RtoUs, MinRttUs, BytesInFlight, Cwnd, SndWnd, RcvWnd, RcvBuf;
+  ULONG64 BytesOut, BytesIn;
+  ULONG   BytesReordered, BytesRetrans, FastRetrans, DupAcksIn, TimeoutEpisodes;
+  UCHAR   SynRetrans;
+} shroudly_tcp_info_v0;
+#endif
+
+int sock_unacked(sock_t s) {
+#if defined(_WIN32)
+  DWORD ver = 0, got = 0;
+  shroudly_tcp_info_v0 ti;
+  memset(&ti, 0, sizeof(ti));
+  if (WSAIoctl(s, SIO_TCP_INFO, &ver, sizeof(ver), &ti, sizeof(ti), &got, NULL, NULL) != 0) return -1;
+  if (got < offsetof(shroudly_tcp_info_v0, Cwnd)) return -1;
+  return ti.BytesInFlight > 0x7fffffffu ? 0x7fffffff : (int)ti.BytesInFlight;
+#elif defined(__linux__)
+  /* TCP_INFO first: Android lets an app's sockets answer it, where it may
+   * turn the ioctl down. tcpi_unacked: segments sent and not acknowledged. */
+  struct tcp_info ti;
+  socklen_t len = sizeof(ti);
+  memset(&ti, 0, sizeof(ti));
+  if (getsockopt(s, IPPROTO_TCP, TCP_INFO, &ti, &len) == 0 && len >= offsetof(struct tcp_info, tcpi_sacked))
+    return (int)ti.tcpi_unacked;
+  int n = 0;
+  if (ioctl(s, SIOCOUTQ, &n) == 0) return n < 0 ? 0 : n;
+  return -1;
+#elif defined(__APPLE__)
+  int n = 0;
+  socklen_t len = sizeof(n);
+  if (getsockopt(s, SOL_SOCKET, SO_NWRITE, &n, &len) != 0) return -1;
+  return n < 0 ? 0 : n;
+#else
+  (void)s;
+  return -1;
+#endif
+}
+
 void sock_wait_sent(sock_t s, int max_ms) {
 #if defined(__linux__) && defined(SIOCOUTQNSD)
   /* Linux: wait until the not-yet-sent queue is empty so that each send()

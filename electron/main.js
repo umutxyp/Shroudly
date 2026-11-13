@@ -540,7 +540,7 @@ function askTor(host) {
   const had = torAsk;
   // Named as people know it: Telegram rather than one of its addresses
   // (askLabel; a program the engine's connection was traced to counts too).
-  torAsk = askLabel(had, h, (x) => { const s = serviceOf(x); return s ? s.name : rawWatch.hostApp.get(x) || null; });
+  torAsk = askLabel(had, h, (x) => { const s = serviceOf(x); return s ? s.name : TorApps.appOfName(x) || rawWatch.hostApp.get(x) || null; });
   const better = !!had && torAsk !== had;
   if (!had) addLog('info', `The last way out: ${torAsk.host && torAsk.host !== h && h ? `${torAsk.host} (${h})` : torAsk.host || 'a site'} needs Tor; asking before it starts`);
   else if (better) addLog('info', `The last way out: the question now names ${torAsk.host}${h && h !== torAsk.host.toLowerCase() ? ` (${h})` : ''}`);

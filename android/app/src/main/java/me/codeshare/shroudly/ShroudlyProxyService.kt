@@ -329,6 +329,7 @@ class ShroudlyProxyService : Service() {
                 ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }
+            is EngineEvent.Direct -> if (ev.host.isNotEmpty()) ShroudlyVpnService.logSite(ev.line)
             is EngineEvent.DnsAround -> DnsNotice.around(this)
             else -> {}
         }

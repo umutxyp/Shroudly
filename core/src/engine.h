@@ -25,6 +25,11 @@ typedef struct {
    * or HTTP on this computer and its network too, which is never done
    * otherwise (no filter sits there). */
   int      raw_local;
+  /* --local-unacked (tests): this computer acknowledges what is sent to
+   * its own addresses whatever becomes of it, so a filter that swallows a
+   * request cannot be staged there; with this, a request sent to a local
+   * address counts as not acknowledged (see legs_unheard). */
+  int      local_unacked;
   strategy strat;             /* active strategy (used when auto_probe is off,
                                  and as the first candidate when it is on) */
   /* --http-open: HTTP proxy requests (CONNECT, plain http://) taken

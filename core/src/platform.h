@@ -76,6 +76,11 @@ int  sock_set_nonblock(sock_t s, int on);
 int  sock_set_timeouts(sock_t s, int ms);
 int  sock_get_ttl(sock_t s, int family);
 int  sock_set_ttl(sock_t s, int family, int ttl);
+/* How much of what was sent on s the far end has not acknowledged yet, as
+ * the system counts it (bytes, or segments: only zero or not matters); -1
+ * where the system does not say. Data nobody acknowledges seconds after it
+ * went out never arrived: something on the way took it. */
+int  sock_unacked(sock_t s);
 /* Wait until the kernel has transmitted everything queued on s (best effort, max_ms). */
 void sock_wait_sent(sock_t s, int max_ms);
 /* Connect with timeout. Returns 0 on success, -2 when timeout_ms ran out with

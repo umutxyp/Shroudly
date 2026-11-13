@@ -40,6 +40,11 @@ const APPS = [
   // prompts go to together (an Iran report: AI Studio opened through Tor, its
   // prompt API did not, and nothing could be written).
   { id: 'gemini', name: 'Gemini & AI Studio', names: ['gemini.google.com', 'aistudio.google.com', 'makersuite.google.com', 'alkalimakersuite-pa.clients6.google.com', 'geminiweb-pa.clients6.google.com', 'generativelanguage.googleapis.com', 'ai.google.dev', 'notebooklm.google.com'] },
+  // Turns Iran away itself (drivers and the NVIDIA app's sign-in); its site
+  // in a browser, since the app's own services start with Windows and take
+  // no proxy (an Iran report: "nvidia app not working, I want to update my
+  // driver").
+  { id: 'nvidia', name: 'NVIDIA', names: ['nvidia.com', 'geforce.com', 'nvidiagrid.net'] },
 ];
 
 /* What the engine is given for the picked apps: their names and ranges,
@@ -61,4 +66,14 @@ function clean(ids) {
   return APPS.filter((a) => want.has(a.id)).map((a) => a.id);
 }
 
-module.exports = { APPS, entriesOf, clean };
+/* The app a name belongs to (its own name or one under it), or null: what
+ * the Tor question says instead of one of the app's many names ("Open X
+ * (Twitter) through Tor?", not abs.twimg.com). */
+function appOfName(host) {
+  const h = String(host || '').trim().toLowerCase().replace(/\.$/, '');
+  if (!h) return null;
+  const a = APPS.find((x) => x.names.some((n) => h === n || h.endsWith(`.${n}`)));
+  return a ? a.name : null;
+}
+
+module.exports = { APPS, entriesOf, clean, appOfName };

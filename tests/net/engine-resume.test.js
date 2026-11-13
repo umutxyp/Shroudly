@@ -1,23 +1,28 @@
 'use strict';
 
-/* On a network that drops a blocked handshake without a word, one
- * connection's 15 s budget covers the untouched attempt and the first four
- * techniques. A site that only a later technique opens used to stay blocked
- * for good: every connection tried the same four. Now a ladder that runs out
- * silently leaves its place behind, and the name's next connection carries on
- * from there and wraps around the list, until something gets through; that is
- * then learned, and the connection after it opens at once. The untouched
- * request still goes first on a resumed connection — a server that was down
- * looks exactly like a silent filter — but only gets a moment to itself
- * before the next technique goes out beside it, instead of its full 5 s.
+/* On a network that drops a blocked handshake without a word every attempt
+ * costs its whole wait. A ladder that took them one by one got through the
+ * untouched attempt and four techniques in its 15 s, so a site only a later
+ * technique opens took several connections to open (and, once there was a
+ * last way out, went to Tor after the first: see engine-search.test.js).
+ * Now two unanswered attempts send the rest of the list out at once
+ * (BURST_BATCH in engine.c): one connection tries every technique.
+ *
+ * A name that came to nothing then rests (COOL_MS): its next connections
+ * keep to two connections at a time and go one technique at a time again,
+ * each leaving its place behind for the next to carry on from, wrapping
+ * around the list, until something gets through; that is then learned, and
+ * the connection after it opens at once. The untouched request still goes
+ * first on such a connection (a server that was down looks exactly like a
+ * silent filter) but only gets a moment to itself before the next technique
+ * goes out beside it, instead of its full 5 s.
  *
  * The fake censor here does not model one real filter: it swallows every
  * handshake (nothing forwarded, nothing back, nothing closed) except the one
- * shape it is told to let through — the handshake split into two TLS records
+ * shape it is told to let through: the handshake split into two TLS records
  * one byte before the end of the server name, which is what tlsrec-sni-end
- * sends, the sixth technique. For the first two connections it lets nothing
- * through, so the engine's place in the list moves well past that technique,
- * and reaching it again takes a wrap-around. */
+ * sends, the sixth technique. For the first connection it lets nothing
+ * through. */
 
 const tls = require('tls');
 const net = require('net');
@@ -101,40 +106,33 @@ function shape(buf) {
     return { ok, ms, blocked: events(mark, 'blocked')[0], bypass: events(mark, 'bypass')[0], seen: seen.slice(from) };
   }
 
-  // Nothing gets through. The first connection: the untouched attempt (5 s)
-  // and four techniques, all with the same shape as far as the censor sees.
+  // Nothing gets through. The first connection: the untouched attempt, one
+  // technique, and then the rest of the list at once: every technique there is.
+  const techniques = JSON.parse(eng.out.split('\n').find((l) => l.includes('"ready"'))).techniques;
   let r = await visit();
   t.ok(!r.ok && r.blocked && r.blocked.note === 'silent', `nothing gets through: blocked, silently (${JSON.stringify(r.blocked)})`);
   t.ok(r.seen[0] === 'one' && r.seen.length === r.blocked.attempts, `it tried: ${r.seen.join(', ')}`);
+  t.ok(r.blocked.attempts === techniques + 1 && r.ms < 24000, `the whole list on one connection: ${r.blocked.attempts} attempts for ${techniques} techniques, in ${r.ms} ms`);
   const firstAttempts = r.blocked.attempts;
 
-  // The second connection carries on where the first stopped: the next
-  // technique in the list (the fifth, a record split one byte into the name,
-  // then the one before the name's end) goes out right after the untouched
-  // request, not 5 s after it, and so more techniques fit in the same 15 s.
-  // Started over, it would begin with the first technique, the mid-name
-  // split.
-  r = await visit();
-  t.ok(!r.ok && r.blocked && r.blocked.note === 'silent', 'second connection: still blocked, silently');
-  t.ok(r.seen[0] === 'one' && r.seen[1] === 'sni+1' && r.seen[2] === 'end',
-    `it started where the first left off, the untouched request raced beside it (${r.seen.join(', ')})`);
-  t.ok(r.blocked.attempts > firstAttempts, `and fit more techniques in: ${r.blocked.attempts} against ${firstAttempts}`);
-
-  // Now the censor lets the split before the name's end through — a technique
-  // the engine's place in the list has just gone past.
+  // Now the censor lets the split before the name's end through. The name
+  // rests: its next connections race the untouched request and then go one
+  // technique at a time, from the top of the list (the first was a whole
+  // pass), each carrying on where the one before stopped.
   mode = 'end';
-  const shapes = [];
   let opened = null, tries = 0;
+  const firsts = [];
   for (; tries < 4 && !opened; tries++) {
     r = await visit();
-    t.ok(r.seen[0] === 'one', `connection ${tries + 3} raced its untouched request first`);
-    shapes.push(...r.seen.slice(1));      // the techniques
+    t.ok(r.seen[0] === 'one', `connection ${tries + 2} raced its untouched request first`);
+    firsts.push(r.seen[1]);
     if (r.ok) opened = r;
-    else t.ok(r.blocked && r.blocked.note === 'silent', `connection ${tries + 3}: not yet (${r.seen.join(', ')})`);
+    else t.ok(r.blocked && r.blocked.note === 'silent' && r.blocked.attempts < firstAttempts,
+      `connection ${tries + 2}: not yet, and not the whole list again (${r.seen.join(', ')})`);
   }
-  t.ok(opened, `repeated connections find it: connection ${tries + 2} opened the site`);
-  const wrapped = shapes.indexOf('one') >= 0 && shapes.lastIndexOf('sni+1') > shapes.indexOf('one');
-  t.ok(wrapped, `after wrapping round the end of the list to its start (${shapes.join(', ')})`);
+  t.ok(firsts[0] === 'mid', `the first of them starts at the top of the list (${firsts[0]})`);
+  t.ok(firsts.length < 2 || firsts[1] !== 'mid', `the next carries on where it stopped (${firsts.join(' | ')})`);
+  t.ok(opened, `repeated connections find it: connection ${tries + 1} opened the site`);
   t.ok(opened.bypass && opened.bypass.strategy === 'tlsrec-sni-end' && opened.bypass.note === 'silent',
     `reported as a bypass of a silent drop: ${JSON.stringify(opened.bypass)}`);
 
