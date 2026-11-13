@@ -4672,13 +4672,19 @@ static const char *const DNS_RESOLVERS[] = {
   "2606:4700:4700::1111", "2606:4700:4700::1001", "2001:4860:4860::8888", "2001:4860:4860::8844",
   "2620:fe::fe", "2a10:50c0::1:ff", "2620:119:35::35",
 };
+/* Equal, ASCII letters in either case (strcasecmp is not in every C library
+ * the engine is built with: Windows on ARM has none). */
+static int same_ci(const char *a, const char *b) {
+  for (; *a && *b; a++, b++) if (tolower((unsigned char)*a) != tolower((unsigned char)*b)) return 0;
+  return *a == *b;
+}
 static int dns_resolver(const char *h) {
   size_t hl = strlen(h);
   for (size_t i = 0; i < sizeof(DNS_RESOLVERS) / sizeof(DNS_RESOLVERS[0]); i++) {
     const char *r = DNS_RESOLVERS[i];
     size_t rl = strlen(r);
-    if (hl == rl && strcasecmp(h, r) == 0) return 1;
-    if (hl > rl && h[hl - rl - 1] == '.' && !strchr(r, ':') && !isdigit((unsigned char)r[rl - 1]) && strcasecmp(h + hl - rl, r) == 0) return 1;
+    if (hl == rl && same_ci(h, r)) return 1;
+    if (hl > rl && h[hl - rl - 1] == '.' && !strchr(r, ':') && !isdigit((unsigned char)r[rl - 1]) && same_ci(h + hl - rl, r)) return 1;
   }
   return 0;
 }
