@@ -103,18 +103,29 @@ function answer(q) {
         }
       });
     };
-    // UDP and TCP on the same port: one the system gave for UDP may be one
-    // Windows keeps back for TCP (EACCES, its excluded port ranges): another.
-    let udp, tcpSrv;
-    for (let tries = 0; ; tries++) {
+    // UDP and TCP on the same port: one the system gave for one kind may be
+    // one Windows keeps back for the other (its excluded port ranges), so
+    // each round asks for a port the other way round, and says why at the end.
+    let udp, tcpSrv; const why = [];
+    const bindUdp = (port) => new Promise((r) => {
       udp = dgram.createSocket('udp4');
       udp.on('message', (m, rinfo) => { udpHits.push(m); udp.send(answer(m), rinfo.port, rinfo.address); });
-      await new Promise((r) => udp.bind(0, '127.0.0.1', r));
+      udp.once('error', (e) => { why.push('udp ' + e.code); try { udp.close(); } catch {} r(false); });
+      udp.bind(port, '127.0.0.1', () => r(true));
+    });
+    const listenTcp = (port) => new Promise((r) => {
       tcpSrv = net.createServer(onTcp);
-      const ok = await new Promise((r) => { tcpSrv.once('listening', () => r(true)); tcpSrv.once('error', () => r(false)); tcpSrv.listen(udp.address().port, '127.0.0.1'); });
-      if (ok) break;
-      udp.close();
-      if (tries === 20) throw new Error('no port free for both UDP and TCP');
+      tcpSrv.once('error', (e) => { why.push('tcp ' + e.code); r(false); });
+      tcpSrv.listen(port, '127.0.0.1', () => r(true));
+    });
+    for (let tries = 0; ; tries++) {
+      if (tries % 2 === 0) {
+        if (await bindUdp(0)) { if (await listenTcp(udp.address().port)) break; udp.close(); }
+      } else if (await listenTcp(0)) {
+        if (await bindUdp(tcpSrv.address().port)) break;
+        await new Promise((r) => tcpSrv.close(r));
+      }
+      if (tries === 40) throw new Error('no port free for both UDP and TCP: ' + why.slice(-6).join(', '));
     }
     const port = udp.address().port;
     // The name is sent to the engine, which hands it to the server; here

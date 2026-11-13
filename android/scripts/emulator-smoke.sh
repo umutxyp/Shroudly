@@ -900,7 +900,7 @@ sh_ "input keyevent KEYCODE_BACK" >/dev/null
 sh_ "am force-stop $PKG" >/dev/null
 # A long press on the Quick Settings tile (issue #35): Android opens the
 # activity of the tile's package that takes QS_TILE_PREFERENCES, else App info.
-tile_pref() { grep -q "$PKG/.MainActivity\|$PKG/$PKG.MainActivity" <<<"$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG")"; }
+tile_pref() { grep -q "$PKG/.HomeActivity\|$PKG/$PKG.HomeActivity\|$PKG/.MainActivity\|$PKG/$PKG.MainActivity" <<<"$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG")"; }
 tile_pref || fail "a long press on the tile would open App info: no activity for QS_TILE_PREFERENCES ($(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" | tr '\n' ' '))"
 # As SystemUI does it: the activity resolved in the tile's package, started by name.
 tile_act="$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" | grep -o "$PKG/[A-Za-z0-9_.]*" | head -1)"
