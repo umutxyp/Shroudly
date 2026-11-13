@@ -218,7 +218,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Các ứng dụng như TikTok không còn bị treo sau khi chuyển giữa Wi-Fi và dữ liệu di động.\nCác trang http:// bị mạng âm thầm bỏ qua đã mở lại.\niPhone và iPad: biểu tượng ứng dụng mới để chọn: phong cách, ngày đặc biệt và quốc gia (Cài đặt).";
-"whatsNewMac" = "Nhanh hơn: mọi kỹ thuật được thử ngay từ lần truy cập đầu, nên các trang không còn rơi vào Tor chậm; Tor chỉ được dùng khi không cách nào khác hiệu quả hoặc khi được chọn.\nCác trang http:// bị mạng âm thầm bỏ qua đã mở lại.\nBiểu tượng mới cho Dock: phong cách, ngày đặc biệt và quốc gia (Cài đặt).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

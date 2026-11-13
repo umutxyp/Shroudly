@@ -328,7 +328,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Faster: every technique is tried on the first visit, so sites no longer end up on slow Tor; Tor is used only when nothing else works or when chosen.\nTikTok and other apps no longer freeze after a switch between Wi-Fi and mobile data; http:// sites the network drops open again.\nNew home-screen icons to choose from: styles, special days and countries (Settings).</string>
+    <string name="whatsNewAndroid">The icon choice in Settings shows each icon again; they all looked like the classic one.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

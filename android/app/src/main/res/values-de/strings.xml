@@ -328,7 +328,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Schneller: Jede Technik wird schon beim ersten Besuch versucht, Seiten landen nicht mehr im langsamen Tor; Tor nur, wenn nichts anderes hilft oder es gewählt ist.\nTikTok und andere Apps hängen nach einem Wechsel zwischen WLAN und mobilen Daten nicht mehr; http://-Seiten, die das Netz verwirft, öffnen wieder.\nNeue Symbole für den Startbildschirm zur Auswahl: Stile, besondere Tage und Länder (Optionen).</string>
+    <string name="whatsNewAndroid">Die Symbolauswahl in den Einstellungen zeigt wieder jedes Symbol; alle sahen wie das klassische aus.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

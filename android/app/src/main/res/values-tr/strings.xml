@@ -328,7 +328,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Daha hızlı: her teknik ilk ziyarette deneniyor, siteler artık yavaş Tor\'a düşmüyor; Tor yalnızca başka hiçbir şey işe yaramadığında ya da seçildiğinde kullanılıyor.\nTikTok ve diğer uygulamalar Wi-Fi ile mobil veri arasında geçişten sonra artık donmuyor; ağın düşürdüğü http:// siteleri yeniden açılıyor.\nSeçilebilen yeni ana ekran simgeleri: tarzlar, özel günler ve ülkeler (Ayarlar).</string>
+    <string name="whatsNewAndroid">Ayarlar\'daki simge seçimi her simgeyi yeniden kendi resmiyle gösteriyor; hepsi klasik simge gibi görünüyordu.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

@@ -218,7 +218,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "TikTok kimi tətbiqlər Wi-Fi ilə mobil data arasında keçiddən sonra artıq donmur.\nŞəbəkənin səssizcə atdığı http:// saytları yenidən açılır.\niPhone və iPad: seçmək üçün yeni tətbiq nişanları: üslublar, xüsusi günlər və ölkələr (Ayarlar).";
-"whatsNewMac" = "Daha sürətli: hər texnika ilk girişdə sınanır, saytlar artıq yavaş Tor-a düşmür; Tor yalnız başqa heç nə işləmədikdə və ya seçildikdə istifadə olunur.\nŞəbəkənin səssizcə atdığı http:// saytları yenidən açılır.\nDock üçün yeni nişanlar: üslublar, xüsusi günlər və ölkələr (Ayarlar).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

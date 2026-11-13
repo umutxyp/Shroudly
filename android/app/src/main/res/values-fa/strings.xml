@@ -328,7 +328,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">سریع‌تر: همهٔ روش‌ها از همان بازدید اول امتحان می‌شوند و سایت‌ها دیگر به Tor کُند نمی‌افتند؛ Tor فقط وقتی به کار می‌رود که هیچ راه دیگری جواب ندهد یا انتخاب شده باشد.\nTikTok و برنامه‌های دیگر پس از جابه‌جایی میان Wi-Fi و دادهٔ همراه دیگر قفل نمی‌کنند؛ سایت‌های http:// که شبکه کنار می‌گذارد دوباره باز می‌شوند.\nنمادهای تازهٔ صفحهٔ اصلی برای انتخاب: سبک‌ها، روزهای ویژه و کشورها (تنظیمات).</string>
+    <string name="whatsNewAndroid">انتخاب آیکون در تنظیمات دوباره هر آیکون را نشان می‌دهد؛ همه شبیه آیکون کلاسیک دیده می‌شدند.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

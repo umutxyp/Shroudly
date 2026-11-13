@@ -328,7 +328,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Mais rápido: cada técnica é tentada já na primeira visita, então os sites não acabam mais no Tor, que é lento; o Tor só é usado se nada mais funcionar ou se for escolhido.\nTikTok e outros apps não travam mais depois de trocar entre Wi-Fi e dados móveis; sites http:// que a rede descarta voltam a abrir.\nNovos ícones da tela inicial para escolher: estilos, dias especiais e países (Ajustes).</string>
+    <string name="whatsNewAndroid">A escolha de ícone nas Configurações volta a mostrar cada ícone; todos pareciam o clássico.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

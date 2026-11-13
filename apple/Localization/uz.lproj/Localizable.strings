@@ -218,7 +218,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "TikTok kabi ilovalar Wi-Fi bilan mobil internet o'rtasida almashgandan keyin endi qotib qolmaydi.\nTarmoq jimgina tashlab yuboradigan http:// saytlari yana ochiladi.\niPhone va iPad: tanlash uchun ilovaning yangi belgilari: uslublar, maxsus kunlar va mamlakatlar (Sozlamalar).";
-"whatsNewMac" = "Tezroq: har bir usul birinchi kirishdayoq sinab ko'riladi, saytlar endi sekin Tor'ga tushib qolmaydi; Tor faqat boshqa hech narsa ish bermasa yoki tanlangan bo'lsa ishlatiladi.\nTarmoq jimgina tashlab yuboradigan http:// saytlari yana ochiladi.\nDock uchun yangi belgilar: uslublar, maxsus kunlar va mamlakatlar (Sozlamalar).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

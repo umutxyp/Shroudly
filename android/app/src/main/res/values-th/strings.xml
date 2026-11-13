@@ -328,7 +328,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">เร็วขึ้น: ทุกวิธีถูกลองตั้งแต่การเข้าครั้งแรก ไซต์จึงไม่ไปจบที่ Tor ซึ่งช้าอีกต่อไป และจะใช้ Tor ก็ต่อเมื่อไม่มีวิธีอื่นได้ผลหรือเมื่อเลือกไว้\nTikTok และแอปอื่น ๆ ไม่ค้างอีกหลังสลับระหว่าง Wi-Fi กับข้อมูลมือถือ และไซต์ http:// ที่เครือข่ายทิ้งเปิดได้อีกครั้ง\nไอคอนหน้าจอหลักใหม่ให้เลือก: สไตล์ วันพิเศษ และประเทศ (การตั้งค่า)</string>
+    <string name="whatsNewAndroid">การเลือกไอคอนในการตั้งค่าแสดงแต่ละไอคอนอีกครั้ง ก่อนหน้านี้ทุกอันดูเหมือนไอคอนคลาสสิก</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

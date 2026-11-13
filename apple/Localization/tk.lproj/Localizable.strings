@@ -218,7 +218,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "TikTok ýaly programmalar Wi-Fi bilen mobil internetiň arasynda geçenden soň indi doňmaýar.\nUlgamyň sessiz taşlaýan http:// saýtlary ýene açylýar.\niPhone we iPad: saýlamak üçin programmanyň täze nyşanlary: stiller, aýratyn günler we ýurtlar (Sazlamalar).";
-"whatsNewMac" = "Has çalt: her usul ilkinji girilende synanylýar, saýtlar indi haýal Tor-a düşmeýär; Tor diňe başga hiç zat kömek etmese ýa-da saýlanan bolsa ulanylýar.\nUlgamyň sessiz taşlaýan http:// saýtlary ýene açylýar.\nDock üçin täze nyşanlar: stiller, aýratyn günler we ýurtlar (Sazlamalar).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

@@ -328,7 +328,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Nhanh hơn: mọi kỹ thuật được thử ngay từ lần truy cập đầu, nên các trang không còn rơi vào Tor chậm; Tor chỉ được dùng khi không cách nào khác hiệu quả hoặc khi được chọn.\nTikTok và các ứng dụng khác không còn bị treo sau khi chuyển giữa Wi-Fi và dữ liệu di động; các trang http:// bị mạng bỏ qua đã mở lại.\nBiểu tượng màn hình chính mới để chọn: phong cách, ngày đặc biệt và quốc gia (Cài đặt).</string>
+    <string name="whatsNewAndroid">Phần chọn biểu tượng trong Cài đặt lại hiển thị đúng từng biểu tượng; trước đó tất cả trông như biểu tượng cổ điển.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

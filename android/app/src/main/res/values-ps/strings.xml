@@ -328,7 +328,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">ګړندی: هر تخنیک له لومړي ځل څخه ازمویل کېږي، نو سایټونه نور ورو Tor ته نه لوېږي؛ Tor یوازې هغه وخت کارول کېږي چې بله هېڅ لار کار ونه کړي یا غوره شوی وي.\nTikTok او نور اپونه د Wi-Fi او ګرځنده ډېټا ترمنځ له بدلون وروسته نور نه نښلي؛ هغه http:// سایټونه چې شبکه یې غورځوي بیا پرانیستل کېږي.\nد غوره کولو لپاره د کور پردې نوي آیکونونه: سټایلونه، ځانګړې ورځې او هېوادونه (امستنې).</string>
+    <string name="whatsNewAndroid">په تنظیماتو کې د آیکون ټاکنه بیا هر آیکون ښيي؛ ټول د کلاسیک آیکون په څېر ښکارېدل.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

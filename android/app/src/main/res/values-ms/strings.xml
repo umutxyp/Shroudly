@@ -328,7 +328,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Lebih pantas: setiap teknik dicuba sejak lawatan pertama, jadi laman tidak lagi berakhir di Tor yang perlahan; Tor hanya digunakan jika tiada cara lain berjaya atau jika dipilih.\nTikTok dan aplikasi lain tidak lagi tersekat selepas bertukar antara Wi-Fi dan data mudah alih; laman http:// yang dibuang rangkaian dibuka semula.\nIkon skrin utama baharu untuk dipilih: gaya, hari istimewa dan negara (Tetapan).</string>
+    <string name="whatsNewAndroid">Pilihan ikon dalam Tetapan kembali memaparkan setiap ikon; semuanya kelihatan seperti ikon klasik.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

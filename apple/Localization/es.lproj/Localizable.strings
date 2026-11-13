@@ -218,7 +218,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Apps como TikTok ya no se congelan tras pasar de Wi-Fi a datos móviles o al revés.\nLos sitios http:// que la red descarta sin avisar vuelven a abrir.\niPhone y iPad: nuevos iconos de la app para elegir: estilos, días especiales y países (Ajustes).";
-"whatsNewMac" = "Más rápido: cada técnica se prueba ya en la primera visita, así que los sitios dejan de acabar en Tor, que es lento; Tor solo se usa si nada más funciona o si se elige.\nLos sitios http:// que la red descarta sin avisar vuelven a abrir.\nNuevos iconos para el Dock para elegir: estilos, días especiales y países (Ajustes).";
+"whatsNewApple" = "";
+"whatsNewMac" = "";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

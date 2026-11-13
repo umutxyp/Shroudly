@@ -328,7 +328,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Bileztir: her teknîk ji serdana yekem ve tê ceribandin, êdî malper naçin ser Tor-a hêdî; Tor tenê dema ku tiştekî din kar neke an hatibe hilbijartin tê bikaranîn.\nTikTok û sepanên din piştî guherîna di navbera Wi-Fi û daneyên mobîl de êdî naqefilin; malperên http:// yên ku tor davêje dîsa vedibin.\nÎkonên nû yên ekrana sereke ji bo hilbijartinê: şêwaz, rojên taybet û welat (Mîheng).</string>
+    <string name="whatsNewAndroid">Hilbijartina îkonê di Mîhengan de dîsa her îkonê nîşan dide; hemû wek îkona klasîk xuya dibûn.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>
