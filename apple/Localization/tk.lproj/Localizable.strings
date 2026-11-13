@@ -101,6 +101,12 @@
 "logInfo" = "Maglumat";
 "logSuccess" = "Üstünlik";
 "logWarning" = "Duýduryş";
+"logoChoice" = "Logotip";
+"logoChoiceDesc" = "Shroudly-niň programmanyň içindäki logotipi we, ulgam rugsat berýän ýerinde, programmanyň nyşany.";
+"logoCountries" = "Ýurtlar";
+"logoDays" = "Aýratyn günler";
+"logoStyles" = "Stiller";
+"logoSwatch" = "Logotip {total}-dan {n}";
 "logsCopied" = "Göçürildi";
 "logsSaveFailed" = "Saklanmady";
 "logsSaved" = "Saklandy";
@@ -212,7 +218,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Has çalt: Tor-yň bir gezek geçiren saýty Tor-da galman, 15 minutdan soň adaty ýollara gaýdýar.\nTor haýal köprüleri (Russiýa) has uzak garaşýar, şonuň üçin Telegram onuň üsti bilen geçýär.\nGemini we AI Studio doly Tor arkaly iberilip bilner (Saýtlar boýunça birikmeler).";
+"whatsNewApple" = "TikTok ýaly programmalar Wi-Fi bilen mobil internetiň arasynda geçenden soň indi doňmaýar.\nUlgamyň sessiz taşlaýan http:// saýtlary ýene açylýar.\niPhone we iPad: saýlamak üçin programmanyň täze nyşanlary: stiller, aýratyn günler we ýurtlar (Sazlamalar).";
+"whatsNewMac" = "Has çalt: her usul ilkinji girilende synanylýar, saýtlar indi haýal Tor-a düşmeýär; Tor diňe başga hiç zat kömek etmese ýa-da saýlanan bolsa ulanylýar.\nUlgamyň sessiz taşlaýan http:// saýtlary ýene açylýar.\nDock üçin täze nyşanlar: stiller, aýratyn günler we ýurtlar (Sazlamalar).";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

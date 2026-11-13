@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Nenhuma técnica abre {host} nesta rede. A versão completa do Shroudly, com Tor, pode abri-lo. Abra o Shroudly para obtê-la.</string>
     <string name="liteOfferTitle">{host} continua bloqueado aqui</string>
     <string name="logEntries">Entradas: {count}</string>
+    <string name="logoChoice">Logotipo</string>
+    <string name="logoChoiceDesc">O logotipo do Shroudly dentro do app e, onde o sistema permitir, o ícone dele.</string>
+    <string name="logoCountries">Países</string>
+    <string name="logoDays">Dias especiais</string>
+    <string name="logoStyles">Estilos</string>
+    <string name="logoSwatch">Logotipo {n} de {total}</string>
     <string name="logsCopied">Copiado</string>
     <string name="madeBy">Um produto da Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">A conexão com o resto do mundo está cortada; os sites do país ainda abrem. Nenhum app nem VPN passa por isso. O Shroudly continua sozinho quando ela voltar.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Mais rápido: um site que o Tor levou uma vez volta aos caminhos habituais após 15 minutos em vez de ficar no Tor.\nO Tor espera mais pelas pontes lentas (Rússia), para o Telegram passar por ele.\nO Gemini e o AI Studio podem passar inteiros pelo Tor (Conexões por site).</string>
+    <string name="whatsNewAndroid">Mais rápido: cada técnica é tentada já na primeira visita, então os sites não acabam mais no Tor, que é lento; o Tor só é usado se nada mais funcionar ou se for escolhido.\nTikTok e outros apps não travam mais depois de trocar entre Wi-Fi e dados móveis; sites http:// que a rede descarta voltam a abrir.\nNovos ícones da tela inicial para escolher: estilos, dias especiais e países (Ajustes).</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

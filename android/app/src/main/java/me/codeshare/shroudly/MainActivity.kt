@@ -27,7 +27,8 @@ import android.widget.TextView
 import java.text.NumberFormat
 
 /* The one window: a switch, what it is doing, live counters, and About. */
-class MainActivity : Activity() {
+/* Started as HomeActivity (see there): open, so that it can be. */
+open class MainActivity : Activity() {
     companion object {
         private const val REQUEST_VPN = 1
         private const val REQUEST_NOTIFICATIONS = 2

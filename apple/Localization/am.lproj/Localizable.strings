@@ -101,6 +101,12 @@
 "logInfo" = "መረጃ";
 "logSuccess" = "ስኬት";
 "logWarning" = "ማስጠንቀቂያ";
+"logoChoice" = "አርማ";
+"logoChoiceDesc" = "በመተግበሪያው ውስጥ ያለው የShroudly አርማ እና፣ ሲስተሙ በሚፈቅድበት ቦታ፣ የመተግበሪያው አዶ።";
+"logoCountries" = "አገሮች";
+"logoDays" = "ልዩ ቀናት";
+"logoStyles" = "ቅጦች";
+"logoSwatch" = "አርማ {n} ከ{total}";
 "logsCopied" = "ተቀድቷል";
 "logsSaveFailed" = "አልተቀመጠም";
 "logsSaved" = "ተቀምጧል";
@@ -212,7 +218,7 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "ፈጣን፦ Tor አንድ ጊዜ ያሳለፈው ጣቢያ በTor ላይ ከመቆየት ይልቅ ከ15 ደቂቃ በኋላ ወደ ተለመዱት መንገዶች ይመለሳል።\nTor ቀርፋፋ ድልድዮችን (ሩሲያ) ረዘም ላለ ጊዜ ይጠብቃል፤ ስለዚህ Telegram በእሱ በኩል ያልፋል።\nGemini እና AI Studio ሙሉ በሙሉ በTor ሊያልፉ ይችላሉ (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)።";
+"whatsNewApple" = "እንደ TikTok ያሉ መተግበሪያዎች በWi-Fi እና በሞባይል ዳታ መካከል ከተቀየሩ በኋላ ከእንግዲህ አይቆሙም።\nአውታረ መረቡ በዝምታ የሚጥላቸው የhttp:// ጣቢያዎች እንደገና ይከፈታሉ።\niPhone እና iPad፦ የሚመረጡ አዲስ የመተግበሪያ አዶዎች፦ ቅጦች፣ ልዩ ቀናትና አገሮች (ቅንብሮች)።";
+"whatsNewMac" = "ፈጣን፦ እያንዳንዱ ዘዴ ከመጀመሪያው ጉብኝት ጀምሮ ይሞከራል፤ ስለዚህ ጣቢያዎች ከእንግዲህ በዝግተኛው Tor ላይ አያልቁም፤ Tor የሚውለው ሌላ ምንም ካልሰራ ወይም ከተመረጠ ብቻ ነው።\nአውታረ መረቡ በዝምታ የሚጥላቸው የhttp:// ጣቢያዎች እንደገና ይከፈታሉ።\nለDock አዲስ አዶዎች፦ ቅጦች፣ ልዩ ቀናትና አገሮች (ቅንብሮች)።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

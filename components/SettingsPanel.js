@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { exitWithPlace } from './exitPlace';
-import { ACCENTS, applyAppearance, readAppearance } from './Appearance';
+import { ACCENTS, LOGO_GROUPS, LOGO_IDS, applyAppearance, chooseLogo, logoSrc, readAppearance, useLogo } from './Appearance';
 import {
   AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
   SpinnerIcon, XCircleIcon, ZapIcon,
@@ -669,6 +669,7 @@ export default function SettingsPanel({ active = false }) {
 
   useEffect(() => { setLook(readAppearance()); }, []);
   const setAppearance = (next) => { const v = { ...look, ...next }; setLook(v); applyAppearance(v); };
+  const logo = useLogo();
 
   // The automatic list, and when it was last built; it can change while the
   // window is open.
@@ -1394,6 +1395,7 @@ export default function SettingsPanel({ active = false }) {
                       // The colours and Liquid glass live in the window, not in
                       // the settings file: back to a new install's too.
                       setAppearance({ accent: 'sky', surface: 'solid' });
+                      chooseLogo('classic', false);
                       window.electron?.resetSettings?.();
                     }}
                     className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
@@ -1435,6 +1437,40 @@ export default function SettingsPanel({ active = false }) {
                 </button>
               );
             })}
+          </div>
+
+          {/* The logo: the window's corner at once, and through the main
+              process the window's icon, the taskbar and the Dock. Pictures,
+              not names: twenty-four names in thirty-one languages would say
+              less than the pictures do. */}
+          <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
+            <p className="m-0 text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{t('logoChoice')}</p>
+            <p className="mb-3 mt-0.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('logoChoiceDesc')}</p>
+            {LOGO_GROUPS.map(([group, ids]) => (
+              <div key={group} className="mb-3 last:mb-0">
+                <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>
+                  {t(group === 'styles' ? 'logoStyles' : group === 'days' ? 'logoDays' : 'logoCountries')}
+                </p>
+                <div className="grid grid-cols-6 gap-2 sm:grid-cols-9 sm:gap-2.5">
+                  {ids.map((id) => {
+                    const on = logo === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-label={t('logoSwatch', { n: LOGO_IDS.indexOf(id) + 1, total: LOGO_IDS.length })}
+                        aria-pressed={on}
+                        onClick={() => chooseLogo(id)}
+                        className="swatch relative aspect-square w-full rounded-[22%] transition-transform duration-150 hover:scale-105"
+                        style={{ boxShadow: on ? '0 0 0 2px var(--surface), 0 0 0 4px var(--accent)' : 'none' }}
+                      >
+                        <img src={logoSrc(id)} alt="" draggable={false} className="h-full w-full select-none rounded-[22%] object-contain" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>

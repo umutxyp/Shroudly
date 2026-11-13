@@ -101,6 +101,12 @@
 "logInfo" = "Məlumat";
 "logSuccess" = "Uğurlu";
 "logWarning" = "Xəbərdarlıq";
+"logoChoice" = "Loqo";
+"logoChoiceDesc" = "Shroudly-nin tətbiq daxilindəki loqosu və, sistemin icazə verdiyi yerdə, tətbiqin nişanı.";
+"logoCountries" = "Ölkələr";
+"logoDays" = "Xüsusi günlər";
+"logoStyles" = "Üslublar";
+"logoSwatch" = "Loqo {n}/{total}";
 "logsCopied" = "Köçürüldü";
 "logsSaveFailed" = "Saxlanılmadı";
 "logsSaved" = "Saxlanıldı";
@@ -212,7 +218,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Daha sürətli: Tor-un bir dəfə daşıdığı sayt Tor-da qalmaq əvəzinə 15 dəqiqə sonra adi yollara qayıdır.\nTor yavaş körpüləri (Rusiya) daha uzun gözləyir, beləliklə Telegram onun üzərindən keçir.\nGemini və AI Studio tamamilə Tor ilə göndərilə bilər (Saytlara görə bağlantılar).";
+"whatsNewApple" = "TikTok kimi tətbiqlər Wi-Fi ilə mobil data arasında keçiddən sonra artıq donmur.\nŞəbəkənin səssizcə atdığı http:// saytları yenidən açılır.\niPhone və iPad: seçmək üçün yeni tətbiq nişanları: üslublar, xüsusi günlər və ölkələr (Ayarlar).";
+"whatsNewMac" = "Daha sürətli: hər texnika ilk girişdə sınanır, saytlar artıq yavaş Tor-a düşmür; Tor yalnız başqa heç nə işləmədikdə və ya seçildikdə istifadə olunur.\nŞəbəkənin səssizcə atdığı http:// saytları yenidən açılır.\nDock üçün yeni nişanlar: üslublar, xüsusi günlər və ölkələr (Ayarlar).";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

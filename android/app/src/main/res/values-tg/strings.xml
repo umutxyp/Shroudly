@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Дар ин шабака ягон усул {host}-ро намекушояд. Версияи пурраи Shroudly бо Tor метавонад онро кушояд. Барои гирифтани он Shroudly-ро кушоед.</string>
     <string name="liteOfferTitle">{host} дар ин ҷо баста мемонад</string>
     <string name="logEntries">Сабтҳо: {count}</string>
+    <string name="logoChoice">Логотип</string>
+    <string name="logoChoiceDesc">Логотипи Shroudly дар дохили барнома ва, ҷое ки система иҷозат медиҳад, нишонаи барнома.</string>
+    <string name="logoCountries">Кишварҳо</string>
+    <string name="logoDays">Рӯзҳои махсус</string>
+    <string name="logoStyles">Услубҳо</string>
+    <string name="logoSwatch">Логотип {n} аз {total}</string>
     <string name="logsCopied">Нусха бардошта шуд</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Пайваст бо дигар ҷаҳон бурида шудааст; сайтҳои дохили кишвар ҳоло кушода мешаванд. Ягон барнома ё VPN инро гузашта наметавонад. Вақте пайваст бармегардад, Shroudly худаш идома медиҳад.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Тезтар: сайте, ки Tor як бор бурд, ба ҷои дар Tor мондан, пас аз 15 дақиқа ба роҳҳои муқаррарӣ бармегардад.\nTor пулҳои сустро (Русия) дарозтар интизор мешавад, то Telegram тавассути он гузарад.\nGemini ва AI Studio-ро пурра тавассути Tor фиристодан мумкин аст (Пайвастҳо аз рӯи сайт).</string>
+    <string name="whatsNewAndroid">Тезтар: ҳамаи усулҳо аз ҳамон боздиди аввал санҷида мешаванд ва сайтҳо дигар ба Tor-и суст намеафтанд; Tor танҳо вақте истифода мешавад, ки ягон роҳи дигар кор накунад ё интихоб шуда бошад.\nTikTok ва барномаҳои дигар пас аз гузариш байни Wi-Fi ва интернети мобилӣ дигар ях намекунанд; сайтҳои http://, ки шабака партофта буд, боз кушода мешаванд.\nНишонаҳои нави экрани асосӣ барои интихоб: услубҳо, рӯзҳои махсус ва кишварҳо (Танзимот).</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

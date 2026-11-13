@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">No technique opens {host} on this network. Shroudly\'s full version, with Tor, can open it. Open Shroudly to get it.</string>
     <string name="liteOfferTitle">{host} stays blocked here</string>
     <string name="logEntries">Entries: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Shroudly\'s logo inside the app and, where the system allows it, the app\'s icon.</string>
+    <string name="logoCountries">Countries</string>
+    <string name="logoDays">Special days</string>
+    <string name="logoStyles">Styles</string>
+    <string name="logoSwatch">Logo {n} of {total}</string>
     <string name="logsCopied">Copied</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
     <string name="nationalOnlyBody">The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Faster: a site Tor carried once goes back to the usual ways after 15 minutes instead of staying on Tor.\nTor waits longer for slow bridges (Russia), so Telegram gets through it.\nGemini and AI Studio can go through Tor as a whole (Connections by site).</string>
+    <string name="whatsNewAndroid">Faster: every technique is tried on the first visit, so sites no longer end up on slow Tor; Tor is used only when nothing else works or when chosen.\nTikTok and other apps no longer freeze after a switch between Wi-Fi and mobile data; http:// sites the network drops open again.\nNew home-screen icons to choose from: styles, special days and countries (Settings).</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

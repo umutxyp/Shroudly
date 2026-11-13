@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Bu ağda hiçbir teknik {host} için işe yaramıyor. Shroudly\'nin Tor\'lu tam sürümü onu açabilir. Almak için Shroudly\'yi aç.</string>
     <string name="liteOfferTitle">{host} burada engelli kalıyor</string>
     <string name="logEntries">Kayıt sayısı: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Shroudly\'nin uygulama içindeki logosu ve, sistemin izin verdiği yerde, uygulamanın simgesi.</string>
+    <string name="logoCountries">Ülkeler</string>
+    <string name="logoDays">Özel günler</string>
+    <string name="logoStyles">Tarzlar</string>
+    <string name="logoSwatch">Logo {n}/{total}</string>
     <string name="logsCopied">Kopyalandı</string>
     <string name="madeBy">Bir Codeshare Technology Ltd ürünü</string>
     <string name="nationalOnlyBody">Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Daha hızlı: Tor\'un bir kez taşıdığı site, Tor\'da kalmak yerine 15 dakika sonra olağan yollara geri dönüyor.\nTor yavaş köprüleri (Rusya) daha uzun bekliyor; böylece Telegram onun üzerinden geçebiliyor.\nGemini ve AI Studio bütünüyle Tor\'dan gönderilebiliyor (Siteye göre bağlantılar).</string>
+    <string name="whatsNewAndroid">Daha hızlı: her teknik ilk ziyarette deneniyor, siteler artık yavaş Tor\'a düşmüyor; Tor yalnızca başka hiçbir şey işe yaramadığında ya da seçildiğinde kullanılıyor.\nTikTok ve diğer uygulamalar Wi-Fi ile mobil veri arasında geçişten sonra artık donmuyor; ağın düşürdüğü http:// siteleri yeniden açılıyor.\nSeçilebilen yeni ana ekran simgeleri: tarzlar, özel günler ve ülkeler (Ayarlar).</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

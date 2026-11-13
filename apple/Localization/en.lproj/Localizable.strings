@@ -101,6 +101,12 @@
 "logInfo" = "Info";
 "logSuccess" = "Success";
 "logWarning" = "Warning";
+"logoChoice" = "Logo";
+"logoChoiceDesc" = "Shroudly's logo inside the app and, where the system allows it, the app's icon.";
+"logoCountries" = "Countries";
+"logoDays" = "Special days";
+"logoStyles" = "Styles";
+"logoSwatch" = "Logo {n} of {total}";
 "logsCopied" = "Copied";
 "logsSaveFailed" = "Not saved";
 "logsSaved" = "Saved";
@@ -212,7 +218,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Faster: a site Tor carried once goes back to the usual ways after 15 minutes instead of staying on Tor.\nTor waits longer for slow bridges (Russia), so Telegram gets through it.\nGemini and AI Studio can go through Tor as a whole (Connections by site).";
+"whatsNewApple" = "Apps such as TikTok no longer freeze after a switch between Wi-Fi and mobile data.\nhttp:// sites the network drops without a word open again.\niPhone and iPad: new app icons to choose from: styles, special days and countries (Settings).";
+"whatsNewMac" = "Faster: every technique is tried on the first visit, so sites no longer end up on slow Tor; Tor is used only when nothing else works or when chosen.\nhttp:// sites the network drops without a word open again.\nNew Dock icons to choose from: styles, special days and countries (Settings).";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

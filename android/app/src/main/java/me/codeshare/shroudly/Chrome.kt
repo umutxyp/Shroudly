@@ -321,7 +321,7 @@ object Chrome {
         when (t) {
             Tab.SETTINGS -> a.startActivity(Intent(a, SettingsActivity::class.java))
             Tab.FOLLOW -> a.startActivity(Intent(a, FollowActivity::class.java))
-            else -> a.startActivity(Intent(a, MainActivity::class.java)
+            else -> a.startActivity(Intent(a, HomeActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra(EXTRA_TAB, t.name))
         }

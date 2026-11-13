@@ -183,7 +183,7 @@ class ShroudlyVpnService : VpnService() {
         }
 
         fun openApp(ctx: Context): PendingIntent = PendingIntent.getActivity(
-            ctx, 0, Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            ctx, 0, Intent(ctx, HomeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }
@@ -1720,7 +1720,7 @@ class ShroudlyVpnService : VpnService() {
         // Under lockdown, Stop asks first in the window (with Shroudly off
         // there apps have no internet at all, MainActivity.confirmStop).
         val stop = if (Protection.lockdown) PendingIntent.getActivity(
-            this, 4, Intent(this, MainActivity::class.java).putExtra(MainActivity.EXTRA_CONFIRM_STOP, true)
+            this, 4, Intent(this, HomeActivity::class.java).putExtra(MainActivity.EXTRA_CONFIRM_STOP, true)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         ) else stopIntent

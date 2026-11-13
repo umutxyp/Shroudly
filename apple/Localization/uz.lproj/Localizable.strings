@@ -101,6 +101,12 @@
 "logInfo" = "Maʼlumot";
 "logSuccess" = "Muvaffaqiyat";
 "logWarning" = "Ogohlantirish";
+"logoChoice" = "Logotip";
+"logoChoiceDesc" = "Shroudly’ning ilova ichidagi logotipi va, tizim ruxsat bergan joyda, ilova belgisi.";
+"logoCountries" = "Mamlakatlar";
+"logoDays" = "Maxsus kunlar";
+"logoStyles" = "Uslublar";
+"logoSwatch" = "Logotip {total} tadan {n}";
 "logsCopied" = "Nusxalandi";
 "logsSaveFailed" = "Saqlanmadi";
 "logsSaved" = "Saqlandi";
@@ -212,7 +218,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Tezroq: Tor bir marta o'tkazgan sayt Tor'da qolmay, 15 daqiqadan so'ng odatiy yo'llarga qaytadi.\nTor sekin ko'priklarni (Rossiya) uzoqroq kutadi, shuning uchun Telegram u orqali o'tadi.\nGemini va AI Studio to'liq Tor orqali yuborilishi mumkin (Saytlar bo'yicha ulanishlar).";
+"whatsNewApple" = "TikTok kabi ilovalar Wi-Fi bilan mobil internet o'rtasida almashgandan keyin endi qotib qolmaydi.\nTarmoq jimgina tashlab yuboradigan http:// saytlari yana ochiladi.\niPhone va iPad: tanlash uchun ilovaning yangi belgilari: uslublar, maxsus kunlar va mamlakatlar (Sozlamalar).";
+"whatsNewMac" = "Tezroq: har bir usul birinchi kirishdayoq sinab ko'riladi, saytlar endi sekin Tor'ga tushib qolmaydi; Tor faqat boshqa hech narsa ish bermasa yoki tanlangan bo'lsa ishlatiladi.\nTarmoq jimgina tashlab yuboradigan http:// saytlari yana ochiladi.\nDock uchun yangi belgilar: uslublar, maxsus kunlar va mamlakatlar (Sozlamalar).";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

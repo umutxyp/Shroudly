@@ -101,6 +101,12 @@
 "logInfo" = "Info";
 "logSuccess" = "Erfolg";
 "logWarning" = "Warnung";
+"logoChoice" = "Logo";
+"logoChoiceDesc" = "Das Logo von Shroudly in der App und, wo das System es erlaubt, das App-Symbol.";
+"logoCountries" = "Länder";
+"logoDays" = "Besondere Tage";
+"logoStyles" = "Stile";
+"logoSwatch" = "Logo {n} von {total}";
 "logsCopied" = "Kopiert";
 "logsSaveFailed" = "Nicht gespeichert";
 "logsSaved" = "Gespeichert";
@@ -212,7 +218,7 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Schneller: Eine Seite, die Tor einmal übernommen hat, geht nach 15 Minuten wieder die üblichen Wege, statt bei Tor zu bleiben.\nTor wartet länger auf langsame Brücken (Russland), sodass Telegram darüber durchkommt.\nGemini und AI Studio können vollständig über Tor laufen (Verbindungen nach Seite).";
+"whatsNewApple" = "Apps wie TikTok hängen nach einem Wechsel zwischen WLAN und mobilen Daten nicht mehr.\nhttp://-Seiten, die das Netz stillschweigend verwirft, öffnen wieder.\niPhone und iPad: neue App-Symbole zur Auswahl: Stile, besondere Tage und Länder (Optionen).";
+"whatsNewMac" = "Schneller: Jede Technik wird schon beim ersten Besuch versucht, Seiten landen nicht mehr im langsamen Tor; Tor nur, wenn nichts anderes hilft oder es gewählt ist.\nhttp://-Seiten, die das Netz stillschweigend verwirft, öffnen wieder.\nNeue Symbole für das Dock zur Auswahl: Stile, besondere Tage und Länder (Optionen).";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

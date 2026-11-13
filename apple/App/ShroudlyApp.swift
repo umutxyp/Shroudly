@@ -55,6 +55,10 @@ struct ShroudlyApp: App {
             .preferredColorScheme(.dark)
             .tint(Accent.color(accent))
             .task {
+                #if os(macOS)
+                // The logo chosen in Settings, on the Dock (it forgets it when the app quits).
+                Logos.apply()
+                #endif
                 await controller.load()
                 #if DEBUG
                 // A test on a Mac (a debug build only): protection started at

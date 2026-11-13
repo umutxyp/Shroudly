@@ -54,6 +54,7 @@ const Diagnostics = require('./diagnostics');
 const ProcNet = require('./procnet');
 const { RawWatch, programName, serviceOf, askLabel } = require('./raw-apps');
 const TorApps = require('./tor-apps');
+const Logos = require('./logos');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
@@ -486,9 +487,31 @@ function traySaveLogs(s) {
 /* ── tray + status ───────────────────────────────────────────────────────── */
 /* The window's, the taskbar's and the notifications' icon: Shroudly's logo,
  * as at the window's top left (never a blurred small copy). */
+function logoAssetPath(file) {
+  return app.isPackaged ? path.join(process.resourcesPath, 'logos', file) : path.join(__dirname, '..', 'logos', file);
+}
 function trayIconPath() {
+  const own = Logos.file(store.get('logo', 'classic'), 'window');
+  if (own && fs.existsSync(logoAssetPath(own))) return logoAssetPath(own);
   return process.platform === 'win32' ? iconAssetPath('icon.ico')
                                       : iconAssetPath('icon.png');
+}
+
+/* The logo chosen in Settings, put where a running program can put it: the
+ * window's icon (the taskbar follows it on Windows and Linux) and, on macOS,
+ * the Dock icon. The classic one on macOS is the app's own icon again. */
+function applyLogo() {
+  const id = Logos.chosen(store.get('logo', 'classic'));
+  try {
+    if (process.platform !== 'darwin' && mainWindow && !mainWindow.isDestroyed()) mainWindow.setIcon(trayIconPath());
+  } catch {}
+  try {
+    if (process.platform === 'darwin' && app.dock) {
+      const own = Logos.file(id, 'dock');
+      const f = own ? logoAssetPath(own) : path.join(process.resourcesPath, 'icon.icns');
+      if (fs.existsSync(f)) { const img = nativeImage.createFromPath(f); if (!img.isEmpty()) app.dock.setIcon(img); }
+    }
+  } catch {}
 }
 
 /* The notification area and the menu bar: Shroudly's logo, exactly as at the
@@ -854,7 +877,8 @@ function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
 function setDockIcon(visible) {
   if (process.platform !== 'darwin' || !app.dock) return Promise.resolve();
   try {
-    if (visible) return Promise.resolve(app.dock.show()).catch(() => {});
+    // The logo chosen in Settings goes on with it: the Dock forgets it when hidden.
+    if (visible) return Promise.resolve(app.dock.show()).then(() => applyLogo()).catch(() => {});
     app.dock.hide();
   } catch {}
   return Promise.resolve();
@@ -3567,6 +3591,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
   }
   if (key === 'language') { rebuildTrayMenu(); setAppMenu(); }
   if (key === 'showTrayIcon') setTrayIcon(value !== false);
+  if (key === 'logo') applyLogo();
   if (key === 'autoUpdate' && updater) updater.autoChanged();
   if (key === 'autoStart') {
     const ok = setAutoStart(value);

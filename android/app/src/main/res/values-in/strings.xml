@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly versi lengkap, dengan Tor, bisa membukanya. Buka Shroudly untuk mendapatkannya.</string>
     <string name="liteOfferTitle">{host} tetap diblokir di sini</string>
     <string name="logEntries">Entri: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Logo Shroudly di dalam aplikasi dan, jika sistem mengizinkan, ikon aplikasinya.</string>
+    <string name="logoCountries">Negara</string>
+    <string name="logoDays">Hari istimewa</string>
+    <string name="logoStyles">Gaya</string>
+    <string name="logoSwatch">Logo {n} dari {total}</string>
     <string name="logsCopied">Disalin</string>
     <string name="madeBy">Produk dari Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Koneksi ke seluruh dunia terputus; situs di dalam negeri masih terbuka. Tidak ada aplikasi atau VPN yang bisa melewatinya. Shroudly melanjutkan sendiri saat koneksi kembali.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Lebih cepat: situs yang pernah dibawa Tor kembali ke jalur biasa setelah 15 menit, tidak terus lewat Tor.\nTor menunggu jembatan yang lambat (Rusia) lebih lama, sehingga Telegram bisa lewat.\nGemini dan AI Studio bisa lewat Tor sepenuhnya (Koneksi per situs).</string>
+    <string name="whatsNewAndroid">Lebih cepat: setiap teknik dicoba sejak kunjungan pertama, jadi situs tak lagi berakhir di Tor yang lambat; Tor hanya dipakai bila tak ada cara lain yang berhasil atau bila dipilih.\nTikTok dan aplikasi lain tak lagi macet setelah pindah antara Wi-Fi dan data seluler; situs http:// yang dibuang jaringan terbuka lagi.\nIkon layar utama baru untuk dipilih: gaya, hari istimewa, dan negara (Pengaturan).</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

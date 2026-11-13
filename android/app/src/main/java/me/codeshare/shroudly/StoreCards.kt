@@ -130,7 +130,7 @@ object StoreCards {
         try {
             ShroudlyVpnService.channels(ctx)
             val open = android.app.PendingIntent.getActivity(
-                ctx, NOTICE_ID, android.content.Intent(ctx, MainActivity::class.java).putExtra(MainActivity.EXTRA_STORE_CARD, MOVE)
+                ctx, NOTICE_ID, android.content.Intent(ctx, HomeActivity::class.java).putExtra(MainActivity.EXTRA_STORE_CARD, MOVE)
                     .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
             )

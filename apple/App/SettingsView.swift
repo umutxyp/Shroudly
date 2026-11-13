@@ -131,6 +131,9 @@ struct SettingsView: View {
             Section(tr("accentColour")) {
                 AccentPicker()
             }
+            Section(tr("logoChoice")) {
+                LogoPicker()
+            }
             #endif
             }
             if show(.connection) {

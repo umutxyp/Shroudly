@@ -101,6 +101,12 @@
 "logInfo" = "Thông tin";
 "logSuccess" = "Thành công";
 "logWarning" = "Cảnh báo";
+"logoChoice" = "Logo";
+"logoChoiceDesc" = "Logo của Shroudly trong ứng dụng và, ở nơi hệ thống cho phép, biểu tượng của ứng dụng.";
+"logoCountries" = "Quốc gia";
+"logoDays" = "Ngày đặc biệt";
+"logoStyles" = "Kiểu";
+"logoSwatch" = "Logo {n} trên {total}";
 "logsCopied" = "Đã sao chép";
 "logsSaveFailed" = "Chưa lưu được";
 "logsSaved" = "Đã lưu";
@@ -212,7 +218,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Nhanh hơn: trang mà Tor từng mang đi sẽ quay về cách thông thường sau 15 phút thay vì ở lại Tor.\nTor chờ các cầu chậm (Nga) lâu hơn, nên Telegram đi qua được.\nCó thể cho Gemini và AI Studio đi toàn bộ qua Tor (Kết nối theo trang).";
+"whatsNewApple" = "Các ứng dụng như TikTok không còn bị treo sau khi chuyển giữa Wi-Fi và dữ liệu di động.\nCác trang http:// bị mạng âm thầm bỏ qua đã mở lại.\niPhone và iPad: biểu tượng ứng dụng mới để chọn: phong cách, ngày đặc biệt và quốc gia (Cài đặt).";
+"whatsNewMac" = "Nhanh hơn: mọi kỹ thuật được thử ngay từ lần truy cập đầu, nên các trang không còn rơi vào Tor chậm; Tor chỉ được dùng khi không cách nào khác hiệu quả hoặc khi được chọn.\nCác trang http:// bị mạng âm thầm bỏ qua đã mở lại.\nBiểu tượng mới cho Dock: phong cách, ngày đặc biệt và quốc gia (Cài đặt).";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

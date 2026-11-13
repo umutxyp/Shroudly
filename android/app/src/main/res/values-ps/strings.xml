@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">په دې شبکه کې هېڅ تخنیک {host} نه پرانیزي. د Shroudly بشپړه نسخه، له Tor سره، کولی شي هغه پرانیزي. د ترلاسه کولو لپاره Shroudly پرانیزئ.</string>
     <string name="liteOfferTitle">{host} دلته لا هم بند دی</string>
     <string name="logEntries">ثبتونه: {count}</string>
+    <string name="logoChoice">لوګو</string>
+    <string name="logoChoiceDesc">د اپ دننه د Shroudly لوګو او، چېرته چې سیسټم اجازه ورکوي، د اپ آیکون.</string>
+    <string name="logoCountries">هېوادونه</string>
+    <string name="logoDays">ځانګړې ورځې</string>
+    <string name="logoStyles">سټایلونه</string>
+    <string name="logoSwatch">لوګو {n} له {total}</string>
     <string name="logsCopied">کاپي شو</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
     <string name="nationalOnlyBody">د نړۍ له پاتې برخې سره اړیکه پرې ده؛ د هېواد دننه سایټونه لا خلاصېږي. هېڅ اپ یا VPN له دې نه شي تېرېدای. کله چې اړیکه بېرته راشي، Shroudly پخپله دوام ورکوي.</string>
@@ -322,7 +328,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">ګړندی: هغه سایټ چې Tor یو ځل وړی، پر Tor د پاتې کېدو پر ځای له ۱۵ دقیقو وروسته عادي لارو ته ورګرځي.\nTor د ورو پلونو (روسیه) لپاره ډېر انتظار کوي، نو Telegram د هغه له لارې ځي.\nGemini او AI Studio په بشپړه توګه د Tor له لارې لېږل کېدای شي (د سایټ له مخې اتصالونه).</string>
+    <string name="whatsNewAndroid">ګړندی: هر تخنیک له لومړي ځل څخه ازمویل کېږي، نو سایټونه نور ورو Tor ته نه لوېږي؛ Tor یوازې هغه وخت کارول کېږي چې بله هېڅ لار کار ونه کړي یا غوره شوی وي.\nTikTok او نور اپونه د Wi-Fi او ګرځنده ډېټا ترمنځ له بدلون وروسته نور نه نښلي؛ هغه http:// سایټونه چې شبکه یې غورځوي بیا پرانیستل کېږي.\nد غوره کولو لپاره د کور پردې نوي آیکونونه: سټایلونه، ځانګړې ورځې او هېوادونه (امستنې).</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

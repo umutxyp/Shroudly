@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Không kỹ thuật nào mở được {host} trên mạng này. Bản đầy đủ của Shroudly, có Tor, có thể mở nó. Mở Shroudly để tải bản đó.</string>
     <string name="liteOfferTitle">{host} vẫn bị chặn ở đây</string>
     <string name="logEntries">Số mục: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Logo của Shroudly trong ứng dụng và, ở nơi hệ thống cho phép, biểu tượng của ứng dụng.</string>
+    <string name="logoCountries">Quốc gia</string>
+    <string name="logoDays">Ngày đặc biệt</string>
+    <string name="logoStyles">Kiểu</string>
+    <string name="logoSwatch">Logo {n} trên {total}</string>
     <string name="logsCopied">Đã sao chép</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Kết nối với phần còn lại của thế giới đã bị cắt; các trang trong nước vẫn mở được. Không ứng dụng hay VPN nào vượt qua được điều này. Shroudly sẽ tự tiếp tục khi kết nối trở lại.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Nhanh hơn: trang mà Tor từng mang đi sẽ quay về cách thông thường sau 15 phút thay vì ở lại Tor.\nTor chờ các cầu chậm (Nga) lâu hơn, nên Telegram đi qua được.\nCó thể cho Gemini và AI Studio đi toàn bộ qua Tor (Kết nối theo trang).</string>
+    <string name="whatsNewAndroid">Nhanh hơn: mọi kỹ thuật được thử ngay từ lần truy cập đầu, nên các trang không còn rơi vào Tor chậm; Tor chỉ được dùng khi không cách nào khác hiệu quả hoặc khi được chọn.\nTikTok và các ứng dụng khác không còn bị treo sau khi chuyển giữa Wi-Fi và dữ liệu di động; các trang http:// bị mạng bỏ qua đã mở lại.\nBiểu tượng màn hình chính mới để chọn: phong cách, ngày đặc biệt và quốc gia (Cài đặt).</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

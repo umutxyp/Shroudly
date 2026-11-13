@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Keine Technik öffnet {host} in diesem Netz. Die Vollversion von Shroudly mit Tor kann es öffnen. Öffne Shroudly, um sie zu holen.</string>
     <string name="liteOfferTitle">{host} bleibt hier gesperrt</string>
     <string name="logEntries">Einträge: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Das Logo von Shroudly in der App und, wo das System es erlaubt, das App-Symbol.</string>
+    <string name="logoCountries">Länder</string>
+    <string name="logoDays">Besondere Tage</string>
+    <string name="logoStyles">Stile</string>
+    <string name="logoSwatch">Logo {n} von {total}</string>
     <string name="logsCopied">Kopiert</string>
     <string name="madeBy">Ein Produkt von Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Die Verbindung zum Rest der Welt ist gekappt; Seiten im eigenen Land öffnen sich noch. Keine App und kein VPN kommt daran vorbei. Shroudly macht von selbst weiter, sobald sie wieder da ist.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Schneller: Eine Seite, die Tor einmal übernommen hat, geht nach 15 Minuten wieder die üblichen Wege, statt bei Tor zu bleiben.\nTor wartet länger auf langsame Brücken (Russland), sodass Telegram darüber durchkommt.\nGemini und AI Studio können vollständig über Tor laufen (Verbindungen nach Seite).</string>
+    <string name="whatsNewAndroid">Schneller: Jede Technik wird schon beim ersten Besuch versucht, Seiten landen nicht mehr im langsamen Tor; Tor nur, wenn nichts anderes hilft oder es gewählt ist.\nTikTok und andere Apps hängen nach einem Wechsel zwischen WLAN und mobilen Daten nicht mehr; http://-Seiten, die das Netz verwirft, öffnen wieder.\nNeue Symbole für den Startbildschirm zur Auswahl: Stile, besondere Tage und Länder (Optionen).</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

@@ -106,6 +106,7 @@ class SettingsActivity : Activity() {
         groupSettings()
         edgeToEdge()
         showAccents()
+        showLogos()
         showMode()
 
         val group = findViewById<RadioGroup>(R.id.strategy)
@@ -432,6 +433,70 @@ class SettingsActivity : Activity() {
                     recreate()
                 }
             })
+        }
+    }
+
+    /* The logo on the home screen (Logos): what it changes, then the three
+     * groups, each a row of pictures that wraps; the chosen one ringed. A
+     * choice is made at once (the launcher shows it after a moment). Not on
+     * a TV: its launchers show the banner, not the icon. */
+    private fun showLogos() {
+        val box = findViewById<LinearLayout>(R.id.logos)
+        if (Tv.isTv(this)) {
+            box.visibility = View.GONE
+            findViewById<View>(R.id.logosTitle).visibility = View.GONE
+            return
+        }
+        box.removeAllViews()
+        val density = resources.displayMetrics.density
+        val gap = (8 * density).toInt()
+        val chosen = Logos.id(this)
+        // As many in a row as fit, never smaller than 44 dp or larger than 56.
+        val usable = resources.displayMetrics.widthPixels - (64 * density).toInt()
+        val perRow = (usable / ((52 * density).toInt() + gap)).coerceIn(4, 9)
+        val size = ((usable - perRow * gap) / perRow).coerceIn((44 * density).toInt(), (56 * density).toInt())
+        box.addView(TextView(this).apply {
+            text = getString(R.string.logoChoiceDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 12.5f
+            setPadding(0, gap / 2, gap, gap / 2)
+        })
+        for ((group, ids) in Logos.GROUPS) {
+            box.addView(TextView(this).apply {
+                text = getString(when (group) { "styles" -> R.string.logoStyles; "days" -> R.string.logoDays; else -> R.string.logoCountries })
+                setTextColor(getColor(R.color.text_dim))
+                textSize = 11.5f
+                isAllCaps = true
+                setPadding(0, gap, 0, gap / 4)
+            })
+            var row: LinearLayout? = null
+            for ((i, id) in ids.withIndex()) {
+                if (i % perRow == 0) row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }.also { box.addView(it) }
+                row!!.addView(android.widget.ImageView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = gap; topMargin = gap / 2; bottomMargin = gap / 2 }
+                    setImageResource(Logos.picture(this@SettingsActivity, id))
+                    scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                    val ring = (3 * density).toInt()
+                    setPadding(ring, ring, ring, ring)
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        cornerRadius = size * 0.26f
+                        if (id == chosen) setStroke(ring, Accent.color(this@SettingsActivity, R.attr.accent))
+                    }
+                    contentDescription = text(R.string.logoSwatch, "n" to Logos.IDS.indexOf(id) + 1, "total" to Logos.IDS.size)
+                    isSelected = id == chosen
+                    foreground = android.graphics.drawable.RippleDrawable(
+                        android.content.res.ColorStateList.valueOf(0x55FFFFFF), null,
+                        android.graphics.drawable.GradientDrawable().apply { cornerRadius = size * 0.26f; setColor(0xFFFFFFFF.toInt()) },
+                    )
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener {
+                        if (id == Logos.id(this@SettingsActivity)) return@setOnClickListener
+                        Logos.set(this@SettingsActivity, id)
+                        showLogos()
+                    }
+                })
+            }
         }
     }
 

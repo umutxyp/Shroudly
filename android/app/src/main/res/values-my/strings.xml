@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">ဤကွန်ရက်တွင် မည်သည့်နည်းလမ်းကမျှ {host} ကို မဖွင့်နိုင်ပါ။ Tor ပါသော Shroudly ဗားရှင်းအပြည့်က ဖွင့်ပေးနိုင်သည်။ ရယူရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="liteOfferTitle">{host} ကို ဤနေရာတွင် ပိတ်ထားဆဲဖြစ်သည်</string>
     <string name="logEntries">မှတ်တမ်း: {count}</string>
+    <string name="logoChoice">လိုဂို</string>
+    <string name="logoChoiceDesc">အက်ပ်အတွင်းရှိ Shroudly ၏ လိုဂိုနှင့် စနစ်က ခွင့်ပြုသည့်နေရာတွင် အက်ပ်၏ အိုင်ကွန်။</string>
+    <string name="logoCountries">နိုင်ငံများ</string>
+    <string name="logoDays">အထူးနေ့များ</string>
+    <string name="logoStyles">ပုံစံများ</string>
+    <string name="logoSwatch">လိုဂို {total} ခုအနက် {n}</string>
     <string name="logsCopied">ကူးယူပြီး</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
     <string name="nationalOnlyBody">ကမ္ဘာ့ကျန်အပိုင်းနှင့် ချိတ်ဆက်မှု ပြတ်တောက်နေသည်။ နိုင်ငံတွင်းဆိုက်များ ဖွင့်၍ရဆဲဖြစ်သည်။ မည်သည့်အက်ပ် သို့မဟုတ် VPN မျှ ၎င်းကို မကျော်နိုင်ပါ။ ချိတ်ဆက်မှု ပြန်ရလာသောအခါ Shroudly ကိုယ်တိုင် ဆက်လုပ်မည်။</string>
@@ -322,7 +328,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ပိုမြန်သည်- Tor က တစ်ကြိမ် သယ်ဆောင်ခဲ့သော ဆိုက်သည် Tor ပေါ်တွင် မနေတော့ဘဲ ၁၅ မိနစ်အကြာတွင် ပုံမှန်လမ်းကြောင်းများသို့ ပြန်သွားသည်။\nTor သည် နှေးသော ဘရစ်ဂျ်များ (ရုရှား) ကို ပိုကြာကြာ စောင့်သဖြင့် Telegram ၎င်းမှတစ်ဆင့် သွားနိုင်သည်။\nGemini နှင့် AI Studio ကို Tor မှတစ်ဆင့် အပြည့် ပို့နိုင်သည် (ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ)။</string>
+    <string name="whatsNewAndroid">ပိုမြန်သည်- ပထမအကြိမ် ဝင်ကတည်းက နည်းလမ်းတိုင်းကို စမ်းသဖြင့် ဆိုက်များ နှေးသော Tor သို့ မရောက်တော့ပါ။ အခြားနည်း မအောင်မြင်မှ သို့မဟုတ် ရွေးထားမှသာ Tor ကို သုံးသည်။\nWi-Fi နှင့် မိုဘိုင်းဒေတာကြား ပြောင်းပြီးနောက် TikTok နှင့် အခြားအက်ပ်များ မရပ်တန့်တော့ပါ။ ကွန်ရက်က ပစ်ချသော http:// ဆိုက်များ ပြန်ပွင့်သည်။\nရွေးရန် ပင်မစခရင် အိုင်ကွန်အသစ်များ- ပုံစံများ၊ အထူးနေ့များနှင့် နိုင်ငံများ (ဆက်တင်များ)။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

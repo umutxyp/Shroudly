@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Written by scripts/logo/variants.py. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/logo_paper_bg" />
+    <foreground android:drawable="@drawable/logo_paper_fg" />
+</adaptive-icon>

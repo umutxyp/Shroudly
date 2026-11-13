@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Ніводны спосаб не адкрывае {host} у гэтай сетцы. Поўная версія Shroudly з Tor можа яго адкрыць. Адкрыйце Shroudly, каб атрымаць яе.</string>
     <string name="liteOfferTitle">{host} тут застаецца заблакаваным</string>
     <string name="logEntries">Запісаў: {count}</string>
+    <string name="logoChoice">Лагатып</string>
+    <string name="logoChoiceDesc">Лагатып Shroudly у праграме і, дзе сістэма гэта дазваляе, яе значок.</string>
+    <string name="logoCountries">Краіны</string>
+    <string name="logoDays">Асаблівыя дні</string>
+    <string name="logoStyles">Стылі</string>
+    <string name="logoSwatch">Лагатып {n} з {total}</string>
     <string name="logsCopied">Скапіявана</string>
     <string name="madeBy">Прадукт Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Сувязь з астатнім светам адрэзаная; сайты ўнутры краіны яшчэ адкрываюцца. Ніводная праграма ці VPN гэтага не абыдзе. Калі сувязь вернецца, Shroudly працягне сам.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Хутчэй: сайт, які аднойчы перанёс Tor, праз 15 хвілін вяртаецца на звычайныя шляхі, а не застаецца ў Tor.\nTor даўжэй чакае павольныя масты (Расія), таму Telegram праходзіць праз яго.\nGemini і AI Studio можна цалкам адпраўляць праз Tor (Злучэнні па сайтах).</string>
+    <string name="whatsNewAndroid">Хутчэй: усе тэхнікі спрабуюцца ўжо пры першым заходзе, і сайты больш не трапляюць у павольны Tor; Tor выкарыстоўваецца, толькі калі нішто іншае не дапамагло або ён абраны.\nTikTok і іншыя праграмы больш не завісаюць пасля пераключэння паміж Wi-Fi і мабільным інтэрнэтам; сайты http://, якія сетка адкідае, зноў адкрываюцца.\nНовыя значкі для галоўнага экрана на выбар: стылі, асаблівыя дні і краіны (Налады).</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

@@ -147,6 +147,9 @@ for (const language of languages) {
 // languages, and this check let them through. The same words are right
 // where a language writes them so (German "Status", French "Mode").
 const SAME_AS_ENGLISH = {
+  // "Logo" is the word in these languages too; French writes "Styles" as English does.
+  logoChoice: 'de fr id ku ms tr vi',
+  logoStyles: 'fr',
   testPlaceholder: '*',
   // Apps' own names: Conduit (Psiphon), Orbot (Tor).
   helpOthersConduit: '*',
