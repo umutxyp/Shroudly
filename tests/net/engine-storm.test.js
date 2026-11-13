@@ -5,13 +5,16 @@
  * takes connections and never answers — a dead server, a black-holed
  * telemetry or anti-cheat host — looks to the engine exactly like a site
  * behind a silent filter: every connection to it runs the whole ladder, and
- * each re-dial is one more connection held open. Two limits keep that
+ * each re-dial is one more connection held open. Three limits keep that
  * bounded without taking the ladder away from blocked sites:
- *   - all ladders together hold at most 48 re-dialled connections open at
+ *   - one connection goes through the whole list for a name (the rest of it
+ *     at once, see BURST_BATCH in engine.c); the others made to it at the
+ *     same moment make one attempt and wait for what that one finds;
+ *   - all ladders together hold at most 128 re-dialled connections open at
  *     once (the clients' own first connections are not counted);
  *   - a name whose last ladder came to nothing keeps at most two open on its
- *     next ladders for a minute: the untouched request and the newest
- *     technique, so the search still goes on.
+ *     next ladders: the untouched request and the newest technique, so the
+ *     search still goes on.
  * And an endpoint that drops the connect itself (SYN dropped) never reaches
  * the ladder at all: the client is told it is unreachable. */
 
@@ -20,7 +23,7 @@ const net = require('net');
 const { startEngine, sleep, freePort, socks, testServerOptions, suite } = require('./helpers');
 
 const t = suite('engine-storm');
-const EXTRA_MAX = 48;   // EXTRA_LEGS_MAX in core/src/engine.c
+const EXTRA_MAX = 128;   // EXTRA_LEGS_MAX in core/src/engine.c
 const NAME = 'dead.storm.local';
 
 /* What a plain connect does from here: 'open', 'refused' or 'timeout'. */
@@ -99,14 +102,18 @@ function directConnect(host, port, ms = 1500) {
     return { res, ladders: events(mark, 'blocked').length };
   })();
 
-  // A dead endpoint nobody has seen yet, 40 connections at once: every ladder
-  // runs in full, but no more than 48 re-dials are open at any moment.
+  // A dead endpoint nobody has seen yet, 40 connections at once. One of them
+  // goes through the whole list; the other 39 make one attempt and wait for
+  // it, instead of five re-dials each (200 before there was any limit) or,
+  // now that a ladder tries every technique, twenty each.
+  const techniques = JSON.parse(eng.out.split('\n').find((l) => l.includes('"ready"'))).techniques;
   let r = await wave(40);
-  t.ok(r.blocked === 40 && r.took < 20000,
+  t.ok(r.blocked === 40 && r.took < 24000,
     `40 connections at once to a silent endpoint: each ladder ends within its budget (${r.took} ms)`);
   t.ok(r.peak > 40, `the ladders still re-dialled (${r.accepted} connections in all)`);
-  t.ok(r.peak <= 40 + EXTRA_MAX,
-    `but at most ${EXTRA_MAX} re-dials were open at once: peak ${r.peak} (five per connection, 200, without the limit)`);
+  t.ok(r.accepted <= 40 + 40 + techniques + 5,
+    `one of them tried the whole list, the others waited for it: ${r.accepted} connections in all for 40 clients and ${techniques} techniques`);
+  t.ok(r.peak <= 40 + EXTRA_MAX, `and never more than ${EXTRA_MAX} re-dials open at once: peak ${r.peak}`);
   t.ok(r.left === 0, 'all of it closed once the clients went away');
 
   // Within a minute of that, the same name: each ladder keeps two open.

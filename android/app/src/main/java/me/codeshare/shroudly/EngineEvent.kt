@@ -68,6 +68,12 @@ sealed class EngineEvent {
     /* Apps' lookups go around the tunnel (a Private DNS server, a DNS app):
      * their connections keep coming by address, none by name (dns_way in
      * core/src/engine.c). Once a run. */
+    /* A name the last way out carried is reached without it again (engine.c,
+     * bg_search): by `strategy`, or, empty, as it is. */
+    data class Direct(val host: String, val strategy: String) : EngineEvent() {
+        val line: String get() = if (strategy.isNotEmpty()) "$host: $strategy opens it after all; it no longer goes through the last way out (Tor)"
+            else "$host: reached without the last way out (Tor) again"
+    }
     data class DnsAround(val host: String) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
@@ -117,6 +123,7 @@ sealed class EngineEvent {
                 "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
                 "fallback" -> Fallback(num("ok") != 0L, str("host") ?: "", str("why") ?: "")
                 "refused" -> Refused(str("host") ?: "", str("strategy") ?: "", str("next") ?: "", num("avoid").toInt())
+                "direct" -> Direct(str("host") ?: "", str("strategy") ?: "")
                 "dns_around" -> DnsAround(str("host") ?: "")
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
                     str("route") ?: "direct", num("blocked") != 0L, num("refused"), if (m.containsKey("ago")) num("ago") else -1L))

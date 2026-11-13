@@ -149,8 +149,35 @@ static void run_tlsrec(const char *spec, const char *host, int before_end){
          5+l1==pi.host_off+pi.host_len-before_end?"OK":"FAIL");
 }
 
+/* sock_unacked: what was sent to a listener on this computer is
+ * acknowledged at once (0); a system that does not say answers -1, which
+ * only Windows before 10 (1703) may. */
+static void run_unacked(void){
+  sock_t l=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  struct sockaddr_in a; memset(&a,0,sizeof(a));
+  a.sin_family=AF_INET; a.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
+  bind(l,(struct sockaddr*)&a,sizeof(a));
+  socklen_t al=sizeof(a); getsockname(l,(struct sockaddr*)&a,&al);
+  listen(l,1);
+  sock_t up=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  if(sock_connect_timeout(up,(struct sockaddr*)&a,sizeof(a),2000)!=0){CHECK(0);return;}
+  sock_set_nodelay(up,1);
+  uint8_t req[64]; memset(req,'x',sizeof(req));
+  CHECK(sock_send_all(up,req,sizeof(req),0)==0);
+  int u=1;
+  for(int w=0;w<100 && u>0;w++){ sleep_ms(10); u=sock_unacked(up); }
+#ifdef _WIN32
+  CHECK(u==0||u==-1);
+#else
+  CHECK(u==0);
+#endif
+  printf("  sock_unacked on this computer: %d\n",u);
+  sock_close(up); sock_close(l);
+}
+
 int main(void){
   plat_init();
+  run_unacked();
   /* ByeByeDPI's "-r-1+se" (issue #37): the last label never in one record. */
   run_tlsrec("tlsrec(sni_end-1)","rr3---sn-4g5edndr.googlevideo.com",1);
   run_case("split(sni)","www.example.com");

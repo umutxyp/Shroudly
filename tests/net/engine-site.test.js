@@ -150,18 +150,19 @@ function sni(h) {
   t.ok(r.ok && r.tries.length === 2 && r.tries[0].shape === 'one' && !r.tries[0].passed && r.bypass,
     `y.github.io inherits nothing from x.github.io: it starts untouched and learns for itself (${shapes(r)})`);
 
-  // A site whose names are all dropped silently: one ladder's time runs out
-  // after a few techniques (the mid-name record split first, then
-  // tlsrec(sni+1) and its variants, "sni+1" in shape); the next name of the
-  // site starts after them.
+  // A site whose names are all dropped silently: two unanswered attempts,
+  // then the rest of the list at once (BURST_BATCH in engine.c), so a name
+  // has every technique tried on its first connection (the mid-name record
+  // split first, then tlsrec(sni+1) and its variants, "sni+1" in shape).
+  // The site's next name is a name of its own: every technique again, for it.
+  const techniques = JSON.parse(eng.out.split('\n').find((l) => l.includes('"ready"'))).techniques;
   r = await visit('rr1.vid.example');
   const firstTech = r.tries.slice(1).map((x) => x.shape);
-  t.ok(!r.ok && firstTech.length >= 3 && firstTech[0] === 'mid' && firstTech[1] === 'sni+1',
-    `rr1.vid.example: dropped every time, ${r.tries.length} attempts in its time (${shapes(r)})`);
+  t.ok(!r.ok && firstTech[0] === 'mid' && firstTech[1] === 'sni+1' && r.tries.length === techniques + 1,
+    `rr1.vid.example: dropped every time, all ${techniques} techniques in its time (${shapes(r)})`);
   r = await visit('rr2.vid.example');
-  const second = r.tries[1] && r.tries[1].shape;
-  t.ok(!r.ok && second && second !== 'mid',
-    `rr2.vid.example carries on where rr1 stopped, not at the top: its first technique is "${second}" (${shapes(r)})`);
+  t.ok(!r.ok && r.tries.length === techniques + 1 && r.tries[0].shape === 'one',
+    `rr2.vid.example has the whole list tried too (${r.tries.length} attempts)`);
 
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
   eng.stop(); server.close(); censor.close();

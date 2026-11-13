@@ -107,7 +107,7 @@ object TorAsk {
         val h = host.lowercase()
         val had = Protection.torAsk
         val apps = try { RawApps.of(ctx) } catch (_: Exception) { null }
-        val (shown, r) = label(had, if (had == null) -1 else rank, h) { x -> if (app != null) app else apps?.serviceOf(x) }
+        val (shown, r) = label(had, if (had == null) -1 else rank, h) { x -> if (app != null) app else apps?.serviceOf(x) ?: Conns.appOfName(x) }
         Protection.torAsk = shown
         rank = r
         Protection.changed()

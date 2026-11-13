@@ -167,7 +167,16 @@ function tunnelUp(c, routeIf, ifs) {
 
 /* Tools that are steering traffic right now. With `details`, also the VPN
  * clients that are installed and running but not connected, for the log. */
-async function runningTools({ details = false, probe = {} } = {}) {
+/* Whether a Tor that is not Shroudly's own runs: more tor processes than
+ * the ones Shroudly started (ownTor), or the Tor Browser. Shroudly's Tor for
+ * the last way out was named as "another bypass tool" at every start after
+ * it had been needed (an Iran report: "Also running: Tor"). */
+function otherTor(out, ownTor) {
+  if (/tor ?browser/i.test(out)) return true;
+  return (out.match(/(^|["\\/])tor(\.exe)?("|$)/gim) || []).length > ownTor;
+}
+
+async function runningTools({ details = false, probe = {}, ownTor = 0 } = {}) {
   // `probe` lets the tests stand in for the process list, interfaces and route.
   const out = probe.processes !== undefined ? probe.processes : await processList();
   const ifs = probe.interfaces || os.networkInterfaces();
@@ -176,6 +185,7 @@ async function runningTools({ details = false, probe = {} } = {}) {
   let routeIf;
   for (const c of CONFLICTS) {
     if (!c.re.test(out)) continue;
+    if (c.name === 'Tor' && ownTor > 0 && !otherTor(out, ownTor)) continue;
     if (!c.tunnel) { active.add(c.name); continue; }
     if (routeIf === undefined) routeIf = probe.route !== undefined ? probe.route : await defaultRoute();
     (tunnelUp(c, routeIf, ifs) ? active : idle).add(c.name);
@@ -418,11 +428,11 @@ async function systemDnsServers() {
 
 /* One block at startup: everything a support reply would otherwise have to ask
  * for. */
-async function collect() {
+async function collect({ ownTor = 0 } = {}) {
   const ifName = await defaultRoute();
   const iface = ifName ? describeInterface(ifName) : { name: '?', kind: 'unknown' };
   const [tools, servers, probe, restart] = await Promise.all([
-    runningTools({ details: true }), systemDnsServers(), dnsProbe(), appsNeedingRestart(),
+    runningTools({ details: true, ownTor }), systemDnsServers(), dnsProbe(), appsNeedingRestart(),
   ]);
   const localDns = await localDnsOwner(servers).catch(() => null);
   return {

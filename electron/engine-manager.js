@@ -652,7 +652,7 @@ class EngineManager {
     this._conflictTimer = setInterval(async () => {
       if (!this.active) { clearInterval(this._conflictTimer); return; }
       let tools = [];
-      try { tools = await diagnostics.runningTools(); } catch { return; }
+      try { tools = await diagnostics.runningTools({ ownTor: this.tor && this.tor.proc ? 1 : 0 }); } catch { return; }
       this._setAdvice({ conflicts: tools });
       if (!tools.length) {
         clearInterval(this._conflictTimer);
@@ -1133,7 +1133,8 @@ class EngineManager {
 
   async _describeEnvironment() {
     let d;
-    try { d = await diagnostics.collect(); } catch { return; }
+    // Shroudly's own Tor (the last way out) is not another tool.
+    try { d = await diagnostics.collect({ ownTor: this.tor && this.tor.proc ? 1 : 0 }); } catch { return; }
 
     const net = `${d.iface.name} (${d.iface.kind})`;
     const dnsList = d.dnsServers.length ? d.dnsServers.join(', ') : 'unknown';
@@ -1494,6 +1495,16 @@ class EngineManager {
         }
         if (msg.host && this._blockedHold.has(msg.host)) { clearTimeout(this._blockedHold.get(msg.host)); this._blockedHold.delete(msg.host); }
         try { this.onHostEvent('fallback', msg.host || '', ''); } catch {}
+        break;
+      case 'direct':
+        // A name the last way out carried is reached without it again: a
+        // technique found behind it, or the network itself again (engine.c,
+        // bg_search). For the log: the name is off Tor from here on.
+        if (msg.host && this.logGate.allow('direct', msg.host)) {
+          this.log('info', msg.strategy
+            ? `${msg.host}: ${msg.strategy} opens it after all; it no longer goes through the last way out (Tor)`
+            : `${msg.host}: reached without the last way out (Tor) again`);
+        }
         break;
       case 'error':
         this.lastError = msg.msg || `code ${msg.code}`;

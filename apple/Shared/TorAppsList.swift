@@ -18,5 +18,6 @@ enum TorAppsList {
         App(id: "spotify", name: "Spotify", entries: ["spotify.com", "scdn.co", "spotifycdn.com", "spoti.fi"]),
         App(id: "chatgpt", name: "ChatGPT", entries: ["chatgpt.com", "openai.com", "oaistatic.com", "oaiusercontent.com"]),
         App(id: "gemini", name: "Gemini & AI Studio", entries: ["gemini.google.com", "aistudio.google.com", "makersuite.google.com", "alkalimakersuite-pa.clients6.google.com", "geminiweb-pa.clients6.google.com", "generativelanguage.googleapis.com", "ai.google.dev", "notebooklm.google.com"]),
+        App(id: "nvidia", name: "NVIDIA", entries: ["nvidia.com", "geforce.com", "nvidiagrid.net"]),
     ]
 }

@@ -1337,6 +1337,7 @@ class ShroudlyVpnService : VpnService() {
                 logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }
+            is EngineEvent.Direct -> if (ev.host.isNotEmpty()) logSite(ev.line)
             is EngineEvent.DnsAround -> DnsNotice.around(this)
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")

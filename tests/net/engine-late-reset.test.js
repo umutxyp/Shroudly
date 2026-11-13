@@ -81,18 +81,22 @@ function shape(buf) {
   t.ok(!events(mark, 'cut').length, 'the reset that came later, on a connection that never got a byte, is not reported as a cut');
   t.ok(!events(mark, 'bypass').length, 'and nothing was learned from it');
 
-  // The next connection carries on where the first left off: its untouched
-  // request first, then the technique after the last one tried (the fifth, a
-  // record split one byte into the name), not the list's first technique
-  // again (the record split in the middle of the name).
+  // The search's place is kept all the same. The first ladder went through
+  // the whole list (two unanswered attempts send the rest out at once), so
+  // the next connection starts at its top again, as a search carried on: the
+  // untouched request gets only a moment to itself before the first
+  // technique goes out beside it, not the 5 s of a ladder starting anew.
   mark = eng.out.length; from = seen.length;
+  const t1 = Date.now();
   raw = await socks(P, '127.0.0.1', censor.address().port);
   s = tls.connect({ socket: raw, servername: NAME, rejectUnauthorized: false });
   s.on('error', () => {});
   for (let i = 0; i < 50 && seen.length - from < 2; i++) await sleep(100);
+  const raced = Date.now() - t1;
   s.destroy();
   const next = seen.slice(from);
-  t.ok(next[0] === 'one' && next[1] === 'sni+1', `the next connection resumed where the search had stopped (${next.join(', ')})`);
+  t.ok(next[0] === 'one' && next[1] === 'mid' && raced < 3000,
+    `the next connection carries the search on: its first technique beside the untouched request after ${raced} ms (${next.join(', ')})`);
 
   await sleep(300);
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');

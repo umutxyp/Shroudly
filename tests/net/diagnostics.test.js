@@ -27,6 +27,16 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   t.ok(r.active.length === 0, 'Tailscale up without an exit node: not a conflict');
   r = await D.runningTools({ details: true, probe: { processes: 'tailscaled', interfaces: TAIL_UP, route: 'Tailscale' } });
   t.ok(r.active.join() === 'Tailscale', 'Tailscale as an exit node (default route): a conflict');
+  // Shroudly's own Tor (the last way out) is not "another bypass tool": named
+  // only when there is one more than Shroudly started, or the Tor Browser.
+  r = await D.runningTools({ details: true, ownTor: 1, probe: { processes: '"tor.exe","5120"\n"lyrebird.exe","5124"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(!r.active.includes('Tor'), "Shroudly's own tor.exe is not reported as another tool");
+  r = await D.runningTools({ details: true, ownTor: 1, probe: { processes: '"tor.exe","5120"\n"tor.exe","7001"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.active.includes('Tor'), 'a second tor.exe (the Tor Browser, a Tor of the user) still is');
+  r = await D.runningTools({ details: true, ownTor: 0, probe: { processes: '"tor.exe","5120"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.active.includes('Tor'), 'and a tor.exe while Shroudly runs none');
+  r = await D.runningTools({ details: true, ownTor: 1, probe: { processes: '/Applications/Tor Browser.app/Contents/MacOS/firefox\n/Users/x/Library/Application Support/shroudly/tor/tor', interfaces: ETH, route: 'en0' } });
+  t.ok(r.active.includes('Tor'), 'the Tor Browser beside Shroudly\'s own Tor is named');
   r = await D.runningTools({ details: true, probe: { processes: '"goodbyedpi.exe","77"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(r.active.join() === 'GoodbyeDPI', 'a bypass tool counts whenever it runs');
   r = await D.runningTools({ details: true, probe: { processes: '"ByeDPI.exe","9"\nciadpi', interfaces: ETH, route: 'Ethernet' } });

@@ -19,5 +19,6 @@ object TorAppsList {
         App("spotify", "Spotify", listOf("spotify.com", "scdn.co", "spotifycdn.com", "spoti.fi")),
         App("chatgpt", "ChatGPT", listOf("chatgpt.com", "openai.com", "oaistatic.com", "oaiusercontent.com")),
         App("gemini", "Gemini & AI Studio", listOf("gemini.google.com", "aistudio.google.com", "makersuite.google.com", "alkalimakersuite-pa.clients6.google.com", "geminiweb-pa.clients6.google.com", "generativelanguage.googleapis.com", "ai.google.dev", "notebooklm.google.com")),
+        App("nvidia", "NVIDIA", listOf("nvidia.com", "geforce.com", "nvidiagrid.net")),
     )
 }
