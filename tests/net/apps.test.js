@@ -693,6 +693,61 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok((await raw(port, 'CONNECT bad!host:443 HTTP/1.1\r\n\r\n')).startsWith('HTTP/1.1 400'), 'bad CONNECT target refused');
   t.ok((await raw(port, 'CONNECT bad^host:443 HTTP/1.1\r\n\r\n')).startsWith('HTTP/1.1 400'), 'unparseable request refused');
 
+  // A whole https:// address in the request line, as axios sends it to an
+  // http:// proxy instead of asking for a tunnel (TruckersMP's launcher got
+  // "Request failed with status code 405" from this up to 2.6.74).
+  t.ok((await raw(port, 'GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n')).startsWith('HTTP/1.1 405'), 'a request line with only a path (all a web page can send here) is still refused');
+  t.ok((await raw(port, 'GET https://127.0.0.1:9/ HTTP/1.1\r\nHost: 127.0.0.1:9\r\n\r\n')).startsWith('HTTP/1.1 403'), 'whole address: this machine itself is not fetched');
+  t.ok((await raw(port, 'GET https://user:pw@example.com/ HTTP/1.1\r\nHost: example.com\r\n\r\n')).startsWith('HTTP/1.1 400'), 'whole address: one with a password in it is refused');
+  {
+    const s0 = await eng.stats();
+    let head = await raw(port, 'GET https://www.wikipedia.org/ HTTP/1.1\r\nHost: www.wikipedia.org\r\nUser-Agent: shroudly-test\r\nAccept: */*\r\n\r\n');
+    if (!/^HTTP\/1\.1 [234]/.test(head)) head = await raw(port, 'GET https://www.wikipedia.org/ HTTP/1.1\r\nHost: www.wikipedia.org\r\nUser-Agent: shroudly-test\r\nAccept: */*\r\n\r\n');
+    const s1 = await eng.stats();
+    t.ok(/^HTTP\/1\.1 [234]\d\d/.test(head) && !head.startsWith('HTTP/1.1 405') && s1 && s0 && s1.conns_total > s0.conns_total && s1.tls > s0.tls && proxy.forwards >= 1,
+      `[engine] a whole https:// address is fetched for the program, through the engine (${head.split('\r\n')[0]})`);
+  }
+  {
+    // The same against a server of our own: what arrives there, what comes
+    // back, and a certificate that is not trusted.
+    const seen = [];
+    const srv = require('https').createServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (req, res) => {
+      const parts = [];
+      req.on('data', (d) => parts.push(d));
+      req.on('end', () => {
+        seen.push({ method: req.method, url: req.url, headers: req.headers, body: Buffer.concat(parts).toString() });
+        res.writeHead(req.url.startsWith('/missing') ? 404 : 200, { 'content-type': 'application/json', 'x-kept': 'yes', 'set-cookie': ['a=1', 'b=2'] });
+        res.end(JSON.stringify({ ok: true, got: Buffer.concat(parts).length }));
+      });
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const lines = [];
+    const p2 = new AppProxy((l, m) => lines.push(m), () => null, () => true);
+    let dialed = [];
+    p2.direct = (host, portTo) => new Promise((resolve, reject) => { dialed.push(`${host}:${portTo}`); const c = net.connect(srv.address().port, '127.0.0.1', () => resolve(c)); c.on('error', reject); });
+    p2.lookup = async () => ['93.184.216.34'];
+    p2.tlsOptions = { ca: fixture('test-only-cert.pem'), servername: 'test.local' };
+    const port2 = await p2.start(await freePort());
+    const body = JSON.stringify({ files: ['a', 'b'], note: 'ş'.repeat(2000) });
+    const post = await raw(port2, `POST https://api.example.com/verify?v=2&x=a%20b HTTP/1.1\r\nHost: api.example.com\r\nContent-Type: application/json\r\nContent-Length: ${Buffer.byteLength(body)}\r\nProxy-Connection: keep-alive\r\nProxy-Authorization: Basic eDp5\r\nX-Launcher: 1\r\nConnection: close\r\n\r\n${body}`);
+    const got = seen[0] || { headers: {} };
+    t.ok(post.startsWith('HTTP/1.1 200') && /x-kept: yes/i.test(post) && (post.match(/set-cookie:/gi) || []).length === 2 && dialed[0] === 'api.example.com:443',
+      `whole address: the answer comes back with its own headers (${post.split('\r\n')[0]}; to ${dialed[0]})`);
+    t.ok(got.method === 'POST' && got.url === '/verify?v=2&x=a%20b' && got.headers.host === 'api.example.com' && got.body === body && got.headers['x-launcher'] === '1' && got.headers['content-type'] === 'application/json',
+      `whole address: the server gets the same method, path, headers and body (${got.method} ${got.url}, ${Buffer.byteLength(got.body || '')} bytes)`);
+    t.ok(!('proxy-connection' in got.headers) && !('proxy-authorization' in got.headers), 'whole address: what was meant for the proxy is not passed on to the server');
+    const nf = await raw(port2, 'GET https://api.example.com/missing HTTP/1.1\r\nHost: api.example.com\r\n\r\n');
+    t.ok(nf.startsWith('HTTP/1.1 404'), 'whole address: the server\'s own error code is passed on as it is');
+    t.ok(p2.forwards === 2 && lines.filter((l) => /without a tunnel/.test(l)).length === 1, `whole address: said once in the log (${lines.length} line(s))`);
+    // A certificate nobody trusts: never fetched, never sent the request.
+    p2.tlsOptions = { servername: 'test.local' };
+    const before = seen.length;
+    const bad = await raw(port2, 'GET https://api.example.com/secret HTTP/1.1\r\nHost: api.example.com\r\nAuthorization: Bearer token\r\n\r\n');
+    t.ok(bad.startsWith('HTTP/1.1 502') && seen.length === before, `whole address: a server whose certificate is not trusted is not sent the request (${bad.split('\r\n')[0]})`);
+    t.ok((await raw(port2, 'GET http://api.example.com/ HTTP/1.1\r\nHost: api.example.com\r\n\r\n')).startsWith('HTTP/1.1 405') && (await raw(port2, 'GET ftp://api.example.com/ HTTP/1.1\r\nHost: api.example.com\r\n\r\n')).startsWith('HTTP/1.1 405'), 'whole address: only https:// is fetched');
+    p2.stop(); srv.close(); if (srv.closeAllConnections) srv.closeAllConnections();
+  }
+
   for (const host of ['www.wikipedia.org', 'clientsettingscdn.roblox.com']) {
     const s0 = await eng.stats();
     const r = await getWithRetry(port, host);
