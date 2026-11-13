@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Jika perlindungan terputus atau perangkat dinyalakan ulang, perlindungan menyala lagi sendiri sampai Anda menghentikannya.";
 "appleLanguageDesc" = "Shroudly memakai bahasa perangkat Anda. Anda bisa memilih bahasa lain khusus untuk Shroudly di pengaturan sistem.";
 "appleLocalNetworkUsage" = "Shroudly meneruskan koneksi aplikasi Anda, termasuk koneksi ke perangkat di jaringan lokal Anda, seperti router.";
+"appleMoveBody" = "Dapatkan pembaruan otomatis dari App Store: pasang Shroudly dari sana, lalu hapus salinan ini. Pengaturan yang Anda ubah dimulai dari awal.";
+"appleMoveTitle" = "Shroudly ada di App Store";
 "appleNoticeBody" = "Shroudly menambahkan konfigurasi VPN agar dapat membawa koneksi aplikasi Anda melalui mesinnya, yang hanya berjalan di perangkat ini. Tidak ada server Shroudly dan tidak ada akun, dan Shroudly tidak mengumpulkan data apa pun: situs yang Anda kunjungi tidak dicatat atau dikirim ke kami. Nama dicari melalui DNS terenkripsi di resolver publik (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
 "appleNoticeContinue" = "Lanjutkan";
 "appleNoticeTitle" = "Sebelum mulai";
 "appleOpenSettings" = "Buka Pengaturan";
+"appleUpdateBody" = "Shroudly {version} sudah ada di App Store. Harap perbarui sekarang: perbaikan untuk blokir baru hanya hadir di versi terbaru. Perlindungan tetap aktif sementara itu.";
+"appleUpdateOpen" = "Perbarui";
+"appleUpdateTitle" = "Perbarui Shroudly";
 "appleVpnNotSigned" = "Salinan Shroudly ini ditandatangani tanpa izin Apple untuk VPN, jadi iOS tidak mengizinkannya memulai VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID gratis (AltStore, SideStore, Sideloadly, dan sejenisnya) tidak pernah memilikinya. Pasang dengan TrollStore, atau tandatangani dengan akun pengembang Apple berbayar.";
 "appleVpnRevoked" = "Perlindungan dimatikan oleh sistem, biasanya karena aplikasi VPN lain dinyalakan.";
 "bypassed" = "Ditembus";
@@ -113,6 +118,7 @@
 "macAllApps" = "Semua aplikasi lewat Shroudly (VPN)";
 "macAllAppsDesc" = "Mati: Shroudly menjadi proxy Mac ini, seperti versi dari GitHub: browser dan aplikasi yang memakai proxy sistem lewat Shroudly, sisanya langsung, dan Mac tetap cepat. Nyala: semua aplikasi lewat Shroudly, termasuk yang mengabaikan proxy (aplikasi Discord, game), tetapi Mac lebih lambat.";
 "madeBy" = "Produk dari Codeshare Technology Ltd";
+"masOpen" = "Buka App Store";
 "nationalOnlyBody" = "Koneksi ke seluruh dunia terputus; situs di dalam negeri masih terbuka. Tidak ada aplikasi atau VPN yang bisa melewatinya. Shroudly melanjutkan sendiri saat koneksi kembali.";
 "nationalOnlyHelp" = "Yang masih bisa membantu";
 "nationalOnlyTitle" = "Hanya jaringan negara ini yang berfungsi";
@@ -215,6 +221,7 @@
 "torAskYes" = "Pakai Tor";
 "torUsedDesktop" = "{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; situs lain di komputer ini tetap seperti biasa.";
 "totalCount" = "Total: {count}";
+"updLater" = "Nanti";
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";

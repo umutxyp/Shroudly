@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "אם ההגנה נקטעת או שהמכשיר מופעל מחדש, היא חוזרת לפעול מעצמה עד שעוצרים אותה.";
 "appleLanguageDesc" = "Shroudly משתמשת בשפת המכשיר. אפשר לבחור שפה אחרת רק עבור Shroudly בהגדרות המערכת.";
 "appleLocalNetworkUsage" = "Shroudly מעבירה את החיבורים של האפליקציות שלך, כולל חיבורים למכשירים ברשת המקומית, כמו הנתב.";
+"appleMoveBody" = "קבלו עדכונים אוטומטית מ-App Store: התקינו משם את Shroudly ואז מחקו את העותק הזה. הגדרות ששיניתם יתחילו מחדש.";
+"appleMoveTitle" = "‏Shroudly זמין ב-App Store";
 "appleNoticeBody" = "Shroudly מוסיפה תצורת VPN כדי להעביר את החיבורים של האפליקציות שלך דרך המנוע שלה, שפועל רק במכשיר הזה. אין שרת של Shroudly ואין חשבון, ו-Shroudly לא אוספת שום מידע: האתרים שבהם ביקרת לא נרשמים ולא נשלחים אלינו. שמות מאותרים ב-DNS מוצפן אצל שרתים ציבוריים (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
 "appleNoticeContinue" = "המשך";
 "appleNoticeTitle" = "לפני שמתחילים";
 "appleOpenSettings" = "פתיחת ההגדרות";
+"appleUpdateBody" = "‏Shroudly {version} זמין ב-App Store. נא לעדכן עכשיו: תיקונים לחסימות חדשות מגיעים רק לגרסה החדשה ביותר. ההגנה נשארת פעילה בינתיים.";
+"appleUpdateOpen" = "עדכון";
+"appleUpdateTitle" = "עדכנו את Shroudly";
 "appleVpnNotSigned" = "העותק הזה של Shroudly נחתם בלי ההרשאה של Apple ל-VPN, ולכן iOS לא מאפשר לו להפעיל VPN ואף פעם לא שואל. לעותקים שנחתמו עם Apple ID חינמי (AltStore, SideStore, Sideloadly וכדומה) אין אותה אף פעם. התקינו אותו עם TrollStore, או חתמו עליו עם חשבון מפתחים בתשלום של Apple.";
 "appleVpnRevoked" = "המערכת כיבתה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.";
 "bypassed" = "נעקפו";
@@ -113,6 +118,7 @@
 "macAllApps" = "כל היישומים דרך Shroudly (VPN)";
 "macAllAppsDesc" = "כבוי: Shroudly הוא הפרוקסי של ה-Mac הזה, כמו הגרסה מ-GitHub: דפדפנים ויישומים שמשתמשים בפרוקסי של המערכת עוברים דרכו, השאר ישירות, וה-Mac נשאר מהיר. מופעל: כל היישומים עוברים דרך Shroudly, כולל כאלה שמתעלמים מהפרוקסי (יישום Discord, משחקים), אבל ה-Mac איטי יותר.";
 "madeBy" = "מוצר של Codeshare Technology Ltd";
+"masOpen" = "פתיחת ה-App Store";
 "nationalOnlyBody" = "החיבור לשאר העולם מנותק; אתרים בתוך המדינה עדיין נפתחים. אף אפליקציה או VPN לא יכולים לעקוף את זה. Shroudly ימשיך מעצמו כשהחיבור יחזור.";
 "nationalOnlyHelp" = "מה עוד יכול לעזור";
 "nationalOnlyTitle" = "רק הרשת של המדינה הזו עובדת";
@@ -215,6 +221,7 @@
 "torAskYes" = "להשתמש ב-Tor";
 "torUsedDesktop" = "{host} נפתח רק דרך רשת Tor, הדרך האחרונה של Shroudly: שום דבר אחר לא עבר ברשת הזו. זה איטי יותר, ויש אתרים שמבקשים captcha; כל שאר האתרים במחשב הזה ממשיכים כרגיל.";
 "totalCount" = "סה״כ: {count}";
+"updLater" = "אחר כך";
 "upload" = "העלאה";
 "uptime" = "זמן פעילות";
 "versionLabel" = "גרסה {version}";

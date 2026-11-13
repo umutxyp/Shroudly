@@ -88,4 +88,38 @@ final class StoreFlagsTests: XCTestCase {
         XCTAssertTrue(afterClockChange)
         XCTAssertEqual(calls, 4)
     }
+
+    // The App Store copy's required update and the App Store offered to other copies (StoreUpdate).
+    func testStoreUpdateSourceFromTheReceipt() {
+        XCTAssertEqual(StoreUpdate.source(receiptName: "receipt", receiptExists: true), .appStore)
+        XCTAssertEqual(StoreUpdate.source(receiptName: "sandboxReceipt", receiptExists: true), .testing)
+        XCTAssertEqual(StoreUpdate.source(receiptName: "receipt", receiptExists: false), .other)
+        XCTAssertEqual(StoreUpdate.source(receiptName: nil, receiptExists: false), .other)
+    }
+
+    func testStoreUpdateComparesVersionsByNumber() {
+        XCTAssertTrue(StoreUpdate.newer("2.6.76", than: "2.6.75"))
+        XCTAssertTrue(StoreUpdate.newer("2.6.100", than: "2.6.99"))
+        XCTAssertTrue(StoreUpdate.newer("2.7", than: "2.6.99"))
+        XCTAssertFalse(StoreUpdate.newer("2.6.75", than: "2.6.75"))
+        XCTAssertFalse(StoreUpdate.newer("2.6.61", than: "2.6.76"))
+        XCTAssertFalse(StoreUpdate.newer("2.6", than: "2.6.0"))
+    }
+
+    func testStoreUpdateReadsTheLookup() {
+        let ok = Data(#"{"resultCount":1,"results":[{"version":"2.6.76","trackId":6830329471}]}"#.utf8)
+        XCTAssertEqual(StoreUpdate.version(inLookup: ok), "2.6.76")
+        XCTAssertNil(StoreUpdate.version(inLookup: Data(#"{"resultCount":0,"results":[]}"#.utf8)))
+        XCTAssertNil(StoreUpdate.version(inLookup: Data("<html>".utf8)))
+    }
+
+    func testStoreUpdateAsksEachTimeButNotAtOnceAndOffersTheStoreLessOften() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        XCTAssertTrue(StoreUpdate.due(nil, now: now, every: StoreUpdate.askEvery))
+        XCTAssertFalse(StoreUpdate.due(now.addingTimeInterval(-60), now: now, every: StoreUpdate.askEvery))
+        XCTAssertTrue(StoreUpdate.due(now.addingTimeInterval(-121), now: now, every: StoreUpdate.askEvery))
+        XCTAssertTrue(StoreUpdate.due(now.addingTimeInterval(3600), now: now, every: StoreUpdate.askEvery))
+        XCTAssertEqual([1, 2, 3].map { StoreUpdate.moveWaitDays(afterNoes: $0) }, [14, 28, 56])
+        XCTAssertEqual(StoreUpdate.moveWaitDays(afterNoes: 0), 0)
+    }
 }

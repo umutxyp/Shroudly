@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Desligado: o Shroudly é o proxy deste Mac, como a versão do GitHub: navegadores e apps que usam o proxy do sistema passam por ele, o resto vai direto e o Mac continua rápido. Ligado: todos os apps passam pelo Shroudly, inclusive os que ignoram o proxy (o app do Discord, jogos), mas o Mac fica mais lento.",
   "reportBadContact": "Digite um e-mail que você lê. Endereços temporários ou inventados e nomes do Telegram não são aceitos.",
   "reportBadWhat": "Conte com suas palavras, em algumas frases, o que aconteceu.",
-  "reportBadSite": "Diga qual site ou app não funciona."
+  "reportBadSite": "Diga qual site ou app não funciona.",
+  "appleUpdateTitle": "Atualize o Shroudly",
+  "appleUpdateBody": "O Shroudly {version} está na App Store. Atualize agora: as correções para novos bloqueios só chegam à versão mais recente. A proteção continua ligada enquanto isso.",
+  "appleUpdateOpen": "Atualizar",
+  "appleMoveTitle": "O Shroudly está na App Store",
+  "appleMoveBody": "Receba atualizações automaticamente pela App Store: instale o Shroudly por lá e depois apague esta cópia. As configurações que você mudou começam do zero."
 }

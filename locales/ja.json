@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "オフ: Shroudly がこの Mac のプロキシになります (GitHub 版と同じ)。ブラウザとシステムのプロキシを使うアプリは Shroudly を通り、それ以外は直接つながるので Mac は速いままです。オン: プロキシを無視するアプリ (Discord アプリ、ゲーム) も含め、すべてのアプリが Shroudly を通りますが、Mac は遅くなります。",
   "reportBadContact": "ふだん読んでいるメールアドレスを入力してください。使い捨てや架空のアドレス、Telegram の名前は受け付けません。",
   "reportBadWhat": "何が起きたかを、ご自分の言葉で数文で書いてください。",
-  "reportBadSite": "動かないサイトまたはアプリの名前を書いてください。"
+  "reportBadSite": "動かないサイトまたはアプリの名前を書いてください。",
+  "appleUpdateTitle": "Shroudly をアップデート",
+  "appleUpdateBody": "Shroudly {version} が App Store にあります。今すぐアップデートしてください。新しいブロックへの対策は最新バージョンにのみ届きます。その間も保護はオンのままです。",
+  "appleUpdateOpen": "アップデート",
+  "appleMoveTitle": "Shroudly は App Store にあります",
+  "appleMoveBody": "App Store からアップデートを自動で受け取れます。そこから Shroudly をインストールし、このコピーを削除してください。変更した設定は最初からになります。"
 }

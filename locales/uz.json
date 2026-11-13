@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "O‘chiq: Shroudly bu Mac’ning proksisi, GitHub’dagi versiya kabi: brauzerlar va tizim proksisidan foydalanadigan ilovalar u orqali o‘tadi, qolganlari to‘g‘ridan-to‘g‘ri, Mac tez qoladi. Yoqiq: proksini e’tiborsiz qoldiradiganlari (Discord ilovasi, o‘yinlar) bilan birga barcha ilovalar Shroudly orqali o‘tadi, lekin Mac sekinlashadi.",
   "reportBadContact": "O'zingiz o'qiydigan pochta manzilini yozing. Vaqtinchalik yoki to'qib chiqarilgan manzillar va Telegram nomlari qabul qilinmaydi.",
   "reportBadWhat": "Nima bo'lganini bir necha jumlada, o'z so'zlaringiz bilan yozing.",
-  "reportBadSite": "Ishlamayotgan sayt yoki ilova nomini yozing."
+  "reportBadSite": "Ishlamayotgan sayt yoki ilova nomini yozing.",
+  "appleUpdateTitle": "Shroudly'ni yangilang",
+  "appleUpdateBody": "Shroudly {version} App Store'da. Iltimos, hozir yangilang: yangi bloklarga qarshi tuzatishlar faqat eng yangi versiyaga keladi. Shu orada himoya yoniq qoladi.",
+  "appleUpdateOpen": "Yangilash",
+  "appleMoveTitle": "Shroudly App Store'da",
+  "appleMoveBody": "Yangilanishlarni App Store'dan avtomatik oling: Shroudly'ni o'sha yerdan o'rnating, so'ng bu nusxani o'chiring. O'zgartirgan sozlamalaringiz boshidan boshlanadi."
 }

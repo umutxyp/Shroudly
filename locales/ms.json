@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Mati: Shroudly ialah proksi Mac ini, seperti versi dari GitHub: pelayar dan apl yang menggunakan proksi sistem melaluinya, yang lain terus, dan Mac kekal pantas. Hidup: semua apl melalui Shroudly, termasuk yang mengabaikan proksi (apl Discord, permainan), tetapi Mac lebih perlahan.",
   "reportBadContact": "Masukkan alamat e-mel yang anda baca. Alamat sementara atau rekaan dan nama Telegram tidak diterima.",
   "reportBadWhat": "Terangkan dalam kata-kata sendiri, dalam beberapa ayat, apa yang berlaku.",
-  "reportBadSite": "Nyatakan laman atau aplikasi yang tidak berfungsi."
+  "reportBadSite": "Nyatakan laman atau aplikasi yang tidak berfungsi.",
+  "appleUpdateTitle": "Kemas kini Shroudly",
+  "appleUpdateBody": "Shroudly {version} sudah ada di App Store. Sila kemas kini sekarang: pembetulan untuk sekatan baharu hanya sampai ke versi terkini. Perlindungan kekal aktif sementara itu.",
+  "appleUpdateOpen": "Kemas kini",
+  "appleMoveTitle": "Shroudly ada di App Store",
+  "appleMoveBody": "Dapatkan kemas kini secara automatik dari App Store: pasang Shroudly dari sana, kemudian padam salinan ini. Tetapan yang anda ubah bermula semula."
 }

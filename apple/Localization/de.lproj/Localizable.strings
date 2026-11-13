@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Bricht der Schutz ab oder startet das Gerät neu, schaltet er sich von selbst wieder ein, bis du ihn stoppst.";
 "appleLanguageDesc" = "Shroudly verwendet die Sprache deines Geräts. Eine andere Sprache nur für Shroudly kannst du in den Systemeinstellungen wählen.";
 "appleLocalNetworkUsage" = "Shroudly leitet die Verbindungen deiner Apps weiter, auch die zu Geräten in deinem lokalen Netzwerk wie deinem Router.";
+"appleMoveBody" = "Updates automatisch aus dem App Store: Installiere Shroudly dort und lösche dann diese Kopie. Geänderte Einstellungen beginnen neu.";
+"appleMoveTitle" = "Shroudly ist im App Store";
 "appleNoticeBody" = "Shroudly fügt eine VPN-Konfiguration hinzu, um die Verbindungen deiner Apps durch seine Engine zu leiten, die nur auf diesem Gerät läuft. Es gibt keinen Shroudly-Server und kein Konto, und Shroudly sammelt keine Daten: Die Seiten, die du besuchst, werden weder aufgezeichnet noch an uns gesendet. Namen werden über verschlüsseltes DNS bei öffentlichen Resolvern (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) aufgelöst.";
 "appleNoticeContinue" = "Weiter";
 "appleNoticeTitle" = "Bevor du startest";
 "appleOpenSettings" = "Einstellungen öffnen";
+"appleUpdateBody" = "Shroudly {version} ist im App Store. Bitte jetzt aktualisieren: Lösungen für neue Sperren kommen nur in die neueste Version. Der Schutz bleibt währenddessen an.";
+"appleUpdateOpen" = "Aktualisieren";
+"appleUpdateTitle" = "Shroudly aktualisieren";
 "appleVpnNotSigned" = "Diese Kopie von Shroudly ist ohne Apples Berechtigung für VPNs signiert, deshalb lässt iOS sie kein VPN starten und fragt auch nie. Kopien, die mit einer kostenlosen Apple-ID signiert sind (AltStore, SideStore, Sideloadly und ähnliche), haben sie nie. Installiere sie mit TrollStore oder signiere sie mit einem kostenpflichtigen Apple-Entwicklerkonto.";
 "appleVpnRevoked" = "Das System hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde.";
 "bypassed" = "Umgangen";
@@ -113,6 +118,7 @@
 "macAllApps" = "Alle Apps über Shroudly (VPN)";
 "macAllAppsDesc" = "Aus: Shroudly ist der Proxy dieses Macs, wie die Version von GitHub: Browser und Apps, die den System-Proxy nutzen, laufen darüber, der Rest direkt, und der Mac bleibt schnell. Ein: jede App läuft über Shroudly, auch Apps, die den Proxy ignorieren (die Discord-App, Spiele), aber der Mac wird langsamer.";
 "madeBy" = "Ein Produkt von Codeshare Technology Ltd";
+"masOpen" = "App Store öffnen";
 "nationalOnlyBody" = "Die Verbindung zum Rest der Welt ist gekappt; Seiten im eigenen Land öffnen sich noch. Keine App und kein VPN kommt daran vorbei. Shroudly macht von selbst weiter, sobald sie wieder da ist.";
 "nationalOnlyHelp" = "Was noch helfen kann";
 "nationalOnlyTitle" = "Nur das Netz dieses Landes funktioniert";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor nutzen";
 "torUsedDesktop" = "{host} ließ sich nur über das Tor-Netz öffnen, Shroudlys letzten Ausweg: Sonst kam in diesem Netz nichts durch. Das ist langsamer, und manche Seiten verlangen ein Captcha; alle anderen Seiten auf diesem Computer laufen wie bisher.";
 "totalCount" = "Gesamt: {count}";
+"updLater" = "Später";
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";

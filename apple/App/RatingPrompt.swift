@@ -39,3 +39,69 @@ enum RatingPrompt {
         request()
     }
 }
+
+/*
+ * What StoreUpdate decides, asked each time the window comes to the front:
+ * the App Store copy's required update, or the App Store offered to another
+ * copy (iPhone and iPad only). Not on Apple TV.
+ */
+@MainActor
+enum StoreUpdateCheck {
+    enum Ask: Equatable { case update(String), move }
+
+    private enum Key {
+        static let askedAt = "storeUpdateAskedAt"
+        static let checkedAt = "storeUpdateCheckedAt"
+        static let version = "storeUpdateVersion"
+        static let moveNoes = "storeMoveNoes"
+        static let moveNextAt = "storeMoveNextAt"
+        static let moveDone = "storeMoveDone"
+    }
+
+    static var source: StoreUpdate.Source {
+        let url = Bundle.main.appStoreReceiptURL
+        return StoreUpdate.source(receiptName: url?.lastPathComponent,
+                                  receiptExists: url.map { FileManager.default.fileExists(atPath: $0.path) } ?? false)
+    }
+
+    static func next(now: Date = Date()) async -> Ask? {
+        #if os(tvOS)
+        return nil
+        #else
+        let d = AppGroup.defaults
+        let installed = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        switch source {
+        case .appStore:
+            guard StoreUpdate.due(d.object(forKey: Key.askedAt) as? Date, now: now, every: StoreUpdate.askEvery),
+                  await StoreFlagCache().isLive() else { return nil }
+            if StoreUpdate.due(d.object(forKey: Key.checkedAt) as? Date, now: now, every: StoreUpdate.checkEvery),
+               let data = try? await StoreFlagCache.download(StoreUpdate.lookupURL, 8) {
+                d.set(now, forKey: Key.checkedAt)
+                d.set(StoreUpdate.version(inLookup: data), forKey: Key.version)
+            }
+            guard let v = d.string(forKey: Key.version), StoreUpdate.newer(v, than: installed) else { return nil }
+            d.set(now, forKey: Key.askedAt)
+            SharedLog(name: "app.log").write("The App Store has Shroudly \(v); asking to update")
+            return .update(v)
+        case .other:
+            #if os(iOS)
+            guard !d.bool(forKey: Key.moveDone),
+                  now >= (d.object(forKey: Key.moveNextAt) as? Date ?? .distantPast),
+                  await StoreFlagCache().isLive() else { return nil }
+            // Shown counts as a "not now" until its button is tapped.
+            let n = d.integer(forKey: Key.moveNoes) + 1
+            d.set(n, forKey: Key.moveNoes)
+            d.set(now.addingTimeInterval(Double(StoreUpdate.moveWaitDays(afterNoes: n)) * 86400), forKey: Key.moveNextAt)
+            return .move
+            #else
+            return nil
+            #endif
+        case .testing:
+            return nil
+        }
+        #endif
+    }
+
+    /* The App Store offer's button: never offered again. */
+    static func moveTapped() { AppGroup.defaults.set(true, forKey: Key.moveDone) }
+}

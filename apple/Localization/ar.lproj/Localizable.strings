@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "إذا انقطعت الحماية أو أُعيد تشغيل الجهاز، تعود للعمل من تلقاء نفسها حتى تُوقفها.";
 "appleLanguageDesc" = "يستخدم Shroudly لغة جهازك. يمكنك اختيار لغة أخرى لـ Shroudly وحده من إعدادات النظام.";
 "appleLocalNetworkUsage" = "ينقل Shroudly اتصالات تطبيقاتك، بما فيها الاتصالات بالأجهزة على شبكتك المحلية مثل الراوتر.";
+"appleMoveBody" = "احصل على التحديثات تلقائيًا من App Store: ثبّت Shroudly من هناك، ثم احذف هذه النسخة. تبدأ الإعدادات التي غيّرتها من جديد.";
+"appleMoveTitle" = "‏Shroudly متوفر في App Store";
 "appleNoticeBody" = "يضيف Shroudly إعداد VPN لينقل اتصالات تطبيقاتك عبر محرّكه الذي يعمل على هذا الجهاز فقط. لا يوجد خادم لـ Shroudly ولا حساب، ولا يجمع Shroudly أي بيانات: المواقع التي تزورها لا تُسجَّل ولا تُرسَل إلينا. يتم البحث عن الأسماء عبر DNS مشفّر لدى خوادم عامة (Cloudflare وGoogle وAdGuard وOpenDNS وDNS.SB).";
 "appleNoticeContinue" = "متابعة";
 "appleNoticeTitle" = "قبل أن تبدأ";
 "appleOpenSettings" = "فتح الإعدادات";
+"appleUpdateBody" = "‏Shroudly {version} متوفر في App Store. حدّثه الآن من فضلك: إصلاحات الحجب الجديد تصل إلى أحدث إصدار فقط. تبقى الحماية مفعّلة في الأثناء.";
+"appleUpdateOpen" = "تحديث";
+"appleUpdateTitle" = "حدّث Shroudly";
 "appleVpnNotSigned" = "هذه النسخة من Shroudly موقّعة دون إذن Apple لشبكات VPN، لذلك لا يسمح لها iOS بتشغيل واحدة ولا يسأل أبدًا. النسخ الموقّعة بمعرّف Apple مجاني (AltStore وSideStore وSideloadly وما شابهها) لا تملك هذا الإذن أبدًا. ثبّتها باستخدام TrollStore، أو وقّعها بحساب مطوّر Apple مدفوع.";
 "appleVpnRevoked" = "أوقف النظام الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.";
 "bypassed" = "تم تجاوزها";
@@ -113,6 +118,7 @@
 "macAllApps" = "كل التطبيقات عبر Shroudly (VPN)";
 "macAllAppsDesc" = "معطّل: يكون Shroudly وكيل هذا الـMac، مثل النسخة من GitHub: تمر المتصفحات والتطبيقات التي تستخدم وكيل النظام عبره، ويذهب الباقي مباشرة، ويبقى الـMac سريعًا. مفعّل: تمر كل التطبيقات عبر Shroudly، بما فيها التي تتجاهل الوكيل (تطبيق Discord والألعاب)، لكن الـMac يصبح أبطأ.";
 "madeBy" = "منتج من Codeshare Technology Ltd";
+"masOpen" = "فتح App Store";
 "nationalOnlyBody" = "الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.";
 "nationalOnlyHelp" = "ما الذي قد يساعد بعد";
 "nationalOnlyTitle" = "لا تعمل إلا شبكة هذا البلد";
@@ -215,6 +221,7 @@
 "torAskYes" = "استخدام Tor";
 "torUsedDesktop" = "لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly: لم ينجح شيء آخر على هذه الشبكة. الاتصال أبطأ وبعض المواقع تطلب اختبار captcha؛ وبقية المواقع على هذا الكمبيوتر تعمل كما كانت.";
 "totalCount" = "الإجمالي: {count}";
+"updLater" = "لاحقًا";
 "upload" = "الرفع";
 "uptime" = "مدة التشغيل";
 "versionLabel" = "الإصدار {version}";

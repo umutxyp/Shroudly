@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "ጠፍቷል፦ Shroudly የዚህ Mac ፕሮክሲ ነው፣ እንደ GitHub ስሪቱ፦ አሳሾች እና የስርዓቱን ፕሮክሲ የሚጠቀሙ መተግበሪያዎች በእሱ በኩል ያልፋሉ፣ ሌሎቹ በቀጥታ ይሄዳሉ፣ Mac ፈጣን ሆኖ ይቆያል። በርቷል፦ ፕሮክሲውን የማይከተሉትን (የDiscord መተግበሪያ፣ ጨዋታዎች) ጨምሮ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ፣ ግን Mac ይዘገያል።",
   "reportBadContact": "የሚያነቡትን የኢሜይል አድራሻ ያስገቡ። ጊዜያዊ ወይም የተፈጠሩ አድራሻዎች እና የቴሌግራም ስሞች ተቀባይነት የላቸውም።",
   "reportBadWhat": "ምን እንደተከሰተ በጥቂት ዓረፍተ ነገሮች በራስዎ ቃላት ይግለጹ።",
-  "reportBadSite": "የማይሰራውን ድረ-ገጽ ወይም መተግበሪያ ስም ይጻፉ።"
+  "reportBadSite": "የማይሰራውን ድረ-ገጽ ወይም መተግበሪያ ስም ይጻፉ።",
+  "appleUpdateTitle": "Shroudlyን ያዘምኑ",
+  "appleUpdateBody": "Shroudly {version} በApp Store ላይ አለ። እባክዎ አሁን ያዘምኑ፤ ለአዲስ እገዳዎች የሚሆኑ ጥገናዎች የሚደርሱት ለአዲሱ ስሪት ብቻ ነው። እስከዚያው ጥበቃው እንደበራ ይቆያል።",
+  "appleUpdateOpen": "አዘምን",
+  "appleMoveTitle": "Shroudly በApp Store ላይ አለ",
+  "appleMoveBody": "ዝማኔዎችን ከApp Store በራስ-ሰር ያግኙ፦ Shroudlyን ከዚያ ይጫኑ፣ ከዚያ ይህን ቅጂ ይሰርዙ። የቀየሯቸው ቅንብሮች እንደ አዲስ ይጀምራሉ።"
 }

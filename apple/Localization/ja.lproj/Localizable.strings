@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "保護が切れたりデバイスが再起動したりしても、停止するまで自動でオンに戻ります。";
 "appleLanguageDesc" = "Shroudly はデバイスの言語を使います。Shroudly だけ別の言語にするには、システムの設定で選べます。";
 "appleLocalNetworkUsage" = "Shroudly はアプリの通信を中継します。ルーターなど、ローカルネットワーク上のデバイスへの通信も含みます。";
+"appleMoveBody" = "App Store からアップデートを自動で受け取れます。そこから Shroudly をインストールし、このコピーを削除してください。変更した設定は最初からになります。";
+"appleMoveTitle" = "Shroudly は App Store にあります";
 "appleNoticeBody" = "Shroudly は VPN 構成を追加し、アプリの通信をこのデバイス上だけで動くエンジンに通します。Shroudly のサーバーもアカウントもなく、Shroudly はデータを一切収集しません。訪れたサイトが記録されたり、私たちに送られたりすることはありません。名前の解決は、公開リゾルバー（Cloudflare、Google、AdGuard、OpenDNS、DNS.SB）への暗号化 DNS で行います。";
 "appleNoticeContinue" = "続ける";
 "appleNoticeTitle" = "はじめる前に";
 "appleOpenSettings" = "設定を開く";
+"appleUpdateBody" = "Shroudly {version} が App Store にあります。今すぐアップデートしてください。新しいブロックへの対策は最新バージョンにのみ届きます。その間も保護はオンのままです。";
+"appleUpdateOpen" = "アップデート";
+"appleUpdateTitle" = "Shroudly をアップデート";
 "appleVpnNotSigned" = "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。";
 "appleVpnRevoked" = "システムが保護をオフにしました。通常は別の VPN アプリがオンになったためです。";
 "bypassed" = "バイパス済み";
@@ -113,6 +118,7 @@
 "macAllApps" = "すべてのアプリを Shroudly 経由に (VPN)";
 "macAllAppsDesc" = "オフ: Shroudly がこの Mac のプロキシになります (GitHub 版と同じ)。ブラウザとシステムのプロキシを使うアプリは Shroudly を通り、それ以外は直接つながるので Mac は速いままです。オン: プロキシを無視するアプリ (Discord アプリ、ゲーム) も含め、すべてのアプリが Shroudly を通りますが、Mac は遅くなります。";
 "madeBy" = "Codeshare Technology Ltd の製品";
+"masOpen" = "App Store を開く";
 "nationalOnlyBody" = "世界のほかの地域との接続が切断されています。国内のサイトはまだ開けます。アプリや VPN でもこれは回避できません。接続が戻れば Shroudly は自動で続けます。";
 "nationalOnlyHelp" = "まだ役立つこと";
 "nationalOnlyTitle" = "この国のネットワークしか使えません";
@@ -215,6 +221,7 @@
 "torAskYes" = "Tor を使う";
 "torUsedDesktop" = "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。このコンピュータの他のサイトはこれまでどおりです。";
 "totalCount" = "合計：{count}";
+"updLater" = "後で";
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";

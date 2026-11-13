@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "Jika perlindungan terputus atau peranti dimulakan semula, ia hidup semula sendiri sehingga anda menghentikannya.";
 "appleLanguageDesc" = "Shroudly menggunakan bahasa peranti anda. Anda boleh memilih bahasa lain untuk Shroudly sahaja dalam tetapan sistem.";
 "appleLocalNetworkUsage" = "Shroudly membawa sambungan aplikasi anda, termasuk sambungan ke peranti dalam rangkaian setempat anda, seperti penghala.";
+"appleMoveBody" = "Dapatkan kemas kini secara automatik dari App Store: pasang Shroudly dari sana, kemudian padam salinan ini. Tetapan yang anda ubah bermula semula.";
+"appleMoveTitle" = "Shroudly ada di App Store";
 "appleNoticeBody" = "Shroudly menambah konfigurasi VPN supaya dapat membawa sambungan aplikasi anda melalui enjinnya, yang hanya berjalan pada peranti ini. Tiada pelayan Shroudly dan tiada akaun, dan Shroudly tidak mengumpul sebarang data: laman yang anda lawati tidak direkodkan atau dihantar kepada kami. Nama dicari melalui DNS tersulit di penyelesai awam (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
 "appleNoticeContinue" = "Teruskan";
 "appleNoticeTitle" = "Sebelum bermula";
 "appleOpenSettings" = "Buka Tetapan";
+"appleUpdateBody" = "Shroudly {version} sudah ada di App Store. Sila kemas kini sekarang: pembetulan untuk sekatan baharu hanya sampai ke versi terkini. Perlindungan kekal aktif sementara itu.";
+"appleUpdateOpen" = "Kemas kini";
+"appleUpdateTitle" = "Kemas kini Shroudly";
 "appleVpnNotSigned" = "Salinan Shroudly ini ditandatangani tanpa kebenaran Apple untuk VPN, jadi iOS tidak membenarkannya memulakan VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID percuma (AltStore, SideStore, Sideloadly dan seumpamanya) tidak pernah mempunyainya. Pasangnya dengan TrollStore, atau tandatanganinya dengan akaun pembangun Apple berbayar.";
 "appleVpnRevoked" = "Perlindungan dimatikan oleh sistem, biasanya kerana aplikasi VPN lain dihidupkan.";
 "bypassed" = "Dipintas";
@@ -113,6 +118,7 @@
 "macAllApps" = "Semua apl melalui Shroudly (VPN)";
 "macAllAppsDesc" = "Mati: Shroudly ialah proksi Mac ini, seperti versi dari GitHub: pelayar dan apl yang menggunakan proksi sistem melaluinya, yang lain terus, dan Mac kekal pantas. Hidup: semua apl melalui Shroudly, termasuk yang mengabaikan proksi (apl Discord, permainan), tetapi Mac lebih perlahan.";
 "madeBy" = "Produk Codeshare Technology Ltd";
+"masOpen" = "Buka App Store";
 "nationalOnlyBody" = "Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.";
 "nationalOnlyHelp" = "Apa yang masih boleh membantu";
 "nationalOnlyTitle" = "Hanya rangkaian negara ini yang berfungsi";
@@ -215,6 +221,7 @@
 "torAskYes" = "Guna Tor";
 "torUsedDesktop" = "{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; laman lain pada komputer ini kekal seperti biasa.";
 "totalCount" = "Jumlah: {count}";
+"updLater" = "Kemudian";
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";

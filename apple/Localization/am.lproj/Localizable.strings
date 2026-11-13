@@ -21,10 +21,15 @@
 "appleKeepOnDesc" = "ጥበቃው ቢቋረጥ ወይም መሣሪያው እንደገና ቢጀምር፣ እስኪያቆሙት ድረስ በራሱ ተመልሶ ይበራል።";
 "appleLanguageDesc" = "Shroudly የመሣሪያዎን ቋንቋ ይጠቀማል። ለShroudly ብቻ ሌላ ቋንቋ በሥርዓቱ ቅንብሮች ውስጥ መምረጥ ይችላሉ።";
 "appleLocalNetworkUsage" = "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ያስተላልፋል፤ በአካባቢዎ አውታረ መረብ ላይ ወዳሉ እንደ ራውተርዎ ያሉ መሣሪያዎች የሚደረጉትንም ጨምሮ።";
+"appleMoveBody" = "ዝማኔዎችን ከApp Store በራስ-ሰር ያግኙ፦ Shroudlyን ከዚያ ይጫኑ፣ ከዚያ ይህን ቅጂ ይሰርዙ። የቀየሯቸው ቅንብሮች እንደ አዲስ ይጀምራሉ።";
+"appleMoveTitle" = "Shroudly በApp Store ላይ አለ";
 "appleNoticeBody" = "Shroudly የመተግበሪያዎችዎን ግንኙነቶች በዚህ መሣሪያ ላይ ብቻ በሚሠራው ሞተሩ በኩል እንዲያስተላልፍ የVPN ውቅረት ያክላል። የShroudly አገልጋይም መለያም የለም፤ Shroudly ምንም መረጃ አይሰበስብም፦ የሚጎበኟቸው ድረ-ገጾች አይመዘገቡም ወደ እኛም አይላኩም። ስሞች በተመሰጠረ DNS በሕዝብ ሪዞልቨሮች (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) ይፈለጋሉ።";
 "appleNoticeContinue" = "ቀጥል";
 "appleNoticeTitle" = "ከመጀመርዎ በፊት";
 "appleOpenSettings" = "ቅንብሮችን ክፈት";
+"appleUpdateBody" = "Shroudly {version} በApp Store ላይ አለ። እባክዎ አሁን ያዘምኑ፤ ለአዲስ እገዳዎች የሚሆኑ ጥገናዎች የሚደርሱት ለአዲሱ ስሪት ብቻ ነው። እስከዚያው ጥበቃው እንደበራ ይቆያል።";
+"appleUpdateOpen" = "አዘምን";
+"appleUpdateTitle" = "Shroudlyን ያዘምኑ";
 "appleVpnNotSigned" = "ይህ የShroudly ቅጂ ለVPN የApple ፈቃድ ሳይኖረው ተፈርሟል፣ ስለዚህ iOS VPN እንዲጀምር አይፈቅድለትም፣ ፈጽሞም አይጠይቅም። በነጻ Apple ID የተፈረሙ ቅጂዎች (AltStore፣ SideStore፣ Sideloadly እና መሰሎቻቸው) ይህ ፈቃድ ፈጽሞ የላቸውም። በTrollStore ይጫኑት፣ ወይም በሚከፈልበት የApple ገንቢ መለያ ይፈርሙት።";
 "appleVpnRevoked" = "ሥርዓቱ ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።";
 "bypassed" = "የታለፉ";
@@ -113,6 +118,7 @@
 "macAllApps" = "ሁሉም መተግበሪያዎች በShroudly በኩል (VPN)";
 "macAllAppsDesc" = "ጠፍቷል፦ Shroudly የዚህ Mac ፕሮክሲ ነው፣ እንደ GitHub ስሪቱ፦ አሳሾች እና የስርዓቱን ፕሮክሲ የሚጠቀሙ መተግበሪያዎች በእሱ በኩል ያልፋሉ፣ ሌሎቹ በቀጥታ ይሄዳሉ፣ Mac ፈጣን ሆኖ ይቆያል። በርቷል፦ ፕሮክሲውን የማይከተሉትን (የDiscord መተግበሪያ፣ ጨዋታዎች) ጨምሮ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ፣ ግን Mac ይዘገያል።";
 "madeBy" = "የCodeshare Technology Ltd ምርት";
+"masOpen" = "App Storeን ክፈት";
 "nationalOnlyBody" = "ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።";
 "nationalOnlyHelp" = "አሁንም ምን ሊረዳ ይችላል";
 "nationalOnlyTitle" = "የዚህ አገር አውታረ መረብ ብቻ ነው የሚሠራው";
@@ -215,6 +221,7 @@
 "torAskYes" = "Torን ተጠቀም";
 "torUsedDesktop" = "{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ በዚህ ኮምፒውተር ላይ ያሉ ሌሎች ድረ-ገጾች እንደቀድሞው ይሰራሉ።";
 "totalCount" = "ጠቅላላ: {count}";
+"updLater" = "በኋላ";
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";

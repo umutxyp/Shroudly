@@ -1001,5 +1001,10 @@
   "macAllAppsDesc": "Tắt: Shroudly là proxy của máy Mac này, giống bản trên GitHub: trình duyệt và ứng dụng dùng proxy hệ thống đi qua nó, phần còn lại đi thẳng, và máy Mac vẫn nhanh. Bật: mọi ứng dụng đi qua Shroudly, kể cả ứng dụng bỏ qua proxy (ứng dụng Discord, trò chơi), nhưng máy Mac chậm hơn.",
   "reportBadContact": "Hãy nhập một email bạn thường đọc. Không chấp nhận địa chỉ tạm thời, địa chỉ bịa hay tên Telegram.",
   "reportBadWhat": "Hãy kể lại bằng lời của bạn, trong vài câu, chuyện gì đã xảy ra.",
-  "reportBadSite": "Hãy ghi tên trang web hoặc ứng dụng không hoạt động."
+  "reportBadSite": "Hãy ghi tên trang web hoặc ứng dụng không hoạt động.",
+  "appleUpdateTitle": "Cập nhật Shroudly",
+  "appleUpdateBody": "Shroudly {version} đã có trên App Store. Vui lòng cập nhật ngay: bản sửa cho các kiểu chặn mới chỉ có ở phiên bản mới nhất. Trong lúc đó, bảo vệ vẫn bật.",
+  "appleUpdateOpen": "Cập nhật",
+  "appleMoveTitle": "Shroudly đã có trên App Store",
+  "appleMoveBody": "Nhận bản cập nhật tự động từ App Store: cài Shroudly từ đó, rồi xóa bản này. Các cài đặt bạn đã đổi sẽ bắt đầu lại từ đầu."
 }
