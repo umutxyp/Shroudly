@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Ни один способ не открывает {host} в этой сети. Полная версия Shroudly с Tor может его открыть. Откройте Shroudly, чтобы её получить.</string>
     <string name="liteOfferTitle">{host} здесь остаётся заблокированным</string>
     <string name="logEntries">Записей: {count}</string>
+    <string name="logoChoice">Логотип</string>
+    <string name="logoChoiceDesc">Логотип Shroudly в приложении и, где система это позволяет, значок приложения.</string>
+    <string name="logoCountries">Страны</string>
+    <string name="logoDays">Особые дни</string>
+    <string name="logoStyles">Стили</string>
+    <string name="logoSwatch">Логотип {n} из {total}</string>
     <string name="logsCopied">Скопировано</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Связь с остальным миром отрезана; сайты внутри страны ещё открываются. Это не обойти ни одному приложению или VPN. Когда связь вернётся, Shroudly продолжит сам.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Быстрее: сайт, который однажды пошёл через Tor, через 15 минут возвращается на обычные пути, а не остаётся в Tor.\nTor дольше ждёт медленные мосты (Россия), поэтому Telegram проходит через него.\nGemini и AI Studio можно целиком отправить через Tor (Соединения по сайтам).</string>
+    <string name="whatsNewAndroid">Быстрее: все техники пробуются уже при первом заходе, и сайты больше не уходят в медленный Tor; Tor используется, только если ничего другого не помогло или он выбран.\nTikTok и другие приложения больше не зависают после переключения между Wi-Fi и мобильным интернетом; сайты http://, которые сеть отбрасывает, снова открываются.\nНовые значки для главного экрана на выбор: стили, особые дни и страны (Настройки).</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

@@ -101,6 +101,12 @@
 "logInfo" = "信息";
 "logSuccess" = "成功";
 "logWarning" = "警告";
+"logoChoice" = "标志";
+"logoChoiceDesc" = "Shroudly 在应用内显示的标志；在系统允许的地方，应用图标也会随之更改。";
+"logoCountries" = "国家";
+"logoDays" = "特别的日子";
+"logoStyles" = "风格";
+"logoSwatch" = "标志 {n}/{total}";
 "logsCopied" = "已复制";
 "logsSaveFailed" = "未能保存";
 "logsSaved" = "已保存";
@@ -212,7 +218,7 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "更快：Tor 曾经承载过的网站，15 分钟后会回到常规方式，而不会一直走 Tor。\nTor 会更久地等待缓慢的网桥（俄罗斯），因此 Telegram 可以通过它连接。\n可以让 Gemini 和 AI Studio 全部通过 Tor（按网站的连接）。";
+"whatsNewApple" = "在 Wi-Fi 和移动数据之间切换后，TikTok 等应用不再卡住。\n被网络悄悄丢弃的 http:// 网站重新可以打开。\niPhone 和 iPad：可选择新的应用图标：风格、特别的日子和国家（设置）。";
+"whatsNewMac" = "更快：首次访问就会尝试所有方法，网站不再落到缓慢的 Tor 上；只有其他方法都不行或你选择时才使用 Tor。\n被网络悄悄丢弃的 http:// 网站重新可以打开。\n可为 Dock 选择新的图标：风格、特别的日子和国家（设置）。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

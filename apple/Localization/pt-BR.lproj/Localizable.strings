@@ -101,6 +101,12 @@
 "logInfo" = "Informação";
 "logSuccess" = "Sucesso";
 "logWarning" = "Aviso";
+"logoChoice" = "Logotipo";
+"logoChoiceDesc" = "O logotipo do Shroudly dentro do app e, onde o sistema permitir, o ícone dele.";
+"logoCountries" = "Países";
+"logoDays" = "Dias especiais";
+"logoStyles" = "Estilos";
+"logoSwatch" = "Logotipo {n} de {total}";
 "logsCopied" = "Copiado";
 "logsSaveFailed" = "Não salvo";
 "logsSaved" = "Salvo";
@@ -212,7 +218,7 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Mais rápido: um site que o Tor levou uma vez volta aos caminhos habituais após 15 minutos em vez de ficar no Tor.\nO Tor espera mais pelas pontes lentas (Rússia), para o Telegram passar por ele.\nO Gemini e o AI Studio podem passar inteiros pelo Tor (Conexões por site).";
+"whatsNewApple" = "Apps como o TikTok não travam mais depois de trocar entre Wi-Fi e dados móveis.\nSites http:// que a rede descarta sem aviso voltam a abrir.\niPhone e iPad: novos ícones do app para escolher: estilos, dias especiais e países (Ajustes).";
+"whatsNewMac" = "Mais rápido: cada técnica é tentada já na primeira visita, então os sites não acabam mais no Tor, que é lento; o Tor só é usado se nada mais funcionar ou se for escolhido.\nSites http:// que a rede descarta sem aviso voltam a abrir.\nNovos ícones para o Dock para escolher: estilos, dias especiais e países (Ajustes).";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

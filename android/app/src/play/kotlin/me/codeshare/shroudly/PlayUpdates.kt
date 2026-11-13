@@ -300,7 +300,7 @@ object PlayUpdates {
             ShroudlyVpnService.channels(ctx)
             val open = PendingIntent.getActivity(
                 ctx, NOTICE_ID,
-                Intent(ctx, MainActivity::class.java)
+                Intent(ctx, HomeActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra(MainActivity.EXTRA_INSTALL_UPDATE, true),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,

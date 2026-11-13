@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Written by scripts/logo/variants.py: the ground of each logo's adaptive icon. -->
+<resources>
+    <color name="logo_flat_bg">#185FDC</color>
+    <color name="logo_line_bg">#0C0C0E</color>
+    <color name="logo_paper_bg">#F6F3EC</color>
+    <color name="logo_key_bg">#F5A623</color>
+    <color name="logo_veil_bg">#3A246E</color>
+    <color name="logo_terminal_bg">#080C0A</color>
+    <color name="logo_night_bg">#1A1D21</color>
+    <color name="logo_coral_bg">#EB5748</color>
+    <color name="logo_newyear_bg">#0E5234</color>
+    <color name="logo_halloween_bg">#1B1026</color>
+    <color name="logo_valentine_bg">#FF4F79</color>
+    <color name="logo_spring_bg">#2E9E5B</color>
+    <color name="logo_ramadan_bg">#0E1B3D</color>
+    <color name="logo_winter_bg">#DDEEFF</color>
+    <color name="logo_tr_bg">#15171C</color>
+    <color name="logo_ir_bg">#15171C</color>
+    <color name="logo_ru_bg">#15171C</color>
+    <color name="logo_cn_bg">#15171C</color>
+    <color name="logo_pk_bg">#15171C</color>
+    <color name="logo_az_bg">#15171C</color>
+    <color name="logo_kz_bg">#15171C</color>
+    <color name="logo_eg_bg">#15171C</color>
+    <color name="logo_vn_bg">#15171C</color>
+</resources>

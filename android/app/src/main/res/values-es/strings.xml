@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Ninguna técnica abre {host} en esta red. La versión completa de Shroudly, con Tor, puede abrirlo. Abre Shroudly para conseguirla.</string>
     <string name="liteOfferTitle">{host} sigue bloqueado aquí</string>
     <string name="logEntries">Entradas: {count}</string>
+    <string name="logoChoice">Logotipo</string>
+    <string name="logoChoiceDesc">El logotipo de Shroudly dentro de la app y, donde el sistema lo permite, su icono.</string>
+    <string name="logoCountries">Países</string>
+    <string name="logoDays">Días especiales</string>
+    <string name="logoStyles">Estilos</string>
+    <string name="logoSwatch">Logotipo {n} de {total}</string>
     <string name="logsCopied">Copiado</string>
     <string name="madeBy">Un producto de Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">La conexión con el resto del mundo está cortada; los sitios del país todavía abren. Ninguna app ni VPN puede saltarse eso. Shroudly seguirá por sí mismo cuando vuelva.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Más rápido: un sitio que Tor llevó una vez vuelve a las vías habituales a los 15 minutos en lugar de quedarse en Tor.\nTor espera más a los puentes lentos (Rusia), así Telegram pasa por él.\nGemini y AI Studio pueden pasar enteros por Tor (Conexiones por sitio).</string>
+    <string name="whatsNewAndroid">Más rápido: cada técnica se prueba ya en la primera visita, así que los sitios dejan de acabar en Tor, que es lento; Tor solo se usa si nada más funciona o si se elige.\nTikTok y otras apps ya no se congelan tras pasar de Wi-Fi a datos móviles o al revés; los sitios http:// que la red descarta vuelven a abrir.\nNuevos iconos de pantalla de inicio para elegir: estilos, días especiales y países (Ajustes).</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

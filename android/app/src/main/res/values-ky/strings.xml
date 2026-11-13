@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Бул тармакта эч бир ыкма {host} үчүн иштебейт. Shroudly\'дин Tor бар толук версиясы аны ача алат. Аны алуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="liteOfferTitle">{host} бул жерде бөгөттөлгөн бойдон калууда</string>
     <string name="logEntries">Жазуулар: {count}</string>
+    <string name="logoChoice">Логотип</string>
+    <string name="logoChoiceDesc">Shroudly\'нин колдонмонун ичиндеги логотиби жана, тутум уруксат берген жерде, колдонмонун сүрөтчөсү.</string>
+    <string name="logoCountries">Өлкөлөр</string>
+    <string name="logoDays">Өзгөчө күндөр</string>
+    <string name="logoStyles">Стилдер</string>
+    <string name="logoSwatch">Логотип: {total} ичинен {n}</string>
     <string name="logsCopied">Көчүрүлдү</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
     <string name="nationalOnlyBody">Дүйнөнүн калган бөлүгү менен байланыш үзүлгөн; өлкө ичиндеги сайттар дагы эле ачылат. Муну эч бир колдонмо же VPN айланып өтө албайт. Байланыш кайтканда Shroudly өзү улантат.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Тезирээк: Tor бир жолу өткөргөн сайт Tor\'до калбай, 15 мүнөттөн кийин кадимки жолдорго кайтат.\nTor жай көпүрөлөрдү (Орусия) узагыраак күтөт, ошондуктан Telegram ал аркылуу өтөт.\nGemini менен AI Studio толугу менен Tor аркылуу жөнөтүлө алат (Сайттар боюнча туташуулар).</string>
+    <string name="whatsNewAndroid">Тезирээк: бардык ыкмалар биринчи киргенде эле сыналат, сайттар эми жай Tor\'го түшпөйт; Tor башка эч нерсе жардам бербесе же тандалса гана колдонулат.\nTikTok жана башка колдонмолор Wi-Fi менен мобилдик интернеттин ортосунда которулгандан кийин эми катып калбайт; тармак таштаган http:// сайттары кайра ачылат.\nТандоо үчүн башкы экрандын жаңы сүрөтчөлөрү: стилдер, өзгөчө күндөр жана өлкөлөр (Жөндөөлөр).</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

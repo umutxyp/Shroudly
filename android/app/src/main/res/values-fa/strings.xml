@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">هیچ روشی {host} را در این شبکه باز نمی‌کند. نسخهٔ کامل Shroudly که Tor دارد می‌تواند آن را باز کند. برای دریافتش Shroudly را باز کنید.</string>
     <string name="liteOfferTitle">{host} اینجا همچنان مسدود است</string>
     <string name="logEntries">موارد: {count}</string>
+    <string name="logoChoice">لوگو</string>
+    <string name="logoChoiceDesc">لوگوی Shroudly در داخل برنامه و، هر جا سیستم اجازه دهد، نماد برنامه.</string>
+    <string name="logoCountries">کشورها</string>
+    <string name="logoDays">روزهای ویژه</string>
+    <string name="logoStyles">سبک‌ها</string>
+    <string name="logoSwatch">لوگو {n} از {total}</string>
     <string name="logsCopied">کپی شد</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">ارتباط با بقیهٔ جهان قطع است؛ سایت‌های داخل کشور هنوز باز می‌شوند. هیچ برنامه یا VPNی از این عبور نمی‌کند. وقتی ارتباط برگردد، Shroudly خودش ادامه می‌دهد.</string>
@@ -322,7 +328,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">سریع‌تر: سایتی که Tor یک بار آن را برده، به‌جای ماندن روی Tor، پس از ۱۵ دقیقه به راه‌های معمول برمی‌گردد.\nTor برای پل‌های کند (روسیه) بیشتر صبر می‌کند، تا Telegram از طریق آن برود.\nGemini و AI Studio را می‌توان به‌طور کامل از Tor فرستاد (اتصال‌ها بر اساس سایت).</string>
+    <string name="whatsNewAndroid">سریع‌تر: همهٔ روش‌ها از همان بازدید اول امتحان می‌شوند و سایت‌ها دیگر به Tor کُند نمی‌افتند؛ Tor فقط وقتی به کار می‌رود که هیچ راه دیگری جواب ندهد یا انتخاب شده باشد.\nTikTok و برنامه‌های دیگر پس از جابه‌جایی میان Wi-Fi و دادهٔ همراه دیگر قفل نمی‌کنند؛ سایت‌های http:// که شبکه کنار می‌گذارد دوباره باز می‌شوند.\nنمادهای تازهٔ صفحهٔ اصلی برای انتخاب: سبک‌ها، روزهای ویژه و کشورها (تنظیمات).</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

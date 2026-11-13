@@ -780,6 +780,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=appletv*]" = "App Icon & Top Shelf Image";
+				"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES[sdk=iphone*]" = "Logo-flat Logo-line Logo-paper Logo-key Logo-veil Logo-terminal Logo-night Logo-coral Logo-newyear Logo-halloween Logo-valentine Logo-spring Logo-ramadan Logo-winter Logo-tr Logo-ir Logo-ru Logo-cn Logo-pk Logo-az Logo-kz Logo-eg Logo-vn";
+				"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS[sdk=iphone*]" = NO;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";
@@ -819,6 +821,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=appletv*]" = "App Icon & Top Shelf Image";
+				"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES[sdk=iphone*]" = "Logo-flat Logo-line Logo-paper Logo-key Logo-veil Logo-terminal Logo-night Logo-coral Logo-newyear Logo-halloween Logo-valentine Logo-spring Logo-ramadan Logo-winter Logo-tr Logo-ir Logo-ru Logo-cn Logo-pk Logo-az Logo-kz Logo-eg Logo-vn";
+				"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS[sdk=iphone*]" = NO;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";

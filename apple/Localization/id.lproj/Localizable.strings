@@ -101,6 +101,12 @@
 "logInfo" = "Informasi";
 "logSuccess" = "Berhasil";
 "logWarning" = "Peringatan";
+"logoChoice" = "Logo";
+"logoChoiceDesc" = "Logo Shroudly di dalam aplikasi dan, jika sistem mengizinkan, ikon aplikasinya.";
+"logoCountries" = "Negara";
+"logoDays" = "Hari istimewa";
+"logoStyles" = "Gaya";
+"logoSwatch" = "Logo {n} dari {total}";
 "logsCopied" = "Disalin";
 "logsSaveFailed" = "Tidak tersimpan";
 "logsSaved" = "Disimpan";
@@ -212,7 +218,7 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "Lebih cepat: situs yang pernah dibawa Tor kembali ke jalur biasa setelah 15 menit, tidak terus lewat Tor.\nTor menunggu jembatan yang lambat (Rusia) lebih lama, sehingga Telegram bisa lewat.\nGemini dan AI Studio bisa lewat Tor sepenuhnya (Koneksi per situs).";
+"whatsNewApple" = "Aplikasi seperti TikTok tak lagi macet setelah pindah antara Wi-Fi dan data seluler.\nSitus http:// yang dibuang jaringan diam-diam terbuka lagi.\niPhone dan iPad: ikon aplikasi baru untuk dipilih: gaya, hari istimewa, dan negara (Pengaturan).";
+"whatsNewMac" = "Lebih cepat: setiap teknik dicoba sejak kunjungan pertama, jadi situs tak lagi berakhir di Tor yang lambat; Tor hanya dipakai bila tak ada cara lain yang berhasil atau bila dipilih.\nSitus http:// yang dibuang jaringan diam-diam terbuka lagi.\nIkon baru untuk Dock: gaya, hari istimewa, dan negara (Pengaturan).";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

@@ -101,6 +101,12 @@
 "logInfo" = "情報";
 "logSuccess" = "成功";
 "logWarning" = "警告";
+"logoChoice" = "ロゴ";
+"logoChoiceDesc" = "アプリ内に表示される Shroudly のロゴ。システムが許可する場合はアプリのアイコンも変わります。";
+"logoCountries" = "国";
+"logoDays" = "特別な日";
+"logoStyles" = "スタイル";
+"logoSwatch" = "ロゴ {n}/{total}";
 "logsCopied" = "コピーしました";
 "logsSaveFailed" = "保存できませんでした";
 "logsSaved" = "保存しました";
@@ -212,7 +218,7 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "高速化：一度 Tor を通ったサイトは、Tor のままにならず 15 分後に通常の方法へ戻ります。\n遅いブリッジ（ロシア）を Tor がより長く待つため、Telegram が Tor を通れるようになりました。\nGemini と AI Studio をまとめて Tor に通せます（サイト別の接続）。";
+"whatsNewApple" = "Wi-Fi とモバイルデータを切り替えたあとに TikTok などのアプリが固まらなくなりました。\nネットワークが黙って捨てる http:// サイトが再び開くようになりました。\niPhone と iPad：新しいアプリアイコンを選べます：スタイル、特別な日、国（設定）。";
+"whatsNewMac" = "高速化：最初のアクセスからすべての手法を試すため、サイトが遅い Tor に回ることはなくなりました。Tor は他に手がないときか、選んだときだけ使います。\nネットワークが黙って捨てる http:// サイトが再び開くようになりました。\nDock の新しいアイコンを選べます：スタイル、特別な日、国（設定）。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

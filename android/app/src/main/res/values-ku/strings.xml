@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Li ser vê torê tu teknîk {host} venake. Guhertoya tevahî ya Shroudly, bi Tor, dikare wê veke. Ji bo wergirtinê Shroudly veke.</string>
     <string name="liteOfferTitle">{host} li vir hê jî astengkirî ye</string>
     <string name="logEntries">Tomar: {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Logoya Shroudly di nav sepanê de û, li cihê ku pergal destûrê dide, îkona sepanê.</string>
+    <string name="logoCountries">Welat</string>
+    <string name="logoDays">Rojên taybet</string>
+    <string name="logoStyles">Şêwaz</string>
+    <string name="logoSwatch">Logo {n} ji {total}</string>
     <string name="logsCopied">Hat kopîkirin</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Bileztir: malpera ku Tor carekê biribû, li şûna ku li ser Tor bimîne, piştî 15 deqeyan vedigere rêyên asayî.\nTor ji bo pirên hêdî (Rûsya) zêdetir li bendê dimîne, da ku Telegram bi wê derbas bibe.\nGemini û AI Studio dikarin bi tevahî bi Tor biçin (Girêdan li gorî malperê).</string>
+    <string name="whatsNewAndroid">Bileztir: her teknîk ji serdana yekem ve tê ceribandin, êdî malper naçin ser Tor-a hêdî; Tor tenê dema ku tiştekî din kar neke an hatibe hilbijartin tê bikaranîn.\nTikTok û sepanên din piştî guherîna di navbera Wi-Fi û daneyên mobîl de êdî naqefilin; malperên http:// yên ku tor davêje dîsa vedibin.\nÎkonên nû yên ekrana sereke ji bo hilbijartinê: şêwaz, rojên taybet û welat (Mîheng).</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

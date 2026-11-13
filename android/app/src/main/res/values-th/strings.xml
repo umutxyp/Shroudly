@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly รุ่นเต็มที่มี Tor เปิดได้ เปิด Shroudly เพื่อรับรุ่นเต็ม</string>
     <string name="liteOfferTitle">{host} ยังถูกบล็อกอยู่ที่นี่</string>
     <string name="logEntries">รายการ: {count}</string>
+    <string name="logoChoice">โลโก้</string>
+    <string name="logoChoiceDesc">โลโก้ของ Shroudly ภายในแอป และไอคอนของแอปในที่ที่ระบบอนุญาต</string>
+    <string name="logoCountries">ประเทศ</string>
+    <string name="logoDays">วันพิเศษ</string>
+    <string name="logoStyles">สไตล์</string>
+    <string name="logoSwatch">โลโก้ {n} จาก {total}</string>
     <string name="logsCopied">คัดลอกแล้ว</string>
     <string name="madeBy">ผลิตภัณฑ์ของ Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">การเชื่อมต่อกับส่วนอื่นของโลกถูกตัด เว็บไซต์ในประเทศยังเปิดได้ ไม่มีแอปหรือ VPN ใดผ่านสิ่งนี้ได้ Shroudly จะทำงานต่อเองเมื่อการเชื่อมต่อกลับมา</string>
@@ -322,7 +328,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">เร็วขึ้น: ไซต์ที่ Tor เคยพาไปครั้งหนึ่ง จะกลับไปใช้ทางปกติหลัง 15 นาทีแทนที่จะค้างอยู่บน Tor\nTor รอบริดจ์ที่ช้า (รัสเซีย) นานขึ้น Telegram จึงผ่าน Tor ได้\nส่ง Gemini และ AI Studio ผ่าน Tor ได้ทั้งหมด (การเชื่อมต่อตามเว็บไซต์)</string>
+    <string name="whatsNewAndroid">เร็วขึ้น: ทุกวิธีถูกลองตั้งแต่การเข้าครั้งแรก ไซต์จึงไม่ไปจบที่ Tor ซึ่งช้าอีกต่อไป และจะใช้ Tor ก็ต่อเมื่อไม่มีวิธีอื่นได้ผลหรือเมื่อเลือกไว้\nTikTok และแอปอื่น ๆ ไม่ค้างอีกหลังสลับระหว่าง Wi-Fi กับข้อมูลมือถือ และไซต์ http:// ที่เครือข่ายทิ้งเปิดได้อีกครั้ง\nไอคอนหน้าจอหลักใหม่ให้เลือก: สไตล์ วันพิเศษ และประเทศ (การตั้งค่า)</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

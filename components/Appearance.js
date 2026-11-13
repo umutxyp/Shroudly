@@ -10,7 +10,7 @@
  * hard to read.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const ACCENTS = [
   { id: 'sky',     swatch: '#38bdf8' },
@@ -23,6 +23,56 @@ export const ACCENTS = [
   { id: 'violet',  swatch: '#a78bfa' },
   { id: 'indigo',  swatch: '#818cf8' },
 ];
+
+/* The logos to choose between (electron/logos.js keeps the same list for
+ * the window's, the taskbar's and the Dock's icon; scripts/logo/variants.py
+ * draws them into public/logos). "classic" is the logo Shroudly has always
+ * had. Three groups: styles, special days, and countries where people use
+ * Shroudly against blocking. */
+export const LOGO_GROUPS = [
+  ['styles', ['classic', 'flat', 'line', 'paper', 'key', 'veil', 'terminal', 'night', 'coral']],
+  ['days', ['newyear', 'halloween', 'valentine', 'spring', 'ramadan', 'winter']],
+  ['countries', ['tr', 'ir', 'ru', 'cn', 'pk', 'az', 'kz', 'eg', 'vn']],
+];
+export const LOGO_IDS = LOGO_GROUPS.flatMap(([, ids]) => ids);
+const LOGO_KEY = 'shroudly_logo';
+const LOGO_EVENT = 'shroudly:logo';
+
+/* The picture of a logo for a picker or the window's corner. Relative: the
+ * exported app is loaded from file://. */
+export function logoSrc(id) { return LOGO_IDS.includes(id) ? `./logos/${id}.png` : './logos/classic.png'; }
+
+export function readLogo() {
+  try { const v = localStorage.getItem(LOGO_KEY); return LOGO_IDS.includes(v) ? v : 'classic'; } catch { return 'classic'; }
+}
+
+/* The user's choice: kept here for the window, and told to the main process,
+ * which puts it on the window, the taskbar and the Dock (save: false when
+ * the main process is the one that said it). */
+export function chooseLogo(id, save = true) {
+  const v = LOGO_IDS.includes(id) ? id : 'classic';
+  try { localStorage.setItem(LOGO_KEY, v); } catch {}
+  try { window.dispatchEvent(new CustomEvent(LOGO_EVENT, { detail: v })); } catch {}
+  if (save) { try { window.electron?.setSetting?.('logo', v); } catch {} }
+}
+
+/* The logo in use, for whatever shows it; follows a choice made anywhere in
+ * the window, and what the main process has saved (another window's choice,
+ * or the settings put back as they came). */
+export function useLogo() {
+  const [logo, setLogo] = useState('classic');
+  useEffect(() => {
+    setLogo(readLogo());
+    const on = (e) => setLogo(LOGO_IDS.includes(e.detail) ? e.detail : 'classic');
+    window.addEventListener(LOGO_EVENT, on);
+    Promise.resolve(window.electron?.getSetting?.('logo')).then((v) => {
+      const saved = LOGO_IDS.includes(v) ? v : 'classic';
+      if (saved !== readLogo()) chooseLogo(saved, false);
+    }).catch(() => {});
+    return () => window.removeEventListener(LOGO_EVENT, on);
+  }, []);
+  return logo;
+}
 
 const ACCENT_KEY = 'shroudly_accent';
 const SURFACE_KEY = 'shroudly_surface';

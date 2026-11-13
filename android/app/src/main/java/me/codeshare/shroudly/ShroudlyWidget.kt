@@ -73,7 +73,7 @@ class ShroudlyWidget : AppWidgetProvider() {
     }
 
     private fun openApp(ctx: Context, start: Boolean) {
-        val i = Intent(ctx, MainActivity::class.java)
+        val i = Intent(ctx, HomeActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         if (start) i.putExtra(MainActivity.EXTRA_START, true)
         try { ctx.startActivity(i) } catch (_: Exception) {}

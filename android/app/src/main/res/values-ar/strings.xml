@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">لا تفتح أي تقنية {host} على هذه الشبكة. يمكن لنسخة Shroudly الكاملة، المزوّدة بـ Tor، فتحه. افتح Shroudly للحصول عليها.</string>
     <string name="liteOfferTitle">{host} لا يزال محجوبًا هنا</string>
     <string name="logEntries">الإدخالات: {count}</string>
+    <string name="logoChoice">الشعار</string>
+    <string name="logoChoiceDesc">شعار Shroudly داخل التطبيق، وأيقونة التطبيق حيث يسمح النظام بذلك.</string>
+    <string name="logoCountries">البلدان</string>
+    <string name="logoDays">أيام خاصة</string>
+    <string name="logoStyles">الأنماط</string>
+    <string name="logoSwatch">الشعار {n} من {total}</string>
     <string name="logsCopied">تم النسخ</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.</string>
@@ -322,7 +328,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">أسرع: الموقع الذي حمله Tor مرة يعود إلى الطرق المعتادة بعد 15 دقيقة بدلًا من البقاء على Tor.\nينتظر Tor الجسور البطيئة (روسيا) مدة أطول، فيمر Telegram عبره.\nيمكن إرسال Gemini وAI Studio بالكامل عبر Tor (الاتصالات حسب الموقع).</string>
+    <string name="whatsNewAndroid">أسرع: تُجرَّب كل التقنيات من الزيارة الأولى، فلم تعد المواقع تنتهي على Tor البطيء؛ لا يُستخدم Tor إلا إذا لم ينجح شيء آخر أو إذا اختير.\nلم يعد TikTok والتطبيقات الأخرى تتجمد بعد الانتقال بين Wi-Fi وبيانات الجوال؛ ومواقع http:// التي تُسقطها الشبكة تُفتح من جديد.\nأيقونات جديدة للشاشة الرئيسية للاختيار: أنماط وأيام خاصة وبلدان (الإعدادات).</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

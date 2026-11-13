@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Aucune technique n\'ouvre {host} sur ce réseau. La version complète de Shroudly, avec Tor, peut l\'ouvrir. Ouvre Shroudly pour l\'obtenir.</string>
     <string name="liteOfferTitle">{host} reste bloqué ici</string>
     <string name="logEntries">Entrées : {count}</string>
+    <string name="logoChoice">Logo</string>
+    <string name="logoChoiceDesc">Le logo de Shroudly dans l’appli et, là où le système le permet, son icône.</string>
+    <string name="logoCountries">Pays</string>
+    <string name="logoDays">Jours particuliers</string>
+    <string name="logoStyles">Styles</string>
+    <string name="logoSwatch">Logo {n} sur {total}</string>
     <string name="logsCopied">Copié</string>
     <string name="madeBy">Un produit Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">La connexion avec le reste du monde est coupée ; les sites du pays s’ouvrent encore. Aucune appli ni aucun VPN ne passe outre. Shroudly reprendra tout seul quand elle reviendra.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Plus rapide : un site que Tor a porté une fois reprend les voies habituelles au bout de 15 minutes au lieu de rester sur Tor.\nTor attend plus longtemps les ponts lents (Russie), pour que Telegram passe par lui.\nGemini et AI Studio peuvent passer tout entiers par Tor (Connexions par site).</string>
+    <string name="whatsNewAndroid">Plus rapide : chaque technique est essayée dès la première visite, les sites ne finissent plus sur Tor, plus lent ; Tor ne sert que si rien d’autre ne marche ou s’il est choisi.\nTikTok et d’autres applis ne se figent plus après un passage entre Wi-Fi et données mobiles ; les sites http:// que le réseau abandonne s’ouvrent à nouveau.\nDe nouvelles icônes d’écran d’accueil au choix : styles, jours particuliers et pays (Réglages).</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

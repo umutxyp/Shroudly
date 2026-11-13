@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አይከፍትም። Tor ያለው የShroudly ሙሉ ስሪት ሊከፍተው ይችላል። ለማግኘት Shroudlyን ይክፈቱ።</string>
     <string name="liteOfferTitle">{host} እዚህ እንደታገደ ነው</string>
     <string name="logEntries">ግቤቶች: {count}</string>
+    <string name="logoChoice">አርማ</string>
+    <string name="logoChoiceDesc">በመተግበሪያው ውስጥ ያለው የShroudly አርማ እና፣ ሲስተሙ በሚፈቅድበት ቦታ፣ የመተግበሪያው አዶ።</string>
+    <string name="logoCountries">አገሮች</string>
+    <string name="logoDays">ልዩ ቀናት</string>
+    <string name="logoStyles">ቅጦች</string>
+    <string name="logoSwatch">አርማ {n} ከ{total}</string>
     <string name="logsCopied">ተቀድቷል</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
     <string name="nationalOnlyBody">ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።</string>
@@ -322,7 +328,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ፈጣን፦ Tor አንድ ጊዜ ያሳለፈው ጣቢያ በTor ላይ ከመቆየት ይልቅ ከ15 ደቂቃ በኋላ ወደ ተለመዱት መንገዶች ይመለሳል።\nTor ቀርፋፋ ድልድዮችን (ሩሲያ) ረዘም ላለ ጊዜ ይጠብቃል፤ ስለዚህ Telegram በእሱ በኩል ያልፋል።\nGemini እና AI Studio ሙሉ በሙሉ በTor ሊያልፉ ይችላሉ (በድረ ገጽ የተከፋፈሉ ግንኙነቶች)።</string>
+    <string name="whatsNewAndroid">ፈጣን፦ እያንዳንዱ ዘዴ ከመጀመሪያው ጉብኝት ጀምሮ ይሞከራል፤ ስለዚህ ጣቢያዎች ከእንግዲህ በዝግተኛው Tor ላይ አያልቁም፤ Tor የሚውለው ሌላ ምንም ካልሰራ ወይም ከተመረጠ ብቻ ነው።\nTikTok እና ሌሎች መተግበሪያዎች በWi-Fi እና በሞባይል ዳታ መካከል ከተቀየሩ በኋላ ከእንግዲህ አይቆሙም፤ አውታረ መረቡ የሚጥላቸው የhttp:// ጣቢያዎች እንደገና ይከፈታሉ።\nየሚመረጡ አዲስ የመነሻ ማያ አዶዎች፦ ቅጦች፣ ልዩ ቀናትና አገሮች (ቅንብሮች)።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

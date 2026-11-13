@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">אף שיטה לא פותחת את {host} ברשת הזו. הגרסה המלאה של Shroudly, עם Tor, יכולה לפתוח אותו. פתחו את Shroudly כדי לקבל אותה.</string>
     <string name="liteOfferTitle">{host} נשאר חסום כאן</string>
     <string name="logEntries">רשומות: {count}</string>
+    <string name="logoChoice">לוגו</string>
+    <string name="logoChoiceDesc">הלוגו של Shroudly בתוך האפליקציה, וסמל האפליקציה היכן שהמערכת מאפשרת.</string>
+    <string name="logoCountries">מדינות</string>
+    <string name="logoDays">ימים מיוחדים</string>
+    <string name="logoStyles">סגנונות</string>
+    <string name="logoSwatch">לוגו {n} מתוך {total}</string>
     <string name="logsCopied">הועתק</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">החיבור לשאר העולם מנותק; אתרים בתוך המדינה עדיין נפתחים. אף אפליקציה או VPN לא יכולים לעקוף את זה. Shroudly ימשיך מעצמו כשהחיבור יחזור.</string>
@@ -322,7 +328,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">מהיר יותר: אתר ש-Tor העביר פעם אחת חוזר לדרכים הרגילות אחרי 15 דקות במקום להישאר ב-Tor.\nTor מחכה יותר לגשרים איטיים (רוסיה), כך ש-Telegram עובר דרכו.\nאפשר לשלוח את Gemini ו-AI Studio כולם דרך Tor (חיבורים לפי אתר).</string>
+    <string name="whatsNewAndroid">מהיר יותר: כל הטכניקות נוסות כבר בביקור הראשון, ואתרים כבר לא נגמרים ב-Tor האיטי; ב-Tor משתמשים רק כששום דבר אחר לא עובד או כשהוא נבחר.\nTikTok ואפליקציות אחרות כבר לא נתקעות אחרי מעבר בין Wi-Fi לנתונים סלולריים; אתרי http:// שהרשת זורקת נפתחים שוב.\nסמלים חדשים למסך הבית לבחירה: סגנונות, ימים מיוחדים ומדינות (הגדרות).</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

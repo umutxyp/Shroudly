@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">Bu ulgamda hiç bir usul {host} üçin işlemeýär. Shroudly-nyň Tor-ly doly wersiýasy ony açyp biler. Ony almak üçin Shroudly-ni açyň.</string>
     <string name="liteOfferTitle">{host} bu ýerde petikli galýar</string>
     <string name="logEntries">Ýazgylar: {count}</string>
+    <string name="logoChoice">Logotip</string>
+    <string name="logoChoiceDesc">Shroudly-niň programmanyň içindäki logotipi we, ulgam rugsat berýän ýerinde, programmanyň nyşany.</string>
+    <string name="logoCountries">Ýurtlar</string>
+    <string name="logoDays">Aýratyn günler</string>
+    <string name="logoStyles">Stiller</string>
+    <string name="logoSwatch">Logotip {total}-dan {n}</string>
     <string name="logsCopied">Göçürildi</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
     <string name="nationalOnlyBody">Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.</string>
@@ -322,7 +328,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Has çalt: Tor-yň bir gezek geçiren saýty Tor-da galman, 15 minutdan soň adaty ýollara gaýdýar.\nTor haýal köprüleri (Russiýa) has uzak garaşýar, şonuň üçin Telegram onuň üsti bilen geçýär.\nGemini we AI Studio doly Tor arkaly iberilip bilner (Saýtlar boýunça birikmeler).</string>
+    <string name="whatsNewAndroid">Has çalt: her usul ilkinji girilende synanylýar, saýtlar indi haýal Tor-a düşmeýär; Tor diňe başga hiç zat kömek etmese ýa-da saýlanan bolsa ulanylýar.\nTikTok we beýleki programmalar Wi-Fi bilen mobil internetiň arasynda geçenden soň indi doňmaýar; ulgamyň taşlaýan http:// saýtlary ýene açylýar.\nSaýlamak üçin baş ekranyň täze nyşanlary: stiller, aýratyn günler we ýurtlar (Sazlamalar).</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">このネットワークでは、どの手法でも {host} を開けません。Tor を含む Shroudly の完全版なら開けます。Shroudly を開いて入手してください。</string>
     <string name="liteOfferTitle">{host} はここでブロックされたままです</string>
     <string name="logEntries">項目数：{count}</string>
+    <string name="logoChoice">ロゴ</string>
+    <string name="logoChoiceDesc">アプリ内に表示される Shroudly のロゴ。システムが許可する場合はアプリのアイコンも変わります。</string>
+    <string name="logoCountries">国</string>
+    <string name="logoDays">特別な日</string>
+    <string name="logoStyles">スタイル</string>
+    <string name="logoSwatch">ロゴ {n}/{total}</string>
     <string name="logsCopied">コピーしました</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
     <string name="nationalOnlyBody">世界のほかの地域との接続が切断されています。国内のサイトはまだ開けます。アプリや VPN でもこれは回避できません。接続が戻れば Shroudly は自動で続けます。</string>
@@ -322,7 +328,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">高速化：一度 Tor を通ったサイトは、Tor のままにならず 15 分後に通常の方法へ戻ります。\n遅いブリッジ（ロシア）を Tor がより長く待つため、Telegram が Tor を通れるようになりました。\nGemini と AI Studio をまとめて Tor に通せます（サイト別の接続）。</string>
+    <string name="whatsNewAndroid">高速化：最初のアクセスからすべての手法を試すため、サイトが遅い Tor に回ることはなくなりました。Tor は他に手がないときか、選んだときだけ使います。\nWi-Fi とモバイルデータを切り替えたあとに TikTok などのアプリが固まらなくなり、ネットワークが捨てる http:// サイトも再び開きます。\nホーム画面の新しいアイコンを選べます：スタイル、特別な日、国（設定）。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

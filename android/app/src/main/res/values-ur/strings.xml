@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">اس نیٹ ورک پر کوئی بھی تکنیک {host} نہیں کھولتی۔ Tor والا Shroudly کا مکمل ورژن اسے کھول سکتا ہے۔ اسے حاصل کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="liteOfferTitle">{host} یہاں بلاک ہی رہتا ہے</string>
     <string name="logEntries">اندراجات: {count}</string>
+    <string name="logoChoice">لوگو</string>
+    <string name="logoChoiceDesc">ایپ کے اندر Shroudly کا لوگو اور، جہاں سسٹم اجازت دے، ایپ کا آئیکن۔</string>
+    <string name="logoCountries">ممالک</string>
+    <string name="logoDays">خاص دن</string>
+    <string name="logoStyles">انداز</string>
+    <string name="logoSwatch">لوگو {total} میں سے {n}</string>
     <string name="logsCopied">کاپی ہو گیا</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
     <string name="nationalOnlyBody">باقی دنیا سے رابطہ کٹا ہوا ہے؛ ملک کے اندر کی سائٹس اب بھی کھلتی ہیں۔ کوئی ایپ یا VPN اس سے آگے نہیں جا سکتا۔ رابطہ واپس آنے پر Shroudly خود جاری رکھے گا۔</string>
@@ -322,7 +328,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">تیز تر: جس سائٹ کو Tor نے ایک بار پہنچایا، وہ Tor پر رہنے کے بجائے 15 منٹ بعد عام راستوں پر لوٹ آتی ہے۔\nTor سست برجز (روس) کا زیادہ دیر انتظار کرتا ہے، تاکہ Telegram اس کے ذریعے جا سکے۔\nGemini اور AI Studio کو پورا Tor سے بھیجا جا سکتا ہے (سائٹ کے لحاظ سے کنکشن)۔</string>
+    <string name="whatsNewAndroid">تیز تر: ہر طریقہ پہلی بار ہی آزمایا جاتا ہے، اس لیے سائٹیں اب سست Tor پر نہیں جاتیں؛ Tor صرف تب استعمال ہوتا ہے جب کوئی اور طریقہ کام نہ کرے یا اسے چنا گیا ہو۔\nWi-Fi اور موبائل ڈیٹا کے درمیان بدلنے کے بعد TikTok اور دوسری ایپس اب نہیں اٹکتیں؛ نیٹ ورک کی گرائی ہوئی http:// سائٹیں پھر کھلتی ہیں۔\nچننے کے لیے ہوم اسکرین کے نئے آئیکن: انداز، خاص دن اور ممالک (ترتیبات)۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

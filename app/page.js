@@ -10,7 +10,7 @@ import InfoPanel, { FollowSection } from '../components/InfoPanel';
 import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
-import Appearance from '../components/Appearance';
+import Appearance, { logoSrc, useLogo } from '../components/Appearance';
 import { SupportBanner, useSupport } from '../components/Support';
 import { HelpBanner, useHelpNudge } from '../components/HelpBanner';
 import { WhatsNewBanner, useWhatsNew } from '../components/WhatsNew';
@@ -19,7 +19,8 @@ import { ChartIcon, InfoIcon, LogoIcon, LogsIcon, SettingsIcon, UsersIcon } from
 import { useLanguage } from '../contexts/LanguageContext';
 
 /* Relative path: the exported app is loaded from file://, where "/logo.png"
-   would resolve to the filesystem root. */
+   would resolve to the filesystem root. The classic logo is the shield alone;
+   another one chosen in Settings is its whole picture (components/Appearance). */
 const LOGO_SRC = './logo.png';
 const CODESHARE_URL = 'https://codeshare.me';
 
@@ -40,6 +41,7 @@ function Footer({ t }) {
 }
 
 export default function Home() {
+  const logo = useLogo();
   const [activeTab, setActiveTab] = useState('control');
   const { t, isLoaded } = useLanguage();
   const [dpiStatus, setDpiStatus] = useState({ active: false, stats: {} });
@@ -145,7 +147,7 @@ export default function Home() {
           the logo said it again) */}
       <header className="no-drag flex items-center gap-3 px-4 py-3 sm:px-5">
         <div className="h-9 w-9 shrink-0">
-          <img src={LOGO_SRC} alt="" draggable={false} className="h-full w-full select-none object-contain" />
+          <img src={logo === 'classic' ? LOGO_SRC : logoSrc(logo)} alt="" draggable={false} className="h-full w-full select-none object-contain" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-baseline gap-2">

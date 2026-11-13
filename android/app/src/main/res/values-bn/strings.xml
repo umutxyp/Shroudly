@@ -190,6 +190,12 @@
     <string name="liteOfferNotice">এই নেটওয়ার্কে কোনো কৌশলই {host} খুলতে পারছে না। Tor সহ Shroudly-র পূর্ণ সংস্করণ এটি খুলতে পারে। সেটি পেতে Shroudly খুলুন।</string>
     <string name="liteOfferTitle">{host} এখানে ব্লকই থেকে যাচ্ছে</string>
     <string name="logEntries">এন্ট্রি: {count}</string>
+    <string name="logoChoice">লোগো</string>
+    <string name="logoChoiceDesc">অ্যাপের ভেতরে Shroudly-র লোগো এবং, সিস্টেম যেখানে অনুমতি দেয়, অ্যাপের আইকন।</string>
+    <string name="logoCountries">দেশ</string>
+    <string name="logoDays">বিশেষ দিন</string>
+    <string name="logoStyles">শৈলী</string>
+    <string name="logoSwatch">লোগো {total}টির মধ্যে {n}</string>
     <string name="logsCopied">কপি হয়েছে</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
     <string name="nationalOnlyBody">বাকি বিশ্বের সাথে সংযোগ বিচ্ছিন্ন; দেশের ভেতরের সাইটগুলো এখনও খোলে। কোনো অ্যাপ বা VPN এটি পার হতে পারে না। সংযোগ ফিরলে Shroudly নিজে থেকেই চালিয়ে যাবে।</string>
@@ -322,7 +328,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">আরও দ্রুত: Tor একবার যে সাইট বহন করেছে, সেটি Tor-এ থেকে না গিয়ে ১৫ মিনিট পরে স্বাভাবিক পথে ফিরে যায়।\nTor ধীর ব্রিজের (রাশিয়া) জন্য বেশি সময় অপেক্ষা করে, তাই Telegram এর মধ্য দিয়ে যেতে পারে।\nGemini আর AI Studio পুরোপুরি Tor দিয়ে পাঠানো যায় (সাইট অনুযায়ী সংযোগ)।</string>
+    <string name="whatsNewAndroid">আরও দ্রুত: প্রথমবারেই প্রতিটি কৌশল চেষ্টা করা হয়, তাই সাইটগুলো আর ধীর Tor-এ গিয়ে পড়ে না; অন্য কিছু কাজ না করলে বা বেছে নিলে তবেই Tor ব্যবহার হয়।\nWi-Fi আর মোবাইল ডেটার মধ্যে বদলের পর TikTok ও অন্যান্য অ্যাপ আর আটকে যায় না; নেটওয়ার্কের ফেলে দেওয়া http:// সাইটগুলো আবার খোলে।\nবেছে নেওয়ার জন্য হোম স্ক্রিনের নতুন আইকন: শৈলী, বিশেষ দিন ও দেশ (সেটিংস)।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>
