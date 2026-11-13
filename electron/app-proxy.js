@@ -9,8 +9,9 @@
  * example, roblox.com opens in the browser through Shroudly while the Roblox
  * app and its installer cannot reach a single Roblox server.
  *
- * app-env.js points HTTPS_PROXY here. Every request is a CONNECT host:port.
- * Where it goes:
+ * app-env.js points HTTPS_PROXY here. A request is a CONNECT host:port, or,
+ * from the few libraries that never ask for a tunnel, a whole https://
+ * address to fetch for them (see _forward). Where it goes:
  *  - into the engine, by name, so its own DNS and its desync apply exactly as
  *    they do for the browser: anything on the public internet;
  *  - straight out: the local network, names this machine's own DNS resolves
@@ -33,12 +34,15 @@
  * everything that reads HTTPS_PROXY understands. A socks5h:// value makes
  * some programs (pip, npm) fail outright.
  *
- * Only this machine can reach it, and it only tunnels. Anything that is not
- * CONNECT is refused, and a web page cannot send CONNECT.
+ * Only this machine can reach it. It tunnels, and it fetches an https://
+ * address named whole in the request line; anything else is refused. A web
+ * page can send neither: not CONNECT, and not a request line with a whole
+ * address in it (a browser writes only the path there).
  */
 
 const http = require('http');
 const net = require('net');
+const tls = require('tls');
 const dns = require('dns');
 const { socksConnect } = require('./discord-relay');
 const { countryOf } = require('./censor-fingerprints');
@@ -113,6 +117,63 @@ function lookupAll(host) {
   });
 }
 
+/* The certificates a forwarded request trusts: the ones Node.js ships with
+ * and, where it can read them, the system's own (what the browsers on this
+ * computer trust: a company's, an antivirus that looks into HTTPS). Read
+ * once. null: Node's own only. */
+let trustedCa;
+function trusted() {
+  if (trustedCa !== undefined) return trustedCa;
+  trustedCa = null;
+  try {
+    if (typeof tls.getCACertificates === 'function') {
+      const sys = tls.getCACertificates('system');
+      if (sys && sys.length) trustedCa = [...new Set([...tls.rootCertificates, ...sys])];
+    }
+  } catch {}
+  return trustedCa;
+}
+
+/* TLS on a connection already made, the server's certificate checked for
+ * `host`. Never without that check: the program handed its request over in
+ * the clear, trusting this to reach the real server. */
+function secure(sock, host, extra) {
+  return new Promise((resolve, reject) => {
+    const opts = { socket: sock, host, ALPNProtocols: ['http/1.1'], ...(extra || {}) };
+    if (!net.isIP(host) && !opts.servername) opts.servername = host;
+    if (!opts.ca) { const ca = trusted(); if (ca) opts.ca = ca; }
+    opts.rejectUnauthorized = true;
+    const s = tls.connect(opts);
+    const fail = (e) => { s.destroy(); sock.destroy(); reject(e); };
+    s.setTimeout(CONNECT_TIMEOUT_MS, () => fail(new Error('TLS timeout')));
+    s.once('error', fail);
+    s.once('secureConnect', () => { s.setTimeout(0); s.removeListener('error', fail); resolve(s); });
+  });
+}
+
+// Headers that belong to one connection, not to the request or the answer.
+const HOP = new Set(['connection', 'proxy-connection', 'keep-alive', 'proxy-authorization', 'proxy-authenticate', 'te', 'trailer', 'transfer-encoding', 'upgrade']);
+
+/* A message's headers without those: { name: value | [values] } for a
+ * request (host set apart by the caller), or the flat list for an answer. */
+function carried(rawHeaders, flat) {
+  const named = new Set();
+  for (let i = 0; i + 1 < rawHeaders.length; i += 2) {
+    if (rawHeaders[i].toLowerCase() === 'connection') {
+      for (const n of String(rawHeaders[i + 1]).split(',')) named.add(n.trim().toLowerCase());
+    }
+  }
+  const list = []; const obj = {};
+  for (let i = 0; i + 1 < rawHeaders.length; i += 2) {
+    const k = rawHeaders[i]; const l = k.toLowerCase(); const v = rawHeaders[i + 1];
+    if (HOP.has(l) || named.has(l)) continue;
+    if (flat) { list.push(k, v); continue; }
+    if (l === 'host') continue;
+    if (obj[k] === undefined) obj[k] = v; else obj[k] = [].concat(obj[k], v);
+  }
+  return flat ? list : obj;
+}
+
 function direct(host, port) {
   return new Promise((resolve, reject) => {
     const s = net.connect({ host, port });
@@ -137,6 +198,9 @@ class AppProxy {
     this.engineDue = () => false;
     this.routed = routed || (() => true);
     this.lookup = lookupAll;            // tests stand in for this machine's DNS
+    this.direct = direct;               // ... for the way straight out
+    this.tlsOptions = null;             // ... and for the certificates trusted
+    this.forwards = 0;                  // requests made for a program (_forward)
     this.server = null;
     this.port = 0;
     this.tunnels = 0;
@@ -174,7 +238,7 @@ class AppProxy {
 
   _listen(port) {
     return new Promise((resolve, reject) => {
-      const srv = http.createServer((req, res) => { res.writeHead(405, { allow: 'CONNECT' }); res.end(); });
+      const srv = http.createServer((req, res) => { this._forward(req, res); });
       srv.on('connect', (req, sock, head) => { this._tunnel(req, sock, head); });
       srv.on('clientError', (e, sock) => {
         try { if (sock.writable) sock.end('HTTP/1.1 400 Bad Request\r\n\r\n'); else sock.destroy(); } catch {}
@@ -248,6 +312,35 @@ class AppProxy {
     return due ? 'later' : 'direct';
   }
 
+  /* A connection to host:port the way route() says: { up, via }. Throws with
+   * .status (the answer for the program) when there is none. */
+  async _open(host, port) {
+    let via;
+    try {
+      // As in the Discord relay: protection on its way up is waited for, so
+      // a program started at login does not go out directly and fail.
+      if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
+      via = await this.route(host);
+      if (via === 'refuse') throw Object.assign(new Error('not carried'), { status: 403 });
+      if (via === 'later') throw Object.assign(new Error('Shroudly is restarting; try again in a moment'), { later: true });
+      const socksPort = via === 'engine' ? this.getSocksPort() : null;
+      const up = socksPort ? await socksConnect(socksPort, host, port) : await this.direct(host, port);
+      return { up, via: socksPort ? 'engine' : 'direct' };
+    } catch (e) {
+      if (e && e.status) throw e;
+      // "Shroudly is restarting": one line per restart, not one per host.
+      this._warn(e && e.later ? 'apps-restarting' : 'apps-unreachable', e && e.later ? '*' : host, `Games and apps: could not reach ${host} (${e.message})`);
+      throw Object.assign(e instanceof Error ? e : new Error(String(e)), { status: 502 });
+    }
+  }
+
+  _opened(host, via) {
+    this.tunnels++;
+    this.lastOkAt = Date.now();
+    this.logGate.forget('apps-unreachable', host);
+    if (this.onTunnel) { try { this.onTunnel(host, via); } catch {} }
+  }
+
   async _tunnel(req, client, head) {
     this._track(client);
     client.on('error', () => {});
@@ -258,30 +351,14 @@ class AppProxy {
     this.open++;
     client.once('close', () => { this.open--; });
 
-    let up;
-    let socksPortUsed = null;
-    try {
-      // As in the Discord relay: protection on its way up is waited for, so
-      // a program started at login does not go out directly and fail.
-      if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
-      const via = await this.route(t.host);
-      if (via === 'refuse') { if (!client.destroyed) client.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
-      if (via === 'later') throw Object.assign(new Error('Shroudly is restarting; try again in a moment'), { later: true });
-      const socksPort = via === 'engine' ? this.getSocksPort() : null;
-      socksPortUsed = socksPort;
-      up = socksPort ? await socksConnect(socksPort, t.host, t.port) : await direct(t.host, t.port);
-    } catch (e) {
-      // "Shroudly is restarting": one line per restart, not one per host.
-      this._warn(e && e.later ? 'apps-restarting' : 'apps-unreachable', e && e.later ? '*' : t.host, `Games and apps: could not reach ${t.host} (${e.message})`);
-      if (!client.destroyed) client.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
+    let up; let via;
+    try { ({ up, via } = await this._open(t.host, t.port)); } catch (e) {
+      if (!client.destroyed) client.end(e.status === 403 ? 'HTTP/1.1 403 Forbidden\r\n\r\n' : 'HTTP/1.1 502 Bad Gateway\r\n\r\n');
       return;
     }
     if (client.destroyed) { up.destroy(); return; }
     this._track(up);
-    this.tunnels++;
-    this.lastOkAt = Date.now();
-    this.logGate.forget('apps-unreachable', t.host);
-    if (this.onTunnel) { try { this.onTunnel(t.host, socksPortUsed ? 'engine' : 'direct'); } catch {} }
+    this._opened(t.host, via);
 
     const end = () => { client.destroy(); up.destroy(); };
     up.on('error', end); client.on('error', end);
@@ -290,6 +367,70 @@ class AppProxy {
     if (head && head.length) up.write(head);
     up.pipe(client);
     client.pipe(up);
+  }
+
+  /* "GET https://host/path HTTP/1.1": the request made for the program.
+   *
+   * Given an http:// proxy for an https:// address, curl, Go, Python and
+   * Node.js itself ask for a tunnel. axios does not (nor do a few older
+   * libraries): it hands the proxy the whole address and expects the answer
+   * back. Refused, as it was up to 2.6.74, every program built on it failed
+   * from the moment the mode was on, protection on or off (TruckersMP's
+   * launcher: "Request failed with status code 405"). So it is carried: the
+   * connection goes where a tunnel to that host would, TLS is made here with
+   * the server's certificate checked, and the request and its answer pass
+   * through unchanged.
+   *
+   * Only https://: this is nobody's proxy for plain http, and a request line
+   * that holds only a path (all a web page can make a browser send here) is
+   * refused as before. */
+  async _forward(req, res) {
+    const refuse = (code, headers) => { try { res.writeHead(code, { connection: 'close', ...(headers || {}) }); res.end(); } catch {} };
+    const rawUrl = String(req.url || '');
+    let u = null;
+    if (/^https:\/\//i.test(rawUrl)) { try { u = new URL(rawUrl); } catch {} }
+    if (!u || u.protocol !== 'https:') { req.resume(); refuse(405, { allow: 'CONNECT' }); return; }
+    const t = u.username || u.password ? null : parseTarget(`${u.hostname}:${u.port || 443}`);
+    if (!t) { req.resume(); refuse(400); return; }
+    if (this.onRequest) { try { this.onRequest(t.host); } catch {} }
+    if (this.open >= MAX_TUNNELS) { req.resume(); refuse(503); return; }
+    this.open++;
+    let closed = false;
+    res.once('close', () => { closed = true; this.open--; });
+    req.on('error', () => {}); res.on('error', () => {});
+
+    let up; let via;
+    try {
+      ({ up, via } = await this._open(t.host, t.port));
+      this._track(up);
+      up = await secure(up, t.host, this.tlsOptions);
+    } catch (e) {
+      if (!e.status) this._warn('apps-unreachable', t.host, `Games and apps: could not reach ${t.host} (${e.message})`);
+      req.resume(); refuse(e.status === 403 ? 403 : 502);
+      return;
+    }
+    if (closed) { up.destroy(); return; }
+    this._track(up);
+    this._opened(t.host, via);
+    this.forwards++;
+    if (this.logGate.allow('apps-forward', '*')) {
+      this.log('info', `Games and apps: a program asked for https://${t.host} without a tunnel (as programs built on axios do); Shroudly makes such requests for it`);
+    }
+
+    const headers = carried(req.rawHeaders, false);
+    headers.Host = u.host;
+    headers.Connection = 'close';
+    // No agent named: only then does Node.js use the connection handed to it.
+    const out = http.request({ createConnection: () => up, method: req.method, path: `${u.pathname || '/'}${u.search || ''}`, headers, setHost: false });
+    const drop = () => { out.destroy(); up.destroy(); };
+    res.once('close', drop);
+    out.on('error', () => { if (!res.headersSent) refuse(502); else res.destroy(); up.destroy(); });
+    out.on('response', (r) => {
+      r.on('error', () => { res.destroy(); });
+      try { res.writeHead(r.statusCode, r.statusMessage, carried(r.rawHeaders, true)); } catch { res.destroy(); drop(); return; }
+      r.pipe(res);
+    });
+    req.pipe(out);
   }
 }
 
