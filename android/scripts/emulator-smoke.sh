@@ -432,9 +432,14 @@ else
 fi
 fresh="$(resolved)"
 [ "$fresh" != "$before" ] || fail "the restarted tunnel gave out the old stand-in address $before again"
+# An app that kept the old address (TikTok does) is taken by the name its
+# request carries (core/src/engine.c, standin_name): the site it names, never
+# whatever the address now stands for; one that names nothing is closed.
 stale="$(http_get_at "$before")"
-grep -q '^HTTP/1' <<<"$stale" && fail "a stand-in address from the old tunnel ($before) still reached something"
-say "tunnel restarted: example.com -> $fresh; the old $before is refused, never another site"
+grep -q '^HTTP/1' <<<"$stale" || fail "an app that kept the old stand-in address ($before) did not reach the site its request names"
+nameless="$(sh_ "(printf 'hello\r\n'; sleep 4) | timeout 12 $NC $QUIT -w 8 $before 80 | head -c 64" | tr -d '\r\n')"
+[ -z "$nameless" ] || fail "a connection to the old stand-in address that names no site got an answer ($nameless)"
+say "tunnel restarted: example.com -> $fresh; the old $before goes on by the name its request carries, and one that names nothing is closed"
 
 # ── the network changes ──────────────────────────────────────────────────
 # Wi-Fi off only where mobile data is up to take over (an emulator's radio
