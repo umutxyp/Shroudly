@@ -47,6 +47,9 @@ function lookupAll(host, timeout = 3000) {
   });
 }
 
+/* A port that cannot be ours: in use, or reserved by Windows. */
+const PORT_TAKEN = new Set(['EADDRINUSE', 'EACCES']);
+
 function directConnect(host, port) {
   return new Promise((resolve, reject) => {
     const s = net.connect({ host, port });
@@ -133,8 +136,11 @@ class Share {
         this.server = await SS.startServer({ host: this.bindHost, port: s.port, method: METHOD, password: s.password, dial: (h, p) => this.dial(h, p) });
         break;
       } catch (e) {
-        if (e.code !== 'EADDRINUSE' || tries >= 3) throw e;
-        // Another program has the port now: another one, kept from here on.
+        if (!PORT_TAKEN.has(e.code) || tries >= 5) throw e;
+        // Another program has the port now, or Windows keeps it for itself
+        // (Hyper-V's and WSL's reserved ranges move at each start, and
+        // listening there is refused with EACCES): another one, kept from
+        // here on.
         s = { ...s, port: 20000 + crypto.randomInt(40000) };
         this.store.set('share', s);
       }

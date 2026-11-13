@@ -36,9 +36,38 @@ object Logos {
         return if (v in IDS) v!! else "classic"
     }
 
+    /* The pictures for the picker, named in the code: a release build drops
+     * every resource nothing names, so looking them up by name at run time
+     * found none there and every logo showed as the classic one. */
+    val PICTURES: Map<String, Int> = mapOf(
+        "classic" to R.drawable.logo_classic,
+        "flat" to R.drawable.logo_flat,
+        "line" to R.drawable.logo_line,
+        "paper" to R.drawable.logo_paper,
+        "key" to R.drawable.logo_key,
+        "veil" to R.drawable.logo_veil,
+        "terminal" to R.drawable.logo_terminal,
+        "night" to R.drawable.logo_night,
+        "coral" to R.drawable.logo_coral,
+        "newyear" to R.drawable.logo_newyear,
+        "halloween" to R.drawable.logo_halloween,
+        "valentine" to R.drawable.logo_valentine,
+        "spring" to R.drawable.logo_spring,
+        "ramadan" to R.drawable.logo_ramadan,
+        "winter" to R.drawable.logo_winter,
+        "tr" to R.drawable.logo_tr,
+        "ir" to R.drawable.logo_ir,
+        "ru" to R.drawable.logo_ru,
+        "cn" to R.drawable.logo_cn,
+        "pk" to R.drawable.logo_pk,
+        "az" to R.drawable.logo_az,
+        "kz" to R.drawable.logo_kz,
+        "eg" to R.drawable.logo_eg,
+        "vn" to R.drawable.logo_vn,
+    )
+
     /* The picture of logo `id` for the picker. */
-    fun picture(ctx: Context, id: String): Int =
-        ctx.resources.getIdentifier("logo_$id", "drawable", ctx.packageName).takeIf { it != 0 } ?: R.drawable.logo
+    fun picture(id: String): Int = PICTURES[id] ?: R.drawable.logo
 
     fun set(ctx: Context, id: String) {
         val v = if (id in IDS) id else "classic"

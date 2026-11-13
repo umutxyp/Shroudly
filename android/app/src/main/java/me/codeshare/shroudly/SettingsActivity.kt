@@ -474,7 +474,7 @@ class SettingsActivity : Activity() {
                 if (i % perRow == 0) row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }.also { box.addView(it) }
                 row!!.addView(android.widget.ImageView(this).apply {
                     layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = gap; topMargin = gap / 2; bottomMargin = gap / 2 }
-                    setImageResource(Logos.picture(this@SettingsActivity, id))
+                    setImageResource(Logos.picture(id))
                     scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
                     val ring = (3 * density).toInt()
                     setPadding(ring, ring, ring, ring)

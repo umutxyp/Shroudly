@@ -123,6 +123,20 @@ async function through(link, host, port) {
   await share.stop();
   taken.close();
 
+  // A port Windows keeps for itself (Hyper-V's ranges): refused with EACCES,
+  // another one, kept.
+  const kept = mem.share.port;
+  const realStart = SS.startServer;
+  SS.startServer = (o) => {
+    SS.startServer = realStart;
+    const e = new Error(`listen EACCES: permission denied 127.0.0.1:${o.port}`); e.code = 'EACCES';
+    return Promise.reject(e);
+  };
+  await share.start();
+  t.ok(share.on && mem.share.port !== kept && share.status().port === mem.share.port && SS.startServer === realStart,
+    `a port Windows reserved (EACCES): another one, kept (${kept} → ${mem.share.port})`);
+  await share.stop();
+
   // UPnP against a stand-in router.
   const asked = [];
   let external = '5.6.7.8';

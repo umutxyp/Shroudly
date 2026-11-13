@@ -35,6 +35,17 @@ class LogosTest {
             assertTrue("icon for $id", File(res, "mipmap-anydpi/ic_logo_$id.xml").exists() && File(res, "drawable-nodpi/logo_${id}_fg.png").exists())
             assertTrue("picture for $id", File(res, "drawable-nodpi/logo_$id.png").exists())
         }
+        // The picker's pictures are named in the code, so a release build keeps them.
+        assertEquals(Logos.IDS.toSet(), Logos.PICTURES.keys)
+        assertEquals(Logos.IDS.size, Logos.PICTURES.values.toSet().size)
+        assertTrue(Logos.PICTURES.values.none { it == R.drawable.logo })
+    }
+
+    @Test
+    fun noResourceIsLookedUpByName() {
+        // getIdentifier finds nothing the release build's shrinker dropped.
+        val src = File("src/main/java/me/codeshare/shroudly")
+        for (f in src.listFiles()!!) assertTrue(f.name, !f.readText().contains("getIdentifier("))
     }
 
     @Test
