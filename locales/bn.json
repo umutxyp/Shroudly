@@ -385,6 +385,7 @@
   "logUpdateRedownload": "ডাউনলোড করা আপডেট {version} পাওয়া যাচ্ছে না বা নষ্ট হয়ে গেছে; আবার ডাউনলোড করা হচ্ছে",
   "logUpdateManualFolder": "আপডেট {version}: Shroudly {folder}-এ নিজেকে প্রতিস্থাপন করতে পারে না; ডাউনলোড পেজ থেকে এটি ডাউনলোড করুন",
   "logUpdateMetered": "মিটারযুক্ত সংযোগে আপডেট {version} নিজে থেকে ডাউনলোড হয় না",
+  "logUpdateTo64": "আপডেট {version}: এটি ৬৪-বিট Windows-এ ৩২-বিট Shroudly, তাই ৬৪-বিটেরটি ইনস্টল হয় (উন্নত মোড সেখানে চলে; সেটিংস থেকে যায়)",
   "logUpdateMoveFailed": "Shroudly-কে Applications ফোল্ডারে সরানো যায়নি ({detail})",
   "appStoreEdition": "Roblox-এর Microsoft Store সংস্করণ Shroudly পর্যন্ত পৌঁছাতে পারে না। এর বদলে roblox.com থেকে সাধারণ সংস্করণটি ইনস্টল করুন।",
   "quitApp": "Shroudly থেকে প্রস্থান করুন",

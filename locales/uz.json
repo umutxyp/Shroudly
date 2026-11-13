@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Yuklab olingan {version} yangilanishi yoʻq yoki buzilgan; u qayta yuklab olinmoqda",
   "logUpdateManualFolder": "{version} yangilanishi: Shroudly {folder} jildida oʻzini almashtira olmaydi; uni yuklab olish sahifasidan yuklab oling",
   "logUpdateMetered": "{version} yangilanishi trafik hisoblanadigan ulanishda oʻzi yuklab olinmaydi",
+  "logUpdateTo64": "{version} yangilanishi: bu 64 bitli Windows’dagi 32 bitli Shroudly, shuning uchun 64 bitlisi oʻrnatiladi (kengaytirilgan rejim oʻshanda ishlaydi; sozlamalar saqlanadi)",
   "logUpdateMoveFailed": "Shroudlyni Applications jildiga koʻchirib boʻlmadi ({detail})",
   "appStoreEdition": "Robloxning Microsoft Store versiyasi Shroudlyga ulana olmaydi. Buning oʻrniga oddiy versiyani roblox.com saytidan oʻrnating.",
   "quitApp": "Shroudlydan chiqish",

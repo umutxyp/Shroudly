@@ -180,6 +180,20 @@ function downloadName(version, { platform = process.platform, arch = process.arc
   return `Shroudly-${version}-Linux-${arm ? 'arm64' : 'x86_64'}.AppImage`;
 }
 
+/* The 32-bit Shroudly on a 64-bit Intel/AMD Windows (WOW64 says so in
+ * PROCESSOR_ARCHITEW6432): electron-updater would pick the feed's ia32
+ * installer again (it matches process.arch), so the copy stayed 32-bit and
+ * never had Advanced mode (issue #86, a TTNet report before it). Its update
+ * is the 64-bit installer instead; it installs over this one, settings stay. */
+function wrongWindowsBuild({ platform = process.platform, arch = process.arch, env = process.env } = {}) {
+  return platform === 'win32' && arch === 'ia32' && String(env.PROCESSOR_ARCHITEW6432 || '').toUpperCase() === 'AMD64';
+}
+function filesForThisPc(files, opts) {
+  if (!Array.isArray(files) || !wrongWindowsBuild(opts)) return files;
+  const x64 = files.filter((f) => /-x64-Setup\.exe$/i.test(String(f && f.url)));
+  return x64.length ? x64 : files;
+}
+
 function newer(a, b) { // is version a newer than b
   const pa = String(a).split(/[.-]/).map((n) => parseInt(n, 10) || 0);
   const pb = String(b).split(/[.-]/).map((n) => parseInt(n, 10) || 0);
@@ -501,7 +515,18 @@ class Updater {
     // nothing of its own; one in the background leaves what is shown.
     autoUpdater.on('checking-for-update', () => { if (!this.quiet && !this.rebinding) this._set({ status: 'checking', error: null }); });
     autoUpdater.on('update-not-available', () => { if (!this.rebinding) this._set({ status: 'up-to-date' }); });
-    autoUpdater.on('update-available', (info) => { if (!this.rebinding) this._found(info.version, info.releaseDate).catch(() => {}); });
+    autoUpdater.on('update-available', (info) => {
+      // The same object electron-updater downloads from: only the 64-bit
+      // installer left in it for a 32-bit copy on a 64-bit Windows.
+      if (info && wrongWindowsBuild()) {
+        const files = filesForThisPc(info.files);
+        if (files !== info.files) {
+          info.files = files; info.path = files[0].url; info.sha512 = files[0].sha512;
+          if (this._first('to64', info.version)) this.log('info', `Update ${info.version}: this is the 32-bit Shroudly on a 64-bit Windows, so the 64-bit one is installed (Advanced mode works there; settings stay)`);
+        }
+      }
+      if (!this.rebinding) this._found(info.version, info.releaseDate).catch(() => {});
+    });
     autoUpdater.on('download-progress', (p) => {
       if (this.onProgress) this.onProgress();
       this._set({ status: 'downloading', percent: Math.round(p.percent || 0) });
@@ -1312,6 +1337,8 @@ module.exports.MIRROR_URL = MIRROR_URL;
 module.exports.mirrorOf = mirrorOf;
 module.exports.installDirFor = installDirFor;
 module.exports.downloadName = downloadName;
+module.exports.filesForThisPc = filesForThisPc;
+module.exports.wrongWindowsBuild = wrongWindowsBuild;
 module.exports.ROUTES = ROUTES;
 module.exports.routesNow = routesNow;
 module.exports.setSystemRoute = setSystemRoute;

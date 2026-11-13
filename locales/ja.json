@@ -385,6 +385,7 @@
   "logUpdateRedownload": "ダウンロード済みのアップデート {version} が見つからないか破損しています。もう一度ダウンロードしています",
   "logUpdateManualFolder": "アップデート {version}：{folder} では Shroudly を置き換えられません。ダウンロードページからダウンロードしてください",
   "logUpdateMetered": "従量制課金の接続では、アップデート {version} は自動でダウンロードされません",
+  "logUpdateTo64": "アップデート {version}：これは 64 ビット Windows 上の 32 ビット版 Shroudly のため、64 ビット版をインストールします（高度なモードはそちらで使えます。設定はそのまま残ります）",
   "logUpdateMoveFailed": "Shroudly をアプリケーションフォルダに移動できませんでした（{detail}）",
   "appStoreEdition": "Microsoft Store 版の Roblox は Shroudly に接続できません。代わりに roblox.com から通常版をインストールしてください。",
   "quitApp": "Shroudly を終了",

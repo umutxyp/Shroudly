@@ -1154,6 +1154,20 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
     fs.rmSync(dir, { recursive: true, force: true });
   }
 
+  {
+    // Issue #86: the 32-bit Shroudly on a 64-bit Windows. electron-updater
+    // matches process.arch, so it would fetch the ia32 installer again and
+    // the copy never had Advanced mode: its update is the 64-bit installer.
+    const files = [{ url: 'Shroudly-9.9.9-Windows-ia32-Setup.exe', sha512: 'a' }, { url: 'Shroudly-9.9.9-Windows-x64-Setup.exe', sha512: 'b' }, { url: 'Shroudly-9.9.9-Windows-arm64-Setup.exe', sha512: 'c' }];
+    const wow = { platform: 'win32', arch: 'ia32', env: { PROCESSOR_ARCHITEW6432: 'AMD64' } };
+    const f = Updater.filesForThisPc(files, wow);
+    t.ok(f.length === 1 && f[0].url.endsWith('-x64-Setup.exe'), '32-bit copy on a 64-bit Windows: only the x64 installer is left to download');
+    t.ok(Updater.filesForThisPc(files, { platform: 'win32', arch: 'ia32', env: {} }) === files, 'a real 32-bit Windows keeps the ia32 one');
+    t.ok(Updater.filesForThisPc(files, { platform: 'win32', arch: 'ia32', env: { PROCESSOR_ARCHITEW6432: 'ARM64' } }) === files, 'Windows on ARM: left as it is (WinDivert runs on neither)');
+    t.ok(Updater.filesForThisPc(files, { platform: 'win32', arch: 'x64', env: {} }) === files && Updater.filesForThisPc(files, { platform: 'darwin', arch: 'ia32', env: wow.env }) === files, 'x64 copies and other systems: untouched');
+    t.ok(Updater.filesForThisPc([{ url: 'Shroudly-9.9.9-Windows-ia32-Setup.exe' }], wow).length === 1, 'a feed without an x64 installer: not emptied');
+  }
+
   console.log(`updater: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

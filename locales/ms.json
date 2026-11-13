@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Kemas kini {version} yang dimuat turun tiada atau rosak; sedang dimuat turun semula",
   "logUpdateManualFolder": "Kemas kini {version}: Shroudly tidak dapat menggantikan dirinya dalam {folder}; muat turunnya dari halaman muat turun",
   "logUpdateMetered": "Kemas kini {version} tidak dimuat turun sendiri pada sambungan bermeter",
+  "logUpdateTo64": "Kemas kini {version}: ini Shroudly 32-bit pada Windows 64-bit, jadi yang 64-bit dipasang (Mod Lanjutan berfungsi di sana; tetapan kekal)",
   "logUpdateMoveFailed": "Shroudly tidak dapat dipindahkan ke folder Aplikasi ({detail})",
   "appStoreEdition": "Edisi Microsoft Store bagi Roblox tidak dapat mencapai Shroudly. Sebaliknya, pasang edisi biasa dari roblox.com.",
   "quitApp": "Keluar daripada Shroudly",

@@ -385,6 +385,7 @@
   "logUpdateRedownload": "La mise à jour téléchargée {version} est introuvable ou endommagée ; nouveau téléchargement en cours",
   "logUpdateManualFolder": "Mise à jour {version} : Shroudly ne peut pas se remplacer lui-même dans {folder} ; téléchargez-la depuis la page de téléchargement",
   "logUpdateMetered": "La mise à jour {version} n’est pas téléchargée d’elle-même sur une connexion limitée",
+  "logUpdateTo64": "Mise à jour {version} : ceci est le Shroudly 32 bits sur un Windows 64 bits, c’est donc le 64 bits qui est installé (le mode avancé y fonctionne ; les réglages restent)",
   "logUpdateMoveFailed": "Shroudly n’a pas pu être déplacé dans le dossier Applications ({detail})",
   "appStoreEdition": "La version Microsoft Store de Roblox ne peut pas joindre Shroudly. Installez plutôt la version classique depuis roblox.com.",
   "quitApp": "Quitter Shroudly",

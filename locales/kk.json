@@ -385,6 +385,7 @@
   "logUpdateRedownload": "Жүктелген {version} жаңартуы жоқ немесе зақымдалған; ол қайта жүктелуде",
   "logUpdateManualFolder": "{version} жаңартуы: Shroudly {folder} қалтасында өзін ауыстыра алмайды; оны жүктеу бетінен жүктеп алыңыз",
   "logUpdateMetered": "{version} жаңартуы трафигі есептелетін байланыста өзі жүктелмейді",
+  "logUpdateTo64": "{version} жаңартуы: бұл 64 биттік Windows-тағы 32 биттік Shroudly, сондықтан 64 биттігі орнатылады (кеңейтілген режим сонда жұмыс істейді; баптаулар сақталады)",
   "logUpdateMoveFailed": "Shroudly-ді Applications қалтасына жылжыту мүмкін болмады ({detail})",
   "appStoreEdition": "Microsoft Store-дағы Roblox нұсқасы Shroudly-ге қосыла алмайды. Оның орнына кәдімгі нұсқасын roblox.com сайтынан орнатыңыз.",
   "quitApp": "Shroudly-ден шығу",

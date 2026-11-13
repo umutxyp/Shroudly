@@ -385,6 +385,7 @@
   "logUpdateRedownload": "עדכון {version} שהורד חסר או פגום; הוא מורד מחדש",
   "logUpdateManualFolder": "עדכון {version}: Shroudly לא יכול להחליף את עצמו ב-{folder}; יש להוריד אותו מדף ההורדה",
   "logUpdateMetered": "עדכון {version} לא יורד מעצמו בחיבור עם הגבלת נתונים",
+  "logUpdateTo64": "עדכון {version}: זהו Shroudly בגרסת 32 סיביות על Windows בגרסת 64 סיביות, ולכן מותקנת גרסת 64 הסיביות (המצב המתקדם פועל בה; ההגדרות נשמרות)",
   "logUpdateMoveFailed": "לא ניתן היה להעביר את Shroudly לתיקיית היישומים ({detail})",
   "appStoreEdition": "גרסת ה-Microsoft Store של Roblox לא יכולה להגיע ל-Shroudly. במקומה יש להתקין את הגרסה הרגילה מ-roblox.com.",
   "quitApp": "לצאת מ-Shroudly",

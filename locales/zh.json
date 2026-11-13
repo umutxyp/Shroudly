@@ -385,6 +385,7 @@
   "logUpdateRedownload": "已下载的更新 {version} 缺失或已损坏；正在重新下载",
   "logUpdateManualFolder": "更新 {version}：Shroudly 无法在 {folder} 中替换自身；请从下载页面下载",
   "logUpdateMetered": "在按流量计费的连接上，不会自动下载更新 {version}",
+  "logUpdateTo64": "更新 {version}：这是 64 位 Windows 上的 32 位 Shroudly，因此安装 64 位版本（高级模式可在其中使用；设置会保留）",
   "logUpdateMoveFailed": "无法将 Shroudly 移到“应用程序”文件夹（{detail}）",
   "appStoreEdition": "Microsoft Store 版 Roblox 无法连接到 Shroudly。请改从 roblox.com 安装普通版本。",
   "quitApp": "退出 Shroudly",

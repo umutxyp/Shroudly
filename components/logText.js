@@ -296,6 +296,7 @@ const PATTERNS = [
   [/^The downloaded update (\S+) is missing or damaged; downloading it again$/, 'logUpdateRedownload', ['version']],
   [/^Update (\S+): Shroudly cannot replace itself in (.+); download it from the download page$/, 'logUpdateManualFolder', ['version', 'folder']],
   [/^Update (\S+) is not downloaded by itself on a metered connection$/, 'logUpdateMetered', ['version']],
+  [/^Update (\S+): this is the 32-bit Shroudly on a 64-bit Windows, so the 64-bit one is installed \(Advanced mode works there; settings stay\)$/, 'logUpdateTo64', ['version']],
   [/^Shroudly could not be moved to the Applications folder \((.+)\)$/, 'logUpdateMoveFailed', ['detail']],
   [/^Settings applied \(strategy: (.+)\)$/, 'logSettingsApplied', ['strategy']],
   [/^Site list updated: (\d+) sites \((\d+) added, (-?\d+) removed\)$/, 'logSiteListUpdated', ['count', 'added', 'removed']],

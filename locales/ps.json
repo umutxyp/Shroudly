@@ -385,6 +385,7 @@
   "logUpdateRedownload": "ډاونلوډ شوی اوسمهال {version} نشته یا خراب شوی دی؛ بیا ډاونلوډ کېږي",
   "logUpdateManualFolder": "اوسمهال {version}: Shroudly په {folder} کې ځان نه شي بدلولی؛ هغه د ډاونلوډ له پاڼې څخه ډاونلوډ کړئ",
   "logUpdateMetered": "اوسمهال {version} په هغه اتصال کې پخپله نه ډاونلوډ کېږي چې د ډېټا له مخې پیسې اخلي",
+  "logUpdateTo64": "اوسمهال {version}: دا په ۶۴ بټي وینډوز کې ۳۲ بټي Shroudly دی، نو ۶۴ بټي نصبېږي (پرمختللی حالت پکې کار کوي؛ تنظیمات پاتې کېږي)",
   "logUpdateMoveFailed": "Shroudly د Applications فولډر ته ونه وړل شو ({detail})",
   "appStoreEdition": "د Roblox د Microsoft Store نسخه Shroudly ته نه شي رسېدلی. پر ځای یې عادي نسخه له roblox.com څخه نصب کړئ.",
   "quitApp": "له Shroudly څخه ووځئ",
