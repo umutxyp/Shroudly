@@ -225,7 +225,7 @@
 "upload" = "अपलोड";
 "uptime" = "सक्रिय समय";
 "versionLabel" = "संस्करण {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "App Store वाली कॉपी नया संस्करण आते ही अपडेट करने को कहती है; इस बीच सुरक्षा चालू रहती है।";
+"whatsNewMac" = "App Store वाली कॉपी नया संस्करण आते ही अपडेट करने को कहती है; इस बीच सुरक्षा चालू रहती है।";
 "whatsNewOk" = "समझ गया";
 "whatsNewTitle" = "{version} में नया क्या है";

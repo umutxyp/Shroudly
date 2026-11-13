@@ -225,7 +225,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "App Store nüsxəsi yeni versiya çıxan kimi yeniləməni istəyir; bu arada qoruma açıq qalır.";
+"whatsNewMac" = "App Store nüsxəsi yeni versiya çıxan kimi yeniləməni istəyir; bu arada qoruma açıq qalır.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

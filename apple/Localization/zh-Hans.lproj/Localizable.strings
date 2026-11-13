@@ -225,7 +225,7 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "App Store 版本会在新版本发布后立即提示更新；更新前保护仍保持开启。";
+"whatsNewMac" = "App Store 版本会在新版本发布后立即提示更新；更新前保护仍保持开启。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

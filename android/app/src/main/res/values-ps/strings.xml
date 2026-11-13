@@ -328,7 +328,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">په تنظیماتو کې د آیکون ټاکنه بیا هر آیکون ښيي؛ ټول د کلاسیک آیکون په څېر ښکارېدل.</string>
+    <string name="whatsNewAndroid">‏Shroudly په Google Play کې دی. د Google Play کاپي هره نوې نسخه سمدستي نصبوي؛ د GitHub APK یې پرته له زور وړاندیز کوي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

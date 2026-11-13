@@ -328,7 +328,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Die Symbolauswahl in den Einstellungen zeigt wieder jedes Symbol; alle sahen wie das klassische aus.</string>
+    <string name="whatsNewAndroid">Shroudly ist bei Google Play. Die Kopie aus Google Play installiert jede neue Version, sobald sie da ist; die APK von GitHub bietet sie an, ohne zu drängen.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

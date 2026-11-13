@@ -328,7 +328,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">اختيار الأيقونة في الإعدادات يعرض كل أيقونة من جديد؛ كانت كلها تبدو مثل الأيقونة الكلاسيكية.</string>
+    <string name="whatsNewAndroid">‏Shroudly متوفر على Google Play. النسخة المثبتة من Google Play تثبّت كل إصدار جديد فور صدوره؛ وملف APK من GitHub يقترحها دون إلزام.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

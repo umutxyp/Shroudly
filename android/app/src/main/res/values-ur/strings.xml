@@ -328,7 +328,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">ترتیبات میں آئیکن کا انتخاب ہر آئیکن کو دوبارہ دکھاتا ہے؛ سب کلاسک آئیکن جیسے نظر آتے تھے۔</string>
+    <string name="whatsNewAndroid">‏Shroudly گوگل پلے پر ہے۔ گوگل پلے والی کاپی ہر نیا ورژن آتے ہی انسٹال کرتی ہے؛ GitHub والا APK اسے بغیر زبردستی کے پیش کرتا ہے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

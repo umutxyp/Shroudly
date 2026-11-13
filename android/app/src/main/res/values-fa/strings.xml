@@ -328,7 +328,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">انتخاب آیکون در تنظیمات دوباره هر آیکون را نشان می‌دهد؛ همه شبیه آیکون کلاسیک دیده می‌شدند.</string>
+    <string name="whatsNewAndroid">‏Shroudly در Google Play است. نسخهٔ Google Play هر نسخهٔ تازه را به‌محض انتشار نصب می‌کند؛ APK گیت‌هاب هم آن را پیشنهاد می‌دهد، بدون اجبار.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

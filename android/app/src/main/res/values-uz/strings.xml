@@ -328,7 +328,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Sozlamalardagi belgi tanlash har bir belgini yana ko\'rsatadi; hammasi klassik belgi kabi ko\'rinardi.</string>
+    <string name="whatsNewAndroid">Shroudly Google Play\'da. Google Play\'dan o\'rnatilgan nusxa har bir yangi versiyani chiqishi bilan o\'rnatadi; GitHub\'dagi APK uni majburlamasdan taklif qiladi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

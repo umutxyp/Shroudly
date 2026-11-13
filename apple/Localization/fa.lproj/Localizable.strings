@@ -225,7 +225,7 @@
 "upload" = "آپلود";
 "uptime" = "مدت فعالیت";
 "versionLabel" = "نسخهٔ {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "نسخهٔ App Store به‌محض انتشار نسخهٔ تازه، به‌روزرسانی را می‌خواهد؛ محافظت در این مدت روشن می‌ماند.";
+"whatsNewMac" = "نسخهٔ App Store به‌محض انتشار نسخهٔ تازه، به‌روزرسانی را می‌خواهد؛ محافظت در این مدت روشن می‌ماند.";
 "whatsNewOk" = "متوجه شدم";
 "whatsNewTitle" = "تازه‌های نسخهٔ {version}";

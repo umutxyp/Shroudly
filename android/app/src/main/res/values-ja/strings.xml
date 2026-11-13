@@ -328,7 +328,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">設定のアイコン選択で、各アイコンが再び正しく表示されます。すべてクラシックのように見えていました。</string>
+    <string name="whatsNewAndroid">Shroudly は Google Play で配信中です。Google Play 版は新しいバージョンが出るとすぐにインストールします。GitHub の APK は Play 版をすすめますが、強制はしません。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

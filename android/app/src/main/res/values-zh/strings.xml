@@ -328,7 +328,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">设置中的图标选择重新显示每个图标；之前它们看起来都像经典图标。</string>
+    <string name="whatsNewAndroid">Shroudly 已上架 Google Play。Google Play 版本会在每个新版本发布后立即安装；GitHub 的 APK 会推荐它，但不强制。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

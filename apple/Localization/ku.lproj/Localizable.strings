@@ -225,7 +225,7 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "Kopiya App Store gava guhertoyek nû derkeve nûkirinê dixwaze; parastin di vê navberê de vekirî dimîne.";
+"whatsNewMac" = "Kopiya App Store gava guhertoyek nû derkeve nûkirinê dixwaze; parastin di vê navberê de vekirî dimîne.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

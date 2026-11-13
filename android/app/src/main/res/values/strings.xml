@@ -328,7 +328,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">The icon choice in Settings shows each icon again; they all looked like the classic one.</string>
+    <string name="whatsNewAndroid">Shroudly is on Google Play. The copy from Google Play installs each new version as soon as it is out; the APK from GitHub offers it, without pushing.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

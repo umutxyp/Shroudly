@@ -225,7 +225,7 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "";
-"whatsNewMac" = "";
+"whatsNewApple" = "የApp Store ቅጂ አዲስ ስሪት እንደወጣ እንዲዘመን ይጠይቃል፤ እስከዚያው ጥበቃው እንደበራ ይቆያል።";
+"whatsNewMac" = "የApp Store ቅጂ አዲስ ስሪት እንደወጣ እንዲዘመን ይጠይቃል፤ እስከዚያው ጥበቃው እንደበራ ይቆያል።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

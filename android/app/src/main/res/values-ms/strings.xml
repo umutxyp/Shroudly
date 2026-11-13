@@ -328,7 +328,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Pilihan ikon dalam Tetapan kembali memaparkan setiap ikon; semuanya kelihatan seperti ikon klasik.</string>
+    <string name="whatsNewAndroid">Shroudly ada di Google Play. Salinan dari Google Play memasang setiap versi baharu sebaik sahaja keluar; APK dari GitHub menawarkannya, tanpa memaksa.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

@@ -328,7 +328,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">בחירת הסמל בהגדרות מציגה שוב כל סמל; כולם נראו כמו הסמל הקלאסי.</string>
+    <string name="whatsNewAndroid">‏Shroudly זמין ב-Google Play. העותק מ-Google Play מתקין כל גרסה חדשה מיד כשהיא יוצאת; ה-APK מ-GitHub מציע אותו, בלי לכפות.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

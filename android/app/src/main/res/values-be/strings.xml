@@ -328,7 +328,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Выбар значка ў наладах зноў паказвае кожны значок; усе выглядалі як класічны.</string>
+    <string name="whatsNewAndroid">Shroudly ёсць у Google Play. Копія з Google Play ставіць кожную новую версію адразу пасля выхаду; APK з GitHub прапануе яе, не навязваючы.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

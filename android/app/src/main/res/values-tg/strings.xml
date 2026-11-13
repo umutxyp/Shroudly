@@ -328,7 +328,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Интихоби нишона дар Танзимот боз ҳар нишонаро нишон медиҳад; ҳамаашон ба нишонаи классикӣ монанд буданд.</string>
+    <string name="whatsNewAndroid">Shroudly дар Google Play аст. Нусхаи Google Play ҳар версияи навро баробари баромадан насб мекунад; APK-и GitHub онро бе маҷбуркунӣ пешниҳод мекунад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

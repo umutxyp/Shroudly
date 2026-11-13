@@ -328,7 +328,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">การเลือกไอคอนในการตั้งค่าแสดงแต่ละไอคอนอีกครั้ง ก่อนหน้านี้ทุกอันดูเหมือนไอคอนคลาสสิก</string>
+    <string name="whatsNewAndroid">Shroudly มีใน Google Play แล้ว สำเนาจาก Google Play จะติดตั้งทุกเวอร์ชันใหม่ทันทีที่ออก ส่วน APK จาก GitHub จะเสนอให้โดยไม่บังคับ</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

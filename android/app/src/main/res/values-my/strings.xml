@@ -328,7 +328,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ဆက်တင်ရှိ အိုင်ကွန်ရွေးချယ်မှုတွင် အိုင်ကွန်တစ်ခုချင်းကို ပြန်ပြပါပြီ။ အားလုံး ဂန္ထဝင်အိုင်ကွန်ကဲ့သို့ မြင်ရခဲ့သည်။</string>
+    <string name="whatsNewAndroid">Shroudly သည် Google Play တွင် ရှိပါပြီ။ Google Play မှ မိတ္တူသည် ဗားရှင်းအသစ်တိုင်းကို ထွက်လာသည်နှင့် ထည့်သွင်းပါသည်။ GitHub မှ APK က အတင်းမလုပ်ဘဲ ၎င်းကို အကြံပြုပါသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

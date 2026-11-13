@@ -328,7 +328,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">በቅንብሮች ውስጥ ያለው የአዶ ምርጫ እያንዳንዱን አዶ እንደገና ያሳያል፤ ሁሉም እንደ ክላሲኩ አዶ ይታዩ ነበር።</string>
+    <string name="whatsNewAndroid">Shroudly በGoogle Play ላይ አለ። ከGoogle Play የተጫነው ቅጂ እያንዳንዱን አዲስ ስሪት እንደወጣ ይጭናል፤ የGitHub APK ደግሞ ሳያስገድድ ይጠቁመዋል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>
