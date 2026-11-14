@@ -171,7 +171,7 @@ object Conns {
         blocked(ctx).size.takeIf { it > 0 }?.let { parts += "$it name${if (it == 1) "" else "s"} you blocked are refused" }
         torSites(ctx).size.takeIf { it > 0 }?.let { parts += "$it site${if (it == 1) "" else "s"} you send through Tor go there first" }
         torApps(ctx).takeIf { it.isNotEmpty() }?.let { ids -> parts += TorAppsList.apps.filter { it.id in ids }.joinToString(", ") { it.name } + " always through Tor" }
-        if (onlyMode(ctx)) parts += "only the ${onlySites(ctx).size} listed sites are worked on, the rest go out as they are"
+        if (onlyMode(ctx) && onlySites(ctx).isNotEmpty()) parts += "only the ${onlySites(ctx).size} listed sites are worked on, the rest go out as they are"
         return "Connections: " + parts.joinToString("; ")
     }
 

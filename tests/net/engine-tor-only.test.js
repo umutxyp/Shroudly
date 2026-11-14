@@ -137,6 +137,9 @@ const site = (status) => tls.createServer(H.testServerOptions(), (s) => {
     const P = await H.freePort();
     const eng = await H.startEngine(P, base);
     t.ok(await get(P, 'unlisted.example', port) === 'HTTP/1.1 403 Forbidden', 'every name worked on: one only our resolver knows opens');
+    eng.proc.stdin.write('ONLY-CLEAR\nONLY-MODE 1\n');
+    await H.sleep(200);
+    t.ok(await get(P, 'unlisted.example', port) === 'HTTP/1.1 403 Forbidden', 'ONLY-MODE 1 with nothing listed: every name still worked on (the switch alone does not stop Shroudly)');
     eng.proc.stdin.write('ONLY listed.example\nONLY-MODE 1\n');
     await H.sleep(200);
     t.ok(await get(P, 'listed.example', port) === 'HTTP/1.1 403 Forbidden', 'ONLY: a listed name is still worked on (our resolver)');
