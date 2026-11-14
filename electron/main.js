@@ -581,7 +581,10 @@ function askTor(host) {
  * nothing said that Tor was the one way left. A site no technique opens asks
  * again after TOR_REST_MS (the same card; "No" rests again); one said
  * before this version (no time kept) asks at the next such site. */
-const TOR_REST_MS = 7 * 24 * 60 * 60 * 1000;
+// A day, not a week: another Iran user turned Tor off, YouTube and Instagram
+// stayed dead for days, and nothing was said (since 2.6.75 Tor carries only
+// what nothing else opens, so a yes costs little).
+const TOR_REST_MS = 24 * 60 * 60 * 1000;
 function askTorAgain(host) {
   if (!host || torAsk || !engine || !engine.isActive() || !engine.torOffByUser || !engine.torOffByUser()) return false;
   const rest = Number(store.get('torAskRest', 0)) || 0;
@@ -1550,7 +1553,6 @@ app.whenReady().then(async () => {
       if (autopilot) autopilot.noteHost(kind, host, info || { note: detail });
       if (aroundWatch) aroundWatch.note(kind, host, info || { note: detail });
       if (kind === 'unreachable' && detail === 'connect') checkServiceReach(host).catch(() => {});
-      if (kind === 'blocked' && !(info && info.alert)) tellTorOff(host);
       if (kind === 'cut' && repeatedCut(host, detail) && ServiceCheck.isMainName(host)) checkServiceOnce(host).catch(() => {});
     },
     // A site that defeated every technique. Told once per site, and at most
@@ -1569,7 +1571,11 @@ app.whenReady().then(async () => {
       // Nothing else left (Advanced mode on, or not to be had) and the last
       // way out turned off: the Tor question again, now and then, instead of
       // "keeps trying" (askTorAgain).
-      if (!asked && (!(advanced && advanced.available()) || (advanced && advanced.active)) && askTorAgain(host)) return;
+      const nothingElse = !asked && (!(advanced && advanced.available()) || (advanced && advanced.active));
+      if (nothingElse && askTorAgain(host)) return;
+      // The question resting: said in the window that Tor, turned off in
+      // Settings, is what opens it, not that Shroudly "keeps trying".
+      if (nothingElse && tellTorOff(host)) return;
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
@@ -3418,6 +3424,7 @@ async function checkServiceReach(host) {
     }
     if (torOffHere()) {
       addLog('warning', `${name}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all; the last way out (Tor) gets there, but it is turned off in Settings`);
+      if (askTorAgain(name)) return;
       if (!torOffTold.has(name)) { torOffTold.add(name); autoTell('autoTorOff', { host: name }); }
       return;
     }
