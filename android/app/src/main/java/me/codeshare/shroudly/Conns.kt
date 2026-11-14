@@ -18,6 +18,9 @@ object Conns {
         val ago: Long = -1L,
     )
 
+    /* A name the ad and tracker list stopped, how often, and how long ago (ms). */
+    data class AdRow(val host: String, val count: Long, val ago: Long)
+
     /* The names Shroudly itself uses (electron/system-hosts.js): marked, and
      * blocking one asks first. */
     val SYSTEM = listOf(
@@ -35,6 +38,12 @@ object Conns {
 
     /* The last list the engine gave, newest first. */
     @Volatile var rows: List<Row> = emptyList()
+        internal set
+
+    /* What the ad list stopped lately, newest first: shown in Connections
+     * with a button to let one through (a link shortener's page the list
+     * blocks whole, SR-G563: 2.6.77 said nowhere that the list did it). */
+    @Volatile var ads: List<AdRow> = emptyList()
         internal set
 
     fun isSystem(host: String, own: String?): Boolean {
@@ -192,6 +201,7 @@ object Conns {
      * are: "it does not work", off, then report) still says what went
      * through and how. */
     @Volatile var lastSession: List<Row>? = null
+    @Volatile var lastAds: List<AdRow> = emptyList()
     @Volatile var lastSessionEnded = 0L
 
     /* At a stop, the engine still running: its list asked for (`ask`), and
@@ -203,18 +213,29 @@ object Conns {
         while (rowsGen == g && System.currentTimeMillis() < until) {
             try { Thread.sleep(25) } catch (_: InterruptedException) { break }
         }
-        if (rowsGen != g) { lastSession = rows; lastSessionEnded = System.currentTimeMillis() }
+        if (rowsGen != g) { lastSession = rows; lastAds = ads; lastSessionEnded = System.currentTimeMillis() }
     }
 
     /* A new session: the last one's list goes. */
-    fun newSession() { lastSession = null; lastSessionEnded = 0L; rows = emptyList() }
+    fun newSession() { lastSession = null; lastAds = emptyList(); lastSessionEnded = 0L; rows = emptyList(); ads = emptyList() }
+
+    /* One the user let through: gone from the list at once. */
+    fun adAllowed(host: String) { ads = ads.filter { it.host != host && !it.host.endsWith(".$host") } }
 
     /* The engine's lines: rows until conns_end (one collector per service). */
     class Collector {
         private val pending = ArrayList<Row>()
+        private val pendingAds = ArrayList<AdRow>()
         fun take(ev: EngineEvent): Boolean = when (ev) {
             is EngineEvent.Conn -> { synchronized(pending) { pending += ev.row }; true }
-            is EngineEvent.ConnsEnd -> { synchronized(pending) { rows = pending.toList(); pending.clear() }; rowsGen++; Protection.changed(); true }
+            is EngineEvent.Ad -> { synchronized(pending) { pendingAds += ev.row }; true }
+            is EngineEvent.ConnsEnd -> {
+                synchronized(pending) {
+                    rows = pending.toList(); pending.clear()
+                    ads = pendingAds.sortedBy { it.ago }; pendingAds.clear()
+                }
+                rowsGen++; Protection.changed(); true
+            }
             else -> false
         }
     }

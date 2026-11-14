@@ -119,6 +119,10 @@
     <string name="connsEmpty">هنوز چیزی نیست. سایتی باز کن تا اینجا دیده شود.</string>
     <string name="connsOpen">{count} باز</string>
     <string name="connsRefused">{count} بار رد شد</string>
+    <string name="connsAdsTitle">متوقف‌شده با مسدودساز تبلیغات</string>
+    <string name="connsAdsDesc">نام‌هایی که فهرست تبلیغات و ردیاب‌ها اخیراً متوقف کرده است. اگر صفحه‌ای که می‌خواهید باز نمی‌شود، به نامش اجازه دهید.</string>
+    <string name="connsAdStopped">{count} بار متوقف شد</string>
+    <string name="connsAdAllow">اجازه بده</string>
     <string name="connsRouteServer">سرور خودت</string>
     <string name="connsRouteTechnique">روش</string>
     <string name="connsRouteTor">تور</string>

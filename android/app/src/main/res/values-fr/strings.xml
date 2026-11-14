@@ -119,6 +119,10 @@
     <string name="connsEmpty">Rien pour l\'instant. Ouvre un site et il apparaîtra ici.</string>
     <string name="connsOpen">{count} ouvertes</string>
     <string name="connsRefused">{count} refusées</string>
+    <string name="connsAdsTitle">Arrêté par le blocage des pubs</string>
+    <string name="connsAdsDesc">Noms que la liste de pubs et de traqueurs a arrêtés récemment. Si une page voulue ne s\'ouvre pas, laissez passer son nom.</string>
+    <string name="connsAdStopped">arrêté {count} fois</string>
+    <string name="connsAdAllow">Laisser passer</string>
     <string name="connsRouteServer">ton serveur</string>
     <string name="connsRouteTechnique">méthode</string>
     <string name="connsRouteTor">Tor</string>

@@ -1226,24 +1226,16 @@ export default function SettingsPanel({ active = false }) {
             <div className="mt-3">
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
-                {Array.isArray(settings.siteList) && (
-                  <button type="button"
-                          onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
-                          className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
-                    {t('siteListUseAuto')}
-                  </button>
-                )}
               </div>
               <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-                {Array.isArray(settings.siteList)
-                  ? t('siteListCustom')
-                  : t('siteListAuto', {
-                    count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
-                    date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
-                  })}
+                {t('siteListAuto', {
+                  count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
+                  date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
+                })}
+                {' '}{t('siteListCustom')}
               </p>
               <textarea
-                value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
+                value={siteText == null ? (settings.siteList || []).join('\n') : siteText}
                 onChange={(e) => setSiteText(e.target.value)}
                 onBlur={() => {
                   // Nothing typed: the box shows the list in use, and leaving it
@@ -1256,12 +1248,12 @@ export default function SettingsPanel({ active = false }) {
                   const list = [...new Set(entries.filter(isHostname))];
                   const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
                   setBadEntries(dropped);
-                  // Only an actual edit makes the list the user's own: merely
-                  // clicking into the box must not stop it updating itself.
-                  const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
+                  // The box holds one's own sites only, added to the automatic
+                  // list (engine-manager.js); only an actual edit saves.
+                  const current = Array.isArray(settings.siteList) ? settings.siteList : [];
                   if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
                   setSiteText(list.join('\n'));   // show the cleaned list back
-                  save('siteList', list);
+                  save('siteList', list.length ? list : null);
                 }}
                 spellCheck={false} rows={6} dir="ltr"
                 placeholder={'discord.com\nroblox.com'}

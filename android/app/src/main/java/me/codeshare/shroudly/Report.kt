@@ -393,6 +393,16 @@ object Report {
         else -> "== Connections ==\n(protection is off, and has not run since the app started)"
     }
 
+    /* What the ad list stopped (this session's, or the last one's): a page
+     * that "does not open" is often a name the list blocks whole. */
+    fun adsSection(on: Boolean, now: List<Conns.AdRow>, last: List<Conns.AdRow>, max: Int = 30): String {
+        val list = if (on) now else last
+        if (list.isEmpty()) return "== Stopped by ad blocking ==\n(none)"
+        val lines = list.take(max).map { "${it.host.take(120)}  ${it.count}x  last ${it.ago / 1000} s ago" }.toMutableList()
+        if (list.size > max) lines += "(+${list.size - max} more)"
+        return "== Stopped by ad blocking ==\n" + lines.joinToString("\n")
+    }
+
     /* The Connections list as lines of the report, as the desktop's
      * (electron/report.js connsText): the names Shroudly did something to,
      * the apps' names and the addresses apps connect to however they went,

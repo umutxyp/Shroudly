@@ -106,6 +106,8 @@ const NAME = /^(?=.{3,253}$)[a-z0-9-]+(\.[a-z0-9-]+)+$/;
  * way, how it went out; a site blocked here has its connections ended and
  * new ones refused (electron/engine-manager.js setBlocked). Names Shroudly
  * itself uses are marked, and blocking one asks first. */
+const needleOf = (q) => q.trim().toLowerCase();
+
 function Connections({ active }) {
   const { t } = useLanguage();
   const [data, setData] = useState({ rows: [], blocked: [], torSites: [] });
@@ -143,6 +145,14 @@ function Connections({ active }) {
       if (r && r.ok) setData((d) => ({ ...d, torApps: r.torApps, torAppNames: r.torAppNames }));
     } catch {}
   };
+  // A name the ad list stopped, let through (Settings → Sites never to block).
+  const allowAd = async (host) => {
+    try {
+      const r = await window.electron.allowAdName(host);
+      if (r && r.ok) setData((d) => ({ ...d, ads: r.ads }));
+    } catch {}
+  };
+  const ads = (data.ads || []).filter((a) => !needleOf(q) || a.host.includes(needleOf(q)));
   const torApps = data.torApps || [];
   const torSites = data.torSites || [];
   const viaTor = (h) => torSites.some((n) => h === n || h.endsWith(`.${n}`));
@@ -233,6 +243,22 @@ function Connections({ active }) {
             <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }}>{h}</span>
             <span className="text-[11px]" style={{ color: 'var(--accent)' }}>{t('connsTorChosen')}</span>
             <button type="button" onClick={() => torSite(h, false)} className={btn}>{t('connsTorBack')}</button>
+          </div>
+        ))}
+        {ads.length > 0 && (
+          <div className="pt-3 pb-1">
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>{t('connsAdsTitle')}</p>
+            <p className="mt-0.5 text-[11px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsAdsDesc')}</p>
+          </div>
+        )}
+        {ads.map((a) => (
+          <div key={`a-${a.host}`} className="flex min-w-0 items-center gap-2 py-2">
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--line)' }} />
+            <div className="min-w-0 flex-1">
+              <span className="block truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }} title={a.host}>{a.host}</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>{t('connsAdStopped', { count: a.count })}</span>
+            </div>
+            <button type="button" onClick={() => allowAd(a.host)} className={btn}>{t('connsAdAllow')}</button>
           </div>
         ))}
         {blockedOnly.map((h) => (

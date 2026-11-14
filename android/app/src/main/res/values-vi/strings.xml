@@ -119,6 +119,10 @@
     <string name="connsEmpty">Chưa có gì. Mở một trang và nó sẽ hiện ở đây.</string>
     <string name="connsOpen">{count} đang mở</string>
     <string name="connsRefused">đã từ chối {count}</string>
+    <string name="connsAdsTitle">Bị chặn quảng cáo dừng</string>
+    <string name="connsAdsDesc">Các tên mà danh sách quảng cáo và trình theo dõi vừa chặn. Nếu trang bạn muốn không mở, hãy cho tên đó đi qua.</string>
+    <string name="connsAdStopped">bị dừng {count} lần</string>
+    <string name="connsAdAllow">Cho qua</string>
     <string name="connsRouteServer">máy chủ riêng</string>
     <string name="connsRouteTechnique">kỹ thuật</string>
     <string name="connsRouteTor">Tor</string>

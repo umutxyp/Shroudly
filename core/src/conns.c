@@ -32,6 +32,7 @@ static char g_only[CONNS_BLOCK][256];
 static int g_nonly;
 static int g_only_mode;
 static mutex_t g_mx;
+static struct { char host[128]; uint64_t n, last; } g_ads[CONNS_ADS];
 static atomic_int g_ready;
 
 void conns_init(void) {
@@ -455,6 +456,22 @@ static int by_last(const void *a, const void *b) {
   return x < y ? 1 : x > y ? -1 : 0;
 }
 
+void conns_ad(const char *host) {
+  if (!atomic_load(&g_ready) || !host || !host[0]) return;
+  char h[128];
+  lower(h, sizeof(h), host);
+  mutex_lock(&g_mx);
+  int slot = -1, old = 0;
+  for (int i = 0; i < CONNS_ADS; i++) {
+    if (g_ads[i].host[0] && strcmp(g_ads[i].host, h) == 0) { slot = i; break; }
+    if (g_ads[i].last < g_ads[old].last) old = i;   /* else the oldest (or an empty one) */
+  }
+  if (slot < 0) { slot = old; memset(&g_ads[slot], 0, sizeof(g_ads[slot])); snprintf(g_ads[slot].host, sizeof(g_ads[slot].host), "%s", h); }
+  g_ads[slot].n++;
+  g_ads[slot].last = now_ms();
+  mutex_unlock(&g_mx);
+}
+
 void conns_emit(void) {
   if (!atomic_load(&g_ready)) { engine_printf("{\"type\":\"conns_end\",\"n\":0}\n"); return; }
   int idx[CONNS_HOSTS], n = 0;
@@ -481,6 +498,17 @@ void conns_emit(void) {
                   (unsigned long long)atomic_load(&r->down), route_name(r->route), blocked,
                   (unsigned long long)r->blocked, (unsigned long long)(now > r->last ? now - r->last : 0), tor);
   }
+  for (int i = 0; i < CONNS_ADS; i++) {
+    if (!g_ads[i].host[0]) continue;
+    char h[128]; size_t o = 0;
+    for (size_t j = 0; g_ads[i].host[j] && o + 1 < sizeof(h); j++) {
+      unsigned char c = (unsigned char)g_ads[i].host[j];
+      if (c > 0x20 && c < 0x7f && c != '"' && c != '\\') h[o++] = (char)c;
+    }
+    h[o] = 0;
+    engine_printf("{\"type\":\"ad\",\"host\":\"%s\",\"count\":%llu,\"ago\":%llu}\n", h,
+                  (unsigned long long)g_ads[i].n, (unsigned long long)(now > g_ads[i].last ? now - g_ads[i].last : 0));
+  }
   mutex_unlock(&g_mx);
   engine_printf("{\"type\":\"conns_end\",\"n\":%d}\n", n);
 }
@@ -490,6 +518,7 @@ void conns_forget(void) {
   mutex_lock(&g_mx);
   memset(g_h, 0, sizeof(g_h));
   memset(g_act, 0, sizeof(g_act));
+  memset(g_ads, 0, sizeof(g_ads));
   for (int i = 0; i < CONNS_ACTIVE; i++) g_act[i].a = g_act[i].b = SOCK_INVALID;
   mutex_unlock(&g_mx);
 }

@@ -119,6 +119,10 @@
     <string name="connsEmpty">تر اوسه هېڅ نشته. یو سایټ پرانیزئ، دلته به ښکاره شي.</string>
     <string name="connsOpen">{count} پرانیستي</string>
     <string name="connsRefused">{count} ځله رد شو</string>
+    <string name="connsAdsTitle">د اعلانونو بندیز ودراوه</string>
+    <string name="connsAdsDesc">هغه نومونه چې د اعلانونو او تعقیبوونکو لیست پدې وروستیو کې ودرول. که کومه پاڼه چې غواړئ نه پرانیستل کیږي، نوم یې پرېږدئ.</string>
+    <string name="connsAdStopped">{count} ځله ودرول شو</string>
+    <string name="connsAdAllow">پرېږده</string>
     <string name="connsRouteServer">ستاسو خپل سرور</string>
     <string name="connsRouteTechnique">تخنیک</string>
     <string name="connsRouteTor">ټور</string>

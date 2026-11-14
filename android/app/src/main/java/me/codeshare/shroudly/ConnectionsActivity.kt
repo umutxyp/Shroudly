@@ -193,6 +193,41 @@ class ConnectionsActivity : Activity() {
         for (r in rows) list.addView(row(r.host, meta(r, own), r.blocked, Conns.isSystem(r.host, own), viaTor(r.host, torSites), viaTor(r.host, appNames) != null))
         for (b in blockedOnly) list.addView(row(b, getString(R.string.connsBlocked), true, Conns.isSystem(b, own), null))
         for (t in torOnly) list.addView(row(t, getString(R.string.connsTorChosen), false, false, t))
+        // What the ad list stopped, with a button to let one through: a page
+        // that "does not open" with protection on is often a name the list
+        // blocks whole (a link shortener's, SR-G563).
+        val allowed = AdBlock.allow(this)
+        val ads = if (AdBlock.enabled(this)) Conns.ads.filter { a ->
+            (needle.isEmpty() || a.host.contains(needle)) && allowed.none { a.host == it || a.host.endsWith(".$it") }
+        }.take(30) else emptyList()
+        if (ads.isNotEmpty()) {
+            list.addView(label(15f, R.color.text, true).apply { setText(R.string.connsAdsTitle); setPadding(0, dp(16f), 0, dp(2f)) })
+            list.addView(label(12f, R.color.text_dim).apply { setText(R.string.connsAdsDesc); setPadding(0, 0, 0, dp(4f)) })
+            for (a in ads) list.addView(adRow(a))
+        }
+    }
+
+    private fun adRow(a: Conns.AdRow): View {
+        val r = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(10f), 0, dp(10f))
+        }
+        val texts = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        texts.addView(label(15f, R.color.text).apply { text = a.host; textDirection = View.TEXT_DIRECTION_LTR; isSingleLine = true; ellipsize = android.text.TextUtils.TruncateAt.MIDDLE })
+        val sub = text(R.string.connsAdStopped, "count" to a.count)
+        texts.addView(label(12f, R.color.text_faint).apply { text = sub })
+        r.addView(texts, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        r.addView(Buttons.ghost(Button(this)).apply {
+            setText(R.string.connsAdAllow)
+            setOnClickListener {
+                AdBlock.setAllow(this@ConnectionsActivity, (AdBlock.allow(this@ConnectionsActivity) + a.host).joinToString("\n"))
+                Protector.tell(this@ConnectionsActivity, ShroudlyVpnService.ACTION_ADBLOCK)
+                Conns.adAllowed(a.host)
+                render()
+            }
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = dp(8f) })
+        return r
     }
 
     private fun meta(r: Conns.Row, own: String?): String {

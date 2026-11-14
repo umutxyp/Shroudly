@@ -119,6 +119,10 @@
     <string name="connsEmpty">还没有内容。打开一个网站,它就会出现在这里。</string>
     <string name="connsOpen">{count} 个打开</string>
     <string name="connsRefused">已拒绝 {count} 次</string>
+    <string name="connsAdsTitle">被广告拦截阻止</string>
+    <string name="connsAdsDesc">广告和跟踪器列表最近阻止的名称。如果你想打开的页面打不开，请放行它的名称。</string>
+    <string name="connsAdStopped">已阻止 {count} 次</string>
+    <string name="connsAdAllow">放行</string>
     <string name="connsRouteServer">你自己的服务器</string>
     <string name="connsRouteTechnique">技术</string>
     <string name="connsRouteTor">Tor</string>

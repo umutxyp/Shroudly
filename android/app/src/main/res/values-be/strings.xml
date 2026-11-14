@@ -119,6 +119,10 @@
     <string name="connsEmpty">Пакуль нічога. Адкрыйце сайт, і ён з\'явіцца тут.</string>
     <string name="connsOpen">адкрыта: {count}</string>
     <string name="connsRefused">адхілена: {count}</string>
+    <string name="connsAdsTitle">Спынена блакаваннем рэкламы</string>
+    <string name="connsAdsDesc">Імёны, якія нядаўна спыніў спіс рэкламы і трэкераў. Калі патрэбная старонка не адкрываецца, прапусціце яе імя.</string>
+    <string name="connsAdStopped">спынена {count} разоў</string>
+    <string name="connsAdAllow">Прапусціць</string>
     <string name="connsRouteServer">свой сервер</string>
     <string name="connsRouteTechnique">тэхніка</string>
     <string name="connsRouteTor">Tor</string>

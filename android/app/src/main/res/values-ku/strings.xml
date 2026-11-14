@@ -119,6 +119,10 @@
     <string name="connsEmpty">Hîn tiştek tune. Malperekê veke, li vir xuya dibe.</string>
     <string name="connsOpen">{count} vekirî</string>
     <string name="connsRefused">{count} car hat redkirin</string>
+    <string name="connsAdsTitle">Astengkirina reklaman rawestand</string>
+    <string name="connsAdsDesc">Navên ku lîsteya reklam û şopîneran di van demên dawî de rawestandin. Heke rûpelek ku tu dixwazî venebe, destûrê bide navê wê.</string>
+    <string name="connsAdStopped">{count} car hat rawestandin</string>
+    <string name="connsAdAllow">Destûr bide</string>
     <string name="connsRouteServer">servera te</string>
     <string name="connsRouteTechnique">teknîk</string>
     <string name="connsRouteTor">Tor</string>

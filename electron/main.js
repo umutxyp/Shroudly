@@ -785,13 +785,27 @@ function isRouted(host) {
     routing = {
       listed: store.get('routeMode') === 'listed',
       // The same list the PAC routes (engine-manager.js): a family named in a
-      // custom list counts whole (families.js).
-      set: new Set(Families.expand(Array.isArray(custom) ? custom : (siteList ? siteList.domains : [])).map((d) => String(d).toLowerCase())),
+      // custom list counts whole (families.js); the user's own sites are
+      // added to the automatic list, never put in its place.
+      set: new Set(Families.expand([...(siteList ? siteList.domains : []), ...(Array.isArray(custom) ? custom : [])]).map((d) => String(d).toLowerCase())),
     };
   }
   if (!routing.listed) return true;
   for (let h = host; h; h = h.includes('.') ? h.slice(h.indexOf('.') + 1) : '') if (routing.set.has(h)) return true;
   return false;
+}
+
+/* A list of one's own kept by 2.6.77 or older replaced the automatic one,
+ * and one edit of the box saved the whole built-in list with it. Since
+ * 2.6.78 one's own sites are added to the automatic list, so only what is
+ * on neither is kept as one's own; nothing left, the key goes. */
+function ownSitesOnly() {
+  const custom = store.get('siteList');
+  if (!Array.isArray(custom)) return;
+  const known = new Set([...EngineManager.FALLBACK_SITE_LIST, ...EngineManager.DEFAULT_SITE_LIST, ...(siteList ? siteList.domains : [])].map((d) => String(d).toLowerCase()));
+  const own = custom.filter((d) => !known.has(String(d).toLowerCase()));
+  if (own.length === custom.length) return;
+  if (own.length) store.set('siteList', own); else store.delete('siteList');
 }
 
 /* The automatic site list: checked once protection has settled, then at most
@@ -804,8 +818,9 @@ function scheduleSiteListCheck(delayMs) {
   clearTimeout(siteListTimer);
   siteListTimer = setTimeout(async () => {
     if (!siteList || !engine || !engine.isActive()) return;
-    // Only someone routing by the automatic list needs it.
-    if (store.get('routeMode') !== 'listed' || Array.isArray(store.get('siteList'))) return;
+    // Only someone routing by the list needs it (their own sites included:
+    // those are added to it, see engine-manager.js _settings).
+    if (store.get('routeMode') !== 'listed') return;
     if (Date.now() - siteList.checkedAt < SITE_LIST_EVERY_MS - 60000) return;
     if (!(await siteList.refresh())) return;
     if (engine.updateSiteList()) addLog('info', 'Proxy routing updated');
@@ -1426,6 +1441,7 @@ app.whenReady().then(async () => {
     log: addLog,
     getSocksPort: () => (engine && engine.isActive() ? engine.port : null),
   });
+  ownSitesOnly();
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
   // The last way out (tor-route.js): Tor through Snowflake, for a site
   // nothing else opened; started by the engine's need of it.
@@ -3686,7 +3702,27 @@ ipcMain.handle('conns:list', async () => {
     torOk: !torUnsupported() && !store.get('ownServer'),
     // The names Shroudly needs: never offered for blocking (typed ones neither).
     ownNames: [...SystemHosts.SYSTEM_HOSTS, ...(own ? [own] : [])],
+    // What the ad list stopped lately, the names already let through left
+    // out: a page that "does not open" is often one the list blocks whole
+    // (a link shortener's, SR-G563), and nothing said so until 2.6.78.
+    ads: adsShown(),
   };
+});
+function adsShown() {
+  if (!engine || store.get('adBlock') !== true) return [];
+  const allow = Array.isArray(store.get('adBlockAllow')) ? store.get('adBlockAllow') : [];
+  return (engine.lastAds || []).filter((a) => a.host && !allow.some((n) => a.host === n || a.host.endsWith(`.${n}`))).slice(0, 30);
+}
+/* One the user let through from Connections: added to Sites never to block,
+ * and the running engine told at once (as the setting itself). */
+ipcMain.handle('adblock:allow', (_e, host) => {
+  const h = String(host || '').trim().toLowerCase();
+  if (!/^[a-z0-9.-]{1,253}$/.test(h) || !h.includes('.')) return { ok: false };
+  const allow = Array.isArray(store.get('adBlockAllow')) ? store.get('adBlockAllow') : [];
+  if (!allow.includes(h)) store.set('adBlockAllow', [...allow, h]);
+  if (engine && engine.isActive()) engine.adblockApply();
+  if (engine) engine.lastAds = (engine.lastAds || []).filter((a) => a.host !== h && !a.host.endsWith(`.${h}`));
+  return { ok: true, ads: adsShown() };
 });
 /* Settings, the last way out: whether Tor is on this computer yet, and
  * fetching it ahead of time ("Prepare it now", issue #75). */
@@ -3937,7 +3973,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
       os: st.os,
       device: process.arch,
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
-      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n${Report.siteEventsSection(engine && engine.siteEvents)}\n== Apps ==\n${JSON.stringify(apps, null, 1)}\n`,
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n${Report.connsSection(on, conns, lastConns)}\n${store.get('adBlock') === true ? `${Report.adsSection(engine && engine.lastAds)}\n` : ''}${Report.siteEventsSection(engine && engine.siteEvents)}\n== Apps ==\n${JSON.stringify(apps, null, 1)}\n`,
     });
     let r = await Report.send((o) => require('electron').net.request(o), body);
     // Not through the usual way, with Tor ready: once more through Tor

@@ -119,6 +119,10 @@
     <string name="connsEmpty">Hələ heç nə yoxdur. Bir sayt aç, burada görünəcək.</string>
     <string name="connsOpen">{count} açıq</string>
     <string name="connsRefused">{count} dəfə rədd edildi</string>
+    <string name="connsAdsTitle">Reklam bloklaması dayandırdı</string>
+    <string name="connsAdsDesc">Reklam və izləyici siyahısının son dayandırdığı adlar. İstədiyin səhifə açılmırsa, adına icazə ver.</string>
+    <string name="connsAdStopped">{count} dəfə dayandırıldı</string>
+    <string name="connsAdAllow">İcazə ver</string>
     <string name="connsRouteServer">öz serverin</string>
     <string name="connsRouteTechnique">texnika</string>
     <string name="connsRouteTor">Tor</string>

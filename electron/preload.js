@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electron', {
   repairApp: () => ipcRenderer.invoke('app:repair'),
   // The Connections list (issue #74).
   getConnections: () => ipcRenderer.invoke('conns:list'),
+  allowAdName: (host) => ipcRenderer.invoke('adblock:allow', host),
   // The last way out: Tor here yet, and fetching it now (issue #75).
   getTorStatus: () => ipcRenderer.invoke('tor:status'),
   prepareTor: () => ipcRenderer.invoke('tor:prepare'),

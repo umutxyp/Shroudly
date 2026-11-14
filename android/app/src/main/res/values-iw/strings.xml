@@ -119,6 +119,10 @@
     <string name="connsEmpty">אין כלום עדיין. פתחו אתר והוא יופיע כאן.</string>
     <string name="connsOpen">{count} פתוחים</string>
     <string name="connsRefused">נדחה {count} פעמים</string>
+    <string name="connsAdsTitle">נעצר על ידי חסימת פרסומות</string>
+    <string name="connsAdsDesc">שמות שרשימת הפרסומות והעוקבים עצרה לאחרונה. אם דף שרצית לא נפתח, אפשר לשם שלו לעבור.</string>
+    <string name="connsAdStopped">נעצר {count} פעמים</string>
+    <string name="connsAdAllow">לאפשר</string>
     <string name="connsRouteServer">השרת שלך</string>
     <string name="connsRouteTechnique">טכניקה</string>
     <string name="connsRouteTor">Tor</string>
