@@ -227,7 +227,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "La copia de la App Store pide actualizar en cuanto sale una versión nueva; la protección sigue activa mientras tanto.";
-"whatsNewMac" = "La copia de la App Store pide actualizar en cuanto sale una versión nueva; la protección sigue activa mientras tanto.";
+"whatsNewApple" = "El icono que eliges aparece también dentro de la app, y el color de la app puede seguirlo.";
+"whatsNewMac" = "El icono que eliges aparece también dentro de la app, y el color de la app puede seguirlo.\nCon Tor desactivado, Shroudly vuelve a preguntar al cabo de un día cuando un sitio lo necesita.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

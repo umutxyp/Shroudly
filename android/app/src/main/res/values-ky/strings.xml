@@ -334,7 +334,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Shroudly Google Play\'де бар. Google Play\'ден орнотулган көчүрмө ар бир жаңы версияны чыгары менен орнотот; GitHub\'дагы APK аны мажбурлабай сунуштайт.</string>
+    <string name="whatsNewAndroid">«Тизмедеги сайттар гана» тизме бош болгондо кайра бардык сайттарда иштейт.\nТандалган сөлөкөт колдонмонун ичинде да көрүнөт, колдонмонун түсү ага ылайыкташа алат.\nTor өчүк болуп, сайтка ал керек болсо, Shroudly бир күндөн кийин кайра сурайт.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

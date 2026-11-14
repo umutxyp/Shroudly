@@ -334,7 +334,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Shroudly Google Play-de bar. Google Play-den gurlan nusga her täze wersiýany çykan badyna gurýar; GitHub-daky APK ony mejbur etmän hödürleýär.</string>
+    <string name="whatsNewAndroid">«Diňe sanawdaky saýtlar» sanaw boş bolanda ýene ähli saýtlarda işleýär.\nSaýlan nyşanyň programmanyň içinde hem görünýär, programmanyň reňki oňa eýerip biler.\nTor öçük bolsa we bir saýta ol gerek bolsa, Shroudly bir günden soň ýene soraýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

@@ -334,7 +334,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Shroudly est sur Google Play. La copie de Google Play installe chaque nouvelle version dès sa sortie ; l\'APK de GitHub la propose, sans l\'imposer.</string>
+    <string name="whatsNewAndroid">« Sites listés seulement » sans aucun site fonctionne de nouveau sur tous les sites.\nL\'icône choisie apparaît aussi dans l\'app, et la couleur de l\'app peut la suivre.\nTor désactivé, Shroudly redemande au bout d\'un jour quand un site en a besoin.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

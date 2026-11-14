@@ -227,7 +227,7 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "La copie de l'App Store demande la mise à jour dès qu'une nouvelle version sort ; la protection reste active en attendant.";
-"whatsNewMac" = "La copie de l'App Store demande la mise à jour dès qu'une nouvelle version sort ; la protection reste active en attendant.";
+"whatsNewApple" = "L'icône choisie apparaît aussi dans l'app, et la couleur de l'app peut la suivre.";
+"whatsNewMac" = "L'icône choisie apparaît aussi dans l'app, et la couleur de l'app peut la suivre.\nTor désactivé, Shroudly redemande au bout d'un jour quand un site en a besoin.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";

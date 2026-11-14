@@ -334,7 +334,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">‏Shroudly په Google Play کې دی. د Google Play کاپي هره نوې نسخه سمدستي نصبوي؛ د GitHub APK یې پرته له زور وړاندیز کوي.</string>
+    <string name="whatsNewAndroid">«یوازې د لیست سایټونه» له خالي لیست سره بیا په ټولو سایټونو کار کوي.\nټاکل شوې نښه د اپ دننه هم ښکاري، او د اپ رنګ یې پسې تلای شي.\nکله چې Tor بند وي او یو سایټ ورته اړتیا ولري، Shroudly له یوې ورځې وروسته بیا پوښتي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

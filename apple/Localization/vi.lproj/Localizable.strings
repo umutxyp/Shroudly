@@ -227,7 +227,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Bản từ App Store yêu cầu cập nhật ngay khi có phiên bản mới; trong lúc đó bảo vệ vẫn bật.";
-"whatsNewMac" = "Bản từ App Store yêu cầu cập nhật ngay khi có phiên bản mới; trong lúc đó bảo vệ vẫn bật.";
+"whatsNewApple" = "Biểu tượng bạn chọn cũng hiện trong ứng dụng, và màu ứng dụng có thể theo nó.";
+"whatsNewMac" = "Biểu tượng bạn chọn cũng hiện trong ứng dụng, và màu ứng dụng có thể theo nó.\nKhi Tor tắt mà một trang cần nó, Shroudly hỏi lại sau một ngày.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";
