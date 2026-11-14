@@ -334,7 +334,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Shroudly li Google Play e. Kopiya ji Google Play her guhertoya nû gava derkeve saz dike; APK ya GitHub wê pêşniyar dike, bê zorê.</string>
+    <string name="whatsNewAndroid">«Tenê malperên lîsteyê» bi lîsteya vala dîsa li ser hemû malperan dixebite.\nÎkona ku tu hildibijêrî di nav sepanê de jî xuya dibe, û rengê sepanê dikare li dû wê here.\nDema Tor girtî be û malperek pê hewce be, Shroudly piştî rojekê dîsa dipirse.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

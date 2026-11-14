@@ -334,7 +334,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">Shroudly በGoogle Play ላይ አለ። ከGoogle Play የተጫነው ቅጂ እያንዳንዱን አዲስ ስሪት እንደወጣ ይጭናል፤ የGitHub APK ደግሞ ሳያስገድድ ይጠቁመዋል።</string>
+    <string name="whatsNewAndroid">«በዝርዝሩ ያሉ ጣቢያዎች ብቻ» ዝርዝሩ ባዶ ሲሆን እንደገና በሁሉም ጣቢያዎች ይሰራል።\nየመረጡት አዶ በመተግበሪያው ውስጥም ይታያል፣ የመተግበሪያው ቀለምም ሊከተለው ይችላል።\nTor ጠፍቶ ሳለ አንድ ጣቢያ ቢፈልገው Shroudly ከአንድ ቀን በኋላ እንደገና ይጠይቃል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

@@ -334,7 +334,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Shroudly дар Google Play аст. Нусхаи Google Play ҳар версияи навро баробари баромадан насб мекунад; APK-и GitHub онро бе маҷбуркунӣ пешниҳод мекунад.</string>
+    <string name="whatsNewAndroid">«Танҳо сайтҳои рӯйхат» бо рӯйхати холӣ боз дар ҳамаи сайтҳо кор мекунад.\nНишонаи интихобшуда дар дохили барнома ҳам намоён аст ва ранги барнома метавонад аз он пайравӣ кунад.\nВақте Tor хомӯш аст ва сайт ба он ниёз дорад, Shroudly баъд аз як рӯз боз мепурсад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

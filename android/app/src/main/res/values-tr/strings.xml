@@ -334,7 +334,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Shroudly Google Play\'de. Google Play\'den kurulan kopya her yeni sürümü çıkar çıkmaz yükler; GitHub\'daki APK ise Play\'i zorlamadan önerir.</string>
+    <string name="whatsNewAndroid">Sadece listedeki siteler, listede hiç site yokken yine her sitede çalışıyor.\nSeçtiğin simge uygulamanın içinde de görünüyor; uygulamanın rengi de simgeyi takip edebiliyor.\nTor kapalıyken bir site ona ihtiyaç duyarsa Shroudly bir gün sonra yeniden soruyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

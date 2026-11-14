@@ -334,7 +334,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">‏Shroudly متوفر على Google Play. النسخة المثبتة من Google Play تثبّت كل إصدار جديد فور صدوره؛ وملف APK من GitHub يقترحها دون إلزام.</string>
+    <string name="whatsNewAndroid">«المواقع المدرجة فقط» دون أي موقع في القائمة يعمل على كل المواقع من جديد.\nالأيقونة التي تختارها تظهر داخل التطبيق أيضًا، ويمكن أن يتبعها لون التطبيق.\nعندما يكون Tor متوقفًا ويحتاجه موقع، يسأل Shroudly مجددًا بعد يوم.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

@@ -227,7 +227,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "App Store nüsxəsi yeni versiya çıxan kimi yeniləməni istəyir; bu arada qoruma açıq qalır.";
-"whatsNewMac" = "App Store nüsxəsi yeni versiya çıxan kimi yeniləməni istəyir; bu arada qoruma açıq qalır.";
+"whatsNewApple" = "Seçdiyin nişan tətbiqin içində də görünür; tətbiqin rəngi də onu izləyə bilər.";
+"whatsNewMac" = "Seçdiyin nişan tətbiqin içində də görünür; tətbiqin rəngi də onu izləyə bilər.\nTor söndürülüb və bir saytın ona ehtiyacı varsa, Shroudly bir gün sonra yenidən soruşur.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

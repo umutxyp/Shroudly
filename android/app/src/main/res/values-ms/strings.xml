@@ -334,7 +334,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Shroudly ada di Google Play. Salinan dari Google Play memasang setiap versi baharu sebaik sahaja keluar; APK dari GitHub menawarkannya, tanpa memaksa.</string>
+    <string name="whatsNewAndroid">«Hanya laman dalam senarai» tanpa sebarang laman kembali berfungsi pada semua laman.\nIkon pilihan anda juga kelihatan di dalam aplikasi, dan warna aplikasi boleh mengikutinya.\nApabila Tor dimatikan dan sesuatu laman memerlukannya, Shroudly bertanya lagi selepas sehari.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

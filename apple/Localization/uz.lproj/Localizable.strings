@@ -227,7 +227,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "App Store nusxasi yangi versiya chiqishi bilan yangilashni so'raydi; shu orada himoya yoniq qoladi.";
-"whatsNewMac" = "App Store nusxasi yangi versiya chiqishi bilan yangilashni so'raydi; shu orada himoya yoniq qoladi.";
+"whatsNewApple" = "Tanlangan belgi ilova ichida ham ko'rinadi, ilova rangi unga moslasha oladi.";
+"whatsNewMac" = "Tanlangan belgi ilova ichida ham ko'rinadi, ilova rangi unga moslasha oladi.\nTor o'chiq bo'lsa va saytga u kerak bo'lsa, Shroudly bir kundan keyin yana so'raydi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

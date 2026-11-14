@@ -334,7 +334,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">‏Shroudly در Google Play است. نسخهٔ Google Play هر نسخهٔ تازه را به‌محض انتشار نصب می‌کند؛ APK گیت‌هاب هم آن را پیشنهاد می‌دهد، بدون اجبار.</string>
+    <string name="whatsNewAndroid">«فقط سایت‌های فهرست» وقتی هیچ سایتی در فهرست نیست، دوباره روی همهٔ سایت‌ها کار می‌کند.\nنمادی که انتخاب می‌کنید داخل برنامه هم دیده می‌شود و رنگ برنامه می‌تواند از آن پیروی کند.\nوقتی Tor خاموش است و سایتی به آن نیاز دارد، Shroudly پس از یک روز دوباره می‌پرسد.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

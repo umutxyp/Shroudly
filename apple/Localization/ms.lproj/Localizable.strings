@@ -227,7 +227,7 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Salinan App Store meminta kemas kini sebaik sahaja versi baharu keluar; perlindungan kekal aktif sementara itu.";
-"whatsNewMac" = "Salinan App Store meminta kemas kini sebaik sahaja versi baharu keluar; perlindungan kekal aktif sementara itu.";
+"whatsNewApple" = "Ikon pilihan anda juga kelihatan di dalam aplikasi, dan warna aplikasi boleh mengikutinya.";
+"whatsNewMac" = "Ikon pilihan anda juga kelihatan di dalam aplikasi, dan warna aplikasi boleh mengikutinya.\nApabila Tor dimatikan dan sesuatu laman memerlukannya, Shroudly bertanya lagi selepas sehari.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

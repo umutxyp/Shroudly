@@ -227,7 +227,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "The App Store copy asks to update as soon as a new version is out; protection stays on meanwhile.";
-"whatsNewMac" = "The App Store copy asks to update as soon as a new version is out; protection stays on meanwhile.";
+"whatsNewApple" = "The icon you choose shows inside the app too, and the app's colour can follow it.";
+"whatsNewMac" = "The icon you choose shows inside the app too, and the app's colour can follow it.\nWith Tor turned off, Shroudly asks again after a day when a site needs it.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

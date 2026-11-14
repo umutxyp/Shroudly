@@ -334,7 +334,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Shroudly is on Google Play. The copy from Google Play installs each new version as soon as it is out; the APK from GitHub offers it, without pushing.</string>
+    <string name="whatsNewAndroid">Only listed sites with nothing listed works on every site again.\nThe icon you choose shows inside the app too, and the app\'s colour can follow it.\nWith Tor turned off, Shroudly asks again after a day when a site needs it.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

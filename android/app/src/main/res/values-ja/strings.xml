@@ -334,7 +334,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">Shroudly は Google Play で配信中です。Google Play 版は新しいバージョンが出るとすぐにインストールします。GitHub の APK は Play 版をすすめますが、強制はしません。</string>
+    <string name="whatsNewAndroid">「リストのサイトのみ」はリストが空のとき、再びすべてのサイトで働きます。\n選んだアイコンがアプリ内にも表示され、アプリの色もそれに合わせられます。\nTor がオフでサイトに必要なときは、Shroudly が1日後にもう一度尋ねます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>
