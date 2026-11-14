@@ -106,6 +106,8 @@
 "logInfo" = "معلومات";
 "logSuccess" = "نجاح";
 "logWarning" = "تحذير";
+"logoAccent" = "اللون يتبع الأيقونة";
+"logoAccentDesc" = "يطابق لون التطبيق الأيقونة المختارة. اختيار لون في الأعلى يوقف هذا.";
 "logoChoice" = "الشعار";
 "logoChoiceDesc" = "شعار Shroudly داخل التطبيق، وأيقونة التطبيق حيث يسمح النظام بذلك.";
 "logoCountries" = "البلدان";

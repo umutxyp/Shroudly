@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">Застосунок {app} не може з’єднатися зі своїми серверами: ця мережа блокує їхні адреси, і без сервера деінде Shroudly не може це обійти. Скористайтеся налаштуванням проксі в самому застосунку {app} або VPN.</string>
     <string name="bypassed">Обійдено</string>
     <string name="connections">З’єднання</string>
+    <string name="connsAdAllow">Пропустити</string>
+    <string name="connsAdStopped">зупинено {count} разів</string>
+    <string name="connsAdsDesc">Імена, які нещодавно зупинив список реклами й трекерів. Якщо потрібна сторінка не відкривається, пропустіть її ім\'я.</string>
+    <string name="connsAdsTitle">Зупинено блокуванням реклами</string>
     <string name="connsAllow">Дозволити</string>
     <string name="connsBlock">Заблокувати</string>
     <string name="connsBlockName">Заблокувати {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Поки нічого. Відкрийте сайт, і він з\'явиться тут.</string>
     <string name="connsOpen">відкрито: {count}</string>
     <string name="connsRefused">відхилено: {count}</string>
-    <string name="connsAdsTitle">Зупинено блокуванням реклами</string>
-    <string name="connsAdsDesc">Імена, які нещодавно зупинив список реклами й трекерів. Якщо потрібна сторінка не відкривається, пропустіть її ім\'я.</string>
-    <string name="connsAdStopped">зупинено {count} разів</string>
-    <string name="connsAdAllow">Пропустити</string>
     <string name="connsRouteServer">власний сервер</string>
     <string name="connsRouteTechnique">техніка</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Жоден спосіб не відкриває {host} у цій мережі. Повна версія Shroudly з Tor може його відкрити. Відкрийте Shroudly, щоб її отримати.</string>
     <string name="liteOfferTitle">{host} тут лишається заблокованим</string>
     <string name="logEntries">Записів: {count}</string>
+    <string name="logoAccent">Колір за значком</string>
+    <string name="logoAccentDesc">Колір застосунку відповідає вибраному значку. Вибір кольору вище вимикає це.</string>
     <string name="logoChoice">Логотип</string>
     <string name="logoChoiceDesc">Логотип Shroudly у застосунку та, де система це дозволяє, його значок.</string>
     <string name="logoCountries">Країни</string>

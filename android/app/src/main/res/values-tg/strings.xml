@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">Барномаи {app} ба серверҳои худ пайваст шуда наметавонад: ин шабака суроғаҳои онҳоро мебандад ва Shroudly бе сервере дар ҷои дигар инро давр зада наметавонад. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
     <string name="bypassed">Давр зада шуд</string>
     <string name="connections">Пайвастҳо</string>
+    <string name="connsAdAllow">Иҷозат додан</string>
+    <string name="connsAdStopped">{count} бор манъ шуд</string>
+    <string name="connsAdsDesc">Номҳое, ки рӯйхати реклама ва пайгирҳо ба наздикӣ манъ кард. Агар саҳифаи лозимӣ кушода нашавад, ба номаш иҷозат диҳед.</string>
+    <string name="connsAdsTitle">Бастани реклама манъ кард</string>
     <string name="connsAllow">Иҷозат додан</string>
     <string name="connsBlock">Манъ кардан</string>
     <string name="connsBlockName">Манъ кардани {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Ҳоло ҳеҷ чиз нест. Сайтеро кушоед, он дар ин ҷо пайдо мешавад.</string>
     <string name="connsOpen">{count} кушода</string>
     <string name="connsRefused">{count} бор рад шуд</string>
-    <string name="connsAdsTitle">Бастани реклама манъ кард</string>
-    <string name="connsAdsDesc">Номҳое, ки рӯйхати реклама ва пайгирҳо ба наздикӣ манъ кард. Агар саҳифаи лозимӣ кушода нашавад, ба номаш иҷозат диҳед.</string>
-    <string name="connsAdStopped">{count} бор манъ шуд</string>
-    <string name="connsAdAllow">Иҷозат додан</string>
     <string name="connsRouteServer">сервери худ</string>
     <string name="connsRouteTechnique">усул</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Дар ин шабака ягон усул {host}-ро намекушояд. Версияи пурраи Shroudly бо Tor метавонад онро кушояд. Барои гирифтани он Shroudly-ро кушоед.</string>
     <string name="liteOfferTitle">{host} дар ин ҷо баста мемонад</string>
     <string name="logEntries">Сабтҳо: {count}</string>
+    <string name="logoAccent">Ранг аз нишона пайравӣ кунад</string>
+    <string name="logoAccentDesc">Ранги барнома ба нишонаи интихобшуда мувофиқ мешавад. Интихоби ранг дар боло инро хомӯш мекунад.</string>
     <string name="logoChoice">Логотип</string>
     <string name="logoChoiceDesc">Логотипи Shroudly дар дохили барнома ва, ҷое ки система иҷозат медиҳад, нишонаи барнома.</string>
     <string name="logoCountries">Кишварҳо</string>

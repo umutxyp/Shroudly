@@ -53,7 +53,8 @@ object Chrome {
             setBackgroundColor(a.getColor(R.color.bg))
         }
         row.addView(ImageView(a).apply {
-            setImageResource(R.drawable.logo)
+            // The logo chosen in Settings, as on the home screen.
+            setImageResource(Logos.picture(Logos.id(a)))
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, LinearLayout.LayoutParams(dp(a, 36f), dp(a, 36f)))
         val names = LinearLayout(a).apply { orientation = LinearLayout.VERTICAL }

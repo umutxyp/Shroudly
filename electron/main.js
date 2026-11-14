@@ -500,6 +500,7 @@ function trayIconPath() {
 /* The logo chosen in Settings, put where a running program can put it: the
  * window's icon (the taskbar follows it on Windows and Linux) and, on macOS,
  * the Dock icon. The classic one on macOS is the app's own icon again. */
+let dockImage = null;   // { id, img }: the Dock picture of the logo in use
 function applyLogo() {
   const id = Logos.chosen(store.get('logo', 'classic'));
   try {
@@ -508,18 +509,68 @@ function applyLogo() {
   try {
     if (process.platform === 'darwin' && app.dock) {
       const own = Logos.file(id, 'dock');
-      const f = own ? logoAssetPath(own) : path.join(process.resourcesPath, 'icon.icns');
-      if (fs.existsSync(f)) { const img = nativeImage.createFromPath(f); if (!img.isEmpty()) app.dock.setIcon(img); }
+      if (!own) {
+        // The classic one: the app's own icon again, at once. Until 2.6.78
+        // icon.icns was loaded for it, which nativeImage cannot read, so the
+        // chosen logo stayed until Shroudly started again. null hands the
+        // Dock back the bundle's icon.
+        app.dock.setIcon(null);
+      } else {
+        if (!dockImage || dockImage.id !== id) dockImage = { id, img: nativeImage.createFromPath(logoAssetPath(own)) };
+        if (!dockImage.img.isEmpty()) app.dock.setIcon(dockImage.img);
+      }
     }
   } catch {}
+  // The notification area and the menu bar show the chosen logo too.
+  try { if (tray && !tray.isDestroyed()) tray.setImage(makeTrayIcon(!!trayLook)); } catch {}
+}
+
+/* macOS gives the Dock the bundle's icon back whenever the app's tile is
+ * made anew: the Dock icon shown again with the window, the app coming to
+ * the front from the menu bar or Spotlight. The chosen logo is put back on
+ * each of those, once at once and once the tile has settled. */
+function reapplyLogoSoon() {
+  if (process.platform !== 'darwin' || Logos.chosen(store.get('logo', 'classic')) === 'classic') return;
+  applyLogo();
+  setTimeout(applyLogo, 400).unref();
+  setTimeout(applyLogo, 1500).unref();
 }
 
 /* The notification area and the menu bar: Shroudly's logo, exactly as at the
  * window's top left, its eye open while protection is on and shut while off
  * (scripts/logo/make-icons.py). @2x/@3x are picked up by themselves; the
  * Windows .ico carries every size a display scale asks for. */
+const trayLogoCache = new Map();
+/* The chosen logo for the tray: its sizes for the screen's scales, and, while
+ * protection is off, at half strength (the classic one shuts its eye). */
+function trayLogo(id, active) {
+  const key = `${id}:${active ? 1 : 0}`;
+  if (trayLogoCache.has(key)) return trayLogoCache.get(key);
+  const own = Logos.file(id, 'window', 'linux');   // the PNG, on every system
+  const big = own ? nativeImage.createFromPath(logoAssetPath(own)) : nativeImage.createEmpty();
+  if (big.isEmpty()) return null;
+  const base = process.platform === 'darwin' ? 18 : process.platform === 'win32' ? 16 : 22;
+  const out = nativeImage.createEmpty();
+  for (const scale of [1, 2]) {
+    const px = base * scale;
+    let img = big.resize({ width: px, height: px, quality: 'best' });
+    if (!active) {
+      const bmp = Buffer.from(img.toBitmap());
+      // Every channel halved: right for premultiplied pixels, and only a
+      // little darker for straight ones.
+      for (let i = 0; i < bmp.length; i++) bmp[i] = bmp[i] >> 1;
+      img = nativeImage.createFromBitmap(bmp, { width: px, height: px });
+    }
+    out.addRepresentation({ scaleFactor: scale, width: px, height: px, buffer: img.toPNG() });
+  }
+  trayLogoCache.set(key, out);
+  return out;
+}
+
 function makeTrayIcon(active = false) {
   try {
+    const id = Logos.chosen(store.get('logo', 'classic'));
+    if (id !== 'classic') { const own = trayLogo(id, active); if (own) return own; }
     const name = `tray-${active ? 'on' : 'off'}.${process.platform === 'win32' ? 'ico' : 'png'}`;
     let img = nativeImage.createFromPath(iconAssetPath(name));
     if (img.isEmpty()) img = nativeImage.createFromPath(trayIconPath());
@@ -896,7 +947,7 @@ function setDockIcon(visible) {
   if (process.platform !== 'darwin' || !app.dock) return Promise.resolve();
   try {
     // The logo chosen in Settings goes on with it: the Dock forgets it when hidden.
-    if (visible) return Promise.resolve(app.dock.show()).then(() => applyLogo()).catch(() => {});
+    if (visible) return Promise.resolve(app.dock.show()).then(() => reapplyLogoSoon()).catch(() => {});
     app.dock.hide();
   } catch {}
   return Promise.resolve();
@@ -1831,6 +1882,10 @@ app.whenReady().then(async () => {
   }
 
   app.on('activate', () => showWindow());
+  // The chosen logo back on the Dock whenever macOS may have made its tile
+  // anew (reapplyLogoSoon).
+  app.on('did-become-active', () => reapplyLogoSoon());
+  app.on('browser-window-focus', () => reapplyLogoSoon());
 });
 
 app.on('window-all-closed', () => { /* keep running in tray */ });

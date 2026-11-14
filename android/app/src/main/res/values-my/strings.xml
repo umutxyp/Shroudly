@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="bypassed">ကျော်ဖြတ်ပြီး</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>
+    <string name="connsAdAllow">ခွင့်ပြုရန်</string>
+    <string name="connsAdStopped">{count} ကြိမ် ရပ်ထားသည်</string>
+    <string name="connsAdsDesc">ကြော်ငြာနှင့် ခြေရာခံစာရင်းက မကြာသေးမီက ရပ်ထားသော အမည်များ။ သင်လိုချင်သော စာမျက်နှာ မပွင့်ပါက ၎င်း၏အမည်ကို ခွင့်ပြုပါ။</string>
+    <string name="connsAdsTitle">ကြော်ငြာပိတ်ခြင်းက ရပ်ထားသည်</string>
     <string name="connsAllow">ခွင့်ပြုရန်</string>
     <string name="connsBlock">ပိတ်ရန်</string>
     <string name="connsBlockName">{host} ကို ပိတ်ရန်</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">မရှိသေးပါ။ ဝဘ်ဆိုက်တစ်ခုဖွင့်ပါက ဤနေရာတွင် ပေါ်ပါမည်။</string>
     <string name="connsOpen">{count} ဖွင့်ထားသည်</string>
     <string name="connsRefused">{count} ကြိမ် ငြင်းထားသည်</string>
-    <string name="connsAdsTitle">ကြော်ငြာပိတ်ခြင်းက ရပ်ထားသည်</string>
-    <string name="connsAdsDesc">ကြော်ငြာနှင့် ခြေရာခံစာရင်းက မကြာသေးမီက ရပ်ထားသော အမည်များ။ သင်လိုချင်သော စာမျက်နှာ မပွင့်ပါက ၎င်း၏အမည်ကို ခွင့်ပြုပါ။</string>
-    <string name="connsAdStopped">{count} ကြိမ် ရပ်ထားသည်</string>
-    <string name="connsAdAllow">ခွင့်ပြုရန်</string>
     <string name="connsRouteServer">ကိုယ်ပိုင်ဆာဗာ</string>
     <string name="connsRouteTechnique">နည်းလမ်း</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">ဤကွန်ရက်တွင် မည်သည့်နည်းလမ်းကမျှ {host} ကို မဖွင့်နိုင်ပါ။ Tor ပါသော Shroudly ဗားရှင်းအပြည့်က ဖွင့်ပေးနိုင်သည်။ ရယူရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="liteOfferTitle">{host} ကို ဤနေရာတွင် ပိတ်ထားဆဲဖြစ်သည်</string>
     <string name="logEntries">မှတ်တမ်း: {count}</string>
+    <string name="logoAccent">အရောင်က အိုင်ကွန်ကို လိုက်သည်</string>
+    <string name="logoAccentDesc">အက်ပ်၏ အရောင်သည် ရွေးထားသော အိုင်ကွန်နှင့် ကိုက်ညီသည်။ အပေါ်က အရောင်ရွေးလျှင် ဤအရာ ပိတ်သည်။</string>
     <string name="logoChoice">လိုဂို</string>
     <string name="logoChoiceDesc">အက်ပ်အတွင်းရှိ Shroudly ၏ လိုဂိုနှင့် စနစ်က ခွင့်ပြုသည့်နေရာတွင် အက်ပ်၏ အိုင်ကွန်။</string>
     <string name="logoCountries">နိုင်ငံများ</string>

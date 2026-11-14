@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} қолданбасы өз серверлеріне қосыла алмайды: бұл желі олардың мекенжайларын бұғаттайды, ал басқа жердегі серверсіз Shroudly мұны айналып өте алмайды. {app} қолданбасының өз прокси баптауын немесе VPN пайдаланыңыз.</string>
     <string name="bypassed">Айналып өтілді</string>
     <string name="connections">Қосылымдар</string>
+    <string name="connsAdAllow">Өткізу</string>
+    <string name="connsAdStopped">{count} рет тоқтатылды</string>
+    <string name="connsAdsDesc">Жарнама мен трекерлер тізімі жақында тоқтатқан атаулар. Керек бет ашылмаса, оның атауын өткізіңіз.</string>
+    <string name="connsAdsTitle">Жарнама бұғаттауы тоқтатты</string>
     <string name="connsAllow">Рұқсат беру</string>
     <string name="connsBlock">Бұғаттау</string>
     <string name="connsBlockName">{host} бұғаттау</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Әзірге ештеңе жоқ. Сайт ашыңыз, ол осында шығады.</string>
     <string name="connsOpen">{count} ашық</string>
     <string name="connsRefused">{count} рет қабылданбады</string>
-    <string name="connsAdsTitle">Жарнама бұғаттауы тоқтатты</string>
-    <string name="connsAdsDesc">Жарнама мен трекерлер тізімі жақында тоқтатқан атаулар. Керек бет ашылмаса, оның атауын өткізіңіз.</string>
-    <string name="connsAdStopped">{count} рет тоқтатылды</string>
-    <string name="connsAdAllow">Өткізу</string>
     <string name="connsRouteServer">өз серверіңіз</string>
     <string name="connsRouteTechnique">әдіс</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Бұл желіде ешбір тәсіл {host} үшін жұмыс істемейді. Shroudly-дің Tor бар толық нұсқасы оны аша алады. Оны алу үшін Shroudly-ді ашыңыз.</string>
     <string name="liteOfferTitle">{host} мұнда бұғатталған күйінде қалады</string>
     <string name="logEntries">Жазбалар: {count}</string>
+    <string name="logoAccent">Түс белгішеге ілессін</string>
+    <string name="logoAccentDesc">Қолданба түсі таңдалған белгішеге сай болады. Жоғарыдан түс таңдасаңыз, бұл өшеді.</string>
     <string name="logoChoice">Логотип</string>
     <string name="logoChoiceDesc">Shroudly-дің қолданба ішіндегі логотипі және, жүйе рұқсат еткен жерде, қолданба белгішесі.</string>
     <string name="logoCountries">Елдер</string>

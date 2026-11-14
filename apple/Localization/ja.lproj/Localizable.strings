@@ -106,6 +106,8 @@
 "logInfo" = "情報";
 "logSuccess" = "成功";
 "logWarning" = "警告";
+"logoAccent" = "色をアイコンに合わせる";
+"logoAccentDesc" = "アプリの色を選んだアイコンに合わせます。上で色を選ぶとオフになります。";
 "logoChoice" = "ロゴ";
 "logoChoiceDesc" = "アプリ内に表示される Shroudly のロゴ。システムが許可する場合はアプリのアイコンも変わります。";
 "logoCountries" = "国";

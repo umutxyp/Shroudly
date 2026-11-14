@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">Sepana {app} nikare bigihîje rajekarên xwe: ev tor navnîşanên wan asteng dike, û Shroudly bêyî rajekarekî li cihekî din nikare vê derbas bike. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="bypassed">Derbaskirî</string>
     <string name="connections">Girêdan</string>
+    <string name="connsAdAllow">Destûr bide</string>
+    <string name="connsAdStopped">{count} car hat rawestandin</string>
+    <string name="connsAdsDesc">Navên ku lîsteya reklam û şopîneran di van demên dawî de rawestandin. Heke rûpelek ku tu dixwazî venebe, destûrê bide navê wê.</string>
+    <string name="connsAdsTitle">Astengkirina reklaman rawestand</string>
     <string name="connsAllow">Destûr bide</string>
     <string name="connsBlock">Asteng bike</string>
     <string name="connsBlockName">{host} asteng bike</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Hîn tiştek tune. Malperekê veke, li vir xuya dibe.</string>
     <string name="connsOpen">{count} vekirî</string>
     <string name="connsRefused">{count} car hat redkirin</string>
-    <string name="connsAdsTitle">Astengkirina reklaman rawestand</string>
-    <string name="connsAdsDesc">Navên ku lîsteya reklam û şopîneran di van demên dawî de rawestandin. Heke rûpelek ku tu dixwazî venebe, destûrê bide navê wê.</string>
-    <string name="connsAdStopped">{count} car hat rawestandin</string>
-    <string name="connsAdAllow">Destûr bide</string>
     <string name="connsRouteServer">servera te</string>
     <string name="connsRouteTechnique">teknîk</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Li ser vê torê tu teknîk {host} venake. Guhertoya tevahî ya Shroudly, bi Tor, dikare wê veke. Ji bo wergirtinê Shroudly veke.</string>
     <string name="liteOfferTitle">{host} li vir hê jî astengkirî ye</string>
     <string name="logEntries">Tomar: {count}</string>
+    <string name="logoAccent">Reng li dû îkonê here</string>
+    <string name="logoAccentDesc">Rengê sepanê li gorî îkona hilbijartî ye. Hilbijartina rengekî li jor vê digire.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Logoya Shroudly di nav sepanê de û, li cihê ku pergal destûrê dide, îkona sepanê.</string>
     <string name="logoCountries">Welat</string>

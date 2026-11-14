@@ -106,6 +106,8 @@
 "logInfo" = "Thông tin";
 "logSuccess" = "Thành công";
 "logWarning" = "Cảnh báo";
+"logoAccent" = "Màu theo biểu tượng";
+"logoAccentDesc" = "Màu của ứng dụng hợp với biểu tượng đã chọn. Chọn một màu ở trên sẽ tắt tùy chọn này.";
 "logoChoice" = "Logo";
 "logoChoiceDesc" = "Logo của Shroudly trong ứng dụng và, ở nơi hệ thống cho phép, biểu tượng của ứng dụng.";
 "logoCountries" = "Quốc gia";

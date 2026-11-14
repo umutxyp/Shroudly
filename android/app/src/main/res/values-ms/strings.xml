@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="bypassed">Dipintas</string>
     <string name="connections">Sambungan</string>
+    <string name="connsAdAllow">Benarkan</string>
+    <string name="connsAdStopped">dihentikan {count} kali</string>
+    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan oleh senarai iklan dan penjejak. Jika halaman yang anda mahu tidak terbuka, benarkan namanya.</string>
+    <string name="connsAdsTitle">Dihentikan oleh sekatan iklan</string>
     <string name="connsAllow">Benarkan</string>
     <string name="connsBlock">Sekat</string>
     <string name="connsBlockName">Sekat {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Belum ada apa-apa. Buka laman dan ia muncul di sini.</string>
     <string name="connsOpen">{count} terbuka</string>
     <string name="connsRefused">{count} ditolak</string>
-    <string name="connsAdsTitle">Dihentikan oleh sekatan iklan</string>
-    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan oleh senarai iklan dan penjejak. Jika halaman yang anda mahu tidak terbuka, benarkan namanya.</string>
-    <string name="connsAdStopped">dihentikan {count} kali</string>
-    <string name="connsAdAllow">Benarkan</string>
     <string name="connsRouteServer">pelayan sendiri</string>
     <string name="connsRouteTechnique">teknik</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Tiada teknik yang membuka {host} di rangkaian ini. Shroudly versi penuh, dengan Tor, boleh membukanya. Buka Shroudly untuk mendapatkannya.</string>
     <string name="liteOfferTitle">{host} masih disekat di sini</string>
     <string name="logEntries">Catatan: {count}</string>
+    <string name="logoAccent">Warna ikut ikon</string>
+    <string name="logoAccentDesc">Warna aplikasi sepadan dengan ikon yang dipilih. Memilih warna di atas mematikan ini.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Logo Shroudly di dalam aplikasi dan, jika sistem membenarkan, ikon aplikasinya.</string>
     <string name="logoCountries">Negara</string>

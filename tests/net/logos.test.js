@@ -50,9 +50,23 @@ t.ok(Logos.file('classic', 'window') === null && Logos.file('tr', 'window', 'win
   'the classic one keeps the files the app ships; another has its own for the window and the Dock');
 
 const main = read('electron', 'main.js');
-t.ok(/if \(key === 'logo'\) applyLogo\(\);/.test(main) && /mainWindow\.setIcon\(trayIconPath\(\)\)/.test(main) && /app\.dock\.setIcon\(img\)/.test(main),
+t.ok(/if \(key === 'logo'\) applyLogo\(\);/.test(main) && /mainWindow\.setIcon\(trayIconPath\(\)\)/.test(main) && /app\.dock\.setIcon\(dockImage\.img\)/.test(main),
   'a choice goes on the window, the taskbar and the Dock at once');
-t.ok(/app\.dock\.show\(\)\)\.then\(\(\) => applyLogo\(\)\)/.test(main), 'and back on the Dock each time it shows');
+t.ok(/app\.dock\.setIcon\(null\)/.test(main) && !/'icon\.icns'/.test(main.slice(main.indexOf('function applyLogo'), main.indexOf('function reapplyLogoSoon'))),
+  'the classic one hands the Dock the app\'s own icon at once (icon.icns, which nativeImage cannot read, left it until a restart)');
+t.ok(/app\.dock\.show\(\)\)\.then\(\(\) => reapplyLogoSoon\(\)\)/.test(main) && /'did-become-active', \(\) => reapplyLogoSoon\(\)/.test(main),
+  'and back on the Dock each time it shows or the app comes to the front');
+t.ok(/tray\.setImage\(makeTrayIcon\(!!trayLook\)\)/.test(main) && /function trayLogo\(/.test(main), 'the tray and the menu bar show the chosen logo too, dimmed while off');
+
+// "Colour follows the icon": one table on every system.
+const accentOf = (src, re) => { const o = {}; for (const m of src.matchAll(re)) o[m[1]] = m[2]; return o; };
+const js = accentOf(read('components', 'Appearance.js').split('LOGO_ACCENT = {')[1].split('};')[0], /'?(\w+)'?: '(\w+)'/g);
+const kt = accentOf(read('android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'Accent.kt').split('LOGO_ACCENT = mapOf(')[1].split(')\n')[0], /"(\w+)" to "(\w+)"/g);
+const sw = accentOf(read('apple', 'App', 'Accent.swift').split('logoAccent: [String: String] = [')[1].split(']')[0], /"(\w+)": "(\w+)"/g);
+t.ok(Logos.IDS.every((id) => js[id] && js[id] === kt[id] && js[id] === sw[id]), 'every logo has its accent, the same on the desktop, Android and the Apple apps');
+const cp = read('components', 'ControlPanel.js');
+t.ok(/logoSrc\(logo\)/.test(cp) && /power-logo/.test(cp), 'the power button shows the chosen logo');
+t.ok(/Logos\.picture\(Logos\.id\(a\)\)/.test(read('android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'Chrome.kt')), 'Android\'s header shows the chosen logo');
 const pkg = JSON.parse(read('package.json'));
 t.ok(pkg.build.extraResources.some((x) => x && x.from === 'logos' && x.to === 'logos'), 'the files ship with the app');
 

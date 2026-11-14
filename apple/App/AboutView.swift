@@ -4,6 +4,8 @@ import SwiftUI
  * "Share logs". As in the Google Play copy, the source code is linked, not
  * the downloads of other platforms. */
 struct AboutView: View {
+    // The logo chosen in Settings.
+    @AppStorage(Logos.key) private var logo = "classic"
     static let notices = Bundle.main.url(forResource: "Notices", withExtension: "txt")
         .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
 
@@ -20,7 +22,7 @@ struct AboutView: View {
             // Apple TV shows it beside the list (TVPage).
             Section {
                 HStack(spacing: 14) {
-                    Image("Logo")
+                    Image(Logos.picture(logo))
                         .resizable()
                         .frame(width: 56, height: 56)
                         .clipShape(RoundedRectangle(cornerRadius: 12))

@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} tidak dapat menjangkau servernya: jaringan ini memblokir alamat server tersebut, dan Shroudly tidak dapat menembusnya tanpa server di tempat lain. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
     <string name="bypassed">Ditembus</string>
     <string name="connections">Koneksi</string>
+    <string name="connsAdAllow">Loloskan</string>
+    <string name="connsAdStopped">dihentikan {count} kali</string>
+    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan daftar iklan dan pelacak. Jika halaman yang kamu mau tidak terbuka, loloskan namanya.</string>
+    <string name="connsAdsTitle">Dihentikan pemblokir iklan</string>
     <string name="connsAllow">Izinkan</string>
     <string name="connsBlock">Blokir</string>
     <string name="connsBlockName">Blokir {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Belum ada. Buka sebuah situs dan ia muncul di sini.</string>
     <string name="connsOpen">{count} terbuka</string>
     <string name="connsRefused">{count} ditolak</string>
-    <string name="connsAdsTitle">Dihentikan pemblokir iklan</string>
-    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan daftar iklan dan pelacak. Jika halaman yang kamu mau tidak terbuka, loloskan namanya.</string>
-    <string name="connsAdStopped">dihentikan {count} kali</string>
-    <string name="connsAdAllow">Loloskan</string>
     <string name="connsRouteServer">server sendiri</string>
     <string name="connsRouteTechnique">teknik</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly versi lengkap, dengan Tor, bisa membukanya. Buka Shroudly untuk mendapatkannya.</string>
     <string name="liteOfferTitle">{host} tetap diblokir di sini</string>
     <string name="logEntries">Entri: {count}</string>
+    <string name="logoAccent">Warna mengikuti ikon</string>
+    <string name="logoAccentDesc">Warna aplikasi menyesuaikan ikon yang dipilih. Memilih warna di atas mematikan ini.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Logo Shroudly di dalam aplikasi dan, jika sistem mengizinkan, ikon aplikasinya.</string>
     <string name="logoCountries">Negara</string>

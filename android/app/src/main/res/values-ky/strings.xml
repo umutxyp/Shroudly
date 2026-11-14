@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} колдонмосу өз серверлерине туташа албайт: бул тармак алардын даректерин бөгөттөйт, ал эми башка жердеги серверсиз Shroudly муну айланып өтө албайт. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="bypassed">Айланып өтүлдү</string>
     <string name="connections">Туташуулар</string>
+    <string name="connsAdAllow">Өткөрүү</string>
+    <string name="connsAdStopped">{count} жолу токтотулду</string>
+    <string name="connsAdsDesc">Жарнама жана трекерлер тизмеси жакында токтоткон аттар. Керектүү барак ачылбаса, анын атын өткөрүңүз.</string>
+    <string name="connsAdsTitle">Жарнама бөгөтү токтотту</string>
     <string name="connsAllow">Уруксат берүү</string>
     <string name="connsBlock">Бөгөттөө</string>
     <string name="connsBlockName">{host} бөгөттөө</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Азырынча эч нерсе жок. Сайт ачыңыз, ал бул жерде чыгат.</string>
     <string name="connsOpen">{count} ачык</string>
     <string name="connsRefused">{count} жолу четке кагылды</string>
-    <string name="connsAdsTitle">Жарнама бөгөтү токтотту</string>
-    <string name="connsAdsDesc">Жарнама жана трекерлер тизмеси жакында токтоткон аттар. Керектүү барак ачылбаса, анын атын өткөрүңүз.</string>
-    <string name="connsAdStopped">{count} жолу токтотулду</string>
-    <string name="connsAdAllow">Өткөрүү</string>
     <string name="connsRouteServer">өз сервериңиз</string>
     <string name="connsRouteTechnique">ыкма</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Бул тармакта эч бир ыкма {host} үчүн иштебейт. Shroudly\'дин Tor бар толук версиясы аны ача алат. Аны алуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="liteOfferTitle">{host} бул жерде бөгөттөлгөн бойдон калууда</string>
     <string name="logEntries">Жазуулар: {count}</string>
+    <string name="logoAccent">Түс сөлөкөткө ылайыкташсын</string>
+    <string name="logoAccentDesc">Колдонмонун түсү тандалган сөлөкөткө туура келет. Жогорудан түс тандасаңыз, бул өчөт.</string>
     <string name="logoChoice">Логотип</string>
     <string name="logoChoiceDesc">Shroudly\'нин колдонмонун ичиндеги логотиби жана, тутум уруксат берген жерде, колдонмонун сүрөтчөсү.</string>
     <string name="logoCountries">Өлкөлөр</string>

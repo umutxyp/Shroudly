@@ -106,6 +106,8 @@
 "logInfo" = "معلومات";
 "logSuccess" = "بریا";
 "logWarning" = "خبرداری";
+"logoAccent" = "رنګ د نښې پسې ولاړ شي";
+"logoAccentDesc" = "د اپ رنګ له ټاکل شوې نښې سره سمون خوري. پورته د رنګ ټاکل دا بندوي.";
 "logoChoice" = "لوګو";
 "logoChoiceDesc" = "د اپ دننه د Shroudly لوګو او، چېرته چې سیسټم اجازه ورکوي، د اپ آیکون.";
 "logoCountries" = "هېوادونه";

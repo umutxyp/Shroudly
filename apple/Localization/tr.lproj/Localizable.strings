@@ -106,6 +106,8 @@
 "logInfo" = "Bilgi";
 "logSuccess" = "Başarılı";
 "logWarning" = "Uyarı";
+"logoAccent" = "Renk ikonu takip etsin";
+"logoAccentDesc" = "Uygulamanın rengi seçilen ikona uyar. Yukarıdan bir renk seçersen bu kapanır.";
 "logoChoice" = "Logo";
 "logoChoiceDesc" = "Shroudly'nin uygulama içindeki logosu ve, sistemin izin verdiği yerde, uygulamanın simgesi.";
 "logoCountries" = "Ülkeler";

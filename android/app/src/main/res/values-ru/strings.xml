@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">Приложение {app} не может связаться со своими серверами: эта сеть блокирует их адреса, и без сервера в другом месте Shroudly не может это обойти. Используйте настройку прокси в самом приложении {app} или VPN.</string>
     <string name="bypassed">Обойдено</string>
     <string name="connections">Подключения</string>
+    <string name="connsAdAllow">Пропустить</string>
+    <string name="connsAdStopped">остановлено {count} раз</string>
+    <string name="connsAdsDesc">Имена, которые недавно остановил список рекламы и трекеров. Если нужная страница не открывается, пропустите её имя.</string>
+    <string name="connsAdsTitle">Остановлено блокировкой рекламы</string>
     <string name="connsAllow">Разрешить</string>
     <string name="connsBlock">Заблокировать</string>
     <string name="connsBlockName">Заблокировать {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Пока ничего. Откройте сайт, и он появится здесь.</string>
     <string name="connsOpen">открыто: {count}</string>
     <string name="connsRefused">отклонено: {count}</string>
-    <string name="connsAdsTitle">Остановлено блокировкой рекламы</string>
-    <string name="connsAdsDesc">Имена, которые недавно остановил список рекламы и трекеров. Если нужная страница не открывается, пропустите её имя.</string>
-    <string name="connsAdStopped">остановлено {count} раз</string>
-    <string name="connsAdAllow">Пропустить</string>
     <string name="connsRouteServer">свой сервер</string>
     <string name="connsRouteTechnique">техника</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Ни один способ не открывает {host} в этой сети. Полная версия Shroudly с Tor может его открыть. Откройте Shroudly, чтобы её получить.</string>
     <string name="liteOfferTitle">{host} здесь остаётся заблокированным</string>
     <string name="logEntries">Записей: {count}</string>
+    <string name="logoAccent">Цвет по значку</string>
+    <string name="logoAccentDesc">Цвет приложения подстраивается под выбранный значок. Выбор цвета выше отключает это.</string>
     <string name="logoChoice">Логотип</string>
     <string name="logoChoiceDesc">Логотип Shroudly в приложении и, где система это позволяет, значок приложения.</string>
     <string name="logoCountries">Страны</string>

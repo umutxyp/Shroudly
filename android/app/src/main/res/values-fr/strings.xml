@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">L’application {app} ne parvient pas à joindre ses serveurs : ce réseau bloque leurs adresses, et Shroudly ne peut pas contourner cela sans un serveur situé ailleurs. Utilisez le réglage proxy intégré à {app} ou un VPN.</string>
     <string name="bypassed">Contournées</string>
     <string name="connections">Connexions</string>
+    <string name="connsAdAllow">Laisser passer</string>
+    <string name="connsAdStopped">arrêté {count} fois</string>
+    <string name="connsAdsDesc">Noms que la liste de pubs et de traqueurs a arrêtés récemment. Si une page voulue ne s\'ouvre pas, laissez passer son nom.</string>
+    <string name="connsAdsTitle">Arrêté par le blocage des pubs</string>
     <string name="connsAllow">Autoriser</string>
     <string name="connsBlock">Bloquer</string>
     <string name="connsBlockName">Bloquer {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Rien pour l\'instant. Ouvre un site et il apparaîtra ici.</string>
     <string name="connsOpen">{count} ouvertes</string>
     <string name="connsRefused">{count} refusées</string>
-    <string name="connsAdsTitle">Arrêté par le blocage des pubs</string>
-    <string name="connsAdsDesc">Noms que la liste de pubs et de traqueurs a arrêtés récemment. Si une page voulue ne s\'ouvre pas, laissez passer son nom.</string>
-    <string name="connsAdStopped">arrêté {count} fois</string>
-    <string name="connsAdAllow">Laisser passer</string>
     <string name="connsRouteServer">ton serveur</string>
     <string name="connsRouteTechnique">méthode</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Aucune technique n\'ouvre {host} sur ce réseau. La version complète de Shroudly, avec Tor, peut l\'ouvrir. Ouvre Shroudly pour l\'obtenir.</string>
     <string name="liteOfferTitle">{host} reste bloqué ici</string>
     <string name="logEntries">Entrées : {count}</string>
+    <string name="logoAccent">La couleur suit l\'icône</string>
+    <string name="logoAccentDesc">La couleur de l\'app s\'accorde à l\'icône choisie. Choisir une couleur ci-dessus désactive cela.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Le logo de Shroudly dans l’appli et, là où le système le permet, son icône.</string>
     <string name="logoCountries">Pays</string>

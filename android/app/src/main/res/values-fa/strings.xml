@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">برنامهٔ {app} نمی‌تواند به سرورهایش برسد: این شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
     <string name="bypassed">دورزده‌شده</string>
     <string name="connections">اتصال‌ها</string>
+    <string name="connsAdAllow">اجازه بده</string>
+    <string name="connsAdStopped">{count} بار متوقف شد</string>
+    <string name="connsAdsDesc">نام‌هایی که فهرست تبلیغات و ردیاب‌ها اخیراً متوقف کرده است. اگر صفحه‌ای که می‌خواهید باز نمی‌شود، به نامش اجازه دهید.</string>
+    <string name="connsAdsTitle">متوقف‌شده با مسدودساز تبلیغات</string>
     <string name="connsAllow">اجازه بده</string>
     <string name="connsBlock">مسدود کن</string>
     <string name="connsBlockName">مسدود کردن {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">هنوز چیزی نیست. سایتی باز کن تا اینجا دیده شود.</string>
     <string name="connsOpen">{count} باز</string>
     <string name="connsRefused">{count} بار رد شد</string>
-    <string name="connsAdsTitle">متوقف‌شده با مسدودساز تبلیغات</string>
-    <string name="connsAdsDesc">نام‌هایی که فهرست تبلیغات و ردیاب‌ها اخیراً متوقف کرده است. اگر صفحه‌ای که می‌خواهید باز نمی‌شود، به نامش اجازه دهید.</string>
-    <string name="connsAdStopped">{count} بار متوقف شد</string>
-    <string name="connsAdAllow">اجازه بده</string>
     <string name="connsRouteServer">سرور خودت</string>
     <string name="connsRouteTechnique">روش</string>
     <string name="connsRouteTor">تور</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">هیچ روشی {host} را در این شبکه باز نمی‌کند. نسخهٔ کامل Shroudly که Tor دارد می‌تواند آن را باز کند. برای دریافتش Shroudly را باز کنید.</string>
     <string name="liteOfferTitle">{host} اینجا همچنان مسدود است</string>
     <string name="logEntries">موارد: {count}</string>
+    <string name="logoAccent">رنگ از نماد پیروی کند</string>
+    <string name="logoAccentDesc">رنگ برنامه با نماد انتخاب‌شده هماهنگ می‌شود. انتخاب یک رنگ در بالا این را خاموش می‌کند.</string>
     <string name="logoChoice">لوگو</string>
     <string name="logoChoiceDesc">لوگوی Shroudly در داخل برنامه و، هر جا سیستم اجازه دهد، نماد برنامه.</string>
     <string name="logoCountries">کشورها</string>

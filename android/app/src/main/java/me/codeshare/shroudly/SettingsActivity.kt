@@ -428,7 +428,9 @@ class SettingsActivity : Activity() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    if (o.id == Accent.id(this@SettingsActivity)) return@setOnClickListener
+                    if (o.id == Accent.id(this@SettingsActivity) && !Accent.followsLogo(this@SettingsActivity)) return@setOnClickListener
+                    // A colour picked by hand: the icon's no longer followed.
+                    Accent.setFollowsLogo(this@SettingsActivity, false)
                     Accent.set(this@SettingsActivity, o.id)
                     recreate()
                 }
@@ -493,11 +495,24 @@ class SettingsActivity : Activity() {
                     setOnClickListener {
                         if (id == Logos.id(this@SettingsActivity)) return@setOnClickListener
                         Logos.set(this@SettingsActivity, id)
-                        showLogos()
+                        // Its colour too, while the colour follows the icon.
+                        if (Accent.followsLogo(this@SettingsActivity)) recreate() else showLogos()
                     }
                 })
             }
         }
+        // "Colour follows the icon": the app's accent is the logo's.
+        box.addView(Switch(this).apply {
+            text = titled(getString(R.string.logoAccent), getString(R.string.logoAccentDesc))
+            textSize = 15f
+            setTextColor(getColor(R.color.text))
+            isChecked = Accent.followsLogo(this@SettingsActivity)
+            setPadding(0, gap, 0, gap)
+            setOnCheckedChangeListener { _, on ->
+                Accent.setFollowsLogo(this@SettingsActivity, on)
+                recreate()
+            }
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
     /* VPN or proxy only, each with what it means. A change while protection

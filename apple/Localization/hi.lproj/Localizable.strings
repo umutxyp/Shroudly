@@ -106,6 +106,8 @@
 "logInfo" = "जानकारी";
 "logSuccess" = "सफल";
 "logWarning" = "चेतावनी";
+"logoAccent" = "रंग आइकन के अनुसार";
+"logoAccentDesc" = "ऐप का रंग चुने गए आइकन से मेल खाता है। ऊपर कोई रंग चुनने पर यह बंद हो जाता है।";
 "logoChoice" = "लोगो";
 "logoChoiceDesc" = "ऐप के अंदर Shroudly का लोगो और, जहाँ सिस्टम अनुमति देता है, ऐप का आइकन।";
 "logoCountries" = "देश";

@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">لا يستطيع تطبيق {app} الوصول إلى خوادمه: هذه الشبكة تحجب عناوينها، ولا يستطيع Shroudly تجاوز ذلك دون خادم في مكان آخر. استخدم إعداد الوكيل الخاص بتطبيق {app} أو VPN.</string>
     <string name="bypassed">تم تجاوزها</string>
     <string name="connections">الاتصالات</string>
+    <string name="connsAdAllow">اسمح بالمرور</string>
+    <string name="connsAdStopped">أُوقف {count} مرة</string>
+    <string name="connsAdsDesc">الأسماء التي أوقفتها قائمة الإعلانات والمتتبعات مؤخرًا. إن لم تُفتح صفحة تريدها، اسمح باسمها.</string>
+    <string name="connsAdsTitle">أوقفه حظر الإعلانات</string>
     <string name="connsAllow">سماح</string>
     <string name="connsBlock">حظر</string>
     <string name="connsBlockName">حظر {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">لا شيء بعد. افتح موقعًا وسيظهر هنا.</string>
     <string name="connsOpen">{count} مفتوح</string>
     <string name="connsRefused">رُفض {count} مرة</string>
-    <string name="connsAdsTitle">أوقفه حظر الإعلانات</string>
-    <string name="connsAdsDesc">الأسماء التي أوقفتها قائمة الإعلانات والمتتبعات مؤخرًا. إن لم تُفتح صفحة تريدها، اسمح باسمها.</string>
-    <string name="connsAdStopped">أُوقف {count} مرة</string>
-    <string name="connsAdAllow">اسمح بالمرور</string>
     <string name="connsRouteServer">خادمك الخاص</string>
     <string name="connsRouteTechnique">تقنية</string>
     <string name="connsRouteTor">تور</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">لا تفتح أي تقنية {host} على هذه الشبكة. يمكن لنسخة Shroudly الكاملة، المزوّدة بـ Tor، فتحه. افتح Shroudly للحصول عليها.</string>
     <string name="liteOfferTitle">{host} لا يزال محجوبًا هنا</string>
     <string name="logEntries">الإدخالات: {count}</string>
+    <string name="logoAccent">اللون يتبع الأيقونة</string>
+    <string name="logoAccentDesc">يطابق لون التطبيق الأيقونة المختارة. اختيار لون في الأعلى يوقف هذا.</string>
     <string name="logoChoice">الشعار</string>
     <string name="logoChoiceDesc">شعار Shroudly داخل التطبيق، وأيقونة التطبيق حيث يسمح النظام بذلك.</string>
     <string name="logoCountries">البلدان</string>

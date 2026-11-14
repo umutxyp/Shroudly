@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="bypassed">Đã vượt chặn</string>
     <string name="connections">Kết nối</string>
+    <string name="connsAdAllow">Cho qua</string>
+    <string name="connsAdStopped">bị dừng {count} lần</string>
+    <string name="connsAdsDesc">Các tên mà danh sách quảng cáo và trình theo dõi vừa chặn. Nếu trang bạn muốn không mở, hãy cho tên đó đi qua.</string>
+    <string name="connsAdsTitle">Bị chặn quảng cáo dừng</string>
     <string name="connsAllow">Cho phép</string>
     <string name="connsBlock">Chặn</string>
     <string name="connsBlockName">Chặn {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Chưa có gì. Mở một trang và nó sẽ hiện ở đây.</string>
     <string name="connsOpen">{count} đang mở</string>
     <string name="connsRefused">đã từ chối {count}</string>
-    <string name="connsAdsTitle">Bị chặn quảng cáo dừng</string>
-    <string name="connsAdsDesc">Các tên mà danh sách quảng cáo và trình theo dõi vừa chặn. Nếu trang bạn muốn không mở, hãy cho tên đó đi qua.</string>
-    <string name="connsAdStopped">bị dừng {count} lần</string>
-    <string name="connsAdAllow">Cho qua</string>
     <string name="connsRouteServer">máy chủ riêng</string>
     <string name="connsRouteTechnique">kỹ thuật</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Không kỹ thuật nào mở được {host} trên mạng này. Bản đầy đủ của Shroudly, có Tor, có thể mở nó. Mở Shroudly để tải bản đó.</string>
     <string name="liteOfferTitle">{host} vẫn bị chặn ở đây</string>
     <string name="logEntries">Số mục: {count}</string>
+    <string name="logoAccent">Màu theo biểu tượng</string>
+    <string name="logoAccentDesc">Màu của ứng dụng hợp với biểu tượng đã chọn. Chọn một màu ở trên sẽ tắt tùy chọn này.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Logo của Shroudly trong ứng dụng và, ở nơi hệ thống cho phép, biểu tượng của ứng dụng.</string>
     <string name="logoCountries">Quốc gia</string>

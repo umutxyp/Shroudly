@@ -106,6 +106,8 @@
 "logInfo" = "信息";
 "logSuccess" = "成功";
 "logWarning" = "警告";
+"logoAccent" = "颜色跟随图标";
+"logoAccentDesc" = "应用颜色与所选图标相配。在上方选择颜色会关闭此项。";
 "logoChoice" = "标志";
 "logoChoiceDesc" = "Shroudly 在应用内显示的标志；在系统允许的地方，应用图标也会随之更改。";
 "logoCountries" = "国家";

@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { exitWithPlace } from './exitPlace';
-import { ACCENTS, LOGO_GROUPS, LOGO_IDS, applyAppearance, chooseLogo, logoSrc, readAppearance, useLogo } from './Appearance';
+import { ACCENTS, LOGO_ACCENT, LOGO_GROUPS, LOGO_IDS, applyAppearance, chooseLogo, logoSrc, readAppearance, readLogoAccent, setLogoAccent, useLogo } from './Appearance';
 import {
   AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
   SpinnerIcon, XCircleIcon, ZapIcon,
@@ -667,7 +667,8 @@ export default function SettingsPanel({ active = false }) {
   const [allowText, setAllowText] = useState(null);  // ad blocking exceptions draft
   const [look, setLook] = useState({ accent: 'sky', surface: 'solid' });
 
-  useEffect(() => { setLook(readAppearance()); }, []);
+  const [logoAccent, setLogoAccentOn] = useState(false);
+  useEffect(() => { setLook(readAppearance()); setLogoAccentOn(readLogoAccent()); }, []);
   const setAppearance = (next) => { const v = { ...look, ...next }; setLook(v); applyAppearance(v); };
   const logo = useLogo();
 
@@ -1225,7 +1226,7 @@ export default function SettingsPanel({ active = false }) {
           {settings.routeMode === 'listed' && (
             <div className="mt-3">
               <div className="mb-1.5 flex items-center justify-between gap-2">
-                <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
+                <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListOwn')}</span>
               </div>
               <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
                 {t('siteListAuto', {
@@ -1386,6 +1387,7 @@ export default function SettingsPanel({ active = false }) {
                       if (!window.confirm(t('resetSettingsConfirm'))) return;
                       // The colours and Liquid glass live in the window, not in
                       // the settings file: back to a new install's too.
+                      setLogoAccent(false); setLogoAccentOn(false);
                       setAppearance({ accent: 'sky', surface: 'solid' });
                       chooseLogo('classic', false);
                       window.electron?.resetSettings?.();
@@ -1409,14 +1411,15 @@ export default function SettingsPanel({ active = false }) {
               narrow widths, which read as a layout accident. */}
           <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
             {ACCENTS.map((a, i) => {
-              const on = look.accent === a.id;
+              // Following the icon: its colour is the one marked.
+              const on = (logoAccent ? (LOGO_ACCENT[logo] || 'sky') : look.accent) === a.id;
               return (
                 <button
                   key={a.id}
                   type="button"
                   aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
                   aria-pressed={on}
-                  onClick={() => setAppearance({ accent: a.id })}
+                  onClick={() => { if (logoAccent) { setLogoAccent(false); setLogoAccentOn(false); } setAppearance({ accent: a.id }); }}
                   className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
                   style={{
                     background: a.swatch,
@@ -1463,6 +1466,15 @@ export default function SettingsPanel({ active = false }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
+            <Toggle
+              label={t('logoAccent')}
+              desc={t('logoAccentDesc')}
+              checked={logoAccent}
+              onChange={(v) => { setLogoAccent(v); setLogoAccentOn(v); }}
+            />
           </div>
 
           <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>

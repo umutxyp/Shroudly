@@ -106,6 +106,8 @@
 "logInfo" = "מידע";
 "logSuccess" = "הצלחה";
 "logWarning" = "אזהרה";
+"logoAccent" = "הצבע עוקב אחרי הסמל";
+"logoAccentDesc" = "צבע האפליקציה מתאים לסמל שנבחר. בחירת צבע למעלה מכבה את זה.";
 "logoChoice" = "לוגו";
 "logoChoiceDesc" = "הלוגו של Shroudly בתוך האפליקציה, וסמל האפליקציה היכן שהמערכת מאפשרת.";
 "logoCountries" = "מדינות";

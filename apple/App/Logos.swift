@@ -26,6 +26,13 @@ enum Logos {
 
     static var current: String { chosen(UserDefaults.standard.string(forKey: key)) }
 
+    /* The picture of logo `id` inside the app (its header, About): the
+     * classic one is the app's own "Logo". */
+    static func picture(_ id: String?) -> String {
+        let v = chosen(id)
+        return v == "classic" ? "Logo" : "LogoPick-\(v)"
+    }
+
     /* Kept, and put where the system lets it go. */
     static func choose(_ id: String) {
         let v = chosen(id)
@@ -49,6 +56,7 @@ enum Logos {
 /* Settings: the three groups, each a grid of pictures, the chosen one ringed. */
 struct LogoPicker: View {
     @AppStorage(Logos.key) private var logo = "classic"
+    @AppStorage(Accent.followKey) private var follows = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -78,6 +86,13 @@ struct LogoPicker: View {
                         .accessibilityLabel(tr("logoSwatch", ["n": "\(Logos.ids.firstIndex(of: id)! + 1)", "total": "\(Logos.ids.count)"]))
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
+                }
+            }
+            // "Colour follows the icon": the app's accent is the logo's.
+            Toggle(isOn: $follows) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(tr("logoAccent"))
+                    Text(tr("logoAccentDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 }
             }
         }

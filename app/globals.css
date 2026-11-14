@@ -367,6 +367,9 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
 .power-mark-open { opacity: 0; }
 .power-shield:not([data-look='off']) .power-mark-open { opacity: 1; }
 .power-shield:not([data-look='off']) .power-mark-closed { opacity: 0; }
+/* Another logo chosen: the logo itself, dimmed and greyed while off. */
+.power-logo { transition: opacity 0.5s ease, filter 0.5s ease; }
+.power-shield[data-look='off'] .power-logo { opacity: 0.5; filter: grayscale(0.7) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
 .power-turn {
   width: calc(var(--shield) + 8px); height: calc(var(--shield) + 8px);
   border: 2px solid transparent; border-top-color: var(--tint);

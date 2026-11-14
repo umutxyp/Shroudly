@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የፕሮክሲ ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="bypassed">የታለፉ</string>
     <string name="connections">ግንኙነቶች</string>
+    <string name="connsAdAllow">ፍቀድ</string>
+    <string name="connsAdStopped">{count} ጊዜ ቆሟል</string>
+    <string name="connsAdsDesc">የማስታወቂያ እና መከታተያ ዝርዝር በቅርቡ ያቆማቸው ስሞች። የሚፈልጉት ገጽ ካልተከፈተ ስሙን ይፍቀዱ።</string>
+    <string name="connsAdsTitle">በማስታወቂያ ማገጃ ቆሟል</string>
     <string name="connsAllow">ፍቀድ</string>
     <string name="connsBlock">አግድ</string>
     <string name="connsBlockName">{host}ን አግድ</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">ገና ምንም የለም። ድረ ገጽ ይክፈቱ እዚህ ይታያል።</string>
     <string name="connsOpen">{count} ክፍት</string>
     <string name="connsRefused">{count} ጊዜ ተከልክሏል</string>
-    <string name="connsAdsTitle">በማስታወቂያ ማገጃ ቆሟል</string>
-    <string name="connsAdsDesc">የማስታወቂያ እና መከታተያ ዝርዝር በቅርቡ ያቆማቸው ስሞች። የሚፈልጉት ገጽ ካልተከፈተ ስሙን ይፍቀዱ።</string>
-    <string name="connsAdStopped">{count} ጊዜ ቆሟል</string>
-    <string name="connsAdAllow">ፍቀድ</string>
     <string name="connsRouteServer">የራስዎ አገልጋይ</string>
     <string name="connsRouteTechnique">ዘዴ</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አይከፍትም። Tor ያለው የShroudly ሙሉ ስሪት ሊከፍተው ይችላል። ለማግኘት Shroudlyን ይክፈቱ።</string>
     <string name="liteOfferTitle">{host} እዚህ እንደታገደ ነው</string>
     <string name="logEntries">ግቤቶች: {count}</string>
+    <string name="logoAccent">ቀለሙ አዶውን ይከተል</string>
+    <string name="logoAccentDesc">የመተግበሪያው ቀለም ከተመረጠው አዶ ጋር ይስማማል። ከላይ ቀለም መምረጥ ይህን ያጠፋል።</string>
     <string name="logoChoice">አርማ</string>
     <string name="logoChoiceDesc">በመተግበሪያው ውስጥ ያለው የShroudly አርማ እና፣ ሲስተሙ በሚፈቅድበት ቦታ፣ የመተግበሪያው አዶ።</string>
     <string name="logoCountries">አገሮች</string>

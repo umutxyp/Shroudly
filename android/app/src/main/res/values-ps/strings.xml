@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="bypassed">خلاص شوي</string>
     <string name="connections">اړیکې</string>
+    <string name="connsAdAllow">پرېږده</string>
+    <string name="connsAdStopped">{count} ځله ودرول شو</string>
+    <string name="connsAdsDesc">هغه نومونه چې د اعلانونو او تعقیبوونکو لیست پدې وروستیو کې ودرول. که کومه پاڼه چې غواړئ نه پرانیستل کیږي، نوم یې پرېږدئ.</string>
+    <string name="connsAdsTitle">د اعلانونو بندیز ودراوه</string>
     <string name="connsAllow">اجازه</string>
     <string name="connsBlock">بندول</string>
     <string name="connsBlockName">{host} بندول</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">تر اوسه هېڅ نشته. یو سایټ پرانیزئ، دلته به ښکاره شي.</string>
     <string name="connsOpen">{count} پرانیستي</string>
     <string name="connsRefused">{count} ځله رد شو</string>
-    <string name="connsAdsTitle">د اعلانونو بندیز ودراوه</string>
-    <string name="connsAdsDesc">هغه نومونه چې د اعلانونو او تعقیبوونکو لیست پدې وروستیو کې ودرول. که کومه پاڼه چې غواړئ نه پرانیستل کیږي، نوم یې پرېږدئ.</string>
-    <string name="connsAdStopped">{count} ځله ودرول شو</string>
-    <string name="connsAdAllow">پرېږده</string>
     <string name="connsRouteServer">ستاسو خپل سرور</string>
     <string name="connsRouteTechnique">تخنیک</string>
     <string name="connsRouteTor">ټور</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">په دې شبکه کې هېڅ تخنیک {host} نه پرانیزي. د Shroudly بشپړه نسخه، له Tor سره، کولی شي هغه پرانیزي. د ترلاسه کولو لپاره Shroudly پرانیزئ.</string>
     <string name="liteOfferTitle">{host} دلته لا هم بند دی</string>
     <string name="logEntries">ثبتونه: {count}</string>
+    <string name="logoAccent">رنګ د نښې پسې ولاړ شي</string>
+    <string name="logoAccentDesc">د اپ رنګ له ټاکل شوې نښې سره سمون خوري. پورته د رنګ ټاکل دا بندوي.</string>
     <string name="logoChoice">لوګو</string>
     <string name="logoChoiceDesc">د اپ دننه د Shroudly لوګو او، چېرته چې سیسټم اجازه ورکوي، د اپ آیکون.</string>
     <string name="logoCountries">هېوادونه</string>

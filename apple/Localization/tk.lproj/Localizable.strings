@@ -106,6 +106,8 @@
 "logInfo" = "Maglumat";
 "logSuccess" = "Üstünlik";
 "logWarning" = "Duýduryş";
+"logoAccent" = "Reňk nyşana eýersin";
+"logoAccentDesc" = "Programmanyň reňki saýlanan nyşana laýyk gelýär. Ýokardan reňk saýlasaň, bu öçýär.";
 "logoChoice" = "Logotip";
 "logoChoiceDesc" = "Shroudly-niň programmanyň içindäki logotipi we, ulgam rugsat berýän ýerinde, programmanyň nyşany.";
 "logoCountries" = "Ýurtlar";
