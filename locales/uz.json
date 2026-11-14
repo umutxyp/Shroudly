@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} App Store'da. Iltimos, hozir yangilang: yangi bloklarga qarshi tuzatishlar faqat eng yangi versiyaga keladi. Shu orada himoya yoniq qoladi.",
   "appleUpdateOpen": "Yangilash",
   "appleMoveTitle": "Shroudly App Store'da",
-  "appleMoveBody": "Yangilanishlarni App Store'dan avtomatik oling: Shroudly'ni o'sha yerdan o'rnating, so'ng bu nusxani o'chiring. O'zgartirgan sozlamalaringiz boshidan boshlanadi."
+  "appleMoveBody": "Yangilanishlarni App Store'dan avtomatik oling: Shroudly'ni o'sha yerdan o'rnating, so'ng bu nusxani o'chiring. O'zgartirgan sozlamalaringiz boshidan boshlanadi.",
+  "autoTorOff": "Bu tarmoqda hech bir usul {host}ni ochmaydi: oxirgi yo'l (Tor) kerak, u esa Sozlamalarda o'chirilgan. Uni o'sha yerda yoqing yoki o'z serveringizni qo'shing."
 }

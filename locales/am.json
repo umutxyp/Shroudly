@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} በApp Store ላይ አለ። እባክዎ አሁን ያዘምኑ፤ ለአዲስ እገዳዎች የሚሆኑ ጥገናዎች የሚደርሱት ለአዲሱ ስሪት ብቻ ነው። እስከዚያው ጥበቃው እንደበራ ይቆያል።",
   "appleUpdateOpen": "አዘምን",
   "appleMoveTitle": "Shroudly በApp Store ላይ አለ",
-  "appleMoveBody": "ዝማኔዎችን ከApp Store በራስ-ሰር ያግኙ፦ Shroudlyን ከዚያ ይጫኑ፣ ከዚያ ይህን ቅጂ ይሰርዙ። የቀየሯቸው ቅንብሮች እንደ አዲስ ይጀምራሉ።"
+  "appleMoveBody": "ዝማኔዎችን ከApp Store በራስ-ሰር ያግኙ፦ Shroudlyን ከዚያ ይጫኑ፣ ከዚያ ይህን ቅጂ ይሰርዙ። የቀየሯቸው ቅንብሮች እንደ አዲስ ይጀምራሉ።",
+  "autoTorOff": "በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አይከፍትም፦ የመጨረሻውን መውጫ (Tor) ይፈልጋል፣ እሱ ደግሞ በቅንብሮች ውስጥ ጠፍቷል። እዚያ ያብሩት ወይም የራስዎን አገልጋይ ያክሉ።"
 }

@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} li App Store e. Ji kerema xwe niha nû bike: çareserên ji bo astengiyên nû tenê digihîjin guhertoya herî nû. Parastin di vê navberê de vekirî dimîne.",
   "appleUpdateOpen": "Nû bike",
   "appleMoveTitle": "Shroudly li App Store e",
-  "appleMoveBody": "Nûkirinan bixweber ji App Store bistîne: Shroudly ji wir saz bike, paşê vê kopiyê jê bibe. Mîhengên ku te guhertine ji nû ve dest pê dikin."
+  "appleMoveBody": "Nûkirinan bixweber ji App Store bistîne: Shroudly ji wir saz bike, paşê vê kopiyê jê bibe. Mîhengên ku te guhertine ji nû ve dest pê dikin.",
+  "autoTorOff": "Li ser vê torê tu teknîk {host} venake: riya dawî (Tor) pêwîst e, ku di Mîhengan de girtî ye. Li wir veke an servera xwe zêde bike."
 }

@@ -35,8 +35,11 @@ object TorAsk {
      * for ever: a user in Iran who had said no once saw X and YouTube stay
      * shut, and nothing said that Tor was the one way left. A site no
      * technique opens asks again after REST_MS (the same card; "No" rests
-     * again). Not in the lite APK (LiteOffer), nor with an own server. */
-    const val REST_MS = 7 * 24 * 60 * 60 * 1000L
+     * again). Not in the lite APK (LiteOffer), nor with an own server. A
+     * day, not a week: another Iran user turned Tor off, YouTube and
+     * Instagram stayed dead for days, and nothing was said (since 2.6.75
+     * Tor carries only what nothing else opens, so saying yes costs little). */
+    const val REST_MS = 24 * 60 * 60 * 1000L
     private const val KEY_REST = "torAskRest"
 
     /* Whether a "no" is old enough to ask again (pure, for the tests): one

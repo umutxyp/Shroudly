@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} App Store'da. Lütfen şimdi güncelle: yeni engellere karşı düzeltmeler yalnızca en yeni sürüme gelir. Koruma bu arada açık kalır.",
   "appleUpdateOpen": "Güncelle",
   "appleMoveTitle": "Shroudly App Store'da",
-  "appleMoveBody": "Güncellemeleri App Store'dan kendiliğinden al: Shroudly'yi oradan yükle, sonra bu kopyayı sil. Değiştirdiğin ayarlar sıfırdan başlar."
+  "appleMoveBody": "Güncellemeleri App Store'dan kendiliğinden al: Shroudly'yi oradan yükle, sonra bu kopyayı sil. Değiştirdiğin ayarlar sıfırdan başlar.",
+  "autoTorOff": "{host} bu ağda hiçbir teknikle açılmıyor: son çıkış yolu (Tor) gerekiyor ve Ayarlar'da kapalı. Oradan aç ya da kendi sunucunu ekle."
 }

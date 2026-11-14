@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} App Store-dadır. Zəhmət olmasa indi yenilə: yeni bloklara qarşı düzəlişlər yalnız ən yeni versiyaya gəlir. Bu arada qoruma açıq qalır.",
   "appleUpdateOpen": "Yenilə",
   "appleMoveTitle": "Shroudly App Store-dadır",
-  "appleMoveBody": "Yeniləmələri App Store-dan avtomatik al: Shroudly-ni oradan quraşdır, sonra bu nüsxəni sil. Dəyişdirdiyin ayarlar yenidən başlayır."
+  "appleMoveBody": "Yeniləmələri App Store-dan avtomatik al: Shroudly-ni oradan quraşdır, sonra bu nüsxəni sil. Dəyişdirdiyin ayarlar yenidən başlayır.",
+  "autoTorOff": "Bu şəbəkədə heç bir texnika {host} saytını açmır: son çıxış yolu (Tor) lazımdır, o isə Ayarlarda söndürülüb. Oradan aç və ya öz serverini əlavə et."
 }

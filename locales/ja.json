@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} が App Store にあります。今すぐアップデートしてください。新しいブロックへの対策は最新バージョンにのみ届きます。その間も保護はオンのままです。",
   "appleUpdateOpen": "アップデート",
   "appleMoveTitle": "Shroudly は App Store にあります",
-  "appleMoveBody": "App Store からアップデートを自動で受け取れます。そこから Shroudly をインストールし、このコピーを削除してください。変更した設定は最初からになります。"
+  "appleMoveBody": "App Store からアップデートを自動で受け取れます。そこから Shroudly をインストールし、このコピーを削除してください。変更した設定は最初からになります。",
+  "autoTorOff": "このネットワークでは、どの手法でも {host} を開けません。最後の手段（Tor）が必要ですが、設定でオフになっています。設定でオンにするか、自分のサーバーを追加してください。"
 }

@@ -1344,8 +1344,10 @@ class ShroudlyVpnService : VpnService() {
         if (ev.raw && (ev.kind == "blocked" || ev.kind == "unreachable")) { onRaw(ev); return }
         // The lite APK, a site the full one would take to Tor (LiteOffer).
         if (!ev.raw && LiteOffer.lite && LiteOffer.wants(ev.kind, ev.alert, ev.stage)) LiteOffer.offer(this, ev.host)
-        // The full APK with the last way out turned off: asked again, now and then (TorAsk.askAgain).
-        if (!ev.raw && !LiteOffer.lite && ev.kind == "blocked" && LiteOffer.wants(ev.kind, ev.alert, ev.stage)) TorAsk.askAgain(this, ev.host)
+        // The full APK with the last way out turned off: asked again, now and then (TorAsk.askAgain),
+        // for every site Tor would have carried: still blocked after every technique, cut each
+        // time, or with no address that answers (YouTube and Instagram in Iran are the last kind).
+        if (!ev.raw && !LiteOffer.lite && LiteOffer.wants(ev.kind, ev.alert, ev.stage)) TorAsk.askAgain(this, ev.host)
         val key = "${ev.kind} ${ev.host}"
         val first = synchronized(told) {
             if (told.size > 400) told.clear()

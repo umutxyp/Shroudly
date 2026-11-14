@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} 已在 App Store 上架。请立即更新：针对新封锁的修复只会进入最新版本。更新前保护仍保持开启。",
   "appleUpdateOpen": "更新",
   "appleMoveTitle": "Shroudly 已在 App Store 上架",
-  "appleMoveBody": "从 App Store 自动获取更新：从那里安装 Shroudly，然后删除此副本。你更改过的设置将重新开始。"
+  "appleMoveBody": "从 App Store 自动获取更新：从那里安装 Shroudly，然后删除此副本。你更改过的设置将重新开始。",
+  "autoTorOff": "在此网络上没有任何技术能打开 {host}：它需要最后的出路（Tor），而 Tor 已在设置中关闭。请在设置中打开，或添加你自己的服务器。"
 }
