@@ -414,6 +414,12 @@ function uninstallerScript() {
     }
     if (shown) {
       check(shown.appContainer && shown.sid === sidOurs && StoreApps.openSigns([shown]).has(sidOurs), 'a program with a window in an app container is a sign of a Store app in use, by its own token');
+      // The programs read from their tokens, as Shroudly reads them, without
+      // the cheap look first: the lab's program has no package, so tasklist
+      // /apps never lists it, and on a runner with no packaged program at all
+      // (windows-11-arm's image since November 2026) that look said "none"
+      // and the tokens were never read. A real Store app is in a package.
+      ap.processes = async () => procsNow();
     } else {
       ap.runningApps = async () => new Set([sidOurs]);
     }
