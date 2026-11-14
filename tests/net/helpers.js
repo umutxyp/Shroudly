@@ -35,9 +35,15 @@ function startEngine(port, extra = []) {
     eng.stats = async () => {
       const before = eng.out.length;
       p.stdin.write('STATS\n');
-      await sleep(300);
-      const line = eng.out.slice(before).split('\n').find((l) => l.includes('"stats"'));
-      return line ? JSON.parse(line) : null;
+      // The answer is waited for, not assumed after a fixed pause: on a slow
+      // runner (macOS Intel in CI) it could come after 300 ms and the test
+      // then read "no stats" although the engine had counted everything.
+      for (let waited = 0; waited < 3000; waited += 100) {
+        await sleep(100);
+        const line = eng.out.slice(before).split('\n').find((l) => l.includes('"stats"') && l.trim().endsWith('}'));
+        if (line) return JSON.parse(line);
+      }
+      return null;
     };
     eng.stop = () => { try { p.stdin.end(); } catch {} try { p.kill(); } catch {} };
   });
