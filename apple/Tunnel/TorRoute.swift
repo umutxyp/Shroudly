@@ -61,7 +61,8 @@ enum TorNotice {
      * opens asks again after `restFor` (the same card; "No" rests again);
      * one said before this version (no time kept) asks at the next such site. */
     static let restKey = "torAskRest"
-    static let restFor: TimeInterval = 7 * 24 * 60 * 60
+    // A day, not a week (an Iran report: Tor turned off, YouTube dead for days, nothing said).
+    static let restFor: TimeInterval = 24 * 60 * 60
 
     static func restOver(restAt: TimeInterval, now: TimeInterval) -> Bool {
         restAt == 0 || now - restAt < 0 || now - restAt >= restFor

@@ -202,7 +202,7 @@ final class TunnelController: ObservableObject {
             try? session.sendProviderMessage(Data(ProviderMessage.torYes.rawValue.utf8)) { _ in }
         } else {
             AppGroup.defaults.set(false, forKey: "torApproved")
-            AppGroup.defaults.set(Date().timeIntervalSince1970, forKey: "torAskRest") // TorNotice.restKey: asked again after a week
+            AppGroup.defaults.set(Date().timeIntervalSince1970, forKey: "torAskRest") // TorNotice.restKey: asked again after a day
             let store = SettingsStore()
             let old = store.load()
             var new = old
