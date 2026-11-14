@@ -106,6 +106,8 @@
 "logInfo" = "መረጃ";
 "logSuccess" = "ስኬት";
 "logWarning" = "ማስጠንቀቂያ";
+"logoAccent" = "ቀለሙ አዶውን ይከተል";
+"logoAccentDesc" = "የመተግበሪያው ቀለም ከተመረጠው አዶ ጋር ይስማማል። ከላይ ቀለም መምረጥ ይህን ያጠፋል።";
 "logoChoice" = "አርማ";
 "logoChoiceDesc" = "በመተግበሪያው ውስጥ ያለው የShroudly አርማ እና፣ ሲስተሙ በሚፈቅድበት ቦታ፣ የመተግበሪያው አዶ።";
 "logoCountries" = "አገሮች";

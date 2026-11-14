@@ -106,6 +106,8 @@
 "logInfo" = "Info";
 "logSuccess" = "Success";
 "logWarning" = "Warning";
+"logoAccent" = "Colour follows the icon";
+"logoAccentDesc" = "The app's colour matches the chosen icon. Picking a colour above turns this off.";
 "logoChoice" = "Logo";
 "logoChoiceDesc" = "Shroudly's logo inside the app and, where the system allows it, the app's icon.";
 "logoCountries" = "Countries";

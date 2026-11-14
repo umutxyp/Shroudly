@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} เข้าถึงเซิร์ฟเวอร์ของตัวเองไม่ได้: เครือข่ายนี้บล็อกที่อยู่ของเซิร์ฟเวอร์เหล่านั้น และ Shroudly เลี่ยงสิ่งนี้ไม่ได้หากไม่มีเซิร์ฟเวอร์ที่อยู่ที่อื่น ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="bypassed">เลี่ยงการบล็อกแล้ว</string>
     <string name="connections">การเชื่อมต่อ</string>
+    <string name="connsAdAllow">ให้ผ่าน</string>
+    <string name="connsAdStopped">หยุดไว้ {count} ครั้ง</string>
+    <string name="connsAdsDesc">ชื่อที่รายการโฆษณาและตัวติดตามหยุดไว้เมื่อเร็ว ๆ นี้ ถ้าหน้าที่คุณต้องการไม่เปิด ให้ชื่อนั้นผ่าน</string>
+    <string name="connsAdsTitle">ถูกตัวบล็อกโฆษณาหยุดไว้</string>
     <string name="connsAllow">อนุญาต</string>
     <string name="connsBlock">บล็อก</string>
     <string name="connsBlockName">บล็อก {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">ยังไม่มีอะไร เปิดเว็บไซต์แล้วจะแสดงที่นี่</string>
     <string name="connsOpen">เปิดอยู่ {count}</string>
     <string name="connsRefused">ปฏิเสธ {count} ครั้ง</string>
-    <string name="connsAdsTitle">ถูกตัวบล็อกโฆษณาหยุดไว้</string>
-    <string name="connsAdsDesc">ชื่อที่รายการโฆษณาและตัวติดตามหยุดไว้เมื่อเร็ว ๆ นี้ ถ้าหน้าที่คุณต้องการไม่เปิด ให้ชื่อนั้นผ่าน</string>
-    <string name="connsAdStopped">หยุดไว้ {count} ครั้ง</string>
-    <string name="connsAdAllow">ให้ผ่าน</string>
     <string name="connsRouteServer">เซิร์ฟเวอร์ของคุณ</string>
     <string name="connsRouteTechnique">เทคนิค</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly รุ่นเต็มที่มี Tor เปิดได้ เปิด Shroudly เพื่อรับรุ่นเต็ม</string>
     <string name="liteOfferTitle">{host} ยังถูกบล็อกอยู่ที่นี่</string>
     <string name="logEntries">รายการ: {count}</string>
+    <string name="logoAccent">สีตามไอคอน</string>
+    <string name="logoAccentDesc">สีของแอปจะเข้ากับไอคอนที่เลือก การเลือกสีด้านบนจะปิดตัวเลือกนี้</string>
     <string name="logoChoice">โลโก้</string>
     <string name="logoChoiceDesc">โลโก้ของ Shroudly ภายในแอป และไอคอนของแอปในที่ที่ระบบอนุญาต</string>
     <string name="logoCountries">ประเทศ</string>

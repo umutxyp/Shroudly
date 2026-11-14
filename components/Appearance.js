@@ -35,6 +35,25 @@ export const LOGO_GROUPS = [
   ['countries', ['tr', 'ir', 'ru', 'cn', 'pk', 'az', 'kz', 'eg', 'vn']],
 ];
 export const LOGO_IDS = LOGO_GROUPS.flatMap(([, ids]) => ids);
+/* The accent each logo matches, for "Colour follows the icon": the accent
+ * nearest the logo's main colour (measured from public/logos; the same
+ * table in android Accent.kt and apple Accent.swift). */
+export const LOGO_ACCENT = {
+  classic: 'sky', flat: 'sky', line: 'sky', paper: 'sky', 'key': 'amber', veil: 'violet', terminal: 'emerald', night: 'teal', coral: 'rose',
+  newyear: 'emerald', halloween: 'amber', valentine: 'rose', spring: 'emerald', ramadan: 'amber', winter: 'sky',
+  tr: 'rose', ir: 'rose', ru: 'sky', cn: 'rose', pk: 'emerald', az: 'rose', kz: 'teal', eg: 'rose', vn: 'rose',
+};
+const LOGO_ACCENT_KEY = 'shroudly_logo_accent';
+export function readLogoAccent() {
+  try { return localStorage.getItem(LOGO_ACCENT_KEY) === '1'; } catch { return false; }
+}
+/* On: the window's colour is the logo's, whatever accent is picked (kept,
+ * and back once it is off). */
+export function setLogoAccent(on) {
+  try { localStorage.setItem(LOGO_ACCENT_KEY, on ? '1' : '0'); } catch {}
+  try { window.electron?.setSetting?.('logoAccent', !!on); } catch {}
+  applyAppearance(readAppearance());
+}
 const LOGO_KEY = 'shroudly_logo';
 const LOGO_EVENT = 'shroudly:logo';
 
@@ -54,6 +73,7 @@ export function chooseLogo(id, save = true) {
   try { localStorage.setItem(LOGO_KEY, v); } catch {}
   try { window.dispatchEvent(new CustomEvent(LOGO_EVENT, { detail: v })); } catch {}
   if (save) { try { window.electron?.setSetting?.('logo', v); } catch {} }
+  if (readLogoAccent()) applyAppearance(readAppearance());
 }
 
 /* The logo in use, for whatever shows it; follows a choice made anywhere in
@@ -91,8 +111,11 @@ export function readAppearance() {
 
 export function applyAppearance({ accent, surface }) {
   const el = document.documentElement;
+  // "Colour follows the icon": the logo's accent on screen, the one picked
+  // kept for when it is turned off.
+  const shown = readLogoAccent() ? (LOGO_ACCENT[readLogo()] || 'sky') : accent;
   // The default needs no attribute at all, so the base tokens apply untouched.
-  if (accent && accent !== 'sky') el.setAttribute('data-accent', accent);
+  if (shown && shown !== 'sky') el.setAttribute('data-accent', shown);
   else el.removeAttribute('data-accent');
   if (surface === 'glass') el.setAttribute('data-surface', 'glass');
   else el.removeAttribute('data-surface');

@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}\'s own proxy setting or a VPN.</string>
     <string name="bypassed">Bypassed</string>
     <string name="connections">Connections</string>
+    <string name="connsAdAllow">Let through</string>
+    <string name="connsAdStopped">stopped {count} times</string>
+    <string name="connsAdsDesc">Names the ad and tracker list stopped lately. If a page you want does not open, let its name through.</string>
+    <string name="connsAdsTitle">Stopped by ad blocking</string>
     <string name="connsAllow">Allow</string>
     <string name="connsBlock">Block</string>
     <string name="connsBlockName">Block {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Nothing yet. Open a site and it shows up here.</string>
     <string name="connsOpen">{count} open</string>
     <string name="connsRefused">{count} refused</string>
-    <string name="connsAdsTitle">Stopped by ad blocking</string>
-    <string name="connsAdsDesc">Names the ad and tracker list stopped lately. If a page you want does not open, let its name through.</string>
-    <string name="connsAdStopped">stopped {count} times</string>
-    <string name="connsAdAllow">Let through</string>
     <string name="connsRouteServer">own server</string>
     <string name="connsRouteTechnique">technique</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">No technique opens {host} on this network. Shroudly\'s full version, with Tor, can open it. Open Shroudly to get it.</string>
     <string name="liteOfferTitle">{host} stays blocked here</string>
     <string name="logEntries">Entries: {count}</string>
+    <string name="logoAccent">Colour follows the icon</string>
+    <string name="logoAccentDesc">The app\'s colour matches the chosen icon. Picking a colour above turns this off.</string>
     <string name="logoChoice">Logo</string>
     <string name="logoChoiceDesc">Shroudly\'s logo inside the app and, where the system allows it, the app\'s icon.</string>
     <string name="logoCountries">Countries</string>

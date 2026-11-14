@@ -106,6 +106,8 @@
 "logInfo" = "Məlumat";
 "logSuccess" = "Uğurlu";
 "logWarning" = "Xəbərdarlıq";
+"logoAccent" = "Rəng ikonu izləsin";
+"logoAccentDesc" = "Tətbiqin rəngi seçilmiş ikona uyğunlaşır. Yuxarıdan rəng seçsən, bu söndürülür.";
 "logoChoice" = "Loqo";
 "logoChoiceDesc" = "Shroudly-nin tətbiq daxilindəki loqosu və, sistemin icazə verdiyi yerdə, tətbiqin nişanı.";
 "logoCountries" = "Ölkələr";

@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">Праграма {app} не можа звязацца са сваімі серверамі: гэтая сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="bypassed">Абыдзена</string>
     <string name="connections">Злучэнні</string>
+    <string name="connsAdAllow">Прапусціць</string>
+    <string name="connsAdStopped">спынена {count} разоў</string>
+    <string name="connsAdsDesc">Імёны, якія нядаўна спыніў спіс рэкламы і трэкераў. Калі патрэбная старонка не адкрываецца, прапусціце яе імя.</string>
+    <string name="connsAdsTitle">Спынена блакаваннем рэкламы</string>
     <string name="connsAllow">Дазволіць</string>
     <string name="connsBlock">Заблакіраваць</string>
     <string name="connsBlockName">Заблакіраваць {host}</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Пакуль нічога. Адкрыйце сайт, і ён з\'явіцца тут.</string>
     <string name="connsOpen">адкрыта: {count}</string>
     <string name="connsRefused">адхілена: {count}</string>
-    <string name="connsAdsTitle">Спынена блакаваннем рэкламы</string>
-    <string name="connsAdsDesc">Імёны, якія нядаўна спыніў спіс рэкламы і трэкераў. Калі патрэбная старонка не адкрываецца, прапусціце яе імя.</string>
-    <string name="connsAdStopped">спынена {count} разоў</string>
-    <string name="connsAdAllow">Прапусціць</string>
     <string name="connsRouteServer">свой сервер</string>
     <string name="connsRouteTechnique">тэхніка</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Ніводны спосаб не адкрывае {host} у гэтай сетцы. Поўная версія Shroudly з Tor можа яго адкрыць. Адкрыйце Shroudly, каб атрымаць яе.</string>
     <string name="liteOfferTitle">{host} тут застаецца заблакаваным</string>
     <string name="logEntries">Запісаў: {count}</string>
+    <string name="logoAccent">Колер паводле значка</string>
+    <string name="logoAccentDesc">Колер праграмы адпавядае абранаму значку. Выбар колеру вышэй выключае гэта.</string>
     <string name="logoChoice">Лагатып</string>
     <string name="logoChoiceDesc">Лагатып Shroudly у праграме і, дзе сістэма гэта дазваляе, яе значок.</string>
     <string name="logoCountries">Краіны</string>

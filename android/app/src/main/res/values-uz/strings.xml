@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="bypassed">Chetlab oʻtilgan</string>
     <string name="connections">Ulanishlar</string>
+    <string name="connsAdAllow">O\'tkazish</string>
+    <string name="connsAdStopped">{count} marta to\'xtatildi</string>
+    <string name="connsAdsDesc">Reklama va kuzatuvchilar ro\'yxati yaqinda to\'xtatgan nomlar. Kerakli sahifa ochilmasa, uning nomini o\'tkazing.</string>
+    <string name="connsAdsTitle">Reklama bloklash to\'xtatdi</string>
     <string name="connsAllow">Ruxsat berish</string>
     <string name="connsBlock">Bloklash</string>
     <string name="connsBlockName">{host} bloklash</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Hozircha hech narsa yo\'q. Sayt oching, u shu yerda chiqadi.</string>
     <string name="connsOpen">{count} ochiq</string>
     <string name="connsRefused">{count} marta rad etildi</string>
-    <string name="connsAdsTitle">Reklama bloklash to\'xtatdi</string>
-    <string name="connsAdsDesc">Reklama va kuzatuvchilar ro\'yxati yaqinda to\'xtatgan nomlar. Kerakli sahifa ochilmasa, uning nomini o\'tkazing.</string>
-    <string name="connsAdStopped">{count} marta to\'xtatildi</string>
-    <string name="connsAdAllow">O\'tkazish</string>
     <string name="connsRouteServer">o\'z serveringiz</string>
     <string name="connsRouteTechnique">usul</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Bu tarmoqda hech bir usul {host} uchun ishlamayapti. Shroudly\'ning Tor bilan to\'liq versiyasi uni ocha oladi. Uni olish uchun Shroudly\'ni oching.</string>
     <string name="liteOfferTitle">{host} bu yerda bloklangan holda qolmoqda</string>
     <string name="logEntries">Yozuvlar: {count}</string>
+    <string name="logoAccent">Rang belgiga moslashsin</string>
+    <string name="logoAccentDesc">Ilova rangi tanlangan belgiga mos bo\'ladi. Yuqoridan rang tanlasangiz, bu o\'chadi.</string>
     <string name="logoChoice">Logotip</string>
     <string name="logoChoiceDesc">Shroudly’ning ilova ichidagi logotipi va, tizim ruxsat bergan joyda, ilova belgisi.</string>
     <string name="logoCountries">Mamlakatlar</string>

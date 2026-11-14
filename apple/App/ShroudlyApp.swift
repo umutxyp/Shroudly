@@ -29,6 +29,8 @@ struct ShroudlyApp: App {
 
     // The accent chosen in Settings: the whole app follows it at once.
     @AppStorage(Accent.key) private var accent = Accent.defaultId
+    @AppStorage(Accent.followKey) private var accentFollows = false
+    @AppStorage(Logos.key) private var logo = "classic"
 
     var body: some Scene {
         #if os(macOS)
@@ -53,7 +55,7 @@ struct ShroudlyApp: App {
         screen
             .environmentObject(controller)
             .preferredColorScheme(.dark)
-            .tint(Accent.color(accent))
+            .tint(Accent.color(Accent.effective(accent, follows: accentFollows, logo: logo)))
             .task {
                 #if os(macOS)
                 // The logo chosen in Settings, on the Dock (it forgets it when the app quits).

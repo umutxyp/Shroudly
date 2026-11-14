@@ -106,6 +106,8 @@
 "logInfo" = "Informasi";
 "logSuccess" = "Berhasil";
 "logWarning" = "Peringatan";
+"logoAccent" = "Warna mengikuti ikon";
+"logoAccentDesc" = "Warna aplikasi menyesuaikan ikon yang dipilih. Memilih warna di atas mematikan ini.";
 "logoChoice" = "Logo";
 "logoChoiceDesc" = "Logo Shroudly di dalam aplikasi dan, jika sistem mengizinkan, ikon aplikasinya.";
 "logoCountries" = "Negara";

@@ -106,6 +106,8 @@
 "logInfo" = "তথ্য";
 "logSuccess" = "সফল";
 "logWarning" = "সতর্কতা";
+"logoAccent" = "রং আইকন অনুসরণ করুক";
+"logoAccentDesc" = "অ্যাপের রং বেছে নেওয়া আইকনের সঙ্গে মেলে। ওপরে একটি রং বাছলে এটি বন্ধ হয়।";
 "logoChoice" = "লোগো";
 "logoChoiceDesc" = "অ্যাপের ভেতরে Shroudly-র লোগো এবং, সিস্টেম যেখানে অনুমতি দেয়, অ্যাপের আইকন।";
 "logoCountries" = "দেশ";

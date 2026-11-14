@@ -106,6 +106,8 @@
 "logInfo" = "Agahî";
 "logSuccess" = "Serkeftin";
 "logWarning" = "Hişyarî";
+"logoAccent" = "Reng li dû îkonê here";
+"logoAccentDesc" = "Rengê sepanê li gorî îkona hilbijartî ye. Hilbijartina rengekî li jor vê digire.";
 "logoChoice" = "Logo";
 "logoChoiceDesc" = "Logoya Shroudly di nav sepanê de û, li cihê ku pergal destûrê dide, îkona sepanê.";
 "logoCountries" = "Welat";

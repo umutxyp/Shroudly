@@ -36,6 +36,9 @@ struct ContentView: View {
     #endif
     // Read so the switch takes a new accent at once.
     @AppStorage(Accent.key) private var accentId = Accent.defaultId
+    @AppStorage(Accent.followKey) private var accentFollows = false
+    // The logo chosen in Settings, in the header.
+    @AppStorage(Logos.key) private var logo = "classic"
 
     var body: some View {
         layout
@@ -275,7 +278,7 @@ struct ContentView: View {
     /* The logo, the name and the tagline, and whether it is on. */
     private var header: some View {
         HStack(spacing: 12) {
-            Image("Logo")
+            Image(Logos.picture(logo))
                 .resizable()
                 .scaledToFit()
                 .frame(width: 34, height: 34)

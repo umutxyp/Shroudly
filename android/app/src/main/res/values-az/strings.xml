@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="bypassed">Yan keçilən</string>
     <string name="connections">Bağlantılar</string>
+    <string name="connsAdAllow">İcazə ver</string>
+    <string name="connsAdStopped">{count} dəfə dayandırıldı</string>
+    <string name="connsAdsDesc">Reklam və izləyici siyahısının son dayandırdığı adlar. İstədiyin səhifə açılmırsa, adına icazə ver.</string>
+    <string name="connsAdsTitle">Reklam bloklaması dayandırdı</string>
     <string name="connsAllow">İcazə ver</string>
     <string name="connsBlock">Blokla</string>
     <string name="connsBlockName">{host} blokla</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">Hələ heç nə yoxdur. Bir sayt aç, burada görünəcək.</string>
     <string name="connsOpen">{count} açıq</string>
     <string name="connsRefused">{count} dəfə rədd edildi</string>
-    <string name="connsAdsTitle">Reklam bloklaması dayandırdı</string>
-    <string name="connsAdsDesc">Reklam və izləyici siyahısının son dayandırdığı adlar. İstədiyin səhifə açılmırsa, adına icazə ver.</string>
-    <string name="connsAdStopped">{count} dəfə dayandırıldı</string>
-    <string name="connsAdAllow">İcazə ver</string>
     <string name="connsRouteServer">öz serverin</string>
     <string name="connsRouteTechnique">texnika</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">Bu şəbəkədə heç bir texnika {host} üçün işləmir. Shroudly-nin Tor-lu tam versiyası onu aça bilər. Onu almaq üçün Shroudly-ni aç.</string>
     <string name="liteOfferTitle">{host} burada bloklanmış qalır</string>
     <string name="logEntries">Qeydlər: {count}</string>
+    <string name="logoAccent">Rəng ikonu izləsin</string>
+    <string name="logoAccentDesc">Tətbiqin rəngi seçilmiş ikona uyğunlaşır. Yuxarıdan rəng seçsən, bu söndürülür.</string>
     <string name="logoChoice">Loqo</string>
     <string name="logoChoiceDesc">Shroudly-nin tətbiq daxilindəki loqosu və, sistemin icazə verdiyi yerdə, tətbiqin nişanı.</string>
     <string name="logoCountries">Ölkələr</string>

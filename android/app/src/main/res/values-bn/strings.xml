@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} তার সার্ভারে পৌঁছাতে পারছে না: এই নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর অন্য কোথাও থাকা কোনো সার্ভার ছাড়া Shroudly এটি পার হতে পারে না। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।</string>
     <string name="bypassed">বাইপাসকৃত</string>
     <string name="connections">সংযোগ</string>
+    <string name="connsAdAllow">যেতে দিন</string>
+    <string name="connsAdStopped">{count} বার থামানো হয়েছে</string>
+    <string name="connsAdsDesc">যে নামগুলো বিজ্ঞাপন ও ট্র্যাকার তালিকা সম্প্রতি থামিয়েছে। আপনার চাওয়া পাতা না খুললে তার নামটি যেতে দিন।</string>
+    <string name="connsAdsTitle">বিজ্ঞাপন ব্লকিং থামিয়েছে</string>
     <string name="connsAllow">অনুমতি দিন</string>
     <string name="connsBlock">ব্লক করুন</string>
     <string name="connsBlockName">{host} ব্লক করুন</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">এখনও কিছু নেই। একটি সাইট খুলুন, এখানে দেখা যাবে।</string>
     <string name="connsOpen">{count} খোলা</string>
     <string name="connsRefused">{count} বার প্রত্যাখ্যাত</string>
-    <string name="connsAdsTitle">বিজ্ঞাপন ব্লকিং থামিয়েছে</string>
-    <string name="connsAdsDesc">যে নামগুলো বিজ্ঞাপন ও ট্র্যাকার তালিকা সম্প্রতি থামিয়েছে। আপনার চাওয়া পাতা না খুললে তার নামটি যেতে দিন।</string>
-    <string name="connsAdStopped">{count} বার থামানো হয়েছে</string>
-    <string name="connsAdAllow">যেতে দিন</string>
     <string name="connsRouteServer">আপনার নিজের সার্ভার</string>
     <string name="connsRouteTechnique">কৌশল</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">এই নেটওয়ার্কে কোনো কৌশলই {host} খুলতে পারছে না। Tor সহ Shroudly-র পূর্ণ সংস্করণ এটি খুলতে পারে। সেটি পেতে Shroudly খুলুন।</string>
     <string name="liteOfferTitle">{host} এখানে ব্লকই থেকে যাচ্ছে</string>
     <string name="logEntries">এন্ট্রি: {count}</string>
+    <string name="logoAccent">রং আইকন অনুসরণ করুক</string>
+    <string name="logoAccentDesc">অ্যাপের রং বেছে নেওয়া আইকনের সঙ্গে মেলে। ওপরে একটি রং বাছলে এটি বন্ধ হয়।</string>
     <string name="logoChoice">লোগো</string>
     <string name="logoChoiceDesc">অ্যাপের ভেতরে Shroudly-র লোগো এবং, সিস্টেম যেখানে অনুমতি দেয়, অ্যাপের আইকন।</string>
     <string name="logoCountries">দেশ</string>

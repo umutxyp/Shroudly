@@ -106,6 +106,8 @@
 "logInfo" = "Maʼlumot";
 "logSuccess" = "Muvaffaqiyat";
 "logWarning" = "Ogohlantirish";
+"logoAccent" = "Rang belgiga moslashsin";
+"logoAccentDesc" = "Ilova rangi tanlangan belgiga mos bo'ladi. Yuqoridan rang tanlasangiz, bu o'chadi.";
 "logoChoice" = "Logotip";
 "logoChoiceDesc" = "Shroudly’ning ilova ichidagi logotipi va, tizim ruxsat bergan joyda, ilova belgisi.";
 "logoCountries" = "Mamlakatlar";

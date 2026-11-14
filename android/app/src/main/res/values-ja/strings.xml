@@ -111,6 +111,10 @@
     <string name="autoRawUnreachable">{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="bypassed">バイパス済み</string>
     <string name="connections">接続</string>
+    <string name="connsAdAllow">通す</string>
+    <string name="connsAdStopped">{count} 回止めました</string>
+    <string name="connsAdsDesc">広告・トラッカーのリストが最近止めた名前です。見たいページが開かないときは、その名前を通してください。</string>
+    <string name="connsAdsTitle">広告ブロックで止めた名前</string>
     <string name="connsAllow">許可</string>
     <string name="connsBlock">ブロック</string>
     <string name="connsBlockName">{host} をブロック</string>
@@ -119,10 +123,6 @@
     <string name="connsEmpty">まだありません。サイトを開くとここに表示されます。</string>
     <string name="connsOpen">{count} 件接続中</string>
     <string name="connsRefused">{count} 回拒否</string>
-    <string name="connsAdsTitle">広告ブロックで止めた名前</string>
-    <string name="connsAdsDesc">広告・トラッカーのリストが最近止めた名前です。見たいページが開かないときは、その名前を通してください。</string>
-    <string name="connsAdStopped">{count} 回止めました</string>
-    <string name="connsAdAllow">通す</string>
     <string name="connsRouteServer">自分のサーバー</string>
     <string name="connsRouteTechnique">手法</string>
     <string name="connsRouteTor">Tor</string>
@@ -194,6 +194,8 @@
     <string name="liteOfferNotice">このネットワークでは、どの手法でも {host} を開けません。Tor を含む Shroudly の完全版なら開けます。Shroudly を開いて入手してください。</string>
     <string name="liteOfferTitle">{host} はここでブロックされたままです</string>
     <string name="logEntries">項目数：{count}</string>
+    <string name="logoAccent">色をアイコンに合わせる</string>
+    <string name="logoAccentDesc">アプリの色を選んだアイコンに合わせます。上で色を選ぶとオフになります。</string>
     <string name="logoChoice">ロゴ</string>
     <string name="logoChoiceDesc">アプリ内に表示される Shroudly のロゴ。システムが許可する場合はアプリのアイコンも変わります。</string>
     <string name="logoCountries">国</string>

@@ -29,7 +29,29 @@ object Accent {
         Option("indigo", 0xFF818CF8.toInt(), R.style.Accent_Indigo),
     )
 
+    private const val KEY_FOLLOW = "accentFollowsLogo"
+
+    /* The accent each logo matches, for "Colour follows the icon": the one
+     * nearest the logo's main colour (components/Appearance.js LOGO_ACCENT,
+     * apple Accent.swift: the same table). */
+    val LOGO_ACCENT = mapOf(
+        "classic" to "sky", "flat" to "sky", "line" to "sky", "paper" to "sky", "key" to "amber", "veil" to "violet",
+        "terminal" to "emerald", "night" to "teal", "coral" to "rose",
+        "newyear" to "emerald", "halloween" to "amber", "valentine" to "rose", "spring" to "emerald", "ramadan" to "amber", "winter" to "sky",
+        "tr" to "rose", "ir" to "rose", "ru" to "sky", "cn" to "rose", "pk" to "emerald", "az" to "rose", "kz" to "teal", "eg" to "rose", "vn" to "rose",
+    )
+
+    fun followsLogo(ctx: Context): Boolean =
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_FOLLOW, false)
+
+    fun setFollowsLogo(ctx: Context, on: Boolean) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOLLOW, on).apply()
+    }
+
+    /* The accent in use: the logo's while "Colour follows the icon" is on
+     * (the one picked kept for when it is off), else the one picked. */
     fun id(ctx: Context): String {
+        if (followsLogo(ctx)) return LOGO_ACCENT[Logos.id(ctx)] ?: OPTIONS[0].id
         val id = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)
         // Unknown or missing (the logo's blue, chosen before 2.6.63): sky.
         return OPTIONS.firstOrNull { it.id == id }?.id ?: OPTIONS[0].id

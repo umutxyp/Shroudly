@@ -106,6 +106,8 @@
 "logInfo" = "Información";
 "logSuccess" = "Éxito";
 "logWarning" = "Aviso";
+"logoAccent" = "El color sigue al icono";
+"logoAccentDesc" = "El color de la app combina con el icono elegido. Elegir un color arriba lo desactiva.";
 "logoChoice" = "Logotipo";
 "logoChoiceDesc" = "El logotipo de Shroudly dentro de la app y, donde el sistema lo permite, su icono.";
 "logoCountries" = "Países";

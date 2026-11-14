@@ -10,8 +10,10 @@ import ClampedText from './ClampedText';
 import { proxyNotice, PROXY_ACTIONS } from './proxyNotice';
 import { pickRoom } from './panelRoom';
 import { OWN_SERVER_WHY } from './ownServerText';
+import { logoSrc, useLogo } from './Appearance';
 
 export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
+  const logo = useLogo();
   const { t, language, isRTL } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -163,8 +165,12 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
              data-look={warned ? 'warn' : active ? 'on' : (loading || starting) ? 'busy' : 'off'}>
           <span className="power-glow absolute rounded-full" />
           <div className="power-disc relative flex items-center justify-center rounded-full">
-            <img src="./mark-closed.png" alt="" draggable={false} className="power-mark power-mark-closed absolute select-none" />
-            <img src="./mark-open.png" alt="" draggable={false} className="power-mark power-mark-open absolute select-none" />
+            {/* Another logo chosen (Settings, Appearance): that one, dimmed
+                while off, as everywhere else the app shows its icon. */}
+            {logo === 'classic' ? <>
+              <img src="./mark-closed.png" alt="" draggable={false} className="power-mark power-mark-closed absolute select-none" />
+              <img src="./mark-open.png" alt="" draggable={false} className="power-mark power-mark-open absolute select-none" />
+            </> : <img src={logoSrc(logo)} alt="" draggable={false} className="power-mark power-logo absolute select-none rounded-[22%]" />}
           </div>
           {(loading || starting) && <span className="power-turn absolute rounded-full" />}
         </div>
