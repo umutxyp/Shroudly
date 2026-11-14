@@ -705,7 +705,7 @@ async function robloxInstaller(proxy, socksPort) {
     if (!/^HTTP\/1\.1 [234]/.test(head)) head = await raw(port, 'GET https://www.wikipedia.org/ HTTP/1.1\r\nHost: www.wikipedia.org\r\nUser-Agent: shroudly-test\r\nAccept: */*\r\n\r\n');
     const s1 = await eng.stats();
     t.ok(/^HTTP\/1\.1 [234]\d\d/.test(head) && !head.startsWith('HTTP/1.1 405') && s1 && s0 && s1.conns_total > s0.conns_total && s1.tls > s0.tls && proxy.forwards >= 1,
-      `[engine] a whole https:// address is fetched for the program, through the engine (${head.split('\r\n')[0]})`);
+      `[engine] a whole https:// address is fetched for the program, through the engine (${head.split('\r\n')[0]}${s0 && s1 ? `, conns ${s0.conns_total}->${s1.conns_total}, tls ${s0.tls}->${s1.tls}` : ', no stats'}, forwards ${proxy.forwards})`);
   }
   {
     // The same against a server of our own: what arrives there, what comes
