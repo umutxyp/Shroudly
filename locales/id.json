@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} sudah ada di App Store. Harap perbarui sekarang: perbaikan untuk blokir baru hanya hadir di versi terbaru. Perlindungan tetap aktif sementara itu.",
   "appleUpdateOpen": "Perbarui",
   "appleMoveTitle": "Shroudly ada di App Store",
-  "appleMoveBody": "Dapatkan pembaruan otomatis dari App Store: pasang Shroudly dari sana, lalu hapus salinan ini. Pengaturan yang Anda ubah dimulai dari awal."
+  "appleMoveBody": "Dapatkan pembaruan otomatis dari App Store: pasang Shroudly dari sana, lalu hapus salinan ini. Pengaturan yang Anda ubah dimulai dari awal.",
+  "autoTorOff": "Tidak ada teknik yang membuka {host} di jaringan ini: perlu jalan terakhir (Tor), yang dimatikan di Setelan. Nyalakan di sana, atau tambahkan server Anda sendiri."
 }

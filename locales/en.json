@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} is on the App Store. Please update now: fixes for new blocks reach only the newest version. Protection stays on meanwhile.",
   "appleUpdateOpen": "Update",
   "appleMoveTitle": "Shroudly is on the App Store",
-  "appleMoveBody": "Get updates automatically from the App Store: install Shroudly there, then delete this copy. Settings you changed start fresh."
+  "appleMoveBody": "Get updates automatically from the App Store: install Shroudly there, then delete this copy. Settings you changed start fresh.",
+  "autoTorOff": "No technique opens {host} on this network: it needs the last way out (Tor), which is turned off in Settings. Turn it on there, or add a server of your own."
 }

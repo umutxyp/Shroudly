@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} sudah ada di App Store. Sila kemas kini sekarang: pembetulan untuk sekatan baharu hanya sampai ke versi terkini. Perlindungan kekal aktif sementara itu.",
   "appleUpdateOpen": "Kemas kini",
   "appleMoveTitle": "Shroudly ada di App Store",
-  "appleMoveBody": "Dapatkan kemas kini secara automatik dari App Store: pasang Shroudly dari sana, kemudian padam salinan ini. Tetapan yang anda ubah bermula semula."
+  "appleMoveBody": "Dapatkan kemas kini secara automatik dari App Store: pasang Shroudly dari sana, kemudian padam salinan ini. Tetapan yang anda ubah bermula semula.",
+  "autoTorOff": "Tiada teknik yang membuka {host} pada rangkaian ini: ia perlukan jalan terakhir (Tor), yang dimatikan dalam Tetapan. Hidupkan di sana, atau tambah pelayan anda sendiri."
 }

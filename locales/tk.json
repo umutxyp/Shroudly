@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} App Store-da bar. Häzir täzeläň: täze böwetlere garşy düzedişler diňe iň täze wersiýa gelýär. Şol wagt gorag açyk galýar.",
   "appleUpdateOpen": "Täzele",
   "appleMoveTitle": "Shroudly App Store-da bar",
-  "appleMoveBody": "Täzelenmeleri App Store-dan awtomatik alyň: Shroudly-ni şol ýerden guruň, soňra bu nusgany pozuň. Üýtgeden sazlamalaryňyz täzeden başlaýar."
+  "appleMoveBody": "Täzelenmeleri App Store-dan awtomatik alyň: Shroudly-ni şol ýerden guruň, soňra bu nusgany pozuň. Üýtgeden sazlamalaryňyz täzeden başlaýar.",
+  "autoTorOff": "Bu torda hiç bir usul {host} açmaýar: soňky ýol (Tor) gerek, ol bolsa Sazlamalarda öçürilen. Ony şol ýerden açyň ýa-da öz serweriňizi goşuň."
 }

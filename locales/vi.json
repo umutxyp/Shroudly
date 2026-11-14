@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} đã có trên App Store. Vui lòng cập nhật ngay: bản sửa cho các kiểu chặn mới chỉ có ở phiên bản mới nhất. Trong lúc đó, bảo vệ vẫn bật.",
   "appleUpdateOpen": "Cập nhật",
   "appleMoveTitle": "Shroudly đã có trên App Store",
-  "appleMoveBody": "Nhận bản cập nhật tự động từ App Store: cài Shroudly từ đó, rồi xóa bản này. Các cài đặt bạn đã đổi sẽ bắt đầu lại từ đầu."
+  "appleMoveBody": "Nhận bản cập nhật tự động từ App Store: cài Shroudly từ đó, rồi xóa bản này. Các cài đặt bạn đã đổi sẽ bắt đầu lại từ đầu.",
+  "autoTorOff": "Không kỹ thuật nào mở được {host} trên mạng này: cần lối thoát cuối cùng (Tor), nhưng nó đang tắt trong Cài đặt. Hãy bật ở đó, hoặc thêm máy chủ riêng của bạn."
 }

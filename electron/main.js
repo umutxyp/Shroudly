@@ -1550,6 +1550,7 @@ app.whenReady().then(async () => {
       if (autopilot) autopilot.noteHost(kind, host, info || { note: detail });
       if (aroundWatch) aroundWatch.note(kind, host, info || { note: detail });
       if (kind === 'unreachable' && detail === 'connect') checkServiceReach(host).catch(() => {});
+      if (kind === 'blocked' && !(info && info.alert)) tellTorOff(host);
       if (kind === 'cut' && repeatedCut(host, detail) && ServiceCheck.isMainName(host)) checkServiceOnce(host).catch(() => {});
     },
     // A site that defeated every technique. Told once per site, and at most
@@ -2804,7 +2805,7 @@ let autoLatest = null;
 // restarted or closed), a prompt about to come up, or something only the
 // user can fix.
 const WINDOW_ONLY = [
-  'autoSecurityAdvanced', 'autoSiteUnreachable',
+  'autoSecurityAdvanced', 'autoSiteUnreachable', 'autoTorOff',
   'autoDiscordOn', 'autoRobloxOn', 'autoRiotOn', 'autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny',
   'autoStoreAppsOn', 'autoFirefoxFixed', 'autoForgedDnsOn', 'autoInstallerRestarted', 'torUsedDesktop',
   'autoAdvancedPausedForGame',
@@ -3343,6 +3344,35 @@ function serviceWorks(family, host, rows) {
     && Autopilot.familyOf(r.host) === family && Number(r.down) >= 16 * 1024 && Number(r.ago) < 10 * 60 * 1000);
 }
 
+/* Tor is the way to a site the network blocks by address, and here it is
+ * turned off in Settings (no server of the user's own either): what is
+ * said names it, instead of "only a VPN" or nothing at all (an Iran report:
+ * Tor turned off, YouTube and Instagram dead, not a word said). */
+function torOffHere() {
+  return store.get('torLastResort', true) === false && !store.get('ownServer') && !torUnsupported();
+}
+
+/* A site no technique opens (still blocked after them all) while Tor is
+ * turned off: said once a session per site, and at
+ * most once a minute, in the window. Only a site's own name, not the CDN and
+ * API names a page loads. */
+const torOffTold = new Set();
+let torOffLast = 0;
+function tellTorOff(host) {
+  if (!torOffHere() || !engine || !engine.isActive() || wake.recent(2 * 60 * 1000)) return false;
+  const site = ServiceCheck.isMainName(host) ? String(host).toLowerCase().replace(/\.$/, '').replace(/^www\./, '') : null;
+  const family = Autopilot.familyOf(host);
+  const name = (family && SERVICE_NAME[family]) || site;
+  if (!name || torOffTold.has(name)) return false;
+  const now = Date.now();
+  if (now - torOffLast < 60000) return false;
+  torOffLast = now;
+  torOffTold.add(name);
+  addLog('warning', `${name}: no technique opens it on this network; the last way out (Tor) would, but it is turned off in Settings`);
+  autoTell('autoTorOff', { host: name });
+  return true;
+}
+
 async function checkServiceReach(host) {
   const family = Autopilot.familyOf(host);
   const service = family && SERVICE_NAME[family];
@@ -3384,6 +3414,11 @@ async function checkServiceReach(host) {
     if (rival.length) {
       addLog('warning', `${name}: its servers do not answer, and ${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
       autoTell('autoRivalTool', { rival: rival.join(', ') });
+      return;
+    }
+    if (torOffHere()) {
+      addLog('warning', `${name}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all; the last way out (Tor) gets there, but it is turned off in Settings`);
+      if (!torOffTold.has(name)) { torOffTold.add(name); autoTell('autoTorOff', { host: name }); }
       return;
     }
     addLog('warning', `${name}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that`);

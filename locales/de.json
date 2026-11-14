@@ -1006,5 +1006,6 @@
   "appleUpdateBody": "Shroudly {version} ist im App Store. Bitte jetzt aktualisieren: Lösungen für neue Sperren kommen nur in die neueste Version. Der Schutz bleibt währenddessen an.",
   "appleUpdateOpen": "Aktualisieren",
   "appleMoveTitle": "Shroudly ist im App Store",
-  "appleMoveBody": "Updates automatisch aus dem App Store: Installiere Shroudly dort und lösche dann diese Kopie. Geänderte Einstellungen beginnen neu."
+  "appleMoveBody": "Updates automatisch aus dem App Store: Installiere Shroudly dort und lösche dann diese Kopie. Geänderte Einstellungen beginnen neu.",
+  "autoTorOff": "Keine Technik öffnet {host} in diesem Netz: Es braucht den letzten Ausweg (Tor), der in den Einstellungen ausgeschaltet ist. Schalte ihn dort ein oder füge einen eigenen Server hinzu."
 }
