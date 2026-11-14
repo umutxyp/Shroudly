@@ -433,13 +433,15 @@ void conns_only_mode(int on) {
 }
 
 /* 1 when only listed names are worked on and this one is not among them:
- * it goes out as it is, untouched. */
+ * it goes out as it is, untouched. The mode with nothing listed changes
+ * nothing: every name is worked on, as without it (an Iran report: the
+ * switch turned on, no site added, and nothing opened any more). */
 int conns_only_skip(const char *host) {
   if (!atomic_load(&g_ready) || !host || !host[0]) return 0;
   char h[256];
   lower(h, sizeof(h), host);
   mutex_lock(&g_mx);
-  int skip = g_only_mode && !list_has(g_only, g_nonly, h);
+  int skip = g_only_mode && g_nonly > 0 && !list_has(g_only, g_nonly, h);
   mutex_unlock(&g_mx);
   return skip;
 }
