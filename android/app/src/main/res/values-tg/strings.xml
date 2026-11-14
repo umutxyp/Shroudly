@@ -119,6 +119,10 @@
     <string name="connsEmpty">Ҳоло ҳеҷ чиз нест. Сайтеро кушоед, он дар ин ҷо пайдо мешавад.</string>
     <string name="connsOpen">{count} кушода</string>
     <string name="connsRefused">{count} бор рад шуд</string>
+    <string name="connsAdsTitle">Бастани реклама манъ кард</string>
+    <string name="connsAdsDesc">Номҳое, ки рӯйхати реклама ва пайгирҳо ба наздикӣ манъ кард. Агар саҳифаи лозимӣ кушода нашавад, ба номаш иҷозат диҳед.</string>
+    <string name="connsAdStopped">{count} бор манъ шуд</string>
+    <string name="connsAdAllow">Иҷозат додан</string>
     <string name="connsRouteServer">сервери худ</string>
     <string name="connsRouteTechnique">усул</string>
     <string name="connsRouteTor">Tor</string>

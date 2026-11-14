@@ -119,6 +119,10 @@
     <string name="connsEmpty">Азырынча эч нерсе жок. Сайт ачыңыз, ал бул жерде чыгат.</string>
     <string name="connsOpen">{count} ачык</string>
     <string name="connsRefused">{count} жолу четке кагылды</string>
+    <string name="connsAdsTitle">Жарнама бөгөтү токтотту</string>
+    <string name="connsAdsDesc">Жарнама жана трекерлер тизмеси жакында токтоткон аттар. Керектүү барак ачылбаса, анын атын өткөрүңүз.</string>
+    <string name="connsAdStopped">{count} жолу токтотулду</string>
+    <string name="connsAdAllow">Өткөрүү</string>
     <string name="connsRouteServer">өз сервериңиз</string>
     <string name="connsRouteTechnique">ыкма</string>
     <string name="connsRouteTor">Tor</string>

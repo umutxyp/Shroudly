@@ -119,6 +119,10 @@
     <string name="connsEmpty">Noch nichts. Öffne eine Seite, dann erscheint sie hier.</string>
     <string name="connsOpen">{count} offen</string>
     <string name="connsRefused">{count} abgelehnt</string>
+    <string name="connsAdsTitle">Vom Werbeblocker gestoppt</string>
+    <string name="connsAdsDesc">Namen, die die Werbe- und Trackerliste zuletzt gestoppt hat. Öffnet sich eine gewünschte Seite nicht, lass ihren Namen durch.</string>
+    <string name="connsAdStopped">{count}-mal gestoppt</string>
+    <string name="connsAdAllow">Durchlassen</string>
     <string name="connsRouteServer">eigener Server</string>
     <string name="connsRouteTechnique">Technik</string>
     <string name="connsRouteTor">Tor</string>

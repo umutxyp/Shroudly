@@ -119,6 +119,10 @@
     <string name="connsEmpty">Häzirlikçe hiç zat ýok. Bir saýt açyň, ol şu ýerde peýda bolar.</string>
     <string name="connsOpen">{count} açyk</string>
     <string name="connsRefused">{count} gezek ret edildi</string>
+    <string name="connsAdsTitle">Mahabat bökdemesi saklady</string>
+    <string name="connsAdsDesc">Mahabat we yzarlaýjy sanawynyň ýakynda saklan atlary. Gerekli sahypa açylmasa, onuň adyna rugsat ber.</string>
+    <string name="connsAdStopped">{count} gezek saklandy</string>
+    <string name="connsAdAllow">Rugsat ber</string>
     <string name="connsRouteServer">öz serweriňiz</string>
     <string name="connsRouteTechnique">usul</string>
     <string name="connsRouteTor">Tor</string>

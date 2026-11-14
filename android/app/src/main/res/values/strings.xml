@@ -119,6 +119,10 @@
     <string name="connsEmpty">Nothing yet. Open a site and it shows up here.</string>
     <string name="connsOpen">{count} open</string>
     <string name="connsRefused">{count} refused</string>
+    <string name="connsAdsTitle">Stopped by ad blocking</string>
+    <string name="connsAdsDesc">Names the ad and tracker list stopped lately. If a page you want does not open, let its name through.</string>
+    <string name="connsAdStopped">stopped {count} times</string>
+    <string name="connsAdAllow">Let through</string>
     <string name="connsRouteServer">own server</string>
     <string name="connsRouteTechnique">technique</string>
     <string name="connsRouteTor">Tor</string>

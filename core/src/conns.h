@@ -79,6 +79,13 @@ void conns_only_mode(int on);
 /* The list as JSON lines: {"type":"conn",...} per name, most recent first,
  * then {"type":"conns_end","n":N}. */
 void conns_emit(void);
+/* A name the ad and tracker list stopped (a connection or a lookup): kept
+ * among the last CONNS_ADS, with how often and when, and listed by
+ * conns_emit as {"type":"ad",...} rows before conns_end, so the app can show
+ * what the list stops and let one through (a link shortener's page, say,
+ * that the list blocks as a whole: until 2.6.78 nothing anywhere said so). */
+#define CONNS_ADS 48
+void conns_ad(const char *host);
 /* Everything forgotten (a new run in the same process). */
 void conns_forget(void);
 

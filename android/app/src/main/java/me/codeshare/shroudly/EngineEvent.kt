@@ -82,6 +82,8 @@ sealed class EngineEvent {
     /* The Connections list (CONNS, core/src/conns.c): one row per name, then the end. */
     data class Conn(val row: Conns.Row) : EngineEvent()
     data class ConnsEnd(val n: Int) : EngineEvent()
+    /* A name the ad and tracker list stopped (CONNS lists the last ones). */
+    data class Ad(val row: Conns.AdRow) : EngineEvent()
     object Stopped : EngineEvent()
     data class Other(val type: String) : EngineEvent()
     data class Text(val line: String) : EngineEvent()
@@ -128,6 +130,7 @@ sealed class EngineEvent {
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
                     str("route") ?: "direct", num("blocked") != 0L, num("refused"), if (m.containsKey("ago")) num("ago") else -1L))
                 "conns_end" -> ConnsEnd(num("n").toInt())
+                "ad" -> Ad(Conns.AdRow(str("host") ?: "", num("count"), num("ago")))
                 "stopped" -> Stopped
                 else -> Other(type)
             }

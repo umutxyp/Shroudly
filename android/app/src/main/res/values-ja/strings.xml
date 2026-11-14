@@ -119,6 +119,10 @@
     <string name="connsEmpty">まだありません。サイトを開くとここに表示されます。</string>
     <string name="connsOpen">{count} 件接続中</string>
     <string name="connsRefused">{count} 回拒否</string>
+    <string name="connsAdsTitle">広告ブロックで止めた名前</string>
+    <string name="connsAdsDesc">広告・トラッカーのリストが最近止めた名前です。見たいページが開かないときは、その名前を通してください。</string>
+    <string name="connsAdStopped">{count} 回止めました</string>
+    <string name="connsAdAllow">通す</string>
     <string name="connsRouteServer">自分のサーバー</string>
     <string name="connsRouteTechnique">手法</string>
     <string name="connsRouteTor">Tor</string>

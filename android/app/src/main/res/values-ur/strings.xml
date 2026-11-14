@@ -119,6 +119,10 @@
     <string name="connsEmpty">ابھی کچھ نہیں۔ کوئی سائٹ کھولیں، وہ یہاں نظر آئے گی۔</string>
     <string name="connsOpen">{count} کھلے</string>
     <string name="connsRefused">{count} بار رد ہوا</string>
+    <string name="connsAdsTitle">اشتہار بلاکنگ نے روکا</string>
+    <string name="connsAdsDesc">وہ نام جو اشتہارات اور ٹریکرز کی فہرست نے حال ہی میں روکے۔ اگر آپ کا مطلوبہ صفحہ نہیں کھلتا تو اس کے نام کو اجازت دیں۔</string>
+    <string name="connsAdStopped">{count} بار روکا گیا</string>
+    <string name="connsAdAllow">اجازت دیں</string>
     <string name="connsRouteServer">آپ کا اپنا سرور</string>
     <string name="connsRouteTechnique">تکنیک</string>
     <string name="connsRouteTor">ٹور</string>

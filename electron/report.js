@@ -205,6 +205,16 @@ function connsSection(on, rows, last) {
   return '== Connections ==\n(protection is off, and has not run since Shroudly started)';
 }
 
+/* What the ad list stopped lately (engine-manager.js lastAds): a page that
+ * "does not open" is often a name the list blocks whole (SR-G563). */
+function adsSection(ads, max = 30) {
+  const list = Array.isArray(ads) ? ads : [];
+  if (!list.length) return '== Stopped by ad blocking ==\n(none)';
+  const lines = list.slice(0, max).map((a) => `${String(a.host).slice(0, 120)}  ${a.count}x  last ${Math.round((a.ago || 0) / 1000)} s ago`);
+  if (list.length > max) lines.push(`(+${list.length - max} more)`);
+  return `== Stopped by ad blocking ==\n${lines.join('\n')}`;
+}
+
 /* The engine's last events about sites (engine-manager.js siteEvents), one
  * line each, newest last: when, what, the name, and what the engine said of
  * it (technique, tries, the note). */
@@ -221,4 +231,4 @@ function siteEventsSection(events, max = 80) {
 }
 
 module.exports = {
-  isAddress, siteEventsSection, connDetail, URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, isApp, APP_DOMAINS };
+  isAddress, siteEventsSection, connDetail, URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, connsSection, adsSection, isApp, APP_DOMAINS };

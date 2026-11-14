@@ -119,6 +119,10 @@
     <string name="connsEmpty">لا شيء بعد. افتح موقعًا وسيظهر هنا.</string>
     <string name="connsOpen">{count} مفتوح</string>
     <string name="connsRefused">رُفض {count} مرة</string>
+    <string name="connsAdsTitle">أوقفه حظر الإعلانات</string>
+    <string name="connsAdsDesc">الأسماء التي أوقفتها قائمة الإعلانات والمتتبعات مؤخرًا. إن لم تُفتح صفحة تريدها، اسمح باسمها.</string>
+    <string name="connsAdStopped">أُوقف {count} مرة</string>
+    <string name="connsAdAllow">اسمح بالمرور</string>
     <string name="connsRouteServer">خادمك الخاص</string>
     <string name="connsRouteTechnique">تقنية</string>
     <string name="connsRouteTor">تور</string>

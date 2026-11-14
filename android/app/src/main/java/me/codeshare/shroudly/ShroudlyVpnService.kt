@@ -1316,7 +1316,7 @@ class ShroudlyVpnService : VpnService() {
                 Protection.stats = ev
                 Protection.changed()
             }
-            is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
+            is EngineEvent.Conn, is EngineEvent.Ad, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> if (NetDnsText.once(ev, SystemClock.elapsedRealtime())) logSite(NetDnsText.line(ev))
             is EngineEvent.Refused -> onRefused(ev)

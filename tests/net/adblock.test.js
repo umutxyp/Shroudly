@@ -79,6 +79,17 @@ async function tlsVia(socksPort, name, target, port) {
     t.ok(await tlsVia(P, 'allowed.tracker-test-1.com', '127.0.0.1', port) === 'pong', 'a name the user allowed goes through');
     const st = await eng.stats();
     t.ok(st && st.blocked === 3, `the blocked count is in the stats (${st && st.blocked})`);
+    // What the list stopped, by name, for the app's Connections screen (a
+    // link shortener's page the list blocks whole: 2.6.77 said nothing).
+    {
+      const before = eng.out.length;
+      eng.proc.stdin.write('CONNS\n');
+      for (let i = 0; i < 30 && !eng.out.slice(before).includes('conns_end'); i++) await sleep(100);
+      const ads = eng.out.slice(before).split('\n').filter((l) => l.includes('"type":"ad"')).map((l) => JSON.parse(l));
+      const names = ads.map((a) => a.host).sort().join(' ');
+      t.ok(names === 'ads.example-tracker.net doubleclick.net x.doubleclick.net' && ads.every((a) => a.count === 1 && a.ago >= 0),
+        `CONNS lists the names the list stopped, with how often (${names})`);
+    }
 
     // Off, live: nothing blocked any more.
     eng.proc.stdin.write('ADBLOCK OFF\n');

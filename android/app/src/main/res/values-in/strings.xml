@@ -119,6 +119,10 @@
     <string name="connsEmpty">Belum ada. Buka sebuah situs dan ia muncul di sini.</string>
     <string name="connsOpen">{count} terbuka</string>
     <string name="connsRefused">{count} ditolak</string>
+    <string name="connsAdsTitle">Dihentikan pemblokir iklan</string>
+    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan daftar iklan dan pelacak. Jika halaman yang kamu mau tidak terbuka, loloskan namanya.</string>
+    <string name="connsAdStopped">dihentikan {count} kali</string>
+    <string name="connsAdAllow">Loloskan</string>
     <string name="connsRouteServer">server sendiri</string>
     <string name="connsRouteTechnique">teknik</string>
     <string name="connsRouteTor">Tor</string>

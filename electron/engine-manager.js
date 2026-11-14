@@ -442,7 +442,12 @@ class EngineManager {
       // engine leaves a connection completely untouched unless it is refused:
       // ordinary browsing is relayed as-is, at the same speed as no proxy.
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
-      siteList: Families.expand(withDiscord(Array.isArray(s.siteList) ? s.siteList : this.siteList())),
+      // The user's own sites are routed with the automatic list, never
+      // instead of it: until 2.6.78 one edit of the box froze the list at
+      // the built-in 84 names, and a site blocked since (LinkedIn on one
+      // network: reset at every first try, "hard refresh and it opens")
+      // went straight to the network's filter, never through Shroudly.
+      siteList: Families.expand(withDiscord([...new Set([...this.siteList(), ...(Array.isArray(s.siteList) ? s.siteList : [])])])),
       port: Number(s.listenPort) || DEFAULT_PORT,
       adBlock: s.adBlock === true,
       adBlockAllow: cleanAllow(s.adBlockAllow),
@@ -1479,7 +1484,14 @@ class EngineManager {
       case 'conn':
         if (this._connsRows) this._connsRows.push(msg);
         break;
+      // What the ad list stopped lately (listed with CONNS): Connections
+      // shows them with a button to let one through, the report lists them.
+      case 'ad':
+        if (this._connsAds) this._connsAds.push({ host: String(msg.host || ''), count: Number(msg.count) || 0, ago: Number(msg.ago) || 0 });
+        break;
       case 'conns_end':
+        if (this._connsAds) this.lastAds = this._connsAds.sort((a, b) => a.ago - b.ago);
+        this._connsAds = null;
         if (this._connsDone) { const done = this._connsDone; this._connsDone = null; done(this._connsRows || []); }
         this._connsRows = null;
         break;
@@ -1713,6 +1725,7 @@ class EngineManager {
     this._connsWait = new Promise((resolve) => {
       const timer = setTimeout(() => { this._connsDone = null; this._connsRows = null; resolve([]); }, timeoutMs);
       this._connsRows = [];
+      this._connsAds = [];
       this._connsDone = (rows) => { clearTimeout(timer); resolve(rows); };
       if (!this._command('CONNS')) { clearTimeout(timer); this._connsDone = null; this._connsRows = null; resolve([]); }
     }).finally(() => { this._connsWait = null; });
@@ -2277,3 +2290,4 @@ class EngineManager {
 module.exports = EngineManager;
 module.exports.coreBinaryPath = coreBinaryPath;
 module.exports.DEFAULT_SITE_LIST = DEFAULT_SITE_LIST;
+module.exports.FALLBACK_SITE_LIST = FALLBACK_SITE_LIST;

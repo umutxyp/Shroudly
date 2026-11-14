@@ -280,7 +280,7 @@ class ShroudlyProxyService : Service() {
 
     private fun onEvent(ev: EngineEvent) {
         when (ev) {
-            is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
+            is EngineEvent.Conn, is EngineEvent.Ad, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Ready -> {
                 // What worked on sites before, as the VPN mode restores it.
                 val now = System.currentTimeMillis()

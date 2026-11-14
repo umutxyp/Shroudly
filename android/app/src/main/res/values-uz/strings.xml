@@ -119,6 +119,10 @@
     <string name="connsEmpty">Hozircha hech narsa yo\'q. Sayt oching, u shu yerda chiqadi.</string>
     <string name="connsOpen">{count} ochiq</string>
     <string name="connsRefused">{count} marta rad etildi</string>
+    <string name="connsAdsTitle">Reklama bloklash to\'xtatdi</string>
+    <string name="connsAdsDesc">Reklama va kuzatuvchilar ro\'yxati yaqinda to\'xtatgan nomlar. Kerakli sahifa ochilmasa, uning nomini o\'tkazing.</string>
+    <string name="connsAdStopped">{count} marta to\'xtatildi</string>
+    <string name="connsAdAllow">O\'tkazish</string>
     <string name="connsRouteServer">o\'z serveringiz</string>
     <string name="connsRouteTechnique">usul</string>
     <string name="connsRouteTor">Tor</string>

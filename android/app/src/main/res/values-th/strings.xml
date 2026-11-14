@@ -119,6 +119,10 @@
     <string name="connsEmpty">ยังไม่มีอะไร เปิดเว็บไซต์แล้วจะแสดงที่นี่</string>
     <string name="connsOpen">เปิดอยู่ {count}</string>
     <string name="connsRefused">ปฏิเสธ {count} ครั้ง</string>
+    <string name="connsAdsTitle">ถูกตัวบล็อกโฆษณาหยุดไว้</string>
+    <string name="connsAdsDesc">ชื่อที่รายการโฆษณาและตัวติดตามหยุดไว้เมื่อเร็ว ๆ นี้ ถ้าหน้าที่คุณต้องการไม่เปิด ให้ชื่อนั้นผ่าน</string>
+    <string name="connsAdStopped">หยุดไว้ {count} ครั้ง</string>
+    <string name="connsAdAllow">ให้ผ่าน</string>
     <string name="connsRouteServer">เซิร์ฟเวอร์ของคุณ</string>
     <string name="connsRouteTechnique">เทคนิค</string>
     <string name="connsRouteTor">Tor</string>

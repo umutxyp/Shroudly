@@ -119,6 +119,10 @@
     <string name="connsEmpty">এখনও কিছু নেই। একটি সাইট খুলুন, এখানে দেখা যাবে।</string>
     <string name="connsOpen">{count} খোলা</string>
     <string name="connsRefused">{count} বার প্রত্যাখ্যাত</string>
+    <string name="connsAdsTitle">বিজ্ঞাপন ব্লকিং থামিয়েছে</string>
+    <string name="connsAdsDesc">যে নামগুলো বিজ্ঞাপন ও ট্র্যাকার তালিকা সম্প্রতি থামিয়েছে। আপনার চাওয়া পাতা না খুললে তার নামটি যেতে দিন।</string>
+    <string name="connsAdStopped">{count} বার থামানো হয়েছে</string>
+    <string name="connsAdAllow">যেতে দিন</string>
     <string name="connsRouteServer">আপনার নিজের সার্ভার</string>
     <string name="connsRouteTechnique">কৌশল</string>
     <string name="connsRouteTor">Tor</string>

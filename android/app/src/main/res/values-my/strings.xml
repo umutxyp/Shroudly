@@ -119,6 +119,10 @@
     <string name="connsEmpty">မရှိသေးပါ။ ဝဘ်ဆိုက်တစ်ခုဖွင့်ပါက ဤနေရာတွင် ပေါ်ပါမည်။</string>
     <string name="connsOpen">{count} ဖွင့်ထားသည်</string>
     <string name="connsRefused">{count} ကြိမ် ငြင်းထားသည်</string>
+    <string name="connsAdsTitle">ကြော်ငြာပိတ်ခြင်းက ရပ်ထားသည်</string>
+    <string name="connsAdsDesc">ကြော်ငြာနှင့် ခြေရာခံစာရင်းက မကြာသေးမီက ရပ်ထားသော အမည်များ။ သင်လိုချင်သော စာမျက်နှာ မပွင့်ပါက ၎င်း၏အမည်ကို ခွင့်ပြုပါ။</string>
+    <string name="connsAdStopped">{count} ကြိမ် ရပ်ထားသည်</string>
+    <string name="connsAdAllow">ခွင့်ပြုရန်</string>
     <string name="connsRouteServer">ကိုယ်ပိုင်ဆာဗာ</string>
     <string name="connsRouteTechnique">နည်းလမ်း</string>
     <string name="connsRouteTor">Tor</string>

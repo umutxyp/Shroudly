@@ -119,6 +119,10 @@
     <string name="connsEmpty">ገና ምንም የለም። ድረ ገጽ ይክፈቱ እዚህ ይታያል።</string>
     <string name="connsOpen">{count} ክፍት</string>
     <string name="connsRefused">{count} ጊዜ ተከልክሏል</string>
+    <string name="connsAdsTitle">በማስታወቂያ ማገጃ ቆሟል</string>
+    <string name="connsAdsDesc">የማስታወቂያ እና መከታተያ ዝርዝር በቅርቡ ያቆማቸው ስሞች። የሚፈልጉት ገጽ ካልተከፈተ ስሙን ይፍቀዱ።</string>
+    <string name="connsAdStopped">{count} ጊዜ ቆሟል</string>
+    <string name="connsAdAllow">ፍቀድ</string>
     <string name="connsRouteServer">የራስዎ አገልጋይ</string>
     <string name="connsRouteTechnique">ዘዴ</string>
     <string name="connsRouteTor">Tor</string>

@@ -220,6 +220,7 @@ class ReportActivity : Activity() {
             val log = try {
                 Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n" +
                     Report.connsSection(on, Conns.rows, Conns.lastSession, Conns.lastSessionEnded) + "\n" +
+                    (if (AdBlock.enabled(ctx)) Report.adsSection(on, Conns.ads, Conns.lastAds) + "\n" else "") +
                     SiteEvents.section() + "\n"
             } catch (e: Exception) {
                 "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)"

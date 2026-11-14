@@ -119,6 +119,10 @@
     <string name="connsEmpty">Belum ada apa-apa. Buka laman dan ia muncul di sini.</string>
     <string name="connsOpen">{count} terbuka</string>
     <string name="connsRefused">{count} ditolak</string>
+    <string name="connsAdsTitle">Dihentikan oleh sekatan iklan</string>
+    <string name="connsAdsDesc">Nama yang baru-baru ini dihentikan oleh senarai iklan dan penjejak. Jika halaman yang anda mahu tidak terbuka, benarkan namanya.</string>
+    <string name="connsAdStopped">dihentikan {count} kali</string>
+    <string name="connsAdAllow">Benarkan</string>
     <string name="connsRouteServer">pelayan sendiri</string>
     <string name="connsRouteTechnique">teknik</string>
     <string name="connsRouteTor">Tor</string>

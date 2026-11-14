@@ -3353,7 +3353,7 @@ static int udp_dns_blocked(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
   out[0] = out[1] = out[2] = 0;                           /* RSV, FRAG */
   int n = adb_dns_answer(q, qend, out + d->hdr_len, sizeof(out) - d->hdr_len);
   if (n < 0) return 0;
-  adblock_count();
+  adblock_count(); conns_ad(name);
   sendto(u->relay, (const char *)out, (int)d->hdr_len + n, 0,
          (struct sockaddr *)&u->client, sizeof(u->client));
   u->last = now_ms();
@@ -4215,8 +4215,8 @@ static int nd_lookup(const char *host, char *out, size_t cap, int wait_ms) {
  * answered and nothing has been read. */
 /* A connection refused by name: by the ad and tracker list (counted
  * there), or by the user's own blocks (conns.h, counted in its list). */
-static void refuse_named(sock_t client, socks_req *rq, uint8_t *buf, int flen, int ad) {
-  if (ad) adblock_count();
+static void refuse_named(sock_t client, socks_req *rq, uint8_t *buf, int flen, int ad, const char *name) {
+  if (ad) { adblock_count(); conns_ad(name); }
   if (flen < 0) {
     if (socks_reply(client, rq, 1) != 0) return;
     flen = first_payload(client, SOCK_INVALID, rq, buf, RELAY_BUF);
@@ -4229,8 +4229,8 @@ static void refuse_named(sock_t client, socks_req *rq, uint8_t *buf, int flen, i
     send_str(client, "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
   }
 }
-static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) { refuse_named(client, rq, buf, flen, 1); }
-static void user_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) { refuse_named(client, rq, buf, flen, 0); }
+static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen, const char *name) { refuse_named(client, rq, buf, flen, 1, name); }
+static void user_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) { refuse_named(client, rq, buf, flen, 0, NULL); }
 
 /* ── the user's own server (--upstream-file) ─────────────────────────────
  * Every connection to a name goes through it: a SOCKS5 server (the name sent
@@ -4756,7 +4756,7 @@ static void handle(sock_t client) {
   if (!first || !work || !rbuf) { socks_reply(client, &rq, 0); goto done; }
 
   /* A name on the ad and tracker list: not looked up, not connected to. */
-  if (!ip_literal(rq.host) && adblock_blocked(rq.host)) { adblock_refuse(client, &rq, first, -1); goto done; }
+  if (!ip_literal(rq.host) && adblock_blocked(rq.host)) { adblock_refuse(client, &rq, first, -1, rq.host); goto done; }
   /* A name the user blocked in the Connections list. */
   if (!ip_literal(rq.host) && conns_blocked(rq.host)) { user_refuse(client, &rq, first, -1); goto done; }
 
@@ -4789,7 +4789,7 @@ static void handle(sock_t client) {
     proto_info pi0;
     memset(&pi0, 0, sizeof(pi0));
     if (flen > 0) proto_inspect(first, (size_t)flen, &pi0);
-    if (pi0.host[0] && adblock_blocked(pi0.host)) { adblock_refuse(client, &rq, first, flen); goto done; }
+    if (pi0.host[0] && adblock_blocked(pi0.host)) { adblock_refuse(client, &rq, first, flen, pi0.host); goto done; }
     if (pi0.host[0]) conns_name(t_conn, pi0.host);
     if (pi0.host[0] && conns_blocked(pi0.host)) { user_refuse(client, &rq, first, flen); goto done; }
     if (pi0.host[0] && !doh_local_name(pi0.host)) {
@@ -4900,7 +4900,7 @@ static void handle(sock_t client) {
     /* Asked for by address (the app looked the name up itself): the name it
      * means is in the payload, and a listed one ends here. */
     if (ip_literal(rq.host) && pi.host[0] && adblock_blocked(pi.host)) {
-      adblock_refuse(client, &rq, first, flen);
+      adblock_refuse(client, &rq, first, flen, pi.host);
       goto done;
     }
     if (ip_literal(rq.host) && pi.host[0] && conns_blocked(pi.host)) {
