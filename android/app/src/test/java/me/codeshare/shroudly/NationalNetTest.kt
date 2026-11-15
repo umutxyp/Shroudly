@@ -44,6 +44,11 @@ class NationalNetTest {
         assertEquals("IR", NationalNet.homeCountry("IR", "Europe/Berlin"))
         assertEquals("AZ", NationalNet.homeCountry("ZZ", "Asia/Baku"))
         assertNull(NationalNet.homeCountry(null, "Europe/Berlin"))
+        // The zone's country before one remembered (SR-XM82: a phone in Turkey taken for Iranian).
+        assertEquals("TR", NationalNet.homeCountry("IR", "Europe/Istanbul"))
+        assertEquals(true, NationalNet.plausible("IR", "Asia/Tehran"))
+        assertEquals(true, NationalNet.plausible("IR", "Europe/Berlin"))
+        assertEquals(false, NationalNet.plausible("IR", "Europe/Istanbul"))
         assertEquals(NationalNet.DOMESTIC.getValue("IR"), NationalNet.decoyNames("IR"))
         assertTrue(NationalNet.decoyNames(null).isEmpty() && NationalNet.decoyNames("ZZ").isEmpty())
         assertEquals(NationalNet.DOMESTIC.keys, NationalNet.ZONES.keys)

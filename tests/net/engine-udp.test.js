@@ -558,6 +558,22 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     // Dropped, but counted as received: Android's tunnel check takes them as
     // the tunnel working (HevWatch), not as packets that vanished.
     t.ok(s1.udp_in - s0.udp_in === 10, `datagrams the relay got are counted, dropped ones too (${s1.udp_in - s0.udp_in} of 10)`);
+    // A real QUIC Initial is answered on the spot with a Version Negotiation
+    // offering no real version, from the address it was sent to: the app gives
+    // QUIC up at once instead of waiting for its timeout (SR-Y78G), and still
+    // nothing leaves for the network.
+    const dcid = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8]); const scid = Buffer.from([9, 10, 11, 12]);
+    const initial = Buffer.concat([Buffer.from([0xc3, 0, 0, 0, 1, dcid.length]), dcid, Buffer.from([scid.length]), scid, Buffer.alloc(1180, 0)]);
+    const b0 = (await eng3.stats()).bytes_up;
+    for (const [host, asName] of [['192.0.2.1', false], ['quic.example', true]]) {
+      const vn = await roundTrip(cg, g.port, host, 443, initial, 1500, asName);
+      const v = vn && vn.data;
+      t.ok(v && (v[0] & 0x80) && v.readUInt32BE(1) === 0 && v[5] === 4 && v.subarray(6, 10).equals(scid) &&
+        v[10] === 8 && v.subarray(11, 19).equals(dcid) && (v.readUInt32BE(19) & 0x0f0f0f0f) === 0x0a0a0a0a,
+        `QUIC off: an Initial to ${host} is answered with a Version Negotiation, so the app moves to TCP at once`);
+      t.ok(vn && vn.host === host && vn.port === 443, `the answer comes as from ${host}:443, where the app sent it`);
+    }
+    t.ok((await eng3.stats()).bytes_up - b0 === 0, 'and nothing of it went out to the network');
     if (e6) {
       r = await roundTrip(cg, g.port, LAN6, e6.port, Buffer.from('six'), 1500);
       t.ok(!r, 'IPv6 off: a datagram to an IPv6 address is dropped');

@@ -50,13 +50,22 @@ object NationalNet {
         "MM" to listOf("Asia/Yangon", "Asia/Rangoon"),
     )
 
-    /* The country the user is in, as well as it is known: the one whose own
-     * network answered in a shutdown (remembered), else the one the time
-     * zone is in, else null. */
-    fun homeCountry(remembered: String?, timeZone: String): String? {
-        if (remembered != null && DOMESTIC.containsKey(remembered)) return remembered
-        return ZONES.entries.firstOrNull { timeZone in it.value }?.key
-    }
+    /* The country the user is in, as well as it is known: the one the time
+     * zone is in, else the one whose own network answered in a shutdown
+     * (remembered), else null. The zone first: the user chose it, while a
+     * site of another country answering in a bad moment once made a phone in
+     * Turkey "Iranian" for good, its decoys Iranian names (SR-XM82). */
+    fun homeCountry(remembered: String?, timeZone: String): String? =
+        zoneCountry(timeZone) ?: remembered?.takeIf { DOMESTIC.containsKey(it) }
+
+    fun zoneCountry(timeZone: String): String? = ZONES.entries.firstOrNull { timeZone in it.value }?.key
+
+    /* Whether `cc`'s own sites answering alone can mean this network is cut
+     * off from the world: not when the time zone says another country of
+     * the list, where that site is simply abroad and reachable (Iran's
+     * digikala.com answering a phone in Turkey for a moment while the rest
+     * did not: SR-XM82). */
+    fun plausible(cc: String, timeZone: String): Boolean = zoneCountry(timeZone).let { it == null || it == cc }
 
     /* The names the engine's decoys carry there (--decoy-name): its large
      * sites, which a network that lets only allowed sites through keeps open. */

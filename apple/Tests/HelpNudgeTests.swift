@@ -35,6 +35,7 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertEqual(HelpNudge.country(remembered: nil, zone: "Asia/Vladivostok"), "RU")
         XCTAssertNil(HelpNudge.country(remembered: nil, zone: "Europe/Istanbul"))
         XCTAssertEqual(HelpNudge.country(remembered: "IR", zone: "Europe/Berlin"), "IR", "a shutdown seen there wins")
+        XCTAssertEqual(HelpNudge.country(remembered: "RU", zone: "Asia/Tehran"), "IR", "the zone's own country comes first (SR-XM82)")
     }
 
     func testTheDesktopsNumbers() throws {

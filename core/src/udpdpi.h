@@ -24,6 +24,17 @@
  * short-header packets and any non-QUIC datagram. Needs >= 5 bytes. */
 int quic_is_initial(const uint8_t *p, int len);
 
+/* The answer to a QUIC Initial that tells the client, on the spot, that QUIC
+ * is not on offer here: a Version Negotiation packet (RFC 9000 17.2.1) whose
+ * only version is a reserved one (0x?a?a?a?a, never a real QUIC version). A
+ * client that gets one with no version it supports abandons the attempt at
+ * once (RFC 9000 6.2) and the app uses TCP, where a dropped Initial left it
+ * waiting for QUIC's own timeout first: Instagram's comments opening late,
+ * or minutes later, in Turkey (SR-Y78G). The connection IDs are the
+ * Initial's, swapped. Writes into out (cap bytes) and returns its length, or
+ * 0 when `p` is not an Initial or the answer does not fit. */
+int quic_version_negotiation(const uint8_t *p, int len, uint8_t *out, int cap);
+
 /* ── Discord voice / STUN ──────────────────────────────────────────────────
  * Discord's 74-byte IP-discovery request: type 0x0001, length 0x0046 (= 70),
  * total 74 bytes. Exact match only. */
