@@ -336,7 +336,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">সুরক্ষা চালু থাকা অবস্থায় টিভিতে কাস্ট এবং লোকাল নেটওয়ার্কের অন্য ডিভাইস কাজ করে।\nযে অ্যাপের সার্ভার নেটওয়ার্ক ঠিকানা দিয়ে ব্লক করে, সেটি এখন Tor-এর প্রশ্ন পায়।\nRoblox: গেমে যোগ দিতে গিয়ে আর HTTP ত্রুটি আসে না (নেটওয়ার্কের DNS একে ব্লক পেজে পাঠাচ্ছিল)।\n«কিছু কাজ করছে না?» সব জায়গায় দেখা যায়।</string>
+    <string name="whatsNewAndroid">QUIC বন্ধ থাকলে অ্যাপগুলো এখন সঙ্গে সঙ্গে TCP-তে চলে যায়: Instagram-এর মন্তব্য ও এ জাতীয় জিনিস আর দেরিতে খোলে না।\nআপনার দেশ এখন আগে টাইম জোন থেকে পড়া হয়: অল্প সময়ের বিভ্রাটে Shroudly আর ভাবে না আপনি অন্য কোথাও আছেন।\n\"কিছু কাজ করছে না?\" এখন কেবল তখনই দেখায় যখন Shroudly নিজে কোনো সমস্যায় পড়ে, যাতে আপনি আমাদের জানাতে পারেন।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

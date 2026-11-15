@@ -336,7 +336,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Mentransmisikan ke TV dan perangkat lain di jaringan lokal berfungsi dengan perlindungan menyala.\nAplikasi yang servernya diblokir jaringan berdasarkan alamat kini mendapat pertanyaan Tor.\nRoblox: masuk ke permainan tidak lagi gagal dengan galat HTTP (DNS jaringan mengirimnya ke halaman blokir).\n«Ada yang tidak berfungsi?» tampil di mana-mana.</string>
+    <string name="whatsNewAndroid">Saat QUIC dimatikan, aplikasi kini langsung beralih ke TCP: komentar Instagram dan sejenisnya tidak lagi terbuka terlambat.\nNegaramu kini dibaca dari zona waktu lebih dulu: gangguan singkat tidak lagi membuat Shroudly mengira kamu berada di tempat lain.\n\"Ada yang tidak berfungsi?\" kini hanya muncul setelah Shroudly sendiri mengalami masalah, agar kamu bisa memberi tahu kami.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

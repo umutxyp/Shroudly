@@ -336,7 +336,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">البث إلى التلفاز والأجهزة الأخرى في شبكتك المحلية يعمل والحماية مفعّلة.\nالتطبيق الذي تحجب الشبكة خوادمه بالعنوان يتلقى الآن سؤال Tor.\nRoblox: لم يعد الدخول إلى لعبة يفشل بخطأ HTTP (كان DNS الشبكة يرسله إلى صفحة الحجب).\n«هل هناك شيء لا يعمل؟» يظهر في كل مكان.</string>
+    <string name="whatsNewAndroid">عند إيقاف QUIC تنتقل التطبيقات الآن فوراً إلى TCP: لم تعد تعليقات إنستغرام وما شابهها تتأخر في الفتح.\nيُقرأ بلدك أولاً من المنطقة الزمنية: لم يعد انقطاع قصير يجعل Shroudly يظن أنك في بلد آخر.\n«هل هناك شيء لا يعمل؟» يظهر الآن فقط بعد أن يواجه Shroudly نفسه مشكلة، لتخبرنا بها.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

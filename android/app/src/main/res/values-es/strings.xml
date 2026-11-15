@@ -336,7 +336,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Transmitir a un televisor y otros dispositivos de tu red local funciona con la protección activada.\nUna app cuyos servidores la red bloquea por dirección ahora recibe la pregunta de Tor.\nRoblox: entrar a una partida ya no falla con un error HTTP (el DNS de la red lo enviaba a su página de bloqueo).\n«¿Algo no funciona?» aparece en todas partes.</string>
+    <string name="whatsNewAndroid">Con QUIC desactivado, las apps pasan ahora a TCP al instante: los comentarios de Instagram y similares ya no tardan en abrirse.\nTu país se lee primero de la zona horaria: un corte breve ya no hace que Shroudly crea que estás en otro lugar.\n«¿Algo no funciona?» ahora aparece solo cuando el propio Shroudly tiene un problema, para que puedas contárnoslo.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

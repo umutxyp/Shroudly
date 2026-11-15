@@ -228,7 +228,7 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Rapor tenê piştî ku malper an sepan bi parastina vekirî hate ceribandin diçe, û divê navê wê were nivîsandin.";
-"whatsNewMac" = "Roblox: dema ketina lîstikê êdî xeletiya HTTP dernakeve (DNS ya torê ew dişand rûpela astengkirinê).\nRapor tenê piştî ku malper an sepan bi parastina vekirî hate ceribandin diçe, û divê navê wê were nivîsandin.";
+"whatsNewApple" = "Dema QUIC girtî be, sepan niha yekser derbasî TCP dibin: şîroveyên Instagramê û yên wekî wan êdî dereng venabin.\n\"Tiştek naxebite?\" niha tenê dema ku Shroudly bi xwe bikeve pirsgirêkê xuya dibe, da ku tu ji me re bibêjî.";
+"whatsNewMac" = "Dema QUIC girtî be, sepan niha yekser derbasî TCP dibin: şîroveyên Instagramê û yên wekî wan êdî dereng venabin.\n\"Tiştek naxebite?\" niha tenê dema ku Shroudly bi xwe bikeve pirsgirêkê xuya dibe, da ku tu ji me re bibêjî.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

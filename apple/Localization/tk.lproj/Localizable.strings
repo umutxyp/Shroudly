@@ -228,7 +228,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Hasabat diňe saýt ýa-da programma gorag açyk wagty synalandan soň gidýär we onuň adyny ýazmak gerek.";
-"whatsNewMac" = "Roblox: oýna girende HTTP ýalňyşlygy indi çykmaýar (ulgamyň DNS-i ony bökdeme sahypasyna iberýärdi).\nHasabat diňe saýt ýa-da programma gorag açyk wagty synalandan soň gidýär we onuň adyny ýazmak gerek.";
+"whatsNewApple" = "QUIC öçük bolanda programmalar indi derrew TCP-ä geçýär: Instagram teswirleri we şuňa meňzeşler indi gijä galyp açylmaýar.\n\"Bir zat işlemeýärmi?\" indi diňe Shroudly-niň özünde mesele çykanda görünýär, şonda bize habar berip bilersiňiz.";
+"whatsNewMac" = "QUIC öçük bolanda programmalar indi derrew TCP-ä geçýär: Instagram teswirleri we şuňa meňzeşler indi gijä galyp açylmaýar.\n\"Bir zat işlemeýärmi?\" indi diňe Shroudly-niň özünde mesele çykanda görünýär, şonda bize habar berip bilersiňiz.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

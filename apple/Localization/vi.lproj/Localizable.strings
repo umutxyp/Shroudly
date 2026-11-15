@@ -228,7 +228,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Báo cáo chỉ được gửi sau khi trang hoặc ứng dụng đã được thử khi bảo vệ đang bật, và phải ghi tên nó.";
-"whatsNewMac" = "Roblox: vào trò chơi không còn lỗi HTTP (DNS của mạng đã gửi nó tới trang chặn).\nBáo cáo chỉ được gửi sau khi trang hoặc ứng dụng đã được thử khi bảo vệ đang bật, và phải ghi tên nó.";
+"whatsNewApple" = "Khi tắt QUIC, ứng dụng giờ chuyển sang TCP ngay lập tức: bình luận Instagram và những thứ tương tự không còn mở chậm nữa.\n\"Có gì đó không hoạt động?\" giờ chỉ hiện khi chính Shroudly gặp sự cố, để bạn báo cho chúng tôi.";
+"whatsNewMac" = "Khi tắt QUIC, ứng dụng giờ chuyển sang TCP ngay lập tức: bình luận Instagram và những thứ tương tự không còn mở chậm nữa.\n\"Có gì đó không hoạt động?\" giờ chỉ hiện khi chính Shroudly gặp sự cố, để bạn báo cho chúng tôi.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

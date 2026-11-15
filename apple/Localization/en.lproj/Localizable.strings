@@ -228,7 +228,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "A report goes only once the site or app was tried with protection on, and it must name it.";
-"whatsNewMac" = "Roblox: joining a game no longer fails with an HTTP error (the network's DNS was sending it to its block page).\nA report goes only once the site or app was tried with protection on, and it must name it.";
+"whatsNewApple" = "With QUIC off, apps now move to TCP at once: Instagram comments and the like no longer open late.\n\"Something not working?\" now shows only after Shroudly itself runs into a problem, so you can tell us about it.";
+"whatsNewMac" = "With QUIC off, apps now move to TCP at once: Instagram comments and the like no longer open late.\n\"Something not working?\" now shows only after Shroudly itself runs into a problem, so you can tell us about it.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

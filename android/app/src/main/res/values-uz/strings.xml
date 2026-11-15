@@ -336,7 +336,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Himoya yoqilganda televizorga uzatish va mahalliy tarmoqdagi boshqa qurilmalar ishlaydi.\nServerlarini tarmoq manzil bo\'yicha bloklagan ilova endi Tor savolini oladi.\nRoblox: o\'yinga kirishda HTTP xatosi endi chiqmaydi (tarmoq DNS\'i uni bloklash sahifasiga yuborardi).\n«Nimadir ishlamayaptimi?» hamma joyda ko\'rinadi.</string>
+    <string name="whatsNewAndroid">QUIC o‘chiq bo‘lsa, ilovalar endi darhol TCP’ga o‘tadi: Instagram izohlari va shunga o‘xshashlar endi kechikib ochilmaydi.\nMamlakatingiz avval vaqt mintaqasidan o‘qiladi: qisqa uzilish endi Shroudly’ni sizni boshqa joyda deb o‘ylatmaydi.\n“Nimadir ishlamayaptimi?” endi faqat Shroudly’ning o‘zida muammo chiqqanda ko‘rinadi, shunda bizga xabar berishingiz mumkin.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

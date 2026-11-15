@@ -336,7 +336,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">开启保护时，投屏到电视和本地网络中的其他设备都能正常使用。\n网络按地址封锁其服务器的应用，现在会收到 Tor 询问。\nRoblox：加入游戏不再因 HTTP 错误而失败（网络的 DNS 曾把它发往拦截页面）。\n“有什么不能用？”现在随处可见。</string>
+    <string name="whatsNewAndroid">关闭 QUIC 时,应用现在会立即改用 TCP:Instagram 评论等内容不再延迟打开。\n现在优先根据时区判断你所在的国家:短暂断网不会再让 Shroudly 误以为你在别处。\n\"有什么用不了吗？\"现在只会在 Shroudly 自身出现问题后显示,方便你告诉我们。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

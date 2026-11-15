@@ -336,7 +336,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ጥበቃ በርቶ ወደ ቲቪ ማስተላለፍ እና በአካባቢ አውታረ መረብ ያሉ ሌሎች መሣሪያዎች ይሰራሉ።\nአውታረ መረቡ አገልጋዮቹን በአድራሻ የሚያግደው መተግበሪያ አሁን የTor ጥያቄ ያገኛል።\nRoblox: ወደ ጨዋታ ሲገቡ ከእንግዲህ የHTTP ስህተት አይመጣም (የአውታረ መረቡ DNS ወደ ማገጃ ገጹ ይልከው ነበር)።\n«የማይሰራ ነገር አለ?» በሁሉም ቦታ ይታያል።</string>
+    <string name="whatsNewAndroid">QUIC ሲጠፋ መተግበሪያዎች አሁን ወዲያውኑ ወደ TCP ይሄዳሉ፦ የInstagram አስተያየቶችና መሰል ነገሮች ከእንግዲህ ዘግይተው አይከፈቱም።\nአገርዎ አሁን መጀመሪያ ከሰዓት ሰቅ ይነበባል፦ አጭር መቋረጥ ከእንግዲህ Shroudly ሌላ ቦታ እንዳሉ እንዲያስብ አያደርግም።\n\"የማይሰራ ነገር አለ?\" አሁን የሚታየው Shroudly ራሱ ችግር ሲገጥመው ብቻ ነው፣ እንዲያሳውቁን።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>
