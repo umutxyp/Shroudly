@@ -112,4 +112,37 @@ object TunnelConfig {
             |  log-level: warn
             |""".trimMargin()
     }
+
+    /* What stays off the VPN: the local network and multicast. Taken in,
+     * a phone could not find a TV to cast to (mDNS and SSDP answers came to
+     * a socket that never joined the group: SR-EP2D, India), and a TV or a
+     * phone running Shroudly could not answer what the local network asked
+     * of it (casting to it, sharing to it): its replies went into the tunnel.
+     * The engine's own addresses (198.18.0.0/15) stay in. */
+    val LOCAL_V4 = listOf("10.0.0.0" to 8, "172.16.0.0" to 12, "192.168.0.0" to 16, "169.254.0.0" to 16, "224.0.0.0" to 4, "240.0.0.0" to 4)
+    val LOCAL_V6 = listOf("fe80::" to 10, "fd00::" to 8, "ff00::" to 8)
+
+    private fun v4(a: String): Long = a.split('.').fold(0L) { acc, p -> (acc shl 8) or p.toLong() }
+    private fun v4s(n: Long): String = listOf(24, 16, 8, 0).joinToString(".") { ((n shr it) and 0xFF).toString() }
+
+    /* 0.0.0.0/0 less LOCAL_V4, as the fewest prefixes (pure, for the tests):
+     * Android before 13 has no excludeRoute. */
+    fun routesV4(): List<Pair<String, Int>> {
+        val ex = LOCAL_V4.map { v4(it.first) to it.second }
+        val out = mutableListOf<Pair<String, Int>>()
+        fun walk(base: Long, len: Int) {
+            val size = 1L shl (32 - len)
+            val end = base + size - 1
+            var overlaps = false
+            for ((eb, el) in ex) {
+                val eEnd = eb + (1L shl (32 - el)) - 1
+                if (base >= eb && end <= eEnd) return   // wholly local
+                if (eb <= end && eEnd >= base) overlaps = true
+            }
+            if (!overlaps) { out += v4s(base) to len; return }
+            walk(base, len + 1); walk(base + size / 2, len + 1)
+        }
+        walk(0L, 0)
+        return out
+    }
 }
