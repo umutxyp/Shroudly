@@ -690,9 +690,12 @@ class ShroudlyVpnService : VpnService() {
             .setSession(getString(R.string.app_name))
             .setMtu(TunnelConfig.MTU)
             .addAddress(TunnelConfig.ADDRESS_V4, 32)
-            .addRoute("0.0.0.0", 0)
             .addDnsServer(TunnelConfig.DNS_V4)
             .setConfigureIntent(openApp(this))
+        // Everything but the local network and multicast (TunnelConfig.LOCAL_V4):
+        // casting, a TV's discovery and the local network's own answers stay
+        // off the VPN.
+        for ((a, len) in TunnelConfig.routesV4()) b.addRoute(a, len)
         // Only the apps chosen (Settings, #60): every other one, this app
         // among them, straight out. Android takes one way or the other, never
         // both; with none of them installed any more, the usual way.
@@ -717,7 +720,13 @@ class ShroudlyVpnService : VpnService() {
         if ((only > 0 || skip > 0) && lockdown()) log("Lockdown: the ${if (only > 0) "apps not chosen" else "$skip apps left out"} have no internet while Android blocks connections without a VPN")
         // Without an IPv6 address and route, Android answers apps' IPv6 with
         // "unreachable" at once, and they use IPv4.
-        if (v6) b.addAddress(TunnelConfig.ADDRESS_V6, 128).addRoute("::", 0)
+        if (v6) {
+            b.addAddress(TunnelConfig.ADDRESS_V6, 128).addRoute("::", 0)
+            // The local network's IPv6 and multicast off the VPN (Android 13+).
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) for ((a, len) in TunnelConfig.LOCAL_V6) {
+                try { b.excludeRoute(android.net.IpPrefix(java.net.InetAddress.getByName(a), len)) } catch (_: Exception) {}
+            }
+        }
         // Metered exactly when the network underneath is. From Android 10 a
         // VPN counts as metered unless it says otherwise; saying it is not
         // makes Android take the metering of the network underneath

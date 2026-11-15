@@ -4154,7 +4154,34 @@ static void *nd_thread(void *p) {
     if (k > 0) no += k;
     k = doh_resolve_all(j->host, 443, 1, ours + no, ol + no, DOH_MAX_ADDRS);
     if (k > 0) no += k;
-    for (int pass = 0; pass < 2 && !j->addr[0]; pass++) {
+    /* One of its answers a known block page: the network's DNS forges this
+     * name, and its other answers are the censor's too. Türk Telekom gave
+     * roblox.com its block page 195.175.254.2 and, beside it, its own IPv6
+     * server (2a01:358:4014:a00::3), which no list had: "opened at the
+     * address this network's DNS gives", and every game join failed with an
+     * HTTP error from the block page. */
+    int forged = 0;
+    for (struct addrinfo *ai = res; ai && !forged; ai = ai->ai_next) {
+      if (ai->ai_family == AF_INET && (size_t)ai->ai_addrlen >= sizeof(struct sockaddr_in))
+        forged = doh_ipv4_is_blockpage(ntohl(((const struct sockaddr_in *)ai->ai_addr)->sin_addr.s_addr));
+      else if (ai->ai_family == AF_INET6 && (size_t)ai->ai_addrlen >= sizeof(struct sockaddr_in6))
+        forged = doh_ipv6_is_blockpage((const uint8_t *)&((const struct sockaddr_in6 *)ai->ai_addr)->sin6_addr);
+    }
+    /* AI_ADDRCONFIG left out the A records on a machine without IPv4? Ask
+     * for them alone: the forged one is usually there. */
+    if (!forged && !g_cfg.ipv4_only) {
+      struct addrinfo h4, *r4 = NULL;
+      memset(&h4, 0, sizeof(h4)); h4.ai_family = AF_INET; h4.ai_socktype = SOCK_STREAM;
+      int had4 = 0;
+      for (struct addrinfo *ai = res; ai; ai = ai->ai_next) if (ai->ai_family == AF_INET) had4 = 1;
+      if (!had4 && getaddrinfo(j->host, NULL, &h4, &r4) == 0 && r4) {
+        for (struct addrinfo *ai = r4; ai && !forged; ai = ai->ai_next)
+          if ((size_t)ai->ai_addrlen >= sizeof(struct sockaddr_in))
+            forged = doh_ipv4_is_blockpage(ntohl(((const struct sockaddr_in *)ai->ai_addr)->sin_addr.s_addr));
+      }
+      if (r4) freeaddrinfo(r4);
+    }
+    for (int pass = 0; pass < 2 && !j->addr[0] && !forged; pass++) {
       for (struct addrinfo *ai = res; ai && !j->addr[0]; ai = ai->ai_next) {
         if ((ai->ai_family == AF_INET) != (pass == 0) || (ai->ai_family != AF_INET && ai->ai_family != AF_INET6)) continue;
         if ((size_t)ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
