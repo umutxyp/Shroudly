@@ -973,6 +973,7 @@
   "torAskCard": "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor: chậm hơn nhiều (trang và video tải chậm), và một số trang yêu cầu captcha. Câu trả lời của bạn được lưu; bạn có thể đổi trong Cài đặt.",
   "torAskYes": "Dùng Tor",
   "torAskNo": "Không",
+  "torAskUnknownApp": "máy chủ của một ứng dụng ({addr})",
   "liteOfferTitle": "{host} vẫn bị chặn ở đây",
   "liteOfferCard": "Không kỹ thuật nào mở được {host} trên mạng này: mạng chặn hẳn nó, hoặc các địa chỉ của nó. Đây là bản lite của Shroudly, không có Tor; bản đầy đủ mở những trang và ứng dụng như vậy qua mạng Tor (chậm hơn). Bản đó cài đè lên bản này, và cài đặt của bạn vẫn giữ nguyên.",
   "liteOfferNotice": "Không kỹ thuật nào mở được {host} trên mạng này. Bản đầy đủ của Shroudly, có Tor, có thể mở nó. Mở Shroudly để tải bản đó.",

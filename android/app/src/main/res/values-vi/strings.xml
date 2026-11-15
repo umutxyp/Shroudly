@@ -320,6 +320,7 @@
     <string name="torAskNo">Không</string>
     <string name="torAskNotice">Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor, lối thoát cuối cùng, nhưng chậm hơn nhiều. Mở Shroudly để cho phép hoặc từ chối.</string>
     <string name="torAskTitle">Mở {host} qua Tor?</string>
+    <string name="torAskUnknownApp">máy chủ của một ứng dụng ({addr})</string>
     <string name="torAskYes">Dùng Tor</string>
     <string name="torUsedPhone">{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các ứng dụng và trang khác của bạn vẫn như cũ.</string>
     <string name="torUsedTv">{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly. Video từ đó có thể tải chậm hoặc chất lượng thấp hơn; các ứng dụng khác của bạn vẫn như cũ.</string>

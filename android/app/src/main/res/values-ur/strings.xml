@@ -320,6 +320,7 @@
     <string name="torAskNo">نہیں</string>
     <string name="torAskNotice">اس نیٹ ورک پر کسی بھی تکنیک نے {host} نہیں کھولا۔ Shroudly اسے Tor نیٹ ورک کے ذریعے کھول سکتا ہے، جو اس کا آخری راستہ ہے، مگر بہت آہستہ۔ اجازت دینے یا انکار کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="torAskTitle">کیا {host} کو Tor کے ذریعے کھولا جائے؟</string>
+    <string name="torAskUnknownApp">ایک ایپ کے سرور ({addr})</string>
     <string name="torAskYes">Tor استعمال کریں</string>
     <string name="torUsedPhone">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے: اس نیٹ ورک پر اور کچھ کام نہیں آیا۔ یہ سست ہے اور کچھ سائٹس کیپچا مانگتی ہیں؛ آپ کی باقی ایپس اور سائٹس پہلے کی طرح چلتی ہیں۔</string>
     <string name="torUsedTv">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے۔ اس کی ویڈیوز آہستہ یا کم معیار میں لوڈ ہو سکتی ہیں؛ آپ کی باقی ایپس پہلے کی طرح چلتی ہیں۔</string>

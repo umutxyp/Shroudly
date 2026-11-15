@@ -320,6 +320,7 @@
     <string name="torAskNo">いいえ</string>
     <string name="torAskNotice">このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は最後の手段である Tor ネットワーク経由で開けますが、かなり遅くなります。許可するか断るには Shroudly を開いてください。</string>
     <string name="torAskTitle">{host} を Tor 経由で開きますか？</string>
+    <string name="torAskUnknownApp">あるアプリのサーバー（{addr}）</string>
     <string name="torAskYes">Tor を使う</string>
     <string name="torUsedPhone">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。他のアプリやサイトはこれまでどおりです。</string>
     <string name="torUsedTv">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。そこからの動画は読み込みが遅くなったり画質が下がったりすることがあります。他のアプリはこれまでどおりです。</string>

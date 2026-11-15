@@ -320,6 +320,7 @@
     <string name="torAskNo">Не</string>
     <string name="torAskNotice">Дар ин шабака ягон усул {host}-ро накушод. Shroudly метавонад онро тавассути шабакаи Tor, роҳи охирини худ, кушояд, вале хеле сусттар. Барои иҷозат додан ё рад кардан Shroudly-ро кушоед.</string>
     <string name="torAskTitle">{host} тавассути Tor кушода шавад?</string>
+    <string name="torAskUnknownApp">серверҳои як барнома ({addr})</string>
     <string name="torAskYes">Истифодаи Tor</string>
     <string name="torUsedPhone">{host} танҳо тавассути шабакаи Tor кушода шуд — роҳи охирини Shroudly: дар ин шабака чизи дигар кор накард. Ин сусттар аст ва баъзе сайтҳо капча мепурсанд; дигар барномаҳо ва сайтҳо мисли пештара кор мекунанд.</string>
     <string name="torUsedTv">{host} танҳо тавассути шабакаи Tor кушода шуд — роҳи охирини Shroudly. Видеоҳои он метавонанд суст ё бо сифати пасттар бор шаванд; дигар барномаҳо мисли пештара кор мекунанд.</string>

@@ -320,6 +320,7 @@
     <string name="torAskNo">نه</string>
     <string name="torAskNotice">په دې شبکه کې هېڅ تخنیک {host} پرانیستی نه شو. Shroudly کولی شي هغه د Tor شبکې له لارې، چې وروستۍ لاره یې ده، پرانیزي، خو ډېر ورو. د اجازې یا انکار لپاره Shroudly پرانیزئ.</string>
     <string name="torAskTitle">آیا {host} د Tor له لارې پرانیستل شي؟</string>
+    <string name="torAskUnknownApp">د یوه اپ سرورونه ({addr})</string>
     <string name="torAskYes">Tor وکاروئ</string>
     <string name="torUsedPhone">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده: په دې شبکه کې بل هېڅ شی کار ونه کړ. دا ورو ده او ځینې سایټونه کیپچا غواړي؛ ستاسو نور اپونه او سایټونه لکه پخوا کار کوي.</string>
     <string name="torUsedTv">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده. د هغه ویډیوګانې ښايي ورو یا په ټیټ کیفیت پورته شي؛ ستاسو نور اپونه لکه پخوا کار کوي.</string>

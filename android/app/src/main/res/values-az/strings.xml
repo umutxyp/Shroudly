@@ -320,6 +320,7 @@
     <string name="torAskNo">Xeyr</string>
     <string name="torAskNotice">Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu son çarəsi olan Tor şəbəkəsi ilə aça bilər, amma çox daha yavaş. İcazə vermək və ya imtina etmək üçün Shroudly-ni aç.</string>
     <string name="torAskTitle">{host} Tor vasitəsilə açılsın?</string>
+    <string name="torAskUnknownApp">bir tətbiqin serverləri ({addr})</string>
     <string name="torAskYes">Tor-dan istifadə et</string>
     <string name="torUsedPhone">{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; digər tətbiqləriniz və saytlar əvvəlki kimi işləyir.</string>
     <string name="torUsedTv">{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu. Oradakı videolar yavaş və ya aşağı keyfiyyətdə yüklənə bilər; digər tətbiqləriniz əvvəlki kimi işləyir.</string>

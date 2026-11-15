@@ -1407,9 +1407,11 @@ class ShroudlyVpnService : VpnService() {
         when (val o = rawWatch.onEvent(kind, ev.host, ev.port, ev.attempts, System.currentTimeMillis(), ev.stage, ev.note)) {
             is RawWatch.Outcome.Log -> { o.before?.let { b -> logSite { b } }; logSite { o.line } }
             is RawWatch.Outcome.Tell -> {
-                val n = o.notice
+                val n0 = o.notice
+                // An app no list knows: named by its servers in the question.
+                val n = if (n0.app.isNotEmpty()) n0 else n0.copy(app = text(R.string.torAskUnknownApp, "addr" to n0.addrs.first().substringBeforeLast(':').trim('[', ']')))
                 val addrs = n.addrs.joinToString(", ")
-                val what = if (n.kind == RawWatch.Kind.UNREACHABLE) "${n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves"
+                val what = if (n.kind == RawWatch.Kind.UNREACHABLE) "${if (n0.app.isEmpty()) "An app" else n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves"
                     else "${n.app}: the network stops its connections ($addrs) and no technique got through"
                 // The last way out takes these connections too (the engine's
                 // via_fallback, by address): "use the app's own proxy" was

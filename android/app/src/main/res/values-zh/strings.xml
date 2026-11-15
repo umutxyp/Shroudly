@@ -320,6 +320,7 @@
     <string name="torAskNo">不</string>
     <string name="torAskNotice">在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络（它的最后手段）打开它，但会慢很多。打开 Shroudly 以允许或拒绝。</string>
     <string name="torAskTitle">通过 Tor 打开 {host}？</string>
+    <string name="torAskUnknownApp">某个应用的服务器（{addr}）</string>
     <string name="torAskYes">使用 Tor</string>
     <string name="torUsedPhone">{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；你的其他应用和网站照常。</string>
     <string name="torUsedTv">{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招。它的视频可能加载较慢或画质较低；你的其他应用照常。</string>

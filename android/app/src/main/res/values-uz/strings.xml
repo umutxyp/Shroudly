@@ -320,6 +320,7 @@
     <string name="torAskNo">Yo\'q</string>
     <string name="torAskNotice">Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni so\'nggi chorasi — Tor tarmog\'i orqali ochishi mumkin, lekin ancha sekinroq. Ruxsat berish yoki rad etish uchun Shroudly\'ni oching.</string>
     <string name="torAskTitle">{host} Tor orqali ochilsinmi?</string>
+    <string name="torAskUnknownApp">ilova serverlari ({addr})</string>
     <string name="torAskYes">Tor\'dan foydalanish</string>
     <string name="torUsedPhone">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; boshqa ilovalar va saytlar avvalgidek ishlaydi.</string>
     <string name="torUsedTv">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli. Undagi videolar sekin yoki pastroq sifatda yuklanishi mumkin; boshqa ilovalar avvalgidek ishlaydi.</string>

@@ -320,6 +320,7 @@
     <string name="torAskNo">ไม่</string>
     <string name="torAskNotice">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly เปิดได้ผ่านเครือข่าย Tor ซึ่งเป็นทางสุดท้าย แต่ช้ากว่ามาก เปิด Shroudly เพื่ออนุญาตหรือปฏิเสธ</string>
     <string name="torAskTitle">เปิด {host} ผ่าน Tor ไหม?</string>
+    <string name="torAskUnknownApp">เซิร์ฟเวอร์ของแอปหนึ่ง ({addr})</string>
     <string name="torAskYes">ใช้ Tor</string>
     <string name="torUsedPhone">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly: บนเครือข่ายนี้ไม่มีวิธีอื่นใช้ได้ ช้ากว่าปกติและบางเว็บไซต์จะขอ captcha ส่วนแอปและเว็บไซต์อื่นของคุณใช้งานได้ตามเดิม</string>
     <string name="torUsedTv">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly วิดีโอจากที่นั่นอาจโหลดช้าหรือคุณภาพต่ำลง ส่วนแอปอื่นของคุณใช้งานได้ตามเดิม</string>

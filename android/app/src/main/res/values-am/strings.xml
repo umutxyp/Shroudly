@@ -320,6 +320,7 @@
     <string name="torAskNo">አይ</string>
     <string name="torAskNotice">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አልከፈተም። Shroudly የመጨረሻ አማራጩ በሆነው በTor አውታረ መረብ በኩል ሊከፍተው ይችላል፣ ግን በጣም በዝግታ። ለመፍቀድ ወይም ለመከልከል Shroudlyን ይክፈቱ።</string>
     <string name="torAskTitle">{host} በTor በኩል ይከፈት?</string>
+    <string name="torAskUnknownApp">የአንድ መተግበሪያ አገልጋዮች ({addr})</string>
     <string name="torAskYes">Torን ተጠቀም</string>
     <string name="torUsedPhone">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ ሌሎች መተግበሪያዎችዎና ድረ-ገጾች እንደቀድሞው ይሰራሉ።</string>
     <string name="torUsedTv">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው። ከዚያ የሚመጡ ቪዲዮዎች በዝግታ ወይም በዝቅተኛ ጥራት ሊጫኑ ይችላሉ፤ ሌሎች መተግበሪያዎችዎ እንደቀድሞው ይሰራሉ።</string>

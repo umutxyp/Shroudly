@@ -320,6 +320,7 @@
     <string name="torAskNo">Não</string>
     <string name="torAskNotice">Nenhuma técnica abriu {host} nesta rede. O Shroudly pode abri-lo pela rede Tor, seu último recurso, mas bem mais devagar. Abra o Shroudly para permitir ou recusar.</string>
     <string name="torAskTitle">Abrir {host} pelo Tor?</string>
+    <string name="torAskUnknownApp">os servidores de um app ({addr})</string>
     <string name="torAskYes">Usar o Tor</string>
     <string name="torUsedPhone">{host} só abriu pela rede Tor, o último recurso do Shroudly: nada mais funcionou nesta rede. É mais lento e alguns sites pedem um captcha; seus outros apps e sites continuam como antes.</string>
     <string name="torUsedTv">{host} só abriu pela rede Tor, o último recurso do Shroudly. Os vídeos dele podem carregar devagar ou com qualidade menor; seus outros apps continuam como antes.</string>

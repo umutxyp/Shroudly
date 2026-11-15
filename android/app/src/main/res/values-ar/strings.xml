@@ -320,6 +320,7 @@
     <string name="torAskNo">لا</string>
     <string name="torAskNotice">لم تفتح أي تقنية {host} على هذه الشبكة. يمكن لـ Shroudly فتحه عبر شبكة Tor، الملاذ الأخير، لكن بشكل أبطأ بكثير. افتح Shroudly للسماح أو الرفض.</string>
     <string name="torAskTitle">هل تريد فتح {host} عبر Tor؟</string>
+    <string name="torAskUnknownApp">خوادم أحد التطبيقات ({addr})</string>
     <string name="torAskYes">استخدام Tor</string>
     <string name="torUsedPhone">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly: لم ينجح شيء آخر على هذه الشبكة. الاتصال أبطأ وبعض المواقع تطلب اختبار captcha؛ وبقية تطبيقاتك ومواقعك تعمل كما كانت.</string>
     <string name="torUsedTv">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly. قد تُحمَّل مقاطع الفيديو منه ببطء أو بجودة أقل؛ وبقية تطبيقاتك تعمل كما كانت.</string>

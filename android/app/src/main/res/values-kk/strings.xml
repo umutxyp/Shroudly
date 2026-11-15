@@ -320,6 +320,7 @@
     <string name="torAskNo">Жоқ</string>
     <string name="torAskNotice">Бұл желіде ешбір тәсіл {host} сайтын ашпады. Shroudly оны соңғы амалы — Tor желісі арқылы аша алады, бірақ әлдеқайда баяу. Рұқсат беру немесе бас тарту үшін Shroudly-ді ашыңыз.</string>
     <string name="torAskTitle">{host} Tor арқылы ашылсын ба?</string>
+    <string name="torAskUnknownApp">қолданба серверлері ({addr})</string>
     <string name="torAskYes">Tor қолдану</string>
     <string name="torUsedPhone">{host} тек Tor желісі арқылы ашылды — бұл Shroudly-дің соңғы жолы: бұл желіде басқа ештеңе өтпеді. Бұл баяуырақ, кейбір сайттар капча сұрайды; басқа қолданбалар мен сайттар бұрынғыдай жұмыс істейді.</string>
     <string name="torUsedTv">{host} тек Tor желісі арқылы ашылды — бұл Shroudly-дің соңғы жолы. Ондағы бейнелер баяу немесе төмен сапада жүктелуі мүмкін; басқа қолданбалар бұрынғыдай жұмыс істейді.</string>

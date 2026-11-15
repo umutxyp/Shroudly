@@ -973,6 +973,7 @@
   "torAskCard": "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor: jauh lebih lambat (halaman dan video dimuat pelan), dan beberapa situs meminta captcha. Jawabanmu disimpan; kamu bisa mengubahnya di Pengaturan.",
   "torAskYes": "Pakai Tor",
   "torAskNo": "Tidak",
+  "torAskUnknownApp": "server sebuah aplikasi ({addr})",
   "liteOfferTitle": "{host} tetap diblokir di sini",
   "liteOfferCard": "Tidak ada teknik yang membuka {host} di jaringan ini: jaringan memblokirnya, atau alamatnya, sepenuhnya. Ini Shroudly versi lite, tanpa Tor; versi lengkap membuka situs dan aplikasi seperti itu lewat jaringan Tor (lebih lambat). Versi itu terpasang menimpa yang ini, dan pengaturanmu tetap.",
   "liteOfferNotice": "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly versi lengkap, dengan Tor, bisa membukanya. Buka Shroudly untuk mendapatkannya.",

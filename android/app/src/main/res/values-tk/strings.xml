@@ -320,6 +320,7 @@
     <string name="torAskNo">Ýok</string>
     <string name="torAskNotice">Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony iň soňky ýoly bolan Tor ulgamy arkaly açyp biler, ýöne has haýal. Rugsat bermek ýa-da ret etmek üçin Shroudly-ni açyň.</string>
     <string name="torAskTitle">{host} Tor arkaly açylsynmy?</string>
+    <string name="torAskUnknownApp">bir programmanyň serwerleri ({addr})</string>
     <string name="torAskYes">Tor ulan</string>
     <string name="torUsedPhone">{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; beýleki programmalaryňyz we saýtlar öňküsi ýaly işleýär.</string>
     <string name="torUsedTv">{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly. Ondaky wideolar haýal ýa-da pes hilde ýüklenip biler; beýleki programmalaryňyz öňküsi ýaly işleýär.</string>

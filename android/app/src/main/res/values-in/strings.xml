@@ -320,6 +320,7 @@
     <string name="torAskNo">Tidak</string>
     <string name="torAskNotice">Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor, jalan terakhirnya, tetapi jauh lebih lambat. Buka Shroudly untuk mengizinkan atau menolak.</string>
     <string name="torAskTitle">Buka {host} lewat Tor?</string>
+    <string name="torAskUnknownApp">server sebuah aplikasi ({addr})</string>
     <string name="torAskYes">Pakai Tor</string>
     <string name="torUsedPhone">{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; aplikasi dan situs Anda yang lain tetap seperti biasa.</string>
     <string name="torUsedTv">{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly. Videonya bisa dimuat lambat atau dengan kualitas lebih rendah; aplikasi Anda yang lain tetap seperti biasa.</string>

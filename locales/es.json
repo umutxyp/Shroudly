@@ -973,6 +973,7 @@
   "torAskCard": "Ninguna técnica abrió {host} en esta red. Shroudly puede abrirlo a través de la red Tor: mucho más lento (las páginas y los vídeos cargan despacio) y algunos sitios piden un captcha. Tu respuesta se guarda; puedes cambiarla en Ajustes.",
   "torAskYes": "Usar Tor",
   "torAskNo": "No",
+  "torAskUnknownApp": "los servidores de una app ({addr})",
   "liteOfferTitle": "{host} sigue bloqueado aquí",
   "liteOfferCard": "Ninguna técnica abre {host} en esta red: la red lo bloquea por completo, a él o a sus direcciones. Esta es la versión lite de Shroudly, sin Tor; la versión completa abre esos sitios y apps a través de la red Tor (más despacio). Se instala encima de esta y tus ajustes se mantienen.",
   "liteOfferNotice": "Ninguna técnica abre {host} en esta red. La versión completa de Shroudly, con Tor, puede abrirlo. Abre Shroudly para conseguirla.",

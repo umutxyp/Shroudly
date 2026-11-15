@@ -973,6 +973,7 @@
   "torAskCard": "Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu Tor şəbəkəsi ilə aça bilər: çox daha yavaşdır (səhifələr və videolar yavaş yüklənir) və bəzi saytlar captcha istəyir. Cavabın yadda saxlanılır; Ayarlarda dəyişə bilərsən.",
   "torAskYes": "Tor-dan istifadə et",
   "torAskNo": "Xeyr",
+  "torAskUnknownApp": "bir tətbiqin serverləri ({addr})",
   "liteOfferTitle": "{host} burada bloklanmış qalır",
   "liteOfferCard": "Bu şəbəkədə heç bir texnika {host} üçün işləmir: şəbəkə onu və ya ünvanlarını tamamilə bloklayır. Bu, Shroudly-nin Tor-suz yüngül (lite) versiyasıdır; tam versiya belə sayt və tətbiqləri Tor şəbəkəsi ilə açır (daha yavaş). Bunun üzərinə quraşdırılır, ayarların qalır.",
   "liteOfferNotice": "Bu şəbəkədə heç bir texnika {host} üçün işləmir. Shroudly-nin Tor-lu tam versiyası onu aça bilər. Onu almaq üçün Shroudly-ni aç.",

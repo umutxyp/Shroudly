@@ -973,6 +973,7 @@
   "torAskCard": "在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络打开它：慢很多（网页和视频加载缓慢），部分网站会要求验证码。你的回答会被记住；可在设置中更改。",
   "torAskYes": "使用 Tor",
   "torAskNo": "不",
+  "torAskUnknownApp": "某个应用的服务器（{addr}）",
   "liteOfferTitle": "{host} 在这里仍被封锁",
   "liteOfferCard": "在此网络上，没有任何技术能打开 {host}：网络彻底封锁了它本身或它的地址。这是不含 Tor 的 Shroudly 精简版；完整版可以通过 Tor 网络打开这类网站和应用（速度较慢）。完整版会直接覆盖安装在此版本上，你的设置都会保留。",
   "liteOfferNotice": "在此网络上，没有任何技术能打开 {host}。带有 Tor 的 Shroudly 完整版可以打开它。打开 Shroudly 即可获取。",

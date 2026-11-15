@@ -320,6 +320,7 @@
     <string name="torAskNo">Nein</string>
     <string name="torAskNotice">Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen, seinen letzten Ausweg, aber deutlich langsamer. Öffne Shroudly, um es zu erlauben oder abzulehnen.</string>
     <string name="torAskTitle">{host} über Tor öffnen?</string>
+    <string name="torAskUnknownApp">die Server einer App ({addr})</string>
     <string name="torAskYes">Tor nutzen</string>
     <string name="torUsedPhone">{host} ließ sich nur über das Tor-Netz öffnen, Shroudlys letzten Ausweg: Sonst kam in diesem Netz nichts durch. Das ist langsamer, und manche Seiten verlangen ein Captcha; deine anderen Apps und Seiten laufen wie bisher.</string>
     <string name="torUsedTv">{host} ließ sich nur über das Tor-Netz öffnen, Shroudlys letzten Ausweg. Videos von dort laden womöglich langsam oder in geringerer Qualität; deine anderen Apps laufen wie bisher.</string>
