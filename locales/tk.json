@@ -973,6 +973,7 @@
   "torAskCard": "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony Tor ulgamy arkaly açyp biler: has haýal (sahypalar we wideolar haýal ýüklenýär), käbir saýtlar captcha soraýar. Jogabyňyz ýatda saklanýar; ony Sazlamalarda üýtgedip bilersiňiz.",
   "torAskYes": "Tor ulan",
   "torAskNo": "Ýok",
+  "torAskUnknownApp": "bir programmanyň serwerleri ({addr})",
   "liteOfferTitle": "{host} bu ýerde petikli galýar",
   "liteOfferCard": "Bu ulgamda hiç bir usul {host} üçin işlemeýär: ulgam ony ýa-da onuň salgylaryny doly petikleýär. Bu Shroudly-nyň Tor-syz ýeňil (lite) wersiýasy; doly wersiýa şeýle saýtlary we programmalary Tor ulgamy arkaly açýar (haýalrak). Ol şunuň üstünden gurnalýar, sazlamalaryňyz saklanýar.",
   "liteOfferNotice": "Bu ulgamda hiç bir usul {host} üçin işlemeýär. Shroudly-nyň Tor-ly doly wersiýasy ony açyp biler. Ony almak üçin Shroudly-ni açyň.",

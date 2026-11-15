@@ -973,6 +973,7 @@
   "torAskCard": "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni Tor tarmog'i orqali ochishi mumkin: ancha sekin (sahifalar va videolar sekin yuklanadi), ba'zi saytlar captcha so'raydi. Javobingiz saqlanadi; uni Sozlamalarda o'zgartirishingiz mumkin.",
   "torAskYes": "Tor'dan foydalanish",
   "torAskNo": "Yo'q",
+  "torAskUnknownApp": "ilova serverlari ({addr})",
   "liteOfferTitle": "{host} bu yerda bloklangan holda qolmoqda",
   "liteOfferCard": "Bu tarmoqda hech bir usul {host} uchun ishlamayapti: tarmoq uni yoki uning manzillarini butunlay bloklaydi. Bu Shroudly'ning Tor'siz yengil (lite) versiyasi; to'liq versiya bunday sayt va ilovalarni Tor tarmog'i orqali ochadi (sekinroq). U shu versiya ustidan o'rnatiladi, sozlamalaringiz saqlanib qoladi.",
   "liteOfferNotice": "Bu tarmoqda hech bir usul {host} uchun ishlamayapti. Shroudly'ning Tor bilan to'liq versiyasi uni ocha oladi. Uni olish uchun Shroudly'ni oching.",

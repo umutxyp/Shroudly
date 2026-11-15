@@ -81,9 +81,40 @@ class RawAppsTest {
         var now = 1_800_000_000_000L
         val outs = (0 until 20).map { w.onEvent(RawWatch.Kind.UNREACHABLE, "192.0.2.$it", 22, 0, now) }
         assertEquals(RawWatch.BURST_LINES, outs.count { it is RawWatch.Outcome.Log })
+        // The third address made it look like an app the network blocks: one
+        // question, the rest logged as before.
+        assertEquals(1, outs.count { it is RawWatch.Outcome.Tell })
         now += RawWatch.BURST_MS
         val next = w.onEvent(RawWatch.Kind.UNREACHABLE, "192.0.2.200", 443, 0, now) as RawWatch.Outcome.Log
-        assertTrue(next.before!!.startsWith("17 more addresses"))
+        assertTrue(next.before!!.startsWith("16 more addresses"))
         assertTrue(next.line.startsWith("192.0.2.200:443"))
+    }
+
+    /* An app no list knows, its servers blocked by address (Jakaroo in
+     * Somalia, SR-T2DN): three servers that do not answer within a minute
+     * are told, as an app with no name; one or two are not, nor anything
+     * while the network itself does not work; once in half an hour. */
+    @Test
+    fun anUnknownAppWhoseServersDoNotAnswer() {
+        var now = 1_800_000_000_000L
+        val w = RawWatch(apps)
+        assertTrue(w.onEvent(RawWatch.Kind.UNREACHABLE, "175.97.187.49", 443, 0, now) !is RawWatch.Outcome.Tell)
+        assertTrue(w.onEvent(RawWatch.Kind.UNREACHABLE, "47.100.112.101", 443, 0, now + 1000) !is RawWatch.Outcome.Tell)
+        val t = w.onEvent(RawWatch.Kind.UNREACHABLE, "8.209.112.161", 443, 0, now + 2000) as RawWatch.Outcome.Tell
+        assertEquals("", t.notice.app)
+        assertEquals(listOf("175.97.187.49:443", "47.100.112.101:443", "8.209.112.161:443"), t.notice.addrs)
+        assertTrue(w.onEvent(RawWatch.Kind.UNREACHABLE, "8.209.112.162", 443, 0, now + 3000) !is RawWatch.Outcome.Tell)
+        // Spread over more than a minute: not three at once.
+        val slow = RawWatch(apps)
+        for ((i, ip) in listOf("198.51.100.1", "198.51.100.2", "198.51.100.3").withIndex()) {
+            assertTrue(slow.onEvent(RawWatch.Kind.UNREACHABLE, ip, 443, 0, now + i * 61_000L) !is RawWatch.Outcome.Tell)
+        }
+        // The network down: nothing asked.
+        val off = RawWatch(apps) { false }
+        for (ip in listOf("198.51.100.1", "198.51.100.2", "198.51.100.3")) assertTrue(off.onEvent(RawWatch.Kind.UNREACHABLE, ip, 443, 0, now) !is RawWatch.Outcome.Tell)
+        // Half an hour later, again.
+        now += RawWatch.UNKNOWN_REST_MS + 3000
+        val again = (1..3).map { w.onEvent(RawWatch.Kind.UNREACHABLE, "203.0.113.$it", 443, 0, now) }
+        assertEquals(1, again.count { it is RawWatch.Outcome.Tell })
     }
 }

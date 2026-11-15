@@ -320,6 +320,7 @@
     <string name="torAskNo">Ні</string>
     <string name="torAskNotice">Жоден спосіб не відкрив {host} у цій мережі. Shroudly може відкрити його через мережу Tor, свій останній вихід, але набагато повільніше. Відкрийте Shroudly, щоб дозволити або відмовитися.</string>
     <string name="torAskTitle">Відкрити {host} через Tor?</string>
+    <string name="torAskUnknownApp">сервери застосунку ({addr})</string>
     <string name="torAskYes">Використати Tor</string>
     <string name="torUsedPhone">{host} відкрився лише через мережу Tor — останній спосіб Shroudly: у цій мережі більше нічого не спрацювало. Це повільніше, і деякі сайти просять капчу; інші застосунки й сайти працюють як раніше.</string>
     <string name="torUsedTv">{host} відкрився лише через мережу Tor — останній спосіб Shroudly. Відео звідти можуть вантажитися повільно або в гіршій якості; інші застосунки працюють як раніше.</string>

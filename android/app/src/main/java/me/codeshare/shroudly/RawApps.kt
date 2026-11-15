@@ -115,11 +115,23 @@ class RawWatch(private val apps: RawApps, private val networkWorks: () -> Boolea
          * BURST_MS, the rest in one line (electron/raw-apps.js the same). */
         const val BURST_MS = 60_000L
         const val BURST_LINES = 3
+        /* An app no list knows (a game on its own cloud servers: Jakaroo in
+         * Somalia, SR-T2DN): UNKNOWN_MIN distinct addresses that did not
+         * answer within UNKNOWN_WINDOW_MS, the network working. One server
+         * down is common; three at once is the network. More than
+         * UNKNOWN_MAX in the window is an app trying a list of servers
+         * (another VPN or proxy app): not asked about. */
+        const val UNKNOWN_WINDOW_MS = 60_000L
+        const val UNKNOWN_MIN = 3
+        const val UNKNOWN_MAX = 12
+        const val UNKNOWN_REST_MS = 30L * 60 * 1000
         fun burstLine(n: Int, from: String) =
             "$n more addresses that are not web connections could not be reached in the minute from $from (an app trying servers, most likely another VPN or proxy app); not listed one by one"
     }
 
     private val recent = HashMap<String, ArrayList<Pair<String, Long>>>()   // "kind app" -> (addr, at)
+    private val unknown = ArrayList<Pair<String, Long>>()   // addresses no app is known for that did not answer
+    private var unknownToldAt = Long.MIN_VALUE / 2
     private val told = HashSet<String>()
     private val logged = HashMap<String, Long>()
 
@@ -128,7 +140,20 @@ class RawWatch(private val apps: RawApps, private val networkWorks: () -> Boolea
     private var burstN = 0
     private var burstOver = 0
 
-    @Synchronized fun networkChanged() { recent.clear(); told.clear(); logged.clear() }
+    @Synchronized fun networkChanged() { recent.clear(); told.clear(); logged.clear(); unknown.clear() }
+
+    /* An address no app is known for did not answer: enough of them at once
+     * (UNKNOWN_MIN..UNKNOWN_MAX in UNKNOWN_WINDOW_MS) is an app the network
+     * blocks by address; told as an app with no name (Notice.app ""). */
+    private fun unknownApp(addr: String, now: Long): Outcome? {
+        unknown.removeAll { now - it.second > UNKNOWN_WINDOW_MS }
+        if (unknown.none { it.first == addr }) unknown += addr to now
+        val addrs = unknown.map { it.first }.distinct()
+        if (addrs.size < UNKNOWN_MIN || addrs.size > UNKNOWN_MAX) return null
+        if (now - unknownToldAt < UNKNOWN_REST_MS || !networkWorks()) return null
+        unknownToldAt = now
+        return Outcome.Tell(Notice(Kind.UNREACHABLE, "", addrs.take(3)))
+    }
 
     /* Once in 30 minutes an address; and, for many at once (another VPN or
      * proxy app trying a list of servers through Shroudly), BURST_LINES
@@ -158,7 +183,8 @@ class RawWatch(private val apps: RawApps, private val networkWorks: () -> Boolea
         val blocked = "$addr: still blocked after $attempts techniques (not a web connection)"
         if (kind == Kind.BLOCKED && note == "silent") return logRarely("silent $addr", blocked, now)
         val app = apps.serviceOf(host)
-            ?: return logRarely("$kind $addr", if (kind == Kind.UNREACHABLE) unreach else blocked, now)
+            ?: return (if (kind == Kind.UNREACHABLE) unknownApp(addr, now) else null)
+                ?: logRarely("$kind $addr", if (kind == Kind.UNREACHABLE) unreach else blocked, now)
         val key = "$kind $app"
         val seen = recent.getOrPut(key) { ArrayList() }
         seen.removeAll { now - it.second > (if (kind == Kind.BLOCKED) BLOCKED_WINDOW_MS else RawApps.WINDOW_MS) }

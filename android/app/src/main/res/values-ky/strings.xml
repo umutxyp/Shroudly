@@ -320,6 +320,7 @@
     <string name="torAskNo">Жок</string>
     <string name="torAskNotice">Бул тармакта эч бир ыкма {host} сайтын ачкан жок. Shroudly аны акыркы жолу — Tor тармагы аркылуу ача алат, бирок бир топ жайыраак. Уруксат берүү же баш тартуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="torAskTitle">{host} Tor аркылуу ачылсынбы?</string>
+    <string name="torAskUnknownApp">колдонмонун серверлери ({addr})</string>
     <string name="torAskYes">Tor колдонуу</string>
     <string name="torUsedPhone">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу: бул тармакта башка эч нерсе өткөн жок. Бул жайыраак, кээ бир сайттар капча сурайт; башка колдонмолор жана сайттар мурдагыдай иштейт.</string>
     <string name="torUsedTv">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу. Андагы видеолор жай же төмөн сапатта жүктөлүшү мүмкүн; башка колдонмолор мурдагыдай иштейт.</string>

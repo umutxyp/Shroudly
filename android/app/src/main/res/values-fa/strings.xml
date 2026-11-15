@@ -320,6 +320,7 @@
     <string name="torAskNo">نه</string>
     <string name="torAskNotice">هیچ روشی {host} را در این شبکه باز نکرد. Shroudly می‌تواند آن را از طریق شبکه Tor، آخرین راه چاره‌اش، باز کند، اما بسیار کندتر. برای اجازه دادن یا رد کردن، Shroudly را باز کنید.</string>
     <string name="torAskTitle">{host} از طریق Tor باز شود؟</string>
+    <string name="torAskUnknownApp">سرورهای یک برنامه ({addr})</string>
     <string name="torAskYes">استفاده از Tor</string>
     <string name="torUsedPhone">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد: هیچ راه دیگری در این شبکه جواب نداد. کندتر است و بعضی سایت‌ها کپچا می‌خواهند؛ بقیهٔ برنامه‌ها و سایت‌هایتان مثل قبل کار می‌کنند.</string>
     <string name="torUsedTv">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد. ویدیوهایش ممکن است کند یا با کیفیت پایین‌تر بارگذاری شوند؛ بقیهٔ برنامه‌هایتان مثل قبل کار می‌کنند.</string>

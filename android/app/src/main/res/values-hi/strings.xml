@@ -320,6 +320,7 @@
     <string name="torAskNo">नहीं</string>
     <string name="torAskNotice">इस नेटवर्क पर कोई भी तरीका {host} को नहीं खोल पाया। Shroudly इसे Tor नेटवर्क से खोल सकता है, जो उसका आख़िरी रास्ता है, पर बहुत धीमे। अनुमति देने या मना करने के लिए Shroudly खोलें।</string>
     <string name="torAskTitle">क्या {host} को Tor से खोलें?</string>
+    <string name="torAskUnknownApp">एक ऐप के सर्वर ({addr})</string>
     <string name="torAskYes">Tor इस्तेमाल करें</string>
     <string name="torUsedPhone">{host} सिर्फ़ Tor नेटवर्क से खुला, जो Shroudly का आख़िरी रास्ता है: इस नेटवर्क पर और कुछ काम नहीं आया। यह धीमा है और कुछ साइटें कैप्चा माँगती हैं; आपके बाकी ऐप और साइटें पहले की तरह चलते हैं।</string>
     <string name="torUsedTv">{host} सिर्फ़ Tor नेटवर्क से खुला, जो Shroudly का आख़िरी रास्ता है। इसके वीडियो धीमे या कम क्वालिटी में लोड हो सकते हैं; आपके बाकी ऐप पहले की तरह चलते हैं।</string>

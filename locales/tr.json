@@ -973,6 +973,7 @@
   "torAskCard": "Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu Tor ağı üzerinden açabilir: çok daha yavaştır (sayfalar ve videolar yavaş yüklenir) ve bazı siteler captcha ister. Cevabın hatırlanır; Ayarlar'dan değiştirebilirsin.",
   "torAskYes": "Tor'u kullan",
   "torAskNo": "Hayır",
+  "torAskUnknownApp": "bir uygulamanın sunucuları ({addr})",
   "liteOfferTitle": "{host} burada engelli kalıyor",
   "liteOfferCard": "Bu ağda hiçbir teknik {host} için işe yaramıyor: ağ onu ya da adreslerini tamamen engelliyor. Bu, Shroudly'nin Tor'suz hafif (lite) sürümü; tam sürüm böyle siteleri ve uygulamaları Tor ağı üzerinden açar (daha yavaş). Bunun üzerine kurulur, ayarların kalır.",
   "liteOfferNotice": "Bu ağda hiçbir teknik {host} için işe yaramıyor. Shroudly'nin Tor'lu tam sürümü onu açabilir. Almak için Shroudly'yi aç.",
