@@ -336,7 +336,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">«เฉพาะเว็บไซต์ในรายการ» เมื่อรายการว่างจะใช้ได้กับทุกเว็บไซต์อีกครั้ง\nไอคอนที่คุณเลือกจะแสดงในแอปด้วย และสีของแอปตามไอคอนได้\nเมื่อปิด Tor และมีเว็บไซต์ที่ต้องใช้ Shroudly จะถามอีกครั้งหลังหนึ่งวัน</string>
+    <string name="whatsNewAndroid">การแคสต์ไปยังทีวีและอุปกรณ์อื่นในเครือข่ายท้องถิ่นใช้ได้ขณะเปิดการป้องกัน\nแอปที่เครือข่ายบล็อกเซิร์ฟเวอร์ตามที่อยู่ จะได้รับคำถามเรื่อง Tor แล้ว\nRoblox: การเข้าเกมไม่ล้มเหลวด้วยข้อผิดพลาด HTTP อีกต่อไป (DNS ของเครือข่ายส่งไปยังหน้าบล็อก)\n«มีอะไรใช้ไม่ได้ไหม?» แสดงทุกที่</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

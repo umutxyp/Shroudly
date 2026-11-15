@@ -336,7 +336,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">«Hanya laman dalam senarai» tanpa sebarang laman kembali berfungsi pada semua laman.\nIkon pilihan anda juga kelihatan di dalam aplikasi, dan warna aplikasi boleh mengikutinya.\nApabila Tor dimatikan dan sesuatu laman memerlukannya, Shroudly bertanya lagi selepas sehari.</string>
+    <string name="whatsNewAndroid">Pancaran ke TV dan peranti lain dalam rangkaian setempat berfungsi dengan perlindungan dihidupkan.\nAplikasi yang pelayannya disekat rangkaian mengikut alamat kini mendapat soalan Tor.\nRoblox: menyertai permainan tidak lagi gagal dengan ralat HTTP (DNS rangkaian menghantarnya ke halaman sekatan).\n«Ada yang tidak berfungsi?» dipaparkan di mana-mana.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

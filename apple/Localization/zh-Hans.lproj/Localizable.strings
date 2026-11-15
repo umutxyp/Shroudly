@@ -228,7 +228,7 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "你选择的图标也会显示在应用内，应用颜色也可以跟随它。";
-"whatsNewMac" = "你选择的图标也会显示在应用内，应用颜色也可以跟随它。\n当 Tor 关闭而某个网站需要它时，Shroudly 会在一天后再次询问。";
+"whatsNewApple" = "只有在开启保护的情况下试过该网站或应用后才能发送报告，且必须写出其名称。";
+"whatsNewMac" = "Roblox：加入游戏不再因 HTTP 错误而失败（网络的 DNS 曾把它发往拦截页面）。\n只有在开启保护的情况下试过该网站或应用后才能发送报告，且必须写出其名称。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

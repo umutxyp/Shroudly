@@ -336,7 +336,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">«فقط سایت‌های فهرست» وقتی هیچ سایتی در فهرست نیست، دوباره روی همهٔ سایت‌ها کار می‌کند.\nنمادی که انتخاب می‌کنید داخل برنامه هم دیده می‌شود و رنگ برنامه می‌تواند از آن پیروی کند.\nوقتی Tor خاموش است و سایتی به آن نیاز دارد، Shroudly پس از یک روز دوباره می‌پرسد.</string>
+    <string name="whatsNewAndroid">ارسال تصویر به تلویزیون و دیگر دستگاه‌های شبکهٔ محلی با محافظت روشن کار می‌کند.\nبرنامه‌ای که شبکه سرورهایش را با نشانی مسدود می‌کند، حالا پرسش Tor را می‌گیرد.\nRoblox: هنگام ورود به بازی دیگر خطای HTTP نمی‌دهد (DNS شبکه آن را به صفحهٔ مسدودسازی می‌فرستاد).\n«چیزی کار نمی‌کند؟» همه‌جا نمایش داده می‌شود.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

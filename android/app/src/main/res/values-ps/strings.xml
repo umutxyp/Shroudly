@@ -336,7 +336,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">«یوازې د لیست سایټونه» له خالي لیست سره بیا په ټولو سایټونو کار کوي.\nټاکل شوې نښه د اپ دننه هم ښکاري، او د اپ رنګ یې پسې تلای شي.\nکله چې Tor بند وي او یو سایټ ورته اړتیا ولري، Shroudly له یوې ورځې وروسته بیا پوښتي.</string>
+    <string name="whatsNewAndroid">د ساتنې په چالانه حالت کې تلویزیون ته خپرول او د سیمه ییزې شبکې نور وسایل کار کوي.\nهغه اپ چې شبکه یې سرورونه په پته بندوي، اوس د Tor پوښتنه ترلاسه کوي.\nRoblox: لوبې ته د ننوتلو پر مهال نور د HTTP تېروتنه نه راځي (د شبکې DNS یې د بندیز پاڼې ته لېږه).\n«څه کار نه کوي؟» په هر ځای کې ښکاري.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

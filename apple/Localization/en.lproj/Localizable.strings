@@ -228,7 +228,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "The icon you choose shows inside the app too, and the app's colour can follow it.";
-"whatsNewMac" = "The icon you choose shows inside the app too, and the app's colour can follow it.\nWith Tor turned off, Shroudly asks again after a day when a site needs it.";
+"whatsNewApple" = "A report goes only once the site or app was tried with protection on, and it must name it.";
+"whatsNewMac" = "Roblox: joining a game no longer fails with an HTTP error (the network's DNS was sending it to its block page).\nA report goes only once the site or app was tried with protection on, and it must name it.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

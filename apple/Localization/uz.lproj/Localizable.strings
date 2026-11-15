@@ -228,7 +228,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Tanlangan belgi ilova ichida ham ko'rinadi, ilova rangi unga moslasha oladi.";
-"whatsNewMac" = "Tanlangan belgi ilova ichida ham ko'rinadi, ilova rangi unga moslasha oladi.\nTor o'chiq bo'lsa va saytga u kerak bo'lsa, Shroudly bir kundan keyin yana so'raydi.";
+"whatsNewApple" = "Hisobot faqat sayt yoki ilova himoya yoqilgan holda sinab ko'rilgandan keyin ketadi va uning nomini yozish kerak.";
+"whatsNewMac" = "Roblox: o'yinga kirishda HTTP xatosi endi chiqmaydi (tarmoq DNS'i uni bloklash sahifasiga yuborardi).\nHisobot faqat sayt yoki ilova himoya yoqilgan holda sinab ko'rilgandan keyin ketadi va uning nomini yozish kerak.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

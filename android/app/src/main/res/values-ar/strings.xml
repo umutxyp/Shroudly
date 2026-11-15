@@ -336,7 +336,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">«المواقع المدرجة فقط» دون أي موقع في القائمة يعمل على كل المواقع من جديد.\nالأيقونة التي تختارها تظهر داخل التطبيق أيضًا، ويمكن أن يتبعها لون التطبيق.\nعندما يكون Tor متوقفًا ويحتاجه موقع، يسأل Shroudly مجددًا بعد يوم.</string>
+    <string name="whatsNewAndroid">البث إلى التلفاز والأجهزة الأخرى في شبكتك المحلية يعمل والحماية مفعّلة.\nالتطبيق الذي تحجب الشبكة خوادمه بالعنوان يتلقى الآن سؤال Tor.\nRoblox: لم يعد الدخول إلى لعبة يفشل بخطأ HTTP (كان DNS الشبكة يرسله إلى صفحة الحجب).\n«هل هناك شيء لا يعمل؟» يظهر في كل مكان.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

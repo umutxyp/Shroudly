@@ -336,7 +336,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Only listed sites with nothing listed works on every site again.\nThe icon you choose shows inside the app too, and the app\'s colour can follow it.\nWith Tor turned off, Shroudly asks again after a day when a site needs it.</string>
+    <string name="whatsNewAndroid">Casting to a TV and other devices on your local network work with protection on.\nAn app whose servers the network blocks by address now gets the Tor question.\nRoblox: joining a game no longer fails with an HTTP error (the network\'s DNS was sending it to its block page).\n\"Something not working?\" shows everywhere.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

@@ -228,7 +228,7 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "O ícone escolhido aparece também dentro do app, e a cor do app pode acompanhá-lo.";
-"whatsNewMac" = "O ícone escolhido aparece também dentro do app, e a cor do app pode acompanhá-lo.\nCom o Tor desligado, o Shroudly pergunta de novo depois de um dia quando um site precisa dele.";
+"whatsNewApple" = "Um relatório só vai depois de o site ou app ser testado com a proteção ligada, e é preciso nomeá-lo.";
+"whatsNewMac" = "Roblox: entrar num jogo não falha mais com erro HTTP (o DNS da rede o mandava para a página de bloqueio).\nUm relatório só vai depois de o site ou app ser testado com a proteção ligada, e é preciso nomeá-lo.";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

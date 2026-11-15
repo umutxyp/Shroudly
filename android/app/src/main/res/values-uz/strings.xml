@@ -336,7 +336,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">«Faqat ro\'yxatdagi saytlar» ro\'yxat bo\'sh bo\'lganda yana barcha saytlarda ishlaydi.\nTanlangan belgi ilova ichida ham ko\'rinadi, ilova rangi unga moslasha oladi.\nTor o\'chiq bo\'lsa va saytga u kerak bo\'lsa, Shroudly bir kundan keyin yana so\'raydi.</string>
+    <string name="whatsNewAndroid">Himoya yoqilganda televizorga uzatish va mahalliy tarmoqdagi boshqa qurilmalar ishlaydi.\nServerlarini tarmoq manzil bo\'yicha bloklagan ilova endi Tor savolini oladi.\nRoblox: o\'yinga kirishda HTTP xatosi endi chiqmaydi (tarmoq DNS\'i uni bloklash sahifasiga yuborardi).\n«Nimadir ishlamayaptimi?» hamma joyda ko\'rinadi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>
