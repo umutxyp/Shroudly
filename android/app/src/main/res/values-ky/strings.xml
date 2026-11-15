@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Мурун ачык турган колдонмолор: бирөө туташпаса, аны жаап, бир жолу кайра ачыңыз.</string>
     <string name="reportAgree">Бул отчетту колдонмонун журналы менен жөнөтүүгө макулмун жана купуялык саясатын кабыл алам.</string>
     <string name="reportBadContact">Өзүңүз окуган почтаны жазыңыз. Убактылуу же ойдон чыгарылган даректер жана Telegram аттары кабыл алынбайт.</string>
-    <string name="reportBadSite">Иштебей жаткан сайттын же колдонмонун атын жазыңыз.</string>
+    <string name="reportBadSite">Иштебеген сайтты же колдонмону аты же дареги менен жазыңыз («VPN», «интернет» же «баары» эмес).</string>
     <string name="reportBadWhat">Эмне болгонун бир нече сүйлөм менен, өз сөзүңүз менен жазыңыз.</string>
     <string name="reportContact">Жообубуз үчүн электрондук почтаңыз</string>
     <string name="reportCopied">Көчүрүлдү</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Жөнөтүлгөн жок. Туташууну текшерип, кайра аракет кылыңыз же бизге жазыңыз.</string>
     <string name="reportIntro">Сайт же колдонмо ачылбаса же башка бир нерсе иштебесе, бизге айтыңыз. Shroudly аны азырынча колдобосо, кошобуз; ката болсо, оңдойбуз.</string>
     <string name="reportLink">Бир нерсе иштебей жатабы?</string>
+    <string name="reportNotTried">Адегенде коргоону күйгүзүп, ал сайтты же колдонмону Shroudly күйүк турганда ачып көрүңүз. Баары бир иштебесе, отчётту ошондо жөнөтүңүз: анын журналы эмне болгонун көрсөтөт.</string>
     <string name="reportPast">Жөнөткөн отчётторуңуз</string>
     <string name="reportPastHint">Ушул түзмөктө гана, 60 күн сакталат.</string>
     <string name="reportRateDay">Күнүнө үч отчёт жөнөтсөңүз болот. Эртең кайра аракет кылыңыз.</string>

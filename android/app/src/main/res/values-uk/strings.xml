@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Застосунки, відкриті раніше: якщо якийсь не підключається, закрийте його й відкрийте знову.</string>
     <string name="reportAgree">Я погоджуюся надіслати цей звіт разом із журналом застосунку та приймаю політику конфіденційності.</string>
     <string name="reportBadContact">Вкажіть пошту, яку ви читаєте. Тимчасові чи вигадані адреси й імена в Telegram не приймаються.</string>
-    <string name="reportBadSite">Вкажіть сайт або застосунок, який не працює.</string>
+    <string name="reportBadSite">Вкажіть сайт чи застосунок, що не працює, за назвою або адресою (не «VPN», «інтернет» чи «усе»).</string>
     <string name="reportBadWhat">Опишіть своїми словами, кількома реченнями, що сталося.</string>
     <string name="reportContact">Ваша електронна пошта для відповіді</string>
     <string name="reportCopied">Скопійовано</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Не вдалося надіслати. Перевірте з\'єднання й спробуйте ще раз або напишіть нам.</string>
     <string name="reportIntro">Сайт чи застосунок не відкривається або не працює щось інше — розкажіть нам. Якщо Shroudly ще цього не вміє, ми додамо; якщо це помилка, виправимо.</string>
     <string name="reportLink">Щось не працює?</string>
+    <string name="reportNotTried">Спершу ввімкніть захист і відкрийте цей сайт чи застосунок з увімкненим Shroudly. Якщо все одно не працює, тоді надішліть звіт: його журнал покаже, що сталося.</string>
     <string name="reportPast">Ваші звіти</string>
     <string name="reportPastHint">Зберігаються лише на цьому пристрої, 60 днів.</string>
     <string name="reportRateDay">Можна надсилати три звіти на день. Спробуйте завтра.</string>

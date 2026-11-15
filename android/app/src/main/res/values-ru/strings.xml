@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Приложения, открытые раньше: если какое-то не подключается, закройте его и откройте снова.</string>
     <string name="reportAgree">Я согласен отправить этот отчёт вместе с журналом приложения и принимаю политику конфиденциальности.</string>
     <string name="reportBadContact">Укажите почту, которую вы читаете. Временные и выдуманные адреса и имена в Telegram не принимаются.</string>
-    <string name="reportBadSite">Укажите сайт или приложение, которое не работает.</string>
+    <string name="reportBadSite">Укажите неработающий сайт или приложение по названию или адресу (не «VPN», «интернет» или «всё»).</string>
     <string name="reportBadWhat">Опишите своими словами, в нескольких предложениях, что произошло.</string>
     <string name="reportContact">Ваша электронная почта для ответа</string>
     <string name="reportCopied">Скопировано</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Не удалось отправить. Проверьте подключение и попробуйте ещё раз или напишите нам.</string>
     <string name="reportIntro">Сайт или приложение не открывается или не работает что-то ещё — расскажите нам. Если Shroudly этого ещё не умеет, мы добавим; если это ошибка, исправим.</string>
     <string name="reportLink">Что-то не работает?</string>
+    <string name="reportNotTried">Сначала включите защиту и откройте этот сайт или приложение с включённым Shroudly. Если всё равно не работает, тогда отправьте отчёт: его журнал покажет, что произошло.</string>
     <string name="reportPast">Ваши отчёты</string>
     <string name="reportPastHint">Хранятся только на этом устройстве, 60 дней.</string>
     <string name="reportRateDay">Можно отправлять три отчёта в день. Попробуйте завтра.</string>

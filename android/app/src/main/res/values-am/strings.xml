@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">ቀድሞ ክፍት የነበሩ መተግበሪያዎች፦ አንዱ ካልተገናኘ ዝጉትና አንድ ጊዜ እንደገና ይክፈቱት።</string>
     <string name="reportAgree">ይህን ሪፖርት ከመተግበሪያው መዝገብ ጋር ለመላክ እስማማለሁ፣ የግላዊነት ፖሊሲውንም እቀበላለሁ።</string>
     <string name="reportBadContact">የሚያነቡትን የኢሜይል አድራሻ ያስገቡ። ጊዜያዊ ወይም የተፈጠሩ አድራሻዎች እና የቴሌግራም ስሞች ተቀባይነት የላቸውም።</string>
-    <string name="reportBadSite">የማይሰራውን ድረ-ገጽ ወይም መተግበሪያ ስም ይጻፉ።</string>
+    <string name="reportBadSite">የማይሰራውን ጣቢያ ወይም መተግበሪያ በስሙ ወይም በአድራሻው ይጻፉ («VPN»፣ «ኢንተርኔት» ወይም «ሁሉም» አይደለም)።</string>
     <string name="reportBadWhat">ምን እንደተከሰተ በጥቂት ዓረፍተ ነገሮች በራስዎ ቃላት ይግለጹ።</string>
     <string name="reportContact">ለምላሻችን የኢሜይል አድራሻዎ</string>
     <string name="reportCopied">ተቀድቷል</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">መላክ አልተቻለም። ግንኙነትዎን አረጋግጠው እንደገና ይሞክሩ፣ ወይም ይጻፉልን።</string>
     <string name="reportIntro">የማይከፈት ድረ ገጽ ወይም መተግበሪያ፣ ወይም የማይሰራ ሌላ ነገር ካለ ይንገሩን። Shroudly እስካሁን የማይደግፈው ከሆነ እንጨምረዋለን፤ ስህተት ከሆነ እናስተካክለዋለን።</string>
     <string name="reportLink">የማይሰራ ነገር አለ?</string>
+    <string name="reportNotTried">መጀመሪያ ጥበቃውን ያብሩ እና ያንን ጣቢያ ወይም መተግበሪያ Shroudly በርቶ ይክፈቱ። አሁንም ካልሰራ፣ ያኔ ሪፖርቱን ይላኩ፦ መዝገቡ የሆነውን ያሳያል።</string>
     <string name="reportPast">የላኳቸው ሪፖርቶች</string>
     <string name="reportPastHint">በዚህ መሣሪያ ላይ ብቻ፣ ለ60 ቀናት ይቀመጣሉ።</string>
     <string name="reportRateDay">በቀን ሦስት ሪፖርቶች መላክ ይችላሉ። እባክዎ ነገ እንደገና ይሞክሩ።</string>

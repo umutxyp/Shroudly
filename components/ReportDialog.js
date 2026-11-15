@@ -76,7 +76,7 @@ export default function ReportDialog({ onClose }) {
   // an address typed that cannot take mail.
   const whatWarn = n >= WHAT_MIN && !whatGood;
   const contactWarn = fields.contact.trim().length > 3 && !contactGood;
-  const errorText = (e) => ({ contact: t('reportBadContact'), what: t('reportBadWhat'), site: t('reportBadSite') }[e] || t('reportFailed'));
+  const errorText = (e) => ({ contact: t('reportBadContact'), what: t('reportBadWhat'), site: t('reportBadSite'), tried: t('reportNotTried') }[e] || t('reportFailed'));
 
   const send = async () => {
     if (!canSend) return;

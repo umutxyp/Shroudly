@@ -159,7 +159,7 @@
 "reopenAppsHint" = "Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois.";
 "reportAgree" = "J'accepte d'envoyer ce rapport avec le journal de l'appli et j'accepte la politique de confidentialité.";
 "reportBadContact" = "Indiquez une adresse e-mail que vous consultez. Les adresses temporaires ou inventées et les noms Telegram ne sont pas acceptés.";
-"reportBadSite" = "Indiquez le site ou l'appli qui ne fonctionne pas.";
+"reportBadSite" = "Indiquez le site ou l'app qui ne marche pas, par son nom ou son adresse (pas « VPN », « internet » ou « tout »).";
 "reportBadWhat" = "Décrivez avec vos mots, en quelques phrases, ce qui s'est passé.";
 "reportContact" = "Votre adresse e-mail, pour notre réponse";
 "reportCopied" = "Copié";
@@ -167,6 +167,7 @@
 "reportFailed" = "L'envoi a échoué. Vérifiez votre connexion et réessayez, ou écrivez-nous.";
 "reportIntro" = "Un site ou une app qui ne s'ouvre pas, ou autre chose qui ne fonctionne pas : dites-le-nous. Si Shroudly ne le prend pas encore en charge, nous l'ajouterons ; si c'est un bug, nous le corrigerons.";
 "reportLink" = "Quelque chose ne marche pas ?";
+"reportNotTried" = "Activez d'abord la protection et ouvrez ce site ou cette app avec Shroudly activé. Si cela ne marche toujours pas, envoyez alors le rapport : son journal montre ce qui s'est passé.";
 "reportPast" = "Vos rapports envoyés";
 "reportPastHint" = "Conservés uniquement sur cet appareil, pendant 60 jours.";
 "reportSend" = "Envoyer le rapport";

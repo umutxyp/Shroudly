@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">التطبيقات التي كانت مفتوحة من قبل: إن لم يتصل أحدها فأغلقه وافتحه مرة أخرى.</string>
     <string name="reportAgree">أوافق على إرسال هذا التقرير مع سجل التطبيق، وأقبل سياسة الخصوصية.</string>
     <string name="reportBadContact">اكتب بريدًا إلكترونيًا تقرؤه. لا تُقبل العناوين المؤقتة أو المختلقة ولا أسماء تيليجرام.</string>
-    <string name="reportBadSite">اكتب اسم الموقع أو التطبيق الذي لا يعمل.</string>
+    <string name="reportBadSite">اكتب الموقع أو التطبيق الذي لا يعمل باسمه أو عنوانه (لا «VPN» ولا «الإنترنت» ولا «الكل»).</string>
     <string name="reportBadWhat">صف ما حدث بكلماتك في بضع جمل.</string>
     <string name="reportContact">بريدك الإلكتروني، لنرد عليك</string>
     <string name="reportCopied">تم النسخ</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">تعذّر الإرسال. تحقّق من اتصالك وحاول مجددًا، أو راسلنا.</string>
     <string name="reportIntro">موقع أو تطبيق لا يفتح، أو أي شيء آخر لا يعمل: أخبرنا. إن لم يكن Shroudly يدعمه بعد فسنضيفه، وإن كان خطأً فسنصلحه.</string>
     <string name="reportLink">هل هناك شيء لا يعمل؟</string>
+    <string name="reportNotTried">شغّل الحماية أولًا وافتح ذلك الموقع أو التطبيق وShroudly يعمل. إن لم يعمل بعد ذلك، أرسل البلاغ حينها: يُظهر سجله ما حدث.</string>
     <string name="reportPast">البلاغات التي أرسلتها</string>
     <string name="reportPastHint">تُحفظ على هذا الجهاز فقط، لمدة 60 يومًا.</string>
     <string name="reportRateDay">يمكنك إرسال ثلاثة بلاغات في اليوم. يُرجى المحاولة غدًا.</string>

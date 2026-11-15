@@ -197,7 +197,20 @@ enum Report {
         return true
     }
 
-    static func siteOk(_ v: String) -> Bool { chars(v) >= 2 }
+    /* What names no site or app ("vpn", "internet", "everything"): the
+     * same list as electron/report-check.js SITE_EMPTY. */
+    static let siteEmpty: Set<String> = ["vpn", "proxy", "internet", "net", "wifi", "wi-fi", "all", "everything", "any", "anything", "app", "apps", "application", "site", "sites", "website", "websites", "web", "none", "no", "nothing", "test", "shroudly", "all sites", "all apps", "every site", "every app", "همه", "همه چیز", "همه سایت ها", "همه سایتها", "اینترنت", "فیلترشکن", "وی پی ان", "все", "всё", "все сайты", "интернет", "впн", "hepsi", "her şey", "herşey", "tümü", "tüm siteler", "uygulama", "site", "الكل", "كل شيء", "الانترنت", "كل المواقع", "انترنت", "全部", "所有", "互联网"]
+
+    static func siteOk(_ v: String) -> Bool {
+        let cut = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: ".,;:!?'\"()[]{}<>/\\|_*-"))
+        let t = v.lowercased().components(separatedBy: cut).filter { !$0.isEmpty }.joined(separator: " ")
+        if t.unicodeScalars.filter({ CharacterSet.alphanumerics.contains($0) }).count < 2 { return false }
+        return !siteEmpty.contains(t)
+    }
+
+    /* The log shows the engine was started: a report about something never
+     * tried with protection on says nothing (electron/report-check.js). */
+    static func triedOk(_ log: String) -> Bool { log.contains("Starting engine") }
 
     /* The first thing to put right, or nil: "what", "site" or "contact". */
     static func problem(what: String, site: String, contact: String) -> String? {

@@ -225,6 +225,17 @@ class ReportActivity : Activity() {
             } catch (e: Exception) {
                 "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)"
             }
+            // Tried with protection on first: nothing is sent otherwise.
+            if (!Report.triedOk(log)) {
+                runOnUiThread {
+                    sending = false
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    status.text = getString(R.string.reportNotTried)
+                    status.visibility = View.VISIBLE
+                    refresh()
+                }
+                return@Thread
+            }
             val body = Report.body(f, BuildConfig.VERSION_NAME, platform,
                 "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})", "${Build.MANUFACTURER} ${Build.MODEL}", lang, log)
             var r = Report.send(body, "$platform/${BuildConfig.VERSION_NAME}", Protection.socksPort, Protection.socksAuth)
@@ -256,6 +267,7 @@ class ReportActivity : Activity() {
                         "contact" -> getString(R.string.reportBadContact)
                         "what" -> getString(R.string.reportBadWhat)
                         "site" -> getString(R.string.reportBadSite)
+                        "tried" -> getString(R.string.reportNotTried)
                         else -> getString(R.string.reportFailed)
                     }
                     status.visibility = View.VISIBLE

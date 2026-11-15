@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Apps que ya estaban abiertas: si una no se conecta, ciérrala y vuelve a abrirla una vez.</string>
     <string name="reportAgree">Acepto enviar este informe con el registro de la app y acepto la política de privacidad.</string>
     <string name="reportBadContact">Escribe un correo que leas. No se aceptan direcciones temporales o inventadas ni nombres de Telegram.</string>
-    <string name="reportBadSite">Escribe el sitio o la app que no funciona.</string>
+    <string name="reportBadSite">Escribe el sitio o la app que no funciona, por su nombre o dirección (no «VPN», «internet» ni «todo»).</string>
     <string name="reportBadWhat">Cuenta con tus palabras, en unas frases, qué pasó.</string>
     <string name="reportContact">Tu correo electrónico, para responderte</string>
     <string name="reportCopied">Copiado</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">No se pudo enviar. Comprueba tu conexión e inténtalo de nuevo, o escríbenos.</string>
     <string name="reportIntro">Un sitio o una app que no se abre, o cualquier otra cosa que no funcione: cuéntanoslo. Si Shroudly todavía no lo admite, lo añadiremos; si es un error, lo corregiremos.</string>
     <string name="reportLink">¿Algo no funciona?</string>
+    <string name="reportNotTried">Primero activa la protección y abre ese sitio o app con Shroudly activado. Si sigue sin funcionar, envía entonces el informe: su registro muestra qué pasó.</string>
     <string name="reportPast">Informes que enviaste</string>
     <string name="reportPastHint">Se guardan solo en este dispositivo, durante 60 días.</string>
     <string name="reportRateDay">Puedes enviar tres informes al día. Vuelve a intentarlo mañana.</string>

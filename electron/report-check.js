@@ -65,9 +65,23 @@ function whatOk(v) {
   return true;
 }
 
-/** The site or app named. */
+/* What names no site or app: "vpn", "internet", "everything" (a report
+ * from Iran named "vpn"). The same list in Report.kt, Report.swift and the
+ * report server. */
+const SITE_EMPTY = new Set(['vpn', 'proxy', 'internet', 'net', 'wifi', 'wi-fi', 'all', 'everything', 'any', 'anything', 'app', 'apps', 'application', 'site', 'sites', 'website', 'websites', 'web', 'none', 'no', 'nothing', 'test', 'shroudly', 'all sites', 'all apps', 'every site', 'every app', 'همه', 'همه چیز', 'همه سایت ها', 'همه سایتها', 'اینترنت', 'فیلترشکن', 'وی پی ان', 'все', 'всё', 'все сайты', 'интернет', 'впн', 'hepsi', 'her şey', 'herşey', 'tümü', 'tüm siteler', 'uygulama', 'site', 'الكل', 'كل شيء', 'الانترنت', 'كل المواقع', 'انترنت', '全部', '所有', '互联网']);
+
+/** The site or app named: two letters or digits at least, and not a word
+ *  that names none (SITE_EMPTY). */
 function siteOk(v) {
-  return [...String(v || '').trim()].length >= 2;
+  const t = String(v || '').trim().toLowerCase().replace(/[\s.,;:!?'"()\[\]{}<>/\\|_*-]+/gu, ' ').trim();
+  if ([...t.replace(/[^\p{L}\p{N}]/gu, '')].length < 2) return false;
+  return !SITE_EMPTY.has(t);
+}
+
+/** The log shows Shroudly was started (the engine at least tried): a report
+ *  about something never tried with protection on says nothing. */
+function triedOk(log) {
+  return /Starting engine/.test(String(log || ''));
 }
 
 /** The first thing to put right, or null: 'what', 'site' or 'contact'. */
@@ -79,4 +93,4 @@ function problem(fields) {
   return null;
 }
 
-module.exports = { WHAT_MIN, WHAT_MAX, WHAT_WORDS, contactOk, whatOk, siteOk, problem };
+module.exports = { WHAT_MIN, WHAT_MAX, WHAT_WORDS, SITE_EMPTY, contactOk, whatOk, siteOk, triedOk, problem };

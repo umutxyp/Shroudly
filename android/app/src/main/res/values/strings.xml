@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Apps that were already open: if one does not connect, close it and open it again once.</string>
     <string name="reportAgree">I agree to send this report with the app\'s log, and I accept the privacy policy.</string>
     <string name="reportBadContact">Enter an email address you can read. Temporary or made-up addresses and Telegram names aren\'t accepted.</string>
-    <string name="reportBadSite">Name the site or app that doesn\'t work.</string>
+    <string name="reportBadSite">Name the site or app that doesn\'t work, by its name or address (not \"VPN\", \"internet\" or \"everything\").</string>
     <string name="reportBadWhat">Describe what happened in your own words, in a few sentences.</string>
     <string name="reportContact">Your email address, for our answer</string>
     <string name="reportCopied">Copied</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">It couldn\'t be sent. Check your connection and try again, or write to us.</string>
     <string name="reportIntro">A site or app that won\'t open, or anything else that doesn\'t work: tell us. If Shroudly doesn\'t handle it yet, we\'ll add it; if it\'s a bug, we\'ll fix it.</string>
     <string name="reportLink">Something not working?</string>
+    <string name="reportNotTried">Turn protection on and open that site or app with Shroudly on first. If it still doesn\'t work, send the report then: its log shows what happened.</string>
     <string name="reportPast">Reports you sent</string>
     <string name="reportPastHint">Kept only on this device, for 60 days.</string>
     <string name="reportRateDay">You can send three reports a day. Please try again tomorrow.</string>

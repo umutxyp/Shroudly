@@ -159,7 +159,7 @@
 "reopenAppsHint" = "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.";
 "reportAgree" = "Bu hasabaty programmanyň žurnaly bilen ibermäge razy we gizlinlik syýasatyny kabul edýärin.";
 "reportBadContact" = "Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.";
-"reportBadSite" = "Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň.";
+"reportBadSite" = "Işlemeýän saýty ýa-da programmany ady ýa-da salgysy bilen ýazyň («VPN», «internet» ýa-da «hemmesi» däl).";
 "reportBadWhat" = "Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.";
 "reportContact" = "Jogabymyz üçin e-poçta salgyňyz";
 "reportCopied" = "Göçürildi";
@@ -167,6 +167,7 @@
 "reportFailed" = "Iberip bolmady. Birikmäňizi barlap, gaýtadan synanyşyň ýa-da bize ýazyň.";
 "reportIntro" = "Açylmaýan sahypa ýa-da programma, ýa-da işlemeýän başga bir zat bar bolsa, bize aýdyň. Shroudly ony entek goldamaýan bolsa, goşarys; ýalňyşlyk bolsa, düzederis.";
 "reportLink" = "Bir zat işlemeýärmi?";
+"reportNotTried" = "Ilki goragy açyň we şol saýty ýa-da programmany Shroudly açyk wagty synap görüň. Ýene işlemese, hasabaty şonda iberiň: onuň žurnaly näme bolanyny görkezýär.";
 "reportPast" = "Iberen hasabatlaryňyz";
 "reportPastHint" = "Diňe şu enjamda, 60 gün saklanýar.";
 "reportSend" = "Hasabaty iber";

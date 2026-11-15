@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">برنامه‌هایی که از قبل باز بودند: اگر یکی وصل نشد، آن را ببندید و یک بار دوباره باز کنید.</string>
     <string name="reportAgree">می‌پذیرم این گزارش همراه با گزارش‌های برنامه فرستاده شود و سیاست حریم خصوصی را قبول دارم.</string>
     <string name="reportBadContact">نشانی ایمیلی بنویسید که آن را می‌خوانید. نشانی‌های موقت یا ساختگی و نام کاربری تلگرام پذیرفته نمی‌شود.</string>
-    <string name="reportBadSite">نام سایت یا برنامه‌ای را که کار نمی‌کند بنویسید.</string>
+    <string name="reportBadSite">سایت یا برنامه‌ای را که کار نمی‌کند با نام یا نشانی‌اش بنویسید (نه «VPN»، «اینترنت» یا «همه»).</string>
     <string name="reportBadWhat">با چند جمله و با زبان خودتان بنویسید چه اتفاقی افتاد.</string>
     <string name="reportContact">نشانی ایمیل شما، برای پاسخ ما</string>
     <string name="reportCopied">کپی شد</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">فرستاده نشد. اتصالتان را بررسی کنید و دوباره امتحان کنید، یا برای ما بنویسید.</string>
     <string name="reportIntro">سایت یا برنامه‌ای باز نمی‌شود یا چیز دیگری کار نمی‌کند؟ به ما بگویید. اگر Shroudly هنوز از آن پشتیبانی نمی‌کند، اضافه‌اش می‌کنیم؛ اگر ایراد است، درستش می‌کنیم.</string>
     <string name="reportLink">چیزی کار نمی‌کند؟</string>
+    <string name="reportNotTried">اول محافظت را روشن کنید و آن سایت یا برنامه را با Shroudly روشن امتحان کنید. اگر باز هم کار نکرد، آن وقت گزارش بفرستید: گزارش کار نشان می‌دهد چه شده است.</string>
     <string name="reportPast">گزارش‌هایی که فرستاده‌اید</string>
     <string name="reportPastHint">فقط روی همین دستگاه، به مدت ۶۰ روز نگه داشته می‌شود.</string>
     <string name="reportRateDay">در هر روز می‌توانید سه گزارش بفرستید. لطفاً فردا دوباره امتحان کنید.</string>

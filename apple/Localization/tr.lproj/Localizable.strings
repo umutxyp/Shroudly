@@ -159,7 +159,7 @@
 "reopenAppsHint" = "Önceden açık olan uygulamalar: biri bağlanmazsa onu kapatıp bir kez yeniden aç.";
 "reportAgree" = "Bu raporu uygulamanın kayıtlarıyla göndermeyi ve gizlilik politikasını kabul ediyorum.";
 "reportBadContact" = "Okuduğun bir e-posta adresi yaz. Geçici veya uydurma adresler ve Telegram kullanıcı adları kabul edilmiyor.";
-"reportBadSite" = "Çalışmayan site veya uygulamanın adını yaz.";
+"reportBadSite" = "Çalışmayan siteyi ya da uygulamayı adıyla veya adresiyle yaz (\"VPN\", \"internet\" ya da \"hepsi\" değil).";
 "reportBadWhat" = "Ne olduğunu birkaç cümleyle, kendi sözlerinle anlat.";
 "reportContact" = "Yanıt için e-posta adresin";
 "reportCopied" = "Kopyalandı";
@@ -167,6 +167,7 @@
 "reportFailed" = "Gönderilemedi. Bağlantınızı denetleyip yeniden deneyin ya da bize yazın.";
 "reportIntro" = "Açılmayan bir site ya da uygulama veya çalışmayan başka bir şey varsa bize söyleyin. Shroudly henüz desteklemiyorsa ekleriz; bir hataysa düzeltiriz.";
 "reportLink" = "Çalışmayan bir şey mi var?";
+"reportNotTried" = "Önce korumayı aç ve o siteyi ya da uygulamayı Shroudly açıkken dene. Yine çalışmazsa raporu o zaman gönder: logu ne olduğunu gösterir.";
 "reportPast" = "Gönderdiğiniz raporlar";
 "reportPastHint" = "Yalnızca bu cihazda, 60 gün saklanır.";
 "reportSend" = "Raporu gönder";

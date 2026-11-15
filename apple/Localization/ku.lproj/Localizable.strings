@@ -159,7 +159,7 @@
 "reopenAppsHint" = "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.";
 "reportAgree" = "Ez razî me ku ev rapor bi tomarên sepanê re were şandin, û polîtîkaya nepeniyê qebûl dikim.";
 "reportBadContact" = "Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.";
-"reportBadSite" = "Navê malper an sepana ku naxebite binivîse.";
+"reportBadSite" = "Malper an sepana ku naxebite bi nav an navnîşana wê binivîse (ne «VPN», «înternet» an «hemû»).";
 "reportBadWhat" = "Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.";
 "reportContact" = "Navnîşana te ya e-nameyê, ji bo bersiva me";
 "reportCopied" = "Hat kopîkirin";
@@ -167,6 +167,7 @@
 "reportFailed" = "Nehat şandin. Girêdana xwe kontrol bike û dîsa biceribîne, an ji me re binivîse.";
 "reportIntro" = "Malperek an sepanek venabe, an tiştekî din naxebite: ji me re bêje. Heke Shroudly hîn wê piştgirî nake, em ê lê zêde bikin; heke çewtiyek be, em ê sererast bikin.";
 "reportLink" = "Tiştek naxebite?";
+"reportNotTried" = "Pêşî parastinê veke û wê malperê an sepanê dema Shroudly vekirî ye biceribîne. Heke dîsa nexebite, wê demê raporê bişîne: tomara wê nîşan dide ka çi qewimî.";
 "reportPast" = "Raporên ku te şandine";
 "reportPastHint" = "Tenê li ser vê amûrê, 60 rojan tê parastin.";
 "reportSend" = "Raporê bişîne";

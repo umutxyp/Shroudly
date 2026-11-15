@@ -125,7 +125,7 @@ async function send(request, body, { url = URL_REPORT, timeoutMs = 45000, bits =
         let j = null;
         try { j = JSON.parse(data); } catch {}
         if (res.statusCode === 200 && j && j.ok && typeof j.ref === 'string' && REF_RE.test(j.ref)) { finish({ ok: true, ref: j.ref }); return; }
-        const error = j && typeof j.error === 'string' && ['rate', 'bad', 'off', 'mail', 'contact', 'what', 'site'].includes(j.error) ? j.error : 'network';
+        const error = j && typeof j.error === 'string' && ['rate', 'bad', 'off', 'mail', 'contact', 'what', 'site', 'tried'].includes(j.error) ? j.error : 'network';
         finish({ ok: false, error, retryAfter: j && Number.isFinite(j.retryAfter) ? j.retryAfter : undefined });
       });
       res.on('error', () => finish({ ok: false, error: 'network' }));
