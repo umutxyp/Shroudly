@@ -88,6 +88,8 @@ contextBridge.exposeInMainWorld('electron', {
   // "Something not working?" (ReportDialog): past references and whether
   // one may go now; send one (what the user wrote; the log is added there).
   reportInfo: () => ipcRenderer.invoke('report:info'),
+  reportOffered: () => ipcRenderer.invoke('report:offered'),
+  onReportOffered: (cb) => { const h = (e, on) => cb(on); ipcRenderer.on('report:offered', h); return () => ipcRenderer.removeListener('report:offered', h); },
   sendReport: (fields) => ipcRenderer.invoke('report:send', fields),
   // Windows: the leftover WinHTTP proxy cleared (Windows asks for an
   // administrator).

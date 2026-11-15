@@ -10,6 +10,9 @@ struct ContentView: View {
     @Environment(\.requestReview) private var requestReview
     #endif
     @AppStorage("noticeSeen") private var noticeSeen = false
+    // When Shroudly itself last went wrong: "Something not working?" shows
+    // for a day after (Report.offered).
+    @AppStorage(Report.faultKey) private var reportFaultAt: Double = 0
     @State private var showNotice = false
     @StateObject private var watch = NetworkWatch()
     @Environment(\.layoutDirection) private var direction
@@ -402,12 +405,14 @@ struct ContentView: View {
                         .frame(maxWidth: 320)
                         .padding(.horizontal, 24)
                     #endif
-                    NavigationLink { ReportView(watch: watch).pageWidth().background(Theme.background.ignoresSafeArea()) } label: {
-                        Label(tr("reportLink"), systemImage: "ladybug")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.text.opacity(0.85))
+                    if Report.offered(faultAt: reportFaultAt) {
+                        NavigationLink { ReportView(watch: watch).pageWidth().background(Theme.background.ignoresSafeArea()) } label: {
+                            Label(tr("reportLink"), systemImage: "ladybug")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(Theme.text.opacity(0.85))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                     Spacer(minLength: 0)
                     footer
                 }
@@ -456,8 +461,9 @@ struct ContentView: View {
                     Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
                         .font(.callout.weight(.semibold))
                 }
-                // "Something not working?": always here, under the status
-                // (ReportView).
+                // "Something not working?": under the status, once Shroudly
+                // itself went wrong (ReportView, Report.offered).
+                if Report.offered(faultAt: reportFaultAt) {
                 NavigationLink {
                     #if os(tvOS)
                     // Laid out as the other pages: its name on the left, the
@@ -472,6 +478,7 @@ struct ContentView: View {
                         .foregroundStyle(Theme.accent)
                 }
                 .buttonStyle(.plain)
+                }
             }
         }
     }

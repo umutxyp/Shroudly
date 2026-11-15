@@ -188,6 +188,22 @@ function server(reply) {
   const main = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'electron', 'main.js'), 'utf8');
   t.ok(/error: 'tried'/.test(main), 'the desktop refuses to send it, and says why');
 }
+// "Something not working?" only after Shroudly itself went wrong, for a day, everywhere
+{
+  const RC = require('../../electron/report-check');
+  const day = RC.FAULT_SHOWS_MS;
+  t.ok(!RC.offered(0, 0, 1e6), 'nothing of Shroudly\'s own went wrong: no report link');
+  t.ok(RC.offered(1e6, 0, 1e6 + 3600e3), 'Shroudly failed an hour ago: the link shows');
+  t.ok(!RC.offered(1e6, 0, 1e6 + day), 'a day later: gone again');
+  t.ok(!RC.offered(1e6, 1.5e6, 2e6), 'a report sent after the fault: gone at once');
+  t.ok(RC.offered(3e6, 1.5e6, 3.1e6), 'a new fault after it: back');
+  t.ok(RC.faultLine('error', 'Engine exited unexpectedly (code 1).') && RC.faultLine('error', 'Start failed: x'), 'an error of Shroudly\'s own counts');
+  t.ok(!RC.faultLine('error', 'Security software: Windows refused to load the WinDivert driver') && !RC.faultLine('warning', 'x.com: no answer after 20 techniques'),
+    'an antivirus block or a site the network blocks does not');
+  const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  const panel = require('fs').readFileSync(path.join(ROOT, 'components', 'ControlPanel.js'), 'utf8');
+  t.ok(/faultLine\(level, message\)\) reportFault\(\)/.test(main) && /\{reportOn && <button/.test(panel), 'the desktop records its errors and shows the link only then');
+}
 console.log(`report: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -294,6 +294,19 @@ function addLog(level, message) {
   systemLogs.push(entry);
   if (systemLogs.length > LOG_LINES) systemLogs = systemLogs.slice(-LOG_LINES);
   toWindow('log:new', entry);
+  if (require('./report-check').faultLine(level, message)) reportFault();
+}
+
+/* Shroudly's own going wrong, now: "Something not working?" shows for a day
+ * (report-check.js offered). */
+function reportFault() {
+  try { store.set('reportFaultAt', Date.now()); } catch {}
+  try { toWindow('report:offered', reportOffered()); } catch {}
+}
+function reportOffered() {
+  let last = 0;
+  try { last = Math.max(0, ...(store.get('reports') || []).map((r) => Number(r && r.at) || 0)); } catch {}
+  return require('./report-check').offered(Number(store.get('reportFaultAt', 0)) || 0, last, Date.now());
 }
 // reg.exe that Windows will not start: said once, in the log (win-reg.js).
 WinReg.setLog(addLog);
@@ -1287,7 +1300,7 @@ async function safeStart({ user = false } = {}) {
     // Said only when something is left to do: "Protection is on" at every
     // start (at sign-in too) said what the tray icon and the window show.
     const routed = !notRouting();
-    if (!routed) notify('Shroudly', tr().notifyStartedNotRouted);
+    if (!routed) { notify('Shroudly', tr().notifyStartedNotRouted); reportFault(); }
     syncPresence();
     if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
@@ -3996,6 +4009,7 @@ function reportSituation() {
     changed,
   };
 }
+ipcMain.handle('report:offered', () => reportOffered());
 ipcMain.handle('report:info', () => {
   const past = Report.history(store.get('reports'));
   store.set('reports', past);
@@ -4050,6 +4064,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
     if (r.ok) {
       store.set('reports', Report.history([{ ref: r.ref, at: Date.now() }, ...past]));
       addLog('info', `Report sent to the developer: ${r.ref}`);
+      toWindow('report:offered', reportOffered());
     } else {
       addLog('warning', `Report not sent (${r.error})`);
     }

@@ -1488,6 +1488,11 @@ class ShroudlyVpnService : VpnService() {
         engine = null
         healthEpoch++
         log("Engine $why")
+        // The engine ending or reaching nothing on a network that works is
+        // Shroudly's own trouble, even when a restart then puts it right:
+        // "Something not working?" is offered for a day (Report.offered). A
+        // restart for a setting the user changed is not.
+        if (countsAsCrash || freshPort) Report.fault(this)
         doh?.socksPort = 0
         Protection.socksPort = 0
         Protection.socksAuth = null

@@ -236,7 +236,6 @@ open class MainActivity : Activity() {
         findViewById<View>(R.id.shareApp).apply { visibility = if (apk) View.VISIBLE else View.GONE; setOnClickListener { ApkShare.share(this@MainActivity) } }
         findViewById<View>(R.id.shareAppDivider).visibility = if (apk) View.VISIBLE else View.GONE
         // Settings: its tab at the bottom, and the row under About.
-        findViewById<View>(R.id.settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         findViewById<View>(R.id.logsCopy).setOnClickListener {
             val cm = getSystemService(android.content.ClipboardManager::class.java)
             cm?.setPrimaryClip(android.content.ClipData.newPlainText("Shroudly", AppLog.snapshot(sites = true).joinToString("\n")))

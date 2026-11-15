@@ -246,6 +246,28 @@ enum Report {
         if let d = try? JSONEncoder().encode(h) { defaults.set(d, forKey: key) }
     }
 
+    // ── where "Something not working?" is offered ─────────────────────────
+    /* Only once Shroudly itself went wrong (protection could not start, or
+     * ended with an error without Stop), for a day, and gone again as soon
+     * as a report is sent; everywhere (the owner, 2026-11-16). The same rule
+     * as Android (Report.kt) and the desktop (electron/report-check.js). */
+    static let faultShows: TimeInterval = 24 * 3600
+    static let faultKey = "reportFaultAt"
+
+    static func offered(faultAt: TimeInterval, lastSentAt: TimeInterval, now: TimeInterval) -> Bool {
+        faultAt > lastSentAt && now - faultAt >= 0 && now - faultAt < faultShows
+    }
+
+    static func offered(faultAt: TimeInterval, _ defaults: UserDefaults = .standard, now: Date = Date()) -> Bool {
+        let last = load(defaults).map { $0.at.timeIntervalSince1970 }.max() ?? 0
+        return offered(faultAt: faultAt, lastSentAt: last, now: now.timeIntervalSince1970)
+    }
+
+    /* Shroudly's own going wrong, now. */
+    static func fault(_ defaults: UserDefaults = .standard) {
+        defaults.set(Date().timeIntervalSince1970, forKey: faultKey)
+    }
+
     private static func cut(_ s: String, _ max: Int) -> String {
         let t = s.trimmingCharacters(in: .whitespacesAndNewlines)
         var u = String.UnicodeScalarView()
