@@ -434,7 +434,7 @@ class RobloxWatch {
 
   async _tick() {
     const d = this.d;
-    if (!d.on()) { this._reset(); return; }
+    if (!d.on()) { this._reset(); await this._offLook(); return; }
     const gen = this.gen;
     const asked = d.now();
     const list = await d.list();
@@ -466,6 +466,22 @@ class RobloxWatch {
     const mine = [...dec.installers.player, ...dec.installers.studio, ...dec.restartPlayers, ...dec.stuckPlayers, ...dec.tellStudios];
     mine.forEach((pid) => this.claimed.add(pid));
     this._job(this._act(dec, gen)).then(() => mine.forEach((pid) => this.claimed.delete(pid)));
+  }
+
+  /* The mode off: a Roblox installer (or player) running is still worth a
+   * check. Before Roblox is installed the autopilot has nothing to look at
+   * (its check waits for an installed Roblox), so an installer from the
+   * browser went around Shroudly into the network's DNS and failed
+   * (SR-ACG0, Turkey). Seen now, the autopilot finds out at once; blocked,
+   * it turns the mode on, and the installer is then started again through
+   * Shroudly as one open before the mode. Nothing is touched while off. */
+  async _offLook() {
+    const d = this.d;
+    if (!d.watched || !d.active() || d.blocked()) return;
+    const list = await d.list();
+    if (!list) return;
+    const inst = list.installers || { player: [], studio: [] };
+    if (inst.player.length || inst.studio.length || list.players.length || list.studios.length) d.checkSoon();
   }
 
   async _act(dec, gen) {

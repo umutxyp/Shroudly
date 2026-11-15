@@ -19,6 +19,15 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   const [toast, setToast] = useState(null);
   // "Something not working?" (ReportDialog) open.
   const [reportOpen, setReportOpen] = useState(false);
+  // "Something not working?" only after Shroudly itself went wrong, for a
+  // day (electron/report-check.js offered).
+  const [reportOn, setReportOn] = useState(false);
+  useEffect(() => {
+    const e = typeof window !== 'undefined' ? window.electron : null;
+    if (!e || !e.reportOffered) return undefined;
+    e.reportOffered().then((on) => setReportOn(!!on)).catch(() => {});
+    return e.onReportOffered ? e.onReportOffered((on) => setReportOn(!!on)) : undefined;
+  }, []);
   const [fixing, setFixing] = useState(false);
   const [room, setRoom] = useState('full');
   const panelRef = useRef(null);
@@ -290,9 +299,10 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             </button>
           </div>
           {/* Quiet links under the main button: telling us what does not
-              work (always), and supporting Shroudly (Support.js). */}
+              work (after Shroudly itself went wrong), and supporting
+              Shroudly (Support.js). */}
           <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
-            <button
+            {reportOn && <button
               type="button"
               onClick={() => setReportOpen(true)}
               data-report-link
@@ -301,7 +311,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             >
               <BugIcon className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
               <span className="min-w-0 wrap-anywhere">{t('reportLink')}</span>
-            </button>
+            </button>}
             {support && (
               <button
                 type="button"

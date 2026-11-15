@@ -33,20 +33,18 @@ class ReportTest {
     }
 
     @Test
-    fun theLinkInIranShowsOnlyAfterOwnFaultForADay() {
+    fun theLinkShowsOnlyAfterOwnFaultForADayEverywhere() {
         val day = Report.FAULT_SHOWS_MS
-        // Elsewhere: always.
-        assertTrue(Report.offered(false, 0, 0, 1_000_000))
-        // Iran, nothing went wrong: hidden.
-        assertFalse(Report.offered(true, 0, 0, 1_000_000))
+        // Nothing of Shroudly's own went wrong: hidden, in every country.
+        assertFalse(Report.offered(0, 0, 1_000_000))
         // Shroudly itself failed an hour ago: shown.
-        assertTrue(Report.offered(true, 1_000_000, 0, 1_000_000 + 3_600_000))
+        assertTrue(Report.offered(1_000_000, 0, 1_000_000 + 3_600_000))
         // A day later with no report: hidden again.
-        assertFalse(Report.offered(true, 1_000_000, 0, 1_000_000 + day))
+        assertFalse(Report.offered(1_000_000, 0, 1_000_000 + day))
         // A report sent after the fault: hidden at once.
-        assertFalse(Report.offered(true, 1_000_000, 1_500_000, 2_000_000))
+        assertFalse(Report.offered(1_000_000, 1_500_000, 2_000_000))
         // A new fault after that report: shown again.
-        assertTrue(Report.offered(true, 3_000_000, 1_500_000, 3_100_000))
+        assertTrue(Report.offered(3_000_000, 1_500_000, 3_100_000))
     }
 
     @Test

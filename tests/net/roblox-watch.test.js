@@ -215,6 +215,28 @@ async function steady(opts) {
       `else every ${W.IDLE_MS / 1000} s where there is something to act on, ${W.SLOW_MS / 1000} s otherwise (and on macOS)`);
   }
 
+  // ── the mode still off: an installer running asks for the check (SR-ACG0) ──
+  {
+    const w = world();
+    w.active = true;                       // protection on, the mode off, nothing known yet
+    w.watch.start();
+    const pid = w.start('installer', 'player');
+    await w.run(25 * 1000);
+    t.ok(w.checks >= 1, `with the mode off, a Roblox installer running asks the autopilot to check (${w.checks})`);
+    t.ok(w.killed.length === 0 && w.started.length === 0 && w.procs.get(pid).alive, 'and nothing is touched while the mode is off');
+    const q = world();
+    q.watch.start();
+    q.start('installer', 'player');
+    await q.run(25 * 1000);
+    t.ok(q.checks === 0, 'protection off: no check asked for');
+    const b = world();
+    b.active = true; b.blocked = true;
+    b.watch.start();
+    b.start('installer', 'player');
+    await b.run(25 * 1000);
+    t.ok(b.lists === 0, 'already known blocked (the mode is then the autopilot\'s to turn on): nothing listed while off');
+  }
+
   // ── an installer started around Shroudly, at any moment, on any machine ──
   for (const [machine, probeMs, sigMs] of [['a quick machine', 600, 300], ['a typical machine', 1200, 1500], ['a slow machine', 2500, 4000]]) {
     const times = [];

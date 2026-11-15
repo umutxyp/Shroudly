@@ -1160,14 +1160,7 @@
 
             <View style="@style/Divider" />
 
-            <!-- Settings (SettingsActivity), also the gear at the top. -->
-            <TextView
-                android:id="@+id/settings"
-                style="@style/AboutRowText"
-                android:drawableStart="@drawable/row_settings"
-                android:text="@string/navSettings" />
-
-            <View style="@style/Divider" />
+            <!-- No Settings row: the bar's gear opens them (issue #47). -->
 
             <!-- This app's APK, to another phone (ApkShare); the APK from
                  GitHub only. -->

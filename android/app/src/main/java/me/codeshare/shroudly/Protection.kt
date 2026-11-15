@@ -77,8 +77,12 @@ object Protection {
     /* When Shroudly last went wrong itself (Report.offered). */
     @Volatile var faultAt = 0L
 
+    /* What is not Shroudly's own going wrong, and offers no report: the
+     * network gone (or offline under lockdown), the user refusing the VPN. */
+    private val NOT_OURS = setOf(R.string.androidNoNetwork, R.string.androidLockdownOffline, R.string.androidVpnDenied)
+
     fun fail(res: Int, detail: String?) {
-        faultAt = System.currentTimeMillis()
+        if (res !in NOT_OURS) faultAt = System.currentTimeMillis()
         errorRes = res
         errorDetail = detail
         changed()
@@ -86,7 +90,7 @@ object Protection {
 
     fun trouble(res: Int) {
         if (troubleRes == res) return
-        if (res != 0) faultAt = System.currentTimeMillis()
+        if (res != 0 && res !in NOT_OURS) faultAt = System.currentTimeMillis()
         troubleRes = res
         changed()
     }

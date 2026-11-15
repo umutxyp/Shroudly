@@ -184,19 +184,21 @@ object Report {
     }
 
     /* ── where "Something not working?" is offered ──────────────────────
-     * In Iran most reports were about what no app on the phone can change
-     * (addresses blocked outright, Tor not yet allowed, the network down),
-     * and they buried the rest. There the link shows only once Shroudly
-     * itself has gone wrong (it could not start, protection ended by itself,
-     * the engine stuck: fault()), for a day, and goes again as soon as a
-     * report is sent. Everywhere else it always shows. Pure, for the tests. */
+     * Only once Shroudly itself has gone wrong (it could not start,
+     * protection ended by itself, the engine stuck, apps getting nothing
+     * back: fault()), for a day, and gone again as soon as a report is
+     * sent; everywhere, every country (the owner, 2026-11-16: most reports
+     * were about what no app on the phone can change, blocked addresses, Tor
+     * not allowed, a network down, and they buried the rest). The same rule
+     * on the desktop (electron/report-check.js) and the Apple apps
+     * (Report.swift). Pure, for the tests. */
     const val FAULT_SHOWS_MS = 24 * 60 * 60 * 1000L
     private const val KEY_FAULT = "faultAt"
 
-    fun offered(inIran: Boolean, faultAt: Long, lastSentAt: Long, now: Long): Boolean =
-        !inIran || (faultAt > lastSentAt && now - faultAt in 0 until FAULT_SHOWS_MS)
+    fun offered(faultAt: Long, lastSentAt: Long, now: Long): Boolean =
+        faultAt > lastSentAt && now - faultAt in 0 until FAULT_SHOWS_MS
 
-    /* Shroudly's own failure, now: the link shows in Iran for a day. */
+    /* Shroudly's own failure, now: the link shows for a day. */
     fun fault(ctx: Context) {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong(KEY_FAULT, System.currentTimeMillis()).apply()
     }
@@ -211,11 +213,11 @@ object Report {
         return NationalNet.homeCountry(AppSettings.homeCountry(ctx), java.util.TimeZone.getDefault().id) == "IR"
     }
 
-    /* Since 2.6.79 everywhere, Iran too (the owner: everyone gets it):
-     * what kept the empty reports out is the form itself now: words, a real
-     * site or app, a real address, and a log where Shroudly was started. */
-    @Suppress("UNUSED_PARAMETER")
-    fun offered(ctx: Context): Boolean = true
+    fun offered(ctx: Context): Boolean {
+        val faultAt = maxOf(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_FAULT, 0), Protection.faultAt)
+        val last = load(ctx).maxOfOrNull { it.at } ?: 0L
+        return offered(faultAt, last, System.currentTimeMillis())
+    }
 
     private fun cut(s: String, max: Int): String {
         val t = s.trim()

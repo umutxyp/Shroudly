@@ -94,6 +94,7 @@ final class TunnelController: ObservableObject {
         } catch {
             log.write("Start: \(error.localizedDescription)")
             notice = "\(tr("startFailed")): \(error.localizedDescription)"
+            Report.fault()
         }
     }
 
@@ -334,6 +335,10 @@ final class TunnelController: ObservableObject {
                 guard let self, self.phase == .off else { return }
                 let detail = error.map { ": \($0.localizedDescription)" } ?? ""
                 self.log.write("Protection ended\(detail)")
+                // Ended with an error (not the user switching the VPN off in
+                // the system's settings): Shroudly's own trouble, a report
+                // is offered for a day (Report.offered).
+                if error != nil { Report.fault() }
                 if before == .connecting {
                     self.notice = "\(tr("startFailed"))\(detail)"
                 } else {

@@ -93,4 +93,21 @@ function problem(fields) {
   return null;
 }
 
-module.exports = { WHAT_MIN, WHAT_MAX, WHAT_WORDS, SITE_EMPTY, contactOk, whatOk, siteOk, triedOk, problem };
+/* Where "Something not working?" is offered: only once Shroudly itself went
+ * wrong (could not start, the engine ended or stuck, browsers not going
+ * through it), for a day, and gone again as soon as a report is sent; every
+ * country (the owner, 2026-11-16: most reports were about what no app can
+ * change, and they buried the rest). The same rule on Android (Report.kt)
+ * and the Apple apps (Report.swift). */
+const FAULT_SHOWS_MS = 24 * 60 * 60 * 1000;
+function offered(faultAt, lastSentAt, now) {
+  return faultAt > lastSentAt && now - faultAt >= 0 && now - faultAt < FAULT_SHOWS_MS;
+}
+
+/* A log line that is Shroudly's own going wrong: an error, but not what the
+ * user's antivirus did (told on its own, with what to do). */
+function faultLine(level, message) {
+  return level === 'error' && !/^Security software/i.test(String(message || ''));
+}
+
+module.exports = { FAULT_SHOWS_MS, offered, faultLine, WHAT_MIN, WHAT_MAX, WHAT_WORDS, SITE_EMPTY, contactOk, whatOk, siteOk, triedOk, problem };

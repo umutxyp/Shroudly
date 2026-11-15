@@ -1263,9 +1263,15 @@ class SettingsActivity : Activity() {
         // Which sites Shroudly works on: all (as by default), or only the
         // listed ones, every other going out as it is (as the desktop's
         // "Only listed sites"; Conns.setOnly tells the engine at once).
-        connection.addView(TextView(this, null, 0, R.style.SectionTitle).apply { setText(R.string.siteListLabel) },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        connection.addView(sitesCard(), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        // Its explanation behind the title's (i), as every other section's
+        // (issue #47: the long text under it made the page cluttered again).
+        val sitesTitle = TextView(this, null, 0, R.style.SectionTitle_Explained).apply {
+            id = View.generateViewId()
+            setText(R.string.siteListLabel)
+            isAccessibilityHeading = true
+        }
+        connection.addView(sitesTitle, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        connection.addView(sitesCard(sitesTitle.id), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         val names = listOf(R.string.tabGeneral, R.string.tabConnection, R.string.tabSharing, R.string.tabApp)
         val accent = Accent.color(this, R.attr.accentLight)
         val buttons = names.map { n ->
@@ -1305,7 +1311,7 @@ class SettingsActivity : Activity() {
 
     /* "Only listed sites": a switch, what it means, and the list (one site
      * per line, a site covering every name under it), kept as it is typed. */
-    private fun sitesCard(): View {
+    private fun sitesCard(section: Int): View {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = getDrawable(R.drawable.card)
@@ -1336,9 +1342,12 @@ class SettingsActivity : Activity() {
             isChecked = Conns.onlyMode(this@SettingsActivity)
         }
         fun show() {
-            desc.setText(if (sw.isChecked) R.string.routeListedDesc else R.string.routeAllDesc)
+            val text = ifOpen(section, getString(if (sw.isChecked) R.string.routeListedDesc else R.string.routeAllDesc))
+            desc.text = text
+            desc.visibility = if (text == null) View.GONE else View.VISIBLE
             box.visibility = if (sw.isChecked) View.VISIBLE else View.GONE
         }
+        redraw[section] = { show() }
         val main = android.os.Handler(android.os.Looper.getMainLooper())
         val save = Runnable { Conns.setOnly(this, sw.isChecked, box.text.toString().split('\n')) }
         sw.setOnCheckedChangeListener { _, _ -> show(); main.removeCallbacks(save); save.run() }
