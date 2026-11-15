@@ -5,14 +5,20 @@ import XCTest
 final class NationalNetTests: XCTestCase {
     func testOnlyWhenTheWorldDoesNotAnswer() async {
         // The world answers: nothing to say.
-        let world = await NationalNet.check { host in host == "8.8.8.8" || host == "www.aparat.com" }
+        let world = await NationalNet.check(zone: "UTC") { host in host == "8.8.8.8" || host == "www.aparat.com" }
         XCTAssertNil(world)
         // The world cut, a site of Iran's answering: Iran.
-        let iran = await NationalNet.check { host in host == "www.aparat.com" }
+        let iran = await NationalNet.check(zone: "UTC") { host in host == "www.aparat.com" }
         XCTAssertEqual(iran, "IR")
         // Nothing answers at all: not a shutdown, no internet.
-        let none = await NationalNet.check { _ in false }
+        let none = await NationalNet.check(zone: "UTC") { _ in false }
         XCTAssertNil(none)
+        // A site of Iran's answering a phone whose time zone is Turkey's: it is
+        // only abroad, not a shutdown there (SR-XM82). With Iran's zone: Iran.
+        let turkey = await NationalNet.check(zone: "Europe/Istanbul") { host in host == "www.aparat.com" }
+        XCTAssertNil(turkey)
+        let tehran = await NationalNet.check(zone: "Asia/Tehran") { host in host == "www.aparat.com" }
+        XCTAssertEqual(tehran, "IR")
     }
 
     func testTheDesktopsSites() throws {

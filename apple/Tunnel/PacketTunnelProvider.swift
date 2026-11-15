@@ -99,6 +99,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 try bringUp()
                 log("Protection on")
+                // Started by the system, not by the app, a widget or a
+                // shortcut: Connect On Demand, or iOS bringing the tunnel back
+                // after it ended it (memory). Said, so a report shows why
+                // protection started over (SR-JMD1 on Android).
+                if !TunnelStart.isByApp(options) { log("Started by the system (on demand, or again after the system ended it)") }
                 WidgetState.set(on: true)
                 completionHandler(nil)
             } catch {

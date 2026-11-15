@@ -13,7 +13,7 @@
  *   discovery     Discord's IP discovery request: 74 bytes, 00 01 00 46 ...
  *   stun          a STUN Binding request without attributes: 00 01 00 00 21 12 a4 42 ...
  *   rtp           a voice packet: an RTP header (80 78 ...) and 160 bytes
- *   quic-initial  a QUIC v1 long header, 1200 bytes (c3 00 00 00 01 ...)
+ *   quic-initial  a QUIC v1 long header, 1200 bytes (c3 00 00 00 01 08 ...)
  *   quic-short    a QUIC short header (41 ...), 60 bytes */
 
 const dgram = require('dgram');
@@ -38,8 +38,10 @@ function payload(kind, i = 0) {
       return b;
     }
     case 'quic-initial': {
+      // A well-formed long header: an 8-byte destination ID, a 4-byte source
+      // ID, so the engine can answer it (a Version Negotiation to that ID).
       const b = crypto.randomBytes(1200);
-      b[0] = 0xc3; b.writeUInt32BE(1, 1);
+      b[0] = 0xc3; b.writeUInt32BE(1, 1); b[5] = 8; b[14] = 4;
       return b;
     }
     case 'quic-short': {
@@ -57,10 +59,11 @@ function send(address, port, kind, count = 1, answerMs = 0) {
   return new Promise((resolve) => {
     const sock = dgram.createSocket('udp4');
     let answered = false;
+    let first = null;
     let sent = 0;
     sock.on('error', () => {});
-    sock.on('message', () => { answered = true; });
-    const finish = () => { try { sock.close(); } catch {} resolve({ sent, answered }); };
+    sock.on('message', (m) => { answered = true; if (!first) first = m; });
+    const finish = () => { try { sock.close(); } catch {} resolve({ sent, answered, first }); };
     const next = () => {
       if (sent >= count) { setTimeout(finish, answerMs || 100); return; }
       sock.send(payload(kind, sent), port, address, (err) => {
@@ -87,8 +90,11 @@ if (require.main === module) {
     }
   } else if (cmd === 'send') {
     const [port, kind, count = '1'] = rest;
-    send(address, Number(port), kind, Number(count), kind === 'stun' ? 2000 : 0).then((r) => {
-      console.log(`sent ${r.sent} ${kind} to ${address}:${port}${kind === 'stun' ? (r.answered ? ', answered' : ', no answer') : ''}`);
+    const asks = kind === 'stun' || kind === 'quic-initial';
+    send(address, Number(port), kind, Number(count), asks ? 2000 : 0).then((r) => {
+      // A QUIC Initial's answer: "vn" when it is a Version Negotiation.
+      const what = r.first && kind === 'quic-initial' && (r.first[0] & 0x80) && r.first.length >= 5 && r.first.readUInt32BE(1) === 0 ? ', answered vn' : r.answered ? ', answered' : ', no answer';
+      console.log(`sent ${r.sent} ${kind} to ${address}:${port}${asks ? what : ''}`);
     });
   } else {
     console.error('usage: lab-udp.js serve <address> <port>... | send <address> <port> <kind> [count]');

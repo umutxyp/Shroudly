@@ -576,6 +576,14 @@ static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound
   raw_send(buf, len, daddr, dport);
 }
 
+/* A QUIC Initial the backend drops, answered back to the program (see the
+ * QUIC case in judge): sent in as the DNS gate's answers are. */
+static void quic_answer_local(const unsigned char *pkt, int len) {
+  uint8_t vn[128];
+  int vl = quic_vn_ipv4_reply(pkt, len, vn, (int)sizeof(vn));
+  if (vl > 0) gate_send(vn, vl, NULL, 1);
+}
+
 /* What becomes of one queued packet: NF_ACCEPT or NF_DROP. */
 /* judge already sent a mangled-packet verdict itself; on_packet sends none. */
 #define NFQ_HANDLED 0xffffffffu
@@ -708,7 +716,14 @@ static uint32_t judge(const nfq_packet *q) {
      * address, is accepted unchanged. */
     if (g_quic_block && dport_h == 443) {
       if (plen > 0 && quic_is_initial(up, plen)) {
-        if (!local) { rawscope_count(RAWSCOPE_QUIC_DROPPED); return NF_DROP; }
+        if (!local) {
+          rawscope_count(RAWSCOPE_QUIC_DROPPED);
+          /* Dropped, and answered back to the program as from the server
+           * with a Version Negotiation it cannot take (udpdpi.h): it gives
+           * QUIC up at once and uses TCP, not after its own timeout. */
+          quic_answer_local(pkt, len);
+          return NF_DROP;
+        }
         rawscope_count(RAWSCOPE_SKIPPED);
       }
       return NF_ACCEPT;

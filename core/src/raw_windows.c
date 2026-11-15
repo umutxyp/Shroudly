@@ -663,7 +663,16 @@ int raw_windows_start(const raw_config *cfg) {
        * to a local address, re-injects. */
       if (g_quic_block && dport_h == 443) {
         if (plen > 0 && quic_is_initial(up, plen)) {
-          if (!local) { rawscope_count(RAWSCOPE_QUIC_DROPPED); continue; } /* DROP, no re-inject */
+          if (!local) {
+            rawscope_count(RAWSCOPE_QUIC_DROPPED);
+            /* Dropped, and answered in to the program as from the server
+             * with a Version Negotiation it cannot take (udpdpi.h): it gives
+             * QUIC up at once and uses TCP, not after its own timeout. */
+            uint8_t vn[128];
+            int vl = quic_vn_ipv4_reply(pkt, (int)len, vn, (int)sizeof(vn));
+            if (vl > 0) gate_send(vn, vl, &addr, 1);
+            continue;
+          }
           rawscope_count(RAWSCOPE_SKIPPED);
         }
         UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);

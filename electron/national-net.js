@@ -48,8 +48,13 @@ function lookup4(host, ms) {
 
 /* { country, host } of the first site of a country that answers, or null.
  * opts.lookup and opts.handshake stand in for the network in tests. */
-function domesticAnswers({ ms = 5000, lookup = lookup4, hs = handshake, sites = DOMESTIC } = {}) {
-  const list = Object.entries(sites).flatMap(([country, hosts]) => hosts.map((host) => ({ country, host })));
+function domesticAnswers({ ms = 5000, lookup = lookup4, hs = handshake, sites = DOMESTIC, tz = systemZone() } = {}) {
+  // Only the countries it can be: a site of another country of the list
+  // answering alone is that site abroad and reachable, not this network cut
+  // off from the world (Iran's digikala.com answering a phone in Turkey for
+  // a moment while the rest did not: SR-XM82).
+  const list = Object.entries(sites).filter(([country]) => plausible(country, tz))
+    .flatMap(([country, hosts]) => hosts.map((host) => ({ country, host })));
   return new Promise((resolve) => {
     let left = list.length;
     let done = false;
@@ -97,6 +102,18 @@ function systemZone() {
  * (remembered), else null. The zone first: the user chose it, while a site
  * of another country answering in a bad moment once made a phone in Turkey
  * "Iranian" for good, its decoys Iranian names (SR-XM82). */
+function zoneCountry(tz) {
+  for (const [cc, zones] of Object.entries(ZONES)) if (zones.includes(tz)) return cc;
+  return null;
+}
+
+/* Whether cc's own sites answering alone can mean a national-only network
+ * here: not when the time zone is another country's of the list. */
+function plausible(cc, tz = systemZone()) {
+  const z = zoneCountry(tz);
+  return z === null || z === cc;
+}
+
 function homeCountry({ remembered, tz = systemZone() } = {}) {
   for (const [cc, zones] of Object.entries(ZONES)) if (zones.includes(tz)) return cc;
   if (remembered && DOMESTIC[remembered]) return remembered;
@@ -117,4 +134,4 @@ function decoyNames(country) {
 const TOR_BLOCKED = ['BY', 'CN', 'IR', 'MM', 'RU', 'TM'];
 const torBlocked = (country) => !!country && TOR_BLOCKED.includes(String(country).toUpperCase());
 
-module.exports = { domesticAnswers, DOMESTIC, ZONES, homeCountry, decoyNames, TOR_BLOCKED, torBlocked };
+module.exports = { domesticAnswers, DOMESTIC, ZONES, homeCountry, plausible, decoyNames, TOR_BLOCKED, torBlocked };

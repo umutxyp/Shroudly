@@ -184,7 +184,9 @@ async function loadAll(label) {
   await Udp.send(NOWHERE, 50003, 'discovery', 1);
   const rtp = await Udp.send(NOWHERE, 50003, 'rtp', RTP_COUNT);
   const short = await Udp.send(NOWHERE, 443, 'quic-short', SHORT_COUNT);
-  await Udp.send(NOWHERE, 443, 'quic-initial', 1);
+  const qi = await Udp.send(NOWHERE, 443, 'quic-initial', 1, 2000);
+  if (qi.first && (qi.first[0] & 0x80) && qi.first.length >= 5 && qi.first.readUInt32BE(1) === 0) ok('the QUIC Initial is answered with a Version Negotiation: the program takes TCP at once');
+  else bad(`the QUIC Initial got no Version Negotiation back (${qi.first ? qi.first.subarray(0, 8).toString('hex') : 'nothing'})`);
   console.log(`  ..  sent ${rtp.sent} RTP datagrams and ${short.sent} QUIC short headers to ${NOWHERE}`);
 
   fs.writeFileSync(`${status}.stop`, '');

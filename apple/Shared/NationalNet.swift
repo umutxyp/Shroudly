@@ -30,6 +30,70 @@ enum NationalNet {
 
     static let control = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
 
+    /* Those countries' time zones (NationalNet.kt ZONES, electron/national-net.js). */
+    static let zones: [String: String] = [
+        "Asia/Tehran": "IR",
+        "Europe/Moscow": "RU",
+        "Europe/Kaliningrad": "RU",
+        "Europe/Samara": "RU",
+        "Europe/Volgograd": "RU",
+        "Europe/Saratov": "RU",
+        "Europe/Ulyanovsk": "RU",
+        "Europe/Astrakhan": "RU",
+        "Europe/Kirov": "RU",
+        "Asia/Yekaterinburg": "RU",
+        "Asia/Omsk": "RU",
+        "Asia/Novosibirsk": "RU",
+        "Asia/Barnaul": "RU",
+        "Asia/Tomsk": "RU",
+        "Asia/Novokuznetsk": "RU",
+        "Asia/Krasnoyarsk": "RU",
+        "Asia/Irkutsk": "RU",
+        "Asia/Chita": "RU",
+        "Asia/Yakutsk": "RU",
+        "Asia/Khandyga": "RU",
+        "Asia/Vladivostok": "RU",
+        "Asia/Ust-Nera": "RU",
+        "Asia/Magadan": "RU",
+        "Asia/Sakhalin": "RU",
+        "Asia/Srednekolymsk": "RU",
+        "Asia/Kamchatka": "RU",
+        "Asia/Anadyr": "RU",
+        "Europe/Minsk": "BY",
+        "Asia/Almaty": "KZ",
+        "Asia/Qostanay": "KZ",
+        "Asia/Aqtobe": "KZ",
+        "Asia/Aqtau": "KZ",
+        "Asia/Atyrau": "KZ",
+        "Asia/Oral": "KZ",
+        "Asia/Qyzylorda": "KZ",
+        "Asia/Tashkent": "UZ",
+        "Asia/Samarkand": "UZ",
+        "Asia/Ashgabat": "TM",
+        "Asia/Baku": "AZ",
+        "Asia/Shanghai": "CN",
+        "Asia/Urumqi": "CN",
+        "Asia/Chongqing": "CN",
+        "Asia/Harbin": "CN",
+        "Europe/Istanbul": "TR",
+        "Asia/Istanbul": "TR",
+        "Asia/Karachi": "PK",
+        "Asia/Baghdad": "IQ",
+        "Africa/Addis_Ababa": "ET",
+        "Asia/Yangon": "MM",
+        "Asia/Rangoon": "MM"
+    ]
+
+    /* Whether `cc`'s own sites answering alone can mean a national-only
+     * network here: not when the time zone is another country's of the list,
+     * where that site is simply abroad and reachable (Iran's digikala.com
+     * answering a phone in Turkey for a moment while the rest did not:
+     * SR-XM82). */
+    static func plausible(_ cc: String, zone: String = TimeZone.current.identifier) -> Bool {
+        guard let z = zones[zone] else { return true }
+        return z == cc
+    }
+
     /* The guide in the app's language (Shutdowns-<code> in the wiki). */
     static func guideURL(language: String) -> URL {
         let code = language.lowercased().split(whereSeparator: { $0 == "-" || $0 == "_" }).first.map(String.init) ?? "en"
@@ -55,7 +119,8 @@ enum NationalNet {
     /* The country whose own network answers while the world does not, or
      * nil (the world answers, or nothing does). `reach` stands in for the
      * network in tests. */
-    static func check(reach: @escaping (String) async -> Bool = { await answers($0) }) async -> String? {
+    static func check(zone: String = TimeZone.current.identifier,
+                      reach: @escaping (String) async -> Bool = { await answers($0) }) async -> String? {
         let world = await withTaskGroup(of: Bool.self) { g -> Bool in
             for a in control { g.addTask { await reach(a) } }
             for await ok in g where ok { g.cancelAll(); return true }
@@ -63,7 +128,7 @@ enum NationalNet {
         }
         if world { return nil }
         return await withTaskGroup(of: String?.self) { g -> String? in
-            for (cc, hosts) in domestic { for h in hosts { g.addTask { await reach(h) ? cc : nil } } }
+            for (cc, hosts) in domestic where plausible(cc, zone: zone) { for h in hosts { g.addTask { await reach(h) ? cc : nil } } }
             for await cc in g where cc != nil { g.cancelAll(); return cc }
             return nil
         }

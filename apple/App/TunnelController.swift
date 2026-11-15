@@ -89,7 +89,7 @@ final class TunnelController: ObservableObject {
         }
         #endif
         do {
-            try m.connection.startVPNTunnel()
+            try m.connection.startVPNTunnel(options: TunnelStart.byApp)
             log.write("Start asked")
         } catch {
             log.write("Start: \(error.localizedDescription)")
