@@ -228,7 +228,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Biểu tượng bạn chọn cũng hiện trong ứng dụng, và màu ứng dụng có thể theo nó.";
-"whatsNewMac" = "Biểu tượng bạn chọn cũng hiện trong ứng dụng, và màu ứng dụng có thể theo nó.\nKhi Tor tắt mà một trang cần nó, Shroudly hỏi lại sau một ngày.";
+"whatsNewApple" = "Báo cáo chỉ được gửi sau khi trang hoặc ứng dụng đã được thử khi bảo vệ đang bật, và phải ghi tên nó.";
+"whatsNewMac" = "Roblox: vào trò chơi không còn lỗi HTTP (DNS của mạng đã gửi nó tới trang chặn).\nBáo cáo chỉ được gửi sau khi trang hoặc ứng dụng đã được thử khi bảo vệ đang bật, và phải ghi tên nó.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

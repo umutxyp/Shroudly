@@ -336,7 +336,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">«Chỉ các trang trong danh sách» khi danh sách trống lại hoạt động trên mọi trang.\nBiểu tượng bạn chọn cũng hiện trong ứng dụng, và màu ứng dụng có thể theo nó.\nKhi Tor tắt mà một trang cần nó, Shroudly hỏi lại sau một ngày.</string>
+    <string name="whatsNewAndroid">Truyền lên TV và các thiết bị khác trong mạng nội bộ hoạt động khi bảo vệ đang bật.\nỨng dụng có máy chủ bị mạng chặn theo địa chỉ giờ sẽ nhận câu hỏi về Tor.\nRoblox: vào trò chơi không còn lỗi HTTP (DNS của mạng đã gửi nó tới trang chặn).\n«Có gì không hoạt động?» hiện ở mọi nơi.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

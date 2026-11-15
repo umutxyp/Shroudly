@@ -336,7 +336,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">«Diňe sanawdaky saýtlar» sanaw boş bolanda ýene ähli saýtlarda işleýär.\nSaýlan nyşanyň programmanyň içinde hem görünýär, programmanyň reňki oňa eýerip biler.\nTor öçük bolsa we bir saýta ol gerek bolsa, Shroudly bir günden soň ýene soraýar.</string>
+    <string name="whatsNewAndroid">Gorag açyk wagty telewizora ýaýlym we ýerli ulgamdaky beýleki enjamlar işleýär.\nSerwerlerini ulgam salgy boýunça bökdeýän programma indi Tor soragyny alýar.\nRoblox: oýna girende HTTP ýalňyşlygy indi çykmaýar (ulgamyň DNS-i ony bökdeme sahypasyna iberýärdi).\n«Bir zat işlemeýärmi?» hemme ýerde görünýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

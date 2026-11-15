@@ -228,7 +228,7 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Ikon pilihanmu juga tampil di dalam aplikasi, dan warna aplikasi bisa mengikutinya.";
-"whatsNewMac" = "Ikon pilihanmu juga tampil di dalam aplikasi, dan warna aplikasi bisa mengikutinya.\nSaat Tor mati dan sebuah situs membutuhkannya, Shroudly bertanya lagi sehari kemudian.";
+"whatsNewApple" = "Laporan hanya terkirim setelah situs atau aplikasi dicoba dengan perlindungan menyala, dan namanya harus ditulis.";
+"whatsNewMac" = "Roblox: masuk ke permainan tidak lagi gagal dengan galat HTTP (DNS jaringan mengirimnya ke halaman blokir).\nLaporan hanya terkirim setelah situs atau aplikasi dicoba dengan perlindungan menyala, dan namanya harus ditulis.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

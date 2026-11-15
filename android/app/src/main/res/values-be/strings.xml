@@ -336,7 +336,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">«Толькі сайты са спісу» з пустым спісам зноў працуе на ўсіх сайтах.\nАбраны значок бачны і ў праграме, а колер праграмы можа яму адпавядаць.\nКалі Tor выключаны, а сайту ён патрэбны, Shroudly пытаецца зноў праз дзень.</string>
+    <string name="whatsNewAndroid">Трансляцыя на тэлевізар і іншыя прылады лакальнай сеткі працуе з уключанай абаронай.\nПраграма, чые серверы сетка блакуе па адрасе, цяпер атрымлівае пытанне пра Tor.\nRoblox: уваход у гульню больш не абрываецца памылкай HTTP (DNS сеткі адпраўляў яго на старонку блакавання).\n«Нешта не працуе?» бачна ўсюды.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

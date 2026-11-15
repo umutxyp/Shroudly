@@ -336,7 +336,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">„Nur gelistete Seiten“ ohne Einträge wirkt wieder auf jede Seite.\nDas gewählte Symbol erscheint auch in der App, und die Farbe der App kann ihm folgen.\nIst Tor ausgeschaltet und braucht eine Seite es, fragt Shroudly nach einem Tag erneut.</string>
+    <string name="whatsNewAndroid">Streamen auf einen Fernseher und andere Geräte im lokalen Netz funktioniert bei eingeschaltetem Schutz.\nEine App, deren Server das Netz per Adresse sperrt, bekommt jetzt die Tor-Frage.\nRoblox: Der Beitritt zu einem Spiel scheitert nicht mehr mit einem HTTP-Fehler (das DNS des Netzes schickte ihn auf seine Sperrseite).\n„Funktioniert etwas nicht?“ erscheint überall.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

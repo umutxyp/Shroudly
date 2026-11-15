@@ -228,7 +228,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Seçdiyin nişan tətbiqin içində də görünür; tətbiqin rəngi də onu izləyə bilər.";
-"whatsNewMac" = "Seçdiyin nişan tətbiqin içində də görünür; tətbiqin rəngi də onu izləyə bilər.\nTor söndürülüb və bir saytın ona ehtiyacı varsa, Shroudly bir gün sonra yenidən soruşur.";
+"whatsNewApple" = "Raport yalnız sayt ya tətbiq qoruma açıq ikən sınandıqdan sonra gedir və adını yazmaq lazımdır.";
+"whatsNewMac" = "Roblox: oyuna girəndə HTTP xətası artıq çıxmır (şəbəkənin DNS-i onu bloklama səhifəsinə göndərirdi).\nRaport yalnız sayt ya tətbiq qoruma açıq ikən sınandıqdan sonra gedir və adını yazmaq lazımdır.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

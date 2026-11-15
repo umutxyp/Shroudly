@@ -336,7 +336,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">«רק אתרים ברשימה» בלי אף אתר ברשימה עובד שוב על כל האתרים.\nהסמל שבחרת מופיע גם בתוך האפליקציה, וצבע האפליקציה יכול לעקוב אחריו.\nכש-Tor כבוי ואתר צריך אותו, Shroudly שואל שוב אחרי יום.</string>
+    <string name="whatsNewAndroid">שידור לטלוויזיה ולמכשירים אחרים ברשת המקומית עובד כשההגנה פועלת.\nאפליקציה שהרשת חוסמת את השרתים שלה לפי כתובת מקבלת עכשיו את שאלת Tor.\nRoblox: הצטרפות למשחק כבר לא נכשלת בשגיאת HTTP (ה-DNS של הרשת שלח אותה לדף החסימה).\n«משהו לא עובד?» מופיע בכל מקום.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

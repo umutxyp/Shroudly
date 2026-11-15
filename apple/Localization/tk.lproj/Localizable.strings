@@ -228,7 +228,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Saýlan nyşanyň programmanyň içinde hem görünýär, programmanyň reňki oňa eýerip biler.";
-"whatsNewMac" = "Saýlan nyşanyň programmanyň içinde hem görünýär, programmanyň reňki oňa eýerip biler.\nTor öçük bolsa we bir saýta ol gerek bolsa, Shroudly bir günden soň ýene soraýar.";
+"whatsNewApple" = "Hasabat diňe saýt ýa-da programma gorag açyk wagty synalandan soň gidýär we onuň adyny ýazmak gerek.";
+"whatsNewMac" = "Roblox: oýna girende HTTP ýalňyşlygy indi çykmaýar (ulgamyň DNS-i ony bökdeme sahypasyna iberýärdi).\nHasabat diňe saýt ýa-da programma gorag açyk wagty synalandan soň gidýär we onuň adyny ýazmak gerek.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

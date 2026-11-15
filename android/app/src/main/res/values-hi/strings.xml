@@ -336,7 +336,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">«सिर्फ़ सूची की साइटें» खाली सूची के साथ फिर से हर साइट पर काम करता है।\nचुना गया आइकन ऐप के अंदर भी दिखता है, और ऐप का रंग उसके अनुसार हो सकता है।\nTor बंद हो और किसी साइट को उसकी ज़रूरत हो, तो Shroudly एक दिन बाद फिर पूछता है।</string>
+    <string name="whatsNewAndroid">सुरक्षा चालू रहते हुए टीवी पर कास्ट और लोकल नेटवर्क के दूसरे डिवाइस काम करते हैं।\nजिस ऐप के सर्वर नेटवर्क पते से ब्लॉक करता है, उसे अब Tor का सवाल मिलता है।\nRoblox: गेम में शामिल होते समय अब HTTP त्रुटि नहीं आती (नेटवर्क का DNS उसे ब्लॉक पेज पर भेज रहा था)।\n«कुछ काम नहीं कर रहा?» हर जगह दिखता है।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>
