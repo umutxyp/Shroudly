@@ -209,3 +209,33 @@ int udp_build_decoy(uint8_t *buf, int cap, uint32_t saddr, uint32_t daddr,
 
   return total;
 }
+
+int quic_vn_ipv4_reply(const uint8_t *pkt, int len, uint8_t *out, int cap) {
+  if (!pkt || !out || len < 28 || (pkt[0] >> 4) != 4 || pkt[9] != 17) return 0;
+  int ihl = (pkt[0] & 0x0f) * 4;
+  if (ihl < 20 || len < ihl + 8) return 0;
+  int tot = (pkt[2] << 8) | pkt[3];
+  if (tot < ihl + 8 || tot > len) tot = len;
+  const uint8_t *u = pkt + ihl;
+  uint8_t vn[64];
+  int n = quic_version_negotiation(u + 8, tot - ihl - 8, vn, (int)sizeof(vn));
+  if (n <= 0 || 28 + n > cap) return 0;
+  uint32_t saddr, daddr; uint16_t sport, dport;
+  memcpy(&saddr, pkt + 16, 4); memcpy(&daddr, pkt + 12, 4);   /* swapped */
+  memcpy(&sport, u + 2, 2);    memcpy(&dport, u + 0, 2);
+  int total = 28 + n;
+  memset(out, 0, 28);
+  out[0] = 0x45; put16(out + 2, (uint16_t)total);
+  put16(out + 4, (uint16_t)(((pkt[4] << 8) | pkt[5]) ^ 0x5a5a));
+  put16(out + 6, 0x4000); out[8] = 64; out[9] = 17;
+  memcpy(out + 12, &saddr, 4); memcpy(out + 16, &daddr, 4);
+  put16(out + 10, csum_fold(csum_add(out, 20, 0)));
+  uint8_t *o = out + 20;
+  memcpy(o + 0, &sport, 2); memcpy(o + 2, &dport, 2);
+  put16(o + 4, (uint16_t)(8 + n)); put16(o + 6, 0);
+  memcpy(o + 8, vn, (size_t)n);
+  uint32_t sum = csum_add(out + 12, 8, 0) + 17u + (uint32_t)(8 + n);
+  uint16_t ck = csum_fold(csum_add(o, 8 + n, sum));
+  put16(o + 6, ck == 0 ? 0xffff : ck);
+  return total;
+}

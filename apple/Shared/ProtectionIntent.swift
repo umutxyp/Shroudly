@@ -26,7 +26,7 @@ struct SetProtection: SetValueIntent {
                 m.isOnDemandEnabled = true
                 try await m.saveToPreferences()
             }
-            if m.connection.status != .connected && m.connection.status != .connecting { try m.connection.startVPNTunnel() }
+            if m.connection.status != .connected && m.connection.status != .connecting { try m.connection.startVPNTunnel(options: TunnelStart.byApp) }
         } else {
             // "Keep protection on" would start it again at once: a stop asked
             // for is a stop.

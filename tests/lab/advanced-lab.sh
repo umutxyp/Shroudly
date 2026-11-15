@@ -274,7 +274,8 @@ n=$(count_on 50003 172 80)
 if [ "$n" -eq 40 ]; then ok "a call's own datagrams: all 40 arrived"; else bad "a call's own datagrams: $n of 40 arrived"; fi
 if [ "$v3" = "$v2" ]; then ok "and none of them got a decoy"; else bad "they got decoys ($v2 -> $v3)"; fi
 
-udp_send $VOICE 443 quic-initial
+qa=$(node "$HERE/lab-udp.js" send $VOICE 443 quic-initial); sleep 0.5
+if [[ "$qa" == *"answered vn"* ]]; then ok "the QUIC Initial is answered with a Version Negotiation: the program takes TCP at once"; else bad "the QUIC Initial got no Version Negotiation back ($qa)"; fi
 udp_send $VOICE 443 quic-short 10
 if [ "$(count_on 443 1200 c3)" -eq 0 ]; then ok "a QUIC Initial is dropped (the browser takes TCP)"; else bad "a QUIC Initial reached the server"; fi
 n=$(count_on 443 60 41)

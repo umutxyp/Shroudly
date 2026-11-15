@@ -20,7 +20,7 @@ struct StartProtection: AppIntent {
             try await m.saveToPreferences()
         }
         if m.connection.status != .connected && m.connection.status != .connecting {
-            try m.connection.startVPNTunnel()
+            try m.connection.startVPNTunnel(options: TunnelStart.byApp)
         }
         return .result()
     }

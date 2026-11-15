@@ -35,6 +35,14 @@ int quic_is_initial(const uint8_t *p, int len);
  * 0 when `p` is not an Initial or the answer does not fit. */
 int quic_version_negotiation(const uint8_t *p, int len, uint8_t *out, int cap);
 
+/* The same answer as a whole IPv4 + UDP datagram, for the packet-layer
+ * backends (Advanced mode): `pkt` (len bytes) is the outbound IPv4 datagram
+ * carrying the Initial; out gets the datagram back to the app, from the
+ * address and port it was sent to, to its own, TTL 64, both checksums right.
+ * Its length, or 0 when pkt is no IPv4 UDP datagram with an Initial or the
+ * answer does not fit. */
+int quic_vn_ipv4_reply(const uint8_t *pkt, int len, uint8_t *out, int cap);
+
 /* ── Discord voice / STUN ──────────────────────────────────────────────────
  * Discord's 74-byte IP-discovery request: type 0x0001, length 0x0046 (= 70),
  * total 74 bytes. Exact match only. */

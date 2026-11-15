@@ -405,9 +405,37 @@ static void test_quic_vn(void) {
   CHECK(quic_version_negotiation(NULL, 0, out, sizeof(out)) == 0);
 }
 
+/* ── The same answer as an IPv4 datagram (Advanced mode) ──────────────── */
+static void test_quic_vn_ipv4(void) {
+  uint8_t pkt[80] = { 0 };
+  pkt[0] = 0x45; pkt[2] = 0; pkt[3] = 20 + 8 + 30; pkt[8] = 64; pkt[9] = 17;
+  pkt[12] = 192; pkt[13] = 168; pkt[14] = 1; pkt[15] = 5;    /* app */
+  pkt[16] = 142; pkt[17] = 250; pkt[18] = 1; pkt[19] = 1;    /* server */
+  pkt[20] = 0xd4; pkt[21] = 0x31; pkt[22] = 0x01; pkt[23] = 0xbb;  /* 54321 -> 443 */
+  pkt[24] = 0; pkt[25] = 38;
+  uint8_t q[30] = { 0xc0, 0, 0, 0, 1, 4, 1, 2, 3, 4, 2, 9, 9 };
+  memcpy(pkt + 28, q, sizeof(q));
+  uint8_t out[128];
+  int n = quic_vn_ipv4_reply(pkt, 58, out, sizeof(out));
+  CHECK(n == 28 + 1 + 4 + 1 + 2 + 1 + 4 + 4);
+  CHECK(out[0] == 0x45 && out[9] == 17 && ((out[2] << 8) | out[3]) == n);
+  CHECK(memcmp(out + 12, pkt + 16, 4) == 0 && memcmp(out + 16, pkt + 12, 4) == 0);   /* from the server, to the app */
+  CHECK(out[20] == 0x01 && out[21] == 0xbb && out[22] == 0xd4 && out[23] == 0x31);   /* 443 -> 54321 */
+  CHECK(verify_csum(out, 20, 0) == 0);
+  uint32_t ph = ((out[12] << 8) | out[13]) + ((out[14] << 8) | out[15]) + ((out[16] << 8) | out[17]) + ((out[18] << 8) | out[19]) + 17 + (uint32_t)(n - 20);
+  CHECK(verify_csum(out + 20, n - 20, ph) == 0);
+  CHECK(out[28 + 1] == 0 && out[28 + 4] == 0 && out[28 + 5] == 2 && out[28 + 6] == 9);  /* VN, to the app's ID */
+  /* Not UDP, not IPv4, no Initial: nothing. */
+  pkt[9] = 6; CHECK(quic_vn_ipv4_reply(pkt, 58, out, sizeof(out)) == 0); pkt[9] = 17;
+  pkt[28] = 0x40; CHECK(quic_vn_ipv4_reply(pkt, 58, out, sizeof(out)) == 0); pkt[28] = 0xc0;
+  CHECK(quic_vn_ipv4_reply(pkt, 58, out, 30) == 0);
+  CHECK(quic_vn_ipv4_reply(pkt, 20, out, sizeof(out)) == 0);
+}
+
 int main(void) {
   test_quic();
   test_quic_vn();
+  test_quic_vn_ipv4();
   test_discord();
   test_stun();
   test_ports();

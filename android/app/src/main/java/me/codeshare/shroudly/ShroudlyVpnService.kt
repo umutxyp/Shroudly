@@ -393,8 +393,14 @@ class ShroudlyVpnService : VpnService() {
             // ACTION_START, the system's always-on VPN, or a restart after the
             // process was killed (START_STICKY): all mean "be on".
             else -> {
-                // Started again after Android ended the process while on.
-                if (intent == null) Usage.endedByAndroid(this)
+                // Started again after Android ended the process while on. Said
+                // in the log: without it a report showed the engine starting
+                // over and over and nothing of why (SR-JMD1: Roblox and a
+                // WhatsApp call on a phone that ends apps to save memory).
+                if (intent == null) {
+                    Usage.endedByAndroid(this)
+                    log("Android ended the app while protection was on and started it again (memory or battery saving)")
+                }
                 requestStart(bySystem = intent?.action != ACTION_START)
             }
         }

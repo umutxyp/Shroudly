@@ -27,8 +27,11 @@ const t = suite('national-net');
   const sites = { IR: ['www.digikala.com', 'www.aparat.com'], RU: ['ya.ru'] };
   const lookup = async (host) => (host === 'ya.ru' ? null : `10.0.0.${host.length}`);
   const hs = async ({ servername }) => (servername === 'www.aparat.com' ? 'ok' : 'timeout');
-  const r = await domesticAnswers({ sites, lookup, hs, ms: 200 });
+  const r = await domesticAnswers({ sites, lookup, hs, ms: 200, tz: 'UTC' });
   t.ok(r && r.country === 'IR' && r.host === 'www.aparat.com', `a site inside the country answering with its own certificate: that country (${JSON.stringify(r)})`);
+  t.ok(await domesticAnswers({ sites, lookup, hs, ms: 200, tz: 'Europe/Istanbul' }) === null,
+    'an Iranian site answering a computer whose time zone is Turkey\'s: not a national-only network (SR-XM82)');
+  t.ok((await domesticAnswers({ sites, lookup, hs, ms: 200, tz: 'Asia/Tehran' }) || {}).country === 'IR', 'with Iran\'s time zone: Iran');
 
   t.ok(await domesticAnswers({ sites, lookup: async () => null, hs, ms: 200 }) === null, 'no name resolving: nothing');
   t.ok(await domesticAnswers({ sites, lookup, hs: async () => 'ECONNRESET', ms: 200 }) === null, 'none answering: nothing');
