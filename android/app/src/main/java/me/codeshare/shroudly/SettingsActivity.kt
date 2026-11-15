@@ -1268,7 +1268,7 @@ class SettingsActivity : Activity() {
         val sitesTitle = TextView(this, null, 0, R.style.SectionTitle_Explained).apply {
             id = View.generateViewId()
             setText(R.string.siteListLabel)
-            isAccessibilityHeading = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) isAccessibilityHeading = true
         }
         connection.addView(sitesTitle, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         connection.addView(sitesCard(sitesTitle.id), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
