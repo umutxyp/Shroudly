@@ -178,6 +178,16 @@ function server(reply) {
     'the first thing to put right is named');
   }
 
-  console.log(`report: ${t.count} passed`);
+  // The site or app must name one, and the log must show Shroudly was started
+// (the same rules in Report.kt, Report.swift and the report server).
+{
+  const RC = require('../../electron/report-check');
+  t.ok(['vpn', 'VPN.', 'Internet', 'همه', 'все', 'hepsi', 'all sites', '!!', 'a'].every((s) => !RC.siteOk(s)), 'a word that names no site or app is refused ("vpn", "internet", "everything")');
+  t.ok(['youtube.com', 't.me', 'Jakaroo', 'Roblox', 'تلگرام'].every((s) => RC.siteOk(s)), 'a name or an address is taken');
+  t.ok(RC.triedOk('x\nStarting engine: shroudly-core.exe\ny') && !RC.triedOk('only the window opened'), 'a log where the engine never started: not tried with protection on');
+  const main = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'electron', 'main.js'), 'utf8');
+  t.ok(/error: 'tried'/.test(main), 'the desktop refuses to send it, and says why');
+}
+console.log(`report: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

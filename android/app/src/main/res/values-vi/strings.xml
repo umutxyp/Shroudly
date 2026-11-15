@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần.</string>
     <string name="reportAgree">Tôi đồng ý gửi báo cáo này kèm nhật ký của ứng dụng và chấp nhận chính sách quyền riêng tư.</string>
     <string name="reportBadContact">Hãy nhập một email bạn thường đọc. Không chấp nhận địa chỉ tạm thời, địa chỉ bịa hay tên Telegram.</string>
-    <string name="reportBadSite">Hãy ghi tên trang web hoặc ứng dụng không hoạt động.</string>
+    <string name="reportBadSite">Ghi trang hoặc ứng dụng không hoạt động, bằng tên hoặc địa chỉ (không phải «VPN», «internet» hay «tất cả»).</string>
     <string name="reportBadWhat">Hãy kể lại bằng lời của bạn, trong vài câu, chuyện gì đã xảy ra.</string>
     <string name="reportContact">Email của bạn, để chúng tôi trả lời</string>
     <string name="reportCopied">Đã sao chép</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Không gửi được. Hãy kiểm tra kết nối và thử lại, hoặc viết cho chúng tôi.</string>
     <string name="reportIntro">Trang web hay ứng dụng không mở được, hoặc bất cứ điều gì khác không hoạt động: hãy cho chúng tôi biết. Nếu Shroudly chưa hỗ trợ, chúng tôi sẽ thêm vào; nếu là lỗi, chúng tôi sẽ sửa.</string>
     <string name="reportLink">Có gì đó không hoạt động?</string>
+    <string name="reportNotTried">Hãy bật bảo vệ trước rồi mở trang hoặc ứng dụng đó khi Shroudly đang bật. Nếu vẫn không được, hãy gửi báo cáo lúc đó: nhật ký của nó cho thấy chuyện gì đã xảy ra.</string>
     <string name="reportPast">Báo cáo bạn đã gửi</string>
     <string name="reportPastHint">Chỉ lưu trên thiết bị này, trong 60 ngày.</string>
     <string name="reportRateDay">Bạn có thể gửi ba báo cáo mỗi ngày. Vui lòng thử lại vào ngày mai.</string>

@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.</string>
     <string name="reportAgree">Ushbu hisobotni ilova jurnali bilan yuborishga roziman va maxfiylik siyosatini qabul qilaman.</string>
     <string name="reportBadContact">O\'zingiz o\'qiydigan pochta manzilini yozing. Vaqtinchalik yoki to\'qib chiqarilgan manzillar va Telegram nomlari qabul qilinmaydi.</string>
-    <string name="reportBadSite">Ishlamayotgan sayt yoki ilova nomini yozing.</string>
+    <string name="reportBadSite">Ishlamayotgan sayt yoki ilovani nomi yoki manzili bilan yozing («VPN», «internet» yoki «hammasi» emas).</string>
     <string name="reportBadWhat">Nima bo\'lganini bir necha jumlada, o\'z so\'zlaringiz bilan yozing.</string>
     <string name="reportContact">Javobimiz uchun elektron pochtangiz</string>
     <string name="reportCopied">Nusxa olindi</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Yuborib boʻlmadi. Ulanishni tekshirib, qayta urinib koʻring yoki bizga yozing.</string>
     <string name="reportIntro">Ochilmayotgan sayt yoki ilova, yoki ishlamayotgan boshqa narsa boʻlsa, bizga ayting. Shroudly uni hali qoʻllab-quvvatlamasa, qoʻshamiz; xato boʻlsa, tuzatamiz.</string>
     <string name="reportLink">Nimadir ishlamayaptimi?</string>
+    <string name="reportNotTried">Avval himoyani yoqing va o\'sha sayt yoki ilovani Shroudly yoqilgan holda ochib ko\'ring. Baribir ishlamasa, hisobotni o\'shanda yuboring: uning jurnali nima bo\'lganini ko\'rsatadi.</string>
     <string name="reportPast">Yuborgan hisobotlaringiz</string>
     <string name="reportPastHint">Faqat shu qurilmada, 60 kun saqlanadi.</string>
     <string name="reportRateDay">Kuniga uchta hisobot yuborish mumkin. Ertaga qayta urinib koʻring.</string>

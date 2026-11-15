@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali.</string>
     <string name="reportAgree">Saya setuju mengirim laporan ini beserta log aplikasi, dan saya menerima kebijakan privasi.</string>
     <string name="reportBadContact">Masukkan alamat email yang kamu baca. Alamat sementara atau karangan dan nama Telegram tidak diterima.</string>
-    <string name="reportBadSite">Sebutkan situs atau aplikasi yang tidak berfungsi.</string>
+    <string name="reportBadSite">Tulis situs atau aplikasi yang tidak berfungsi, dengan nama atau alamatnya (bukan «VPN», «internet» atau «semua»).</string>
     <string name="reportBadWhat">Ceritakan dengan kata-katamu sendiri, dalam beberapa kalimat, apa yang terjadi.</string>
     <string name="reportContact">Alamat emailmu, untuk balasan kami</string>
     <string name="reportCopied">Tersalin</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Gagal mengirim. Periksa koneksi Anda lalu coba lagi, atau hubungi kami.</string>
     <string name="reportIntro">Situs atau aplikasi yang tidak mau terbuka, atau hal lain yang tidak berfungsi: beri tahu kami. Jika Shroudly belum mendukungnya, kami akan menambahkannya; jika itu bug, kami akan memperbaikinya.</string>
     <string name="reportLink">Ada yang tidak berfungsi?</string>
+    <string name="reportNotTried">Nyalakan perlindungan dulu lalu buka situs atau aplikasi itu dengan Shroudly menyala. Jika masih tidak berfungsi, kirim laporan saat itu: lognya menunjukkan apa yang terjadi.</string>
     <string name="reportPast">Laporan yang Anda kirim</string>
     <string name="reportPastHint">Disimpan hanya di perangkat ini, selama 60 hari.</string>
     <string name="reportRateDay">Anda dapat mengirim tiga laporan per hari. Silakan coba lagi besok.</string>

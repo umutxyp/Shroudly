@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">แอปที่เปิดไว้ก่อนแล้ว: ถ้าแอปใดเชื่อมต่อไม่ได้ ให้ปิดแล้วเปิดใหม่หนึ่งครั้ง</string>
     <string name="reportAgree">ฉันยินยอมส่งรายงานนี้พร้อมบันทึกของแอป และยอมรับนโยบายความเป็นส่วนตัว</string>
     <string name="reportBadContact">กรอกอีเมลที่คุณอ่านจริง ไม่รับอีเมลชั่วคราว อีเมลที่แต่งขึ้น หรือชื่อ Telegram</string>
-    <string name="reportBadSite">ระบุชื่อเว็บไซต์หรือแอปที่ใช้ไม่ได้</string>
+    <string name="reportBadSite">เขียนชื่อหรือที่อยู่ของเว็บไซต์หรือแอปที่ใช้ไม่ได้ (ไม่ใช่ «VPN», «อินเทอร์เน็ต» หรือ «ทั้งหมด»)</string>
     <string name="reportBadWhat">เล่าด้วยคำพูดของคุณเองสักสองสามประโยคว่าเกิดอะไรขึ้น</string>
     <string name="reportContact">อีเมลของคุณ สำหรับคำตอบจากเรา</string>
     <string name="reportCopied">คัดลอกแล้ว</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">ส่งไม่สำเร็จ ตรวจสอบการเชื่อมต่อแล้วลองใหม่ หรือเขียนถึงเรา</string>
     <string name="reportIntro">เว็บไซต์หรือแอปที่เปิดไม่ได้ หรืออะไรก็ตามที่ใช้งานไม่ได้ บอกเราได้เลย ถ้า Shroudly ยังไม่รองรับ เราจะเพิ่มให้ ถ้าเป็นบั๊ก เราจะแก้ให้</string>
     <string name="reportLink">มีอะไรใช้งานไม่ได้ไหม?</string>
+    <string name="reportNotTried">เปิดการป้องกันก่อน แล้วเปิดเว็บไซต์หรือแอปนั้นขณะที่ Shroudly เปิดอยู่ หากยังใช้ไม่ได้ ค่อยส่งรายงาน: บันทึกของมันจะแสดงว่าเกิดอะไรขึ้น</string>
     <string name="reportPast">รายงานที่คุณส่ง</string>
     <string name="reportPastHint">เก็บไว้ในอุปกรณ์นี้เท่านั้น เป็นเวลา 60 วัน</string>
     <string name="reportRateDay">ส่งรายงานได้วันละสามฉบับ โปรดลองใหม่พรุ่งนี้</string>

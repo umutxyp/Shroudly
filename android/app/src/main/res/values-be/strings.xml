@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Праграмы, адкрытыя раней: калі нейкая не падключаецца, закрыйце яе і адкрыйце зноў.</string>
     <string name="reportAgree">Я згодны адправіць гэтую справаздачу разам з журналам праграмы і прымаю палітыку прыватнасці.</string>
     <string name="reportBadContact">Укажыце пошту, якую вы чытаеце. Часовыя ці выдуманыя адрасы і імёны ў Telegram не прымаюцца.</string>
-    <string name="reportBadSite">Укажыце сайт ці праграму, якая не працуе.</string>
+    <string name="reportBadSite">Укажыце сайт ці праграму, што не працуе, па назве ці адрасе (не «VPN», «інтэрнэт» ці «усё»).</string>
     <string name="reportBadWhat">Апішыце сваімі словамі, некалькімі сказамі, што здарылася.</string>
     <string name="reportContact">Ваша электронная пошта для адказу</string>
     <string name="reportCopied">Скапіявана</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Не ўдалося адправіць. Праверце падключэнне і паспрабуйце яшчэ раз або напішыце нам.</string>
     <string name="reportIntro">Сайт ці праграма не адкрываецца або не працуе нешта іншае — раскажыце нам. Калі Shroudly гэтага яшчэ не ўмее, мы дададзім; калі гэта памылка, выправім.</string>
     <string name="reportLink">Нешта не працуе?</string>
+    <string name="reportNotTried">Спачатку ўключыце абарону і адкрыйце гэты сайт ці праграму з уключаным Shroudly. Калі ўсё роўна не працуе, тады дашліце справаздачу: яе журнал пакажа, што здарылася.</string>
     <string name="reportPast">Вашы справаздачы</string>
     <string name="reportPastHint">Захоўваюцца толькі на гэтай прыладзе, 60 дзён.</string>
     <string name="reportRateDay">Можна адпраўляць тры справаздачы на дзень. Паспрабуйце заўтра.</string>

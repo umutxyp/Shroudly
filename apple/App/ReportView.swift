@@ -189,6 +189,8 @@ struct ReportView: View {
         sending = true
         failure = nil
         let log = await Diagnostics.text(sites: controller.siteLog()) + "\n\n" + (await situation()) + "\n"
+        // Tried with protection on first: nothing is sent otherwise.
+        guard Report.triedOk(log) else { failure = tr("reportNotTried"); sending = false; return }
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
         let os = ProcessInfo.processInfo.operatingSystemVersionString
         guard let body = Report.body(fields, version: version, platform: platform, os: os, device: Diagnostics.model,
@@ -223,6 +225,7 @@ struct ReportView: View {
             case "contact": failure = tr("reportBadContact")
             case "what": failure = tr("reportBadWhat")
             case "site": failure = tr("reportBadSite")
+            case "tried": failure = tr("reportNotTried")
             default: failure = tr("reportFailed")
             }
         }

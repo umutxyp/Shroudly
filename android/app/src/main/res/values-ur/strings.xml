@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">جو ایپس پہلے سے کھلی تھیں: اگر کوئی کنیکٹ نہ ہو تو اسے بند کر کے ایک بار دوبارہ کھولیں۔</string>
     <string name="reportAgree">میں یہ رپورٹ ایپ کے لاگ کے ساتھ بھیجنے پر راضی ہوں اور رازداری کی پالیسی قبول کرتا/کرتی ہوں۔</string>
     <string name="reportBadContact">ایسا ای میل پتہ لکھیں جو آپ پڑھتے ہیں۔ عارضی یا فرضی پتے اور ٹیلی گرام نام قبول نہیں۔</string>
-    <string name="reportBadSite">اس سائٹ یا ایپ کا نام لکھیں جو کام نہیں کر رہی۔</string>
+    <string name="reportBadSite">جو سائٹ یا ایپ کام نہیں کر رہی اس کا نام یا پتہ لکھیں («VPN»، «انٹرنیٹ» یا «سب» نہیں)۔</string>
     <string name="reportBadWhat">اپنے الفاظ میں چند جملوں میں بتائیں کہ کیا ہوا۔</string>
     <string name="reportContact">ہمارے جواب کے لیے آپ کا ای میل پتہ</string>
     <string name="reportCopied">کاپی ہو گیا</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">بھیجی نہیں جا سکی۔ اپنا کنکشن چیک کر کے دوبارہ کوشش کریں، یا ہمیں لکھیں۔</string>
     <string name="reportIntro">کوئی سائٹ یا ایپ نہیں کھل رہی، یا کچھ اور کام نہیں کر رہا: ہمیں بتائیں۔ اگر Shroudly ابھی اسے سپورٹ نہیں کرتا تو ہم شامل کر دیں گے؛ اگر خرابی ہے تو ٹھیک کر دیں گے۔</string>
     <string name="reportLink">کچھ کام نہیں کر رہا؟</string>
+    <string name="reportNotTried">پہلے حفاظت آن کریں اور وہ سائٹ یا ایپ Shroudly آن رکھ کر کھولیں۔ اگر پھر بھی کام نہ کرے تو تب رپورٹ بھیجیں: اس کا لاگ دکھاتا ہے کہ کیا ہوا۔</string>
     <string name="reportPast">آپ کی بھیجی گئی رپورٹس</string>
     <string name="reportPastHint">صرف اسی ڈیوائس پر، 60 دن کے لیے رکھی جاتی ہیں۔</string>
     <string name="reportRateDay">آپ ایک دن میں تین رپورٹس بھیج سکتے ہیں۔ براہ کرم کل دوبارہ کوشش کریں۔</string>

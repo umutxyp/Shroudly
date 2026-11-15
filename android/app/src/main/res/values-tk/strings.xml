@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.</string>
     <string name="reportAgree">Bu hasabaty programmanyň žurnaly bilen ibermäge razy we gizlinlik syýasatyny kabul edýärin.</string>
     <string name="reportBadContact">Özüňiz okaýan e-poçta salgyny ýazyň. Wagtlaýyn ýa-da oýlanyp tapylan salgylar we Telegram atlary kabul edilmeýär.</string>
-    <string name="reportBadSite">Işlemeýän sahypanyň ýa-da programmanyň adyny ýazyň.</string>
+    <string name="reportBadSite">Işlemeýän saýty ýa-da programmany ady ýa-da salgysy bilen ýazyň («VPN», «internet» ýa-da «hemmesi» däl).</string>
     <string name="reportBadWhat">Näme bolanyny birnäçe sözlem bilen, öz sözleriňiz bilen ýazyň.</string>
     <string name="reportContact">Jogabymyz üçin e-poçta salgyňyz</string>
     <string name="reportCopied">Göçürildi</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Iberip bolmady. Birikmäňizi barlap, gaýtadan synanyşyň ýa-da bize ýazyň.</string>
     <string name="reportIntro">Açylmaýan sahypa ýa-da programma, ýa-da işlemeýän başga bir zat bar bolsa, bize aýdyň. Shroudly ony entek goldamaýan bolsa, goşarys; ýalňyşlyk bolsa, düzederis.</string>
     <string name="reportLink">Bir zat işlemeýärmi?</string>
+    <string name="reportNotTried">Ilki goragy açyň we şol saýty ýa-da programmany Shroudly açyk wagty synap görüň. Ýene işlemese, hasabaty şonda iberiň: onuň žurnaly näme bolanyny görkezýär.</string>
     <string name="reportPast">Iberen hasabatlaryňyz</string>
     <string name="reportPastHint">Diňe şu enjamda, 60 gün saklanýar.</string>
     <string name="reportRateDay">Günde üç hasabat iberip bolýar. Ertir gaýtadan synanyşyň.</string>

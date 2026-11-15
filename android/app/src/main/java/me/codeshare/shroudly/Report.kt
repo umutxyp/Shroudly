@@ -161,7 +161,19 @@ object Report {
         return true
     }
 
-    fun siteOk(v: String): Boolean = chars(v) >= 2
+    /* What names no site or app ("vpn", "internet", "everything"): the
+     * same list as electron/report-check.js SITE_EMPTY. */
+    val SITE_EMPTY = setOf("vpn", "proxy", "internet", "net", "wifi", "wi-fi", "all", "everything", "any", "anything", "app", "apps", "application", "site", "sites", "website", "websites", "web", "none", "no", "nothing", "test", "shroudly", "all sites", "all apps", "every site", "every app", "همه", "همه چیز", "همه سایت ها", "همه سایتها", "اینترنت", "فیلترشکن", "وی پی ان", "все", "всё", "все сайты", "интернет", "впн", "hepsi", "her şey", "herşey", "tümü", "tüm siteler", "uygulama", "site", "الكل", "كل شيء", "الانترنت", "كل المواقع", "انترنت", "全部", "所有", "互联网")
+
+    fun siteOk(v: String): Boolean {
+        val t = v.trim().lowercase().replace(Regex("[\\s.,;:!?'\"()\\[\\]{}<>/\\\\|_*-]+"), " ").trim()
+        if (t.count { Character.isLetterOrDigit(it) } < 2) return false
+        return t !in SITE_EMPTY
+    }
+
+    /* The log shows the engine was started: a report about something never
+     * tried with protection on says nothing (electron/report-check.js). */
+    fun triedOk(log: String): Boolean = log.contains("Starting engine")
 
     /* The first thing to put right, or null: "what", "site" or "contact". */
     fun problem(what: String, site: String, contact: String): String? = when {
@@ -199,11 +211,11 @@ object Report {
         return NationalNet.homeCountry(AppSettings.homeCountry(ctx), java.util.TimeZone.getDefault().id) == "IR"
     }
 
-    fun offered(ctx: Context): Boolean {
-        val faultAt = maxOf(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_FAULT, 0), Protection.faultAt)
-        val last = load(ctx).maxOfOrNull { it.at } ?: 0L
-        return offered(inIran(ctx), faultAt, last, System.currentTimeMillis())
-    }
+    /* Since 2.6.79 everywhere, Iran too (the owner: everyone gets it):
+     * what kept the empty reports out is the form itself now: words, a real
+     * site or app, a real address, and a log where Shroudly was started. */
+    @Suppress("UNUSED_PARAMETER")
+    fun offered(ctx: Context): Boolean = true
 
     private fun cut(s: String, max: Int): String {
         val t = s.trim()

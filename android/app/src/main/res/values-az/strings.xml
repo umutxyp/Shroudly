@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Əvvəlcədən açıq olan tətbiqlər: biri qoşulmasa, onu bağlayıb bir dəfə yenidən açın.</string>
     <string name="reportAgree">Bu hesabatı tətbiqin jurnalı ilə göndərməyə razıyam və məxfilik siyasətini qəbul edirəm.</string>
     <string name="reportBadContact">Oxuduğunuz e-poçt ünvanını yazın. Müvəqqəti və ya uydurma ünvanlar və Telegram adları qəbul edilmir.</string>
-    <string name="reportBadSite">İşləməyən saytın və ya tətbiqin adını yazın.</string>
+    <string name="reportBadSite">İşləməyən saytı ya tətbiqi adı və ya ünvanı ilə yaz («VPN», «internet» və ya «hamısı» yox).</string>
     <string name="reportBadWhat">Nə baş verdiyini bir neçə cümlə ilə, öz sözlərinizlə yazın.</string>
     <string name="reportContact">Cavabımız üçün e-poçt ünvanınız</string>
     <string name="reportCopied">Kopyalandı</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Göndərmək alınmadı. Bağlantınızı yoxlayıb yenidən cəhd edin və ya bizə yazın.</string>
     <string name="reportIntro">Açılmayan sayt və ya tətbiq, yaxud işləməyən başqa bir şey varsa, bizə deyin. Shroudly onu hələ dəstəkləmirsə, əlavə edərik; xətadırsa, düzəldərik.</string>
     <string name="reportLink">Nəsə işləmir?</string>
+    <string name="reportNotTried">Əvvəlcə qorumanı aç və o saytı ya tətbiqi Shroudly açıq ikən sına. Yenə işləməsə, raportu onda göndər: onun jurnalı nə baş verdiyini göstərir.</string>
     <string name="reportPast">Göndərdiyiniz hesabatlar</string>
     <string name="reportPastHint">Yalnız bu cihazda, 60 gün saxlanılır.</string>
     <string name="reportRateDay">Gündə üç hesabat göndərə bilərsiniz. Sabah yenidən cəhd edin.</string>

@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.</string>
     <string name="reportAgree">Ez razî me ku ev rapor bi tomarên sepanê re were şandin, û polîtîkaya nepeniyê qebûl dikim.</string>
     <string name="reportBadContact">Navnîşaneke e-nameyê ku tu dixwînî binivîse. Navnîşanên demkî an çêkirî û navên Telegram nayên qebûlkirin.</string>
-    <string name="reportBadSite">Navê malper an sepana ku naxebite binivîse.</string>
+    <string name="reportBadSite">Malper an sepana ku naxebite bi nav an navnîşana wê binivîse (ne «VPN», «înternet» an «hemû»).</string>
     <string name="reportBadWhat">Bi çend hevokan û bi gotinên xwe binivîse ka çi qewimî.</string>
     <string name="reportContact">Navnîşana te ya e-nameyê, ji bo bersiva me</string>
     <string name="reportCopied">Hat kopîkirin</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Nehat şandin. Girêdana xwe kontrol bike û dîsa biceribîne, an ji me re binivîse.</string>
     <string name="reportIntro">Malperek an sepanek venabe, an tiştekî din naxebite: ji me re bêje. Heke Shroudly hîn wê piştgirî nake, em ê lê zêde bikin; heke çewtiyek be, em ê sererast bikin.</string>
     <string name="reportLink">Tiştek naxebite?</string>
+    <string name="reportNotTried">Pêşî parastinê veke û wê malperê an sepanê dema Shroudly vekirî ye biceribîne. Heke dîsa nexebite, wê demê raporê bişîne: tomara wê nîşan dide ka çi qewimî.</string>
     <string name="reportPast">Raporên ku te şandine</string>
     <string name="reportPastHint">Tenê li ser vê amûrê, 60 rojan tê parastin.</string>
     <string name="reportRateDay">Tu dikarî rojê sê raporan bişînî. Ji kerema xwe sibê dîsa biceribîne.</string>

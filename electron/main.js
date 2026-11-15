@@ -4009,6 +4009,9 @@ ipcMain.handle('report:send', async (_e, fields) => {
   // What happened in words, the site or app, and an e-mail address (report-check.js).
   const fault = require('./report-check').problem(fields);
   if (fault) return { ok: false, error: fault };
+  // Tried with protection on first: a log where the engine never started
+  // says nothing about what does not work.
+  if (!systemLogs.some((l) => /Starting engine/.test(l.message))) return { ok: false, error: 'tried' };
   const past = Report.history(store.get('reports'));
   const w = Report.wait(past);
   if (w.ms > 0) return { ok: false, error: 'rate', limit: w.limit, retryAfter: Math.ceil(w.ms / 1000) };

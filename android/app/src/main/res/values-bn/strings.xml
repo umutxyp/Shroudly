@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">যেসব অ্যাপ আগে থেকেই খোলা ছিল: কোনোটি সংযোগ না পেলে সেটি বন্ধ করে একবার আবার খুলুন।</string>
     <string name="reportAgree">আমি অ্যাপের লগসহ এই রিপোর্ট পাঠাতে সম্মত এবং গোপনীয়তা নীতি মেনে নিচ্ছি।</string>
     <string name="reportBadContact">এমন একটি ইমেইল ঠিকানা দিন যা আপনি পড়েন। অস্থায়ী বা বানানো ঠিকানা আর Telegram নাম গ্রহণযোগ্য নয়।</string>
-    <string name="reportBadSite">যে সাইট বা অ্যাপ কাজ করছে না তার নাম লিখুন।</string>
+    <string name="reportBadSite">যে সাইট বা অ্যাপ কাজ করছে না তার নাম বা ঠিকানা লিখুন («VPN», «ইন্টারনেট» বা «সব» নয়)।</string>
     <string name="reportBadWhat">নিজের ভাষায় কয়েকটি বাক্যে লিখুন কী ঘটেছে।</string>
     <string name="reportContact">আমাদের উত্তরের জন্য আপনার ইমেইল ঠিকানা</string>
     <string name="reportCopied">কপি হয়েছে</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">পাঠানো গেল না। আপনার সংযোগ দেখে আবার চেষ্টা করুন, অথবা আমাদের লিখুন।</string>
     <string name="reportIntro">কোনো সাইট বা অ্যাপ খুলছে না, বা অন্য কিছু কাজ করছে না: আমাদের জানান। Shroudly এখনো সেটি সমর্থন না করলে আমরা যোগ করব; বাগ হলে ঠিক করে দেব।</string>
     <string name="reportLink">কিছু কাজ করছে না?</string>
+    <string name="reportNotTried">প্রথমে সুরক্ষা চালু করুন এবং Shroudly চালু রেখে সেই সাইট বা অ্যাপ খুলুন। তবুও কাজ না করলে তখন রিপোর্ট পাঠান: এর লগ দেখায় কী ঘটেছে।</string>
     <string name="reportPast">আপনার পাঠানো রিপোর্ট</string>
     <string name="reportPastHint">শুধু এই ডিভাইসে, ৬০ দিনের জন্য রাখা হয়।</string>
     <string name="reportRateDay">দিনে তিনটি রিপোর্ট পাঠানো যায়। আগামীকাল আবার চেষ্টা করুন।</string>

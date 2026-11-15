@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois.</string>
     <string name="reportAgree">J\'accepte d\'envoyer ce rapport avec le journal de l\'appli et j\'accepte la politique de confidentialité.</string>
     <string name="reportBadContact">Indiquez une adresse e-mail que vous consultez. Les adresses temporaires ou inventées et les noms Telegram ne sont pas acceptés.</string>
-    <string name="reportBadSite">Indiquez le site ou l\'appli qui ne fonctionne pas.</string>
+    <string name="reportBadSite">Indiquez le site ou l\'app qui ne marche pas, par son nom ou son adresse (pas « VPN », « internet » ou « tout »).</string>
     <string name="reportBadWhat">Décrivez avec vos mots, en quelques phrases, ce qui s\'est passé.</string>
     <string name="reportContact">Votre adresse e-mail, pour notre réponse</string>
     <string name="reportCopied">Copié</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">L\'envoi a échoué. Vérifiez votre connexion et réessayez, ou écrivez-nous.</string>
     <string name="reportIntro">Un site ou une app qui ne s\'ouvre pas, ou autre chose qui ne fonctionne pas : dites-le-nous. Si Shroudly ne le prend pas encore en charge, nous l\'ajouterons ; si c\'est un bug, nous le corrigerons.</string>
     <string name="reportLink">Quelque chose ne marche pas ?</string>
+    <string name="reportNotTried">Activez d\'abord la protection et ouvrez ce site ou cette app avec Shroudly activé. Si cela ne marche toujours pas, envoyez alors le rapport : son journal montre ce qui s\'est passé.</string>
     <string name="reportPast">Vos rapports envoyés</string>
     <string name="reportPastHint">Conservés uniquement sur cet appareil, pendant 60 jours.</string>
     <string name="reportRateDay">Vous pouvez envoyer trois rapports par jour. Réessayez demain.</string>

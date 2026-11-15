@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">Бұрын ашық тұрған қолданбалар: біреуі қосылмаса, оны жауып, бір рет қайта ашыңыз.</string>
     <string name="reportAgree">Осы есепті қолданба журналымен бірге жіберуге келісемін және құпиялылық саясатын қабылдаймын.</string>
     <string name="reportBadContact">Өзіңіз оқитын поштаны жазыңыз. Уақытша не ойдан шығарылған мекенжайлар және Telegram аттары қабылданбайды.</string>
-    <string name="reportBadSite">Жұмыс істемейтін сайттың не қолданбаның атын жазыңыз.</string>
+    <string name="reportBadSite">Жұмыс істемейтін сайтты не қолданбаны атауымен не мекенжайымен жазыңыз («VPN», «интернет» не «бәрі» емес).</string>
     <string name="reportBadWhat">Не болғанын бірнеше сөйлеммен, өз сөзіңізбен жазыңыз.</string>
     <string name="reportContact">Жауабымыз үшін электрондық поштаңыз</string>
     <string name="reportCopied">Көшірілді</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">Жіберу мүмкін болмады. Қосылымды тексеріп, қайталап көріңіз немесе бізге жазыңыз.</string>
     <string name="reportIntro">Сайт не қолданба ашылмаса немесе басқа бірдеңе жұмыс істемесе, бізге айтыңыз. Shroudly оны әлі қолдамаса, қосамыз; қате болса, түзетеміз.</string>
     <string name="reportLink">Бірдеңе жұмыс істемей ме?</string>
+    <string name="reportNotTried">Алдымен қорғауды қосып, сол сайтты не қолданбаны Shroudly қосулы кезде ашып көріңіз. Сонда да жұмыс істемесе, есепті сонда жіберіңіз: оның журналы не болғанын көрсетеді.</string>
     <string name="reportPast">Жіберген есептеріңіз</string>
     <string name="reportPastHint">Тек осы құрылғыда, 60 күн сақталады.</string>
     <string name="reportRateDay">Күніне үш есеп жіберуге болады. Ертең қайталап көріңіз.</string>

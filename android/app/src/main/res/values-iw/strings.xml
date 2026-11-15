@@ -244,7 +244,7 @@
     <string name="reopenAppsHint">אפליקציות שכבר היו פתוחות: אם אחת לא מתחברת, סגרו אותה ופתחו אותה שוב פעם אחת.</string>
     <string name="reportAgree">אני מסכים/ה לשלוח את הדיווח עם יומן האפליקציה, ומקבל/ת את מדיניות הפרטיות.</string>
     <string name="reportBadContact">יש להזין כתובת אימייל שאת/ה קורא/ת. כתובות זמניות או מומצאות ושמות טלגרם אינם מתקבלים.</string>
-    <string name="reportBadSite">יש לכתוב את שם האתר או האפליקציה שלא עובדים.</string>
+    <string name="reportBadSite">כתוב את האתר או האפליקציה שלא עובדים, בשם או בכתובת (לא «VPN», «אינטרנט» או «הכול»).</string>
     <string name="reportBadWhat">תאר/י במילים שלך, בכמה משפטים, מה קרה.</string>
     <string name="reportContact">כתובת האימייל שלך, לתשובה שלנו</string>
     <string name="reportCopied">הועתק</string>
@@ -252,6 +252,7 @@
     <string name="reportFailed">השליחה נכשלה. בדקו את החיבור ונסו שוב, או כתבו לנו.</string>
     <string name="reportIntro">אתר או אפליקציה שלא נפתחים, או כל דבר אחר שלא עובד: ספרו לנו. אם Shroudly עוד לא תומך בזה, נוסיף; אם זו תקלה, נתקן.</string>
     <string name="reportLink">משהו לא עובד?</string>
+    <string name="reportNotTried">קודם הפעל את ההגנה ופתח את האתר או האפליקציה כש-Shroudly פועל. אם זה עדיין לא עובד, שלח אז את הדיווח: היומן שלו מראה מה קרה.</string>
     <string name="reportPast">דיווחים ששלחתם</string>
     <string name="reportPastHint">נשמרים רק במכשיר הזה, למשך 60 יום.</string>
     <string name="reportRateDay">אפשר לשלוח שלושה דיווחים ביום. נסו שוב מחר.</string>
