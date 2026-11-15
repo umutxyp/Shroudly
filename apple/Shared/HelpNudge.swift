@@ -78,8 +78,11 @@ enum HelpNudge {
 
     /* Where the user is, as far as the app can tell: a shutdown seen there
      * (NetworkWatch keeps it), else the time zone's country among those above. */
+    /* The zone's country first: the user chose it, while a site of another
+     * country answering in a bad moment once made a phone in Turkey
+     * "Iranian" for good (SR-XM82). */
     static func country(remembered: String?, zone: String = TimeZone.current.identifier) -> String? {
-        remembered ?? zones[zone]
+        zones[zone] ?? remembered
     }
 
     private enum Key {

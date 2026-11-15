@@ -92,12 +92,14 @@ function systemZone() {
   try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; }
 }
 
-/* The country the user is in, as well as it is known: the one whose own
- * network answered in a shutdown (remembered), else the one the system's
- * time zone is in, else null. */
+/* The country the user is in, as well as it is known: the one the system's
+ * time zone is in, else the one whose own network answered in a shutdown
+ * (remembered), else null. The zone first: the user chose it, while a site
+ * of another country answering in a bad moment once made a phone in Turkey
+ * "Iranian" for good, its decoys Iranian names (SR-XM82). */
 function homeCountry({ remembered, tz = systemZone() } = {}) {
-  if (remembered && DOMESTIC[remembered]) return remembered;
   for (const [cc, zones] of Object.entries(ZONES)) if (zones.includes(tz)) return cc;
+  if (remembered && DOMESTIC[remembered]) return remembered;
   return null;
 }
 

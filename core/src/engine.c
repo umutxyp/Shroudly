@@ -3360,6 +3360,30 @@ static int udp_dns_blocked(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
   return 1;
 }
 
+/* From udpdpi.c (its header is not included here: its flow table names
+ * clash with this file's own udp_flow_note). */
+int quic_version_negotiation(const uint8_t *p, int len, uint8_t *out, int cap);
+
+/* QUIC that is turned off: its Initial is answered here, as if the server
+ * had, with a Version Negotiation offering no version the app knows
+ * (quic_version_negotiation), so the app gives QUIC up at once and uses TCP.
+ * Dropped unanswered, the app first waited for its own QUIC timeout:
+ * Instagram's comments came late or minutes later (SR-Y78G, Turkey). Any
+ * other datagram to port 443 is dropped as before. */
+static void udp_quic_refused(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
+                             const uint8_t *q, size_t ql) {
+  if (!u->have_client || d->hdr_len > SUDP_HDR_MAX) return;
+  uint8_t out[SUDP_HDR_MAX + 64];
+  int n = quic_version_negotiation(q, (int)(ql > 65535 ? 65535 : ql), out + d->hdr_len,
+                                   (int)sizeof(out) - (int)d->hdr_len);
+  if (n <= 0) return;
+  memcpy(out, hdr, d->hdr_len);
+  out[0] = out[1] = out[2] = 0;                           /* RSV, FRAG */
+  sendto(u->relay, (const char *)out, (int)d->hdr_len + n, 0,
+         (struct sockaddr *)&u->client, sizeof(u->client));
+  u->last = now_ms();
+}
+
 /* A STUN binding request (RFC 5389): type 0x0001, its length, the magic
  * cookie. */
 static int stun_binding(const uint8_t *p, size_t n) {
@@ -3414,7 +3438,7 @@ static void udp_from_client(udp_assoc *u) {
     /* With the user's own server every site goes through it over TCP; QUIC
      * would leave from this device's own address (issue #67), so it is
      * dropped and browsers and apps use TCP. */
-    if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) continue;
+    if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) { udp_quic_refused(u, &d, u->buf, payload, plen); continue; }
     /* With the user's own server, a STUN binding request to the internet:
      * dropped. Its answer says the address it came from, and a web page
      * reads that through WebRTC: this device's own address, beside the

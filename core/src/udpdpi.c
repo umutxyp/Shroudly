@@ -19,6 +19,30 @@ int quic_is_initial(const uint8_t *p, int len) {
   return 0;
 }
 
+int quic_version_negotiation(const uint8_t *p, int len, uint8_t *out, int cap) {
+  if (!quic_is_initial(p, len) || !out || len < 7) return 0;
+  int dl = p[5];
+  if (dl > 20 || 6 + dl + 1 > len) return 0;
+  const uint8_t *dcid = p + 6;
+  int sl = p[6 + dl];
+  if (sl > 20 || 6 + dl + 1 + sl > len) return 0;
+  const uint8_t *scid = p + 7 + dl;
+  int n = 1 + 4 + 1 + sl + 1 + dl + 4;
+  if (n > cap) return 0;
+  uint32_t ver = ((uint32_t)p[1] << 24) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 8) | p[4];
+  /* A reserved version, never the one the client sent (it would discard the
+   * packet then: RFC 9000 6.2). */
+  uint32_t offer = ver == 0x1a2a3a4au ? 0x5a6a7a8au : 0x1a2a3a4au;
+  int k = 0;
+  out[k++] = 0x80 | (uint8_t)(p[0] & 0x3f) | 0x40;   /* long header; the rest unused */
+  out[k++] = 0; out[k++] = 0; out[k++] = 0; out[k++] = 0;   /* version 0: negotiation */
+  out[k++] = (uint8_t)sl; memcpy(out + k, scid, (size_t)sl); k += sl;   /* to the client's ID */
+  out[k++] = (uint8_t)dl; memcpy(out + k, dcid, (size_t)dl); k += dl;   /* from the one it chose */
+  out[k++] = (uint8_t)(offer >> 24); out[k++] = (uint8_t)(offer >> 16);
+  out[k++] = (uint8_t)(offer >> 8);  out[k++] = (uint8_t)offer;
+  return k;
+}
+
 /* ── Discord voice / STUN ────────────────────────────────────────────────── */
 int discord_is_ip_discovery(const uint8_t *p, int len) {
   /* type 0x0001, length 0x0046 (70), 70 + 4 == 74 total. Exact match. */

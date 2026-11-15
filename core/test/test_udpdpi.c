@@ -375,8 +375,39 @@ static void test_prefilters(void) {
   CHECK(0x21 == 33 && 0x12 == 18 && 0xa4 == 164 && 0x42 == 66 && 0x46 == 70 && UDP_DISCOVERY_LEN == 74);
 }
 
+/* ── QUIC Version Negotiation answer ───────────────────────────────────── */
+static void test_quic_vn(void) {
+  /* Initial v1, DCID 8 bytes 11.., SCID 4 bytes 22.. */
+  uint8_t in[64] = { 0xc3, 0x00, 0x00, 0x00, 0x01, 0x08,
+                     0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x04, 0x21,0x22,0x23,0x24 };
+  uint8_t out[64];
+  int n = quic_version_negotiation(in, sizeof(in), out, sizeof(out));
+  CHECK(n == 1 + 4 + 1 + 4 + 1 + 8 + 4);
+  CHECK((out[0] & 0x80) == 0x80);
+  CHECK(out[1] == 0 && out[2] == 0 && out[3] == 0 && out[4] == 0);
+  CHECK(out[5] == 4 && memcmp(out + 6, in + 15, 4) == 0);      /* DCID = client's SCID */
+  CHECK(out[10] == 8 && memcmp(out + 11, in + 6, 8) == 0);     /* SCID = client's DCID */
+  uint32_t offer = ((uint32_t)out[19] << 24) | ((uint32_t)out[20] << 16) | ((uint32_t)out[21] << 8) | out[22];
+  CHECK((offer & 0x0f0f0f0fu) == 0x0a0a0a0au && offer != 1);    /* reserved, not v1 */
+  /* Its own answer is no Initial: never answered again. */
+  CHECK(quic_is_initial(out, n) == 0);
+  /* Empty SCID (Chrome sends none at times). */
+  uint8_t in2[32] = { 0xc0, 0x00, 0x00, 0x00, 0x01, 0x04, 1,2,3,4, 0x00 };
+  n = quic_version_negotiation(in2, sizeof(in2), out, sizeof(out));
+  CHECK(n == 1 + 4 + 1 + 0 + 1 + 4 + 4 && out[5] == 0 && out[6] == 4);
+  /* Not an Initial, truncated, oversized IDs, no room: nothing. */
+  uint8_t sh[16] = { 0x40, 1, 2, 3, 4, 5 };
+  CHECK(quic_version_negotiation(sh, sizeof(sh), out, sizeof(out)) == 0);
+  CHECK(quic_version_negotiation(in, 10, out, sizeof(out)) == 0);
+  uint8_t big[64] = { 0xc0, 0x00, 0x00, 0x00, 0x01, 21 };
+  CHECK(quic_version_negotiation(big, sizeof(big), out, sizeof(out)) == 0);
+  CHECK(quic_version_negotiation(in, sizeof(in), out, 10) == 0);
+  CHECK(quic_version_negotiation(NULL, 0, out, sizeof(out)) == 0);
+}
+
 int main(void) {
   test_quic();
+  test_quic_vn();
   test_discord();
   test_stun();
   test_ports();

@@ -961,7 +961,8 @@ class ShroudlyVpnService : VpnService() {
         val net = try { underlying(cm)?.first } catch (_: Exception) { null }
         Thread({
             try {
-                val found = NationalNet.answers(net)
+                val zone = java.util.TimeZone.getDefault().id
+                val found = NationalNet.answers(net)?.takeIf { NationalNet.plausible(it.first, zone) }
                 val cc = found?.first
                 if (cc != null) AppSettings.setHomeCountry(this, cc)
                 if (cc != Protection.national) {
