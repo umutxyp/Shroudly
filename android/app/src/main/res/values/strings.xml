@@ -336,7 +336,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Casting to a TV and other devices on your local network work with protection on.\nAn app whose servers the network blocks by address now gets the Tor question.\nRoblox: joining a game no longer fails with an HTTP error (the network\'s DNS was sending it to its block page).\n\"Something not working?\" shows everywhere.</string>
+    <string name="whatsNewAndroid">With QUIC off, apps now move to TCP at once: Instagram comments and the like no longer open late.\nYour country is read from the time zone first: a short outage no longer makes Shroudly take you for being elsewhere.\n\"Something not working?\" now shows only after Shroudly itself runs into a problem, so you can tell us about it.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

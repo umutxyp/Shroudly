@@ -336,7 +336,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Pancaran ke TV dan peranti lain dalam rangkaian setempat berfungsi dengan perlindungan dihidupkan.\nAplikasi yang pelayannya disekat rangkaian mengikut alamat kini mendapat soalan Tor.\nRoblox: menyertai permainan tidak lagi gagal dengan ralat HTTP (DNS rangkaian menghantarnya ke halaman sekatan).\n«Ada yang tidak berfungsi?» dipaparkan di mana-mana.</string>
+    <string name="whatsNewAndroid">Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\nNegara anda kini dibaca daripada zon waktu dahulu: gangguan singkat tidak lagi membuatkan Shroudly menyangka anda di tempat lain.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

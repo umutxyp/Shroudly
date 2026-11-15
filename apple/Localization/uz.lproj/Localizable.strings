@@ -228,7 +228,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Hisobot faqat sayt yoki ilova himoya yoqilgan holda sinab ko'rilgandan keyin ketadi va uning nomini yozish kerak.";
-"whatsNewMac" = "Roblox: o'yinga kirishda HTTP xatosi endi chiqmaydi (tarmoq DNS'i uni bloklash sahifasiga yuborardi).\nHisobot faqat sayt yoki ilova himoya yoqilgan holda sinab ko'rilgandan keyin ketadi va uning nomini yozish kerak.";
+"whatsNewApple" = "QUIC o‘chiq bo‘lsa, ilovalar endi darhol TCP’ga o‘tadi: Instagram izohlari va shunga o‘xshashlar endi kechikib ochilmaydi.\n“Nimadir ishlamayaptimi?” endi faqat Shroudly’ning o‘zida muammo chiqqanda ko‘rinadi, shunda bizga xabar berishingiz mumkin.";
+"whatsNewMac" = "QUIC o‘chiq bo‘lsa, ilovalar endi darhol TCP’ga o‘tadi: Instagram izohlari va shunga o‘xshashlar endi kechikib ochilmaydi.\n“Nimadir ishlamayaptimi?” endi faqat Shroudly’ning o‘zida muammo chiqqanda ko‘rinadi, shunda bizga xabar berishingiz mumkin.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

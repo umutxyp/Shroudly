@@ -336,7 +336,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Koruma açıkken TV\'ye yayın ve yerel ağdaki diğer cihazlar çalışıyor.\nSunucularını ağın adresle engellediği bir uygulama için artık Tor soruluyor.\nRoblox: oyuna girerken HTTP hatası artık çıkmıyor (ağın DNS\'i onu engel sayfasına gönderiyordu).\n\"Bir şey mi çalışmıyor?\" her yerde görünüyor.</string>
+    <string name="whatsNewAndroid">QUIC kapalıyken uygulamalar artık hemen TCP\'ye geçiyor: Instagram yorumları ve benzerleri artık geç açılmıyor.\nÜlken önce saat diliminden okunuyor: kısa bir kesinti artık Shroudly\'nin seni başka bir ülkede sanmasına yol açmıyor.\n\"Çalışmayan bir şey mi var?\" artık yalnızca Shroudly bir sorunla karşılaştığında çıkıyor; böylece bize bildirebiliyorsun.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

@@ -228,7 +228,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Rapor ancak site ya da uygulama koruma açıkken denendikten sonra gidiyor ve adını yazmak gerekiyor.";
-"whatsNewMac" = "Roblox: oyuna girerken HTTP hatası artık çıkmıyor (ağın DNS'i onu engel sayfasına gönderiyordu).\nRapor ancak site ya da uygulama koruma açıkken denendikten sonra gidiyor ve adını yazmak gerekiyor.";
+"whatsNewApple" = "QUIC kapalıyken uygulamalar artık hemen TCP'ye geçiyor: Instagram yorumları ve benzerleri artık geç açılmıyor.\n\"Çalışmayan bir şey mi var?\" artık yalnızca Shroudly bir sorunla karşılaştığında çıkıyor; böylece bize bildirebiliyorsun.";
+"whatsNewMac" = "QUIC kapalıyken uygulamalar artık hemen TCP'ye geçiyor: Instagram yorumları ve benzerleri artık geç açılmıyor.\n\"Çalışmayan bir şey mi var?\" artık yalnızca Shroudly bir sorunla karşılaştığında çıkıyor; böylece bize bildirebiliyorsun.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

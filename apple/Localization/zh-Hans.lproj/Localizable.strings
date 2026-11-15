@@ -228,7 +228,7 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "只有在开启保护的情况下试过该网站或应用后才能发送报告，且必须写出其名称。";
-"whatsNewMac" = "Roblox：加入游戏不再因 HTTP 错误而失败（网络的 DNS 曾把它发往拦截页面）。\n只有在开启保护的情况下试过该网站或应用后才能发送报告，且必须写出其名称。";
+"whatsNewApple" = "关闭 QUIC 时,应用现在会立即改用 TCP:Instagram 评论等内容不再延迟打开。\n\"有什么用不了吗？\"现在只会在 Shroudly 自身出现问题后显示,方便你告诉我们。";
+"whatsNewMac" = "关闭 QUIC 时,应用现在会立即改用 TCP:Instagram 评论等内容不再延迟打开。\n\"有什么用不了吗？\"现在只会在 Shroudly 自身出现问题后显示,方便你告诉我们。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

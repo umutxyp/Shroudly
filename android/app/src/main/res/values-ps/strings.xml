@@ -336,7 +336,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">د ساتنې په چالانه حالت کې تلویزیون ته خپرول او د سیمه ییزې شبکې نور وسایل کار کوي.\nهغه اپ چې شبکه یې سرورونه په پته بندوي، اوس د Tor پوښتنه ترلاسه کوي.\nRoblox: لوبې ته د ننوتلو پر مهال نور د HTTP تېروتنه نه راځي (د شبکې DNS یې د بندیز پاڼې ته لېږه).\n«څه کار نه کوي؟» په هر ځای کې ښکاري.</string>
+    <string name="whatsNewAndroid">کله چې QUIC بند وي، اپونه اوس سمدستي TCP ته ځي: د انسټاګرام تبصرې او ورته شیان نور په ځنډ نه پرانیستل کېږي.\nستاسو هېواد لومړی له وخت سیمې لوستل کېږي: لنډ پرې کېدل نور Shroudly دې ته نه اړ باسي چې فکر وکړي تاسو بل ځای یاست.\n«څه کار نه کوي؟» اوس یوازې هغه وخت ښکاري چې پخپله Shroudly له ستونزې سره مخ شي، څو تاسو موږ ته ووایاست.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

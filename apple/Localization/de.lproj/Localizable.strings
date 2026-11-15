@@ -228,7 +228,7 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Ein Bericht geht nur, wenn die Seite oder App mit eingeschaltetem Schutz probiert wurde, und sie muss genannt werden.";
-"whatsNewMac" = "Roblox: Der Beitritt zu einem Spiel scheitert nicht mehr mit einem HTTP-Fehler (das DNS des Netzes schickte ihn auf seine Sperrseite).\nEin Bericht geht nur, wenn die Seite oder App mit eingeschaltetem Schutz probiert wurde, und sie muss genannt werden.";
+"whatsNewApple" = "Ist QUIC aus, wechseln Apps jetzt sofort zu TCP: Instagram-Kommentare und Ähnliches öffnen nicht mehr verspätet.\n„Funktioniert etwas nicht?\" erscheint jetzt nur noch, wenn bei Shroudly selbst etwas schiefgeht, damit du es uns melden kannst.";
+"whatsNewMac" = "Ist QUIC aus, wechseln Apps jetzt sofort zu TCP: Instagram-Kommentare und Ähnliches öffnen nicht mehr verspätet.\n„Funktioniert etwas nicht?\" erscheint jetzt nur noch, wenn bei Shroudly selbst etwas schiefgeht, damit du es uns melden kannst.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

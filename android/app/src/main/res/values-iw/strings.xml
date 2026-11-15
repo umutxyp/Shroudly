@@ -336,7 +336,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">שידור לטלוויזיה ולמכשירים אחרים ברשת המקומית עובד כשההגנה פועלת.\nאפליקציה שהרשת חוסמת את השרתים שלה לפי כתובת מקבלת עכשיו את שאלת Tor.\nRoblox: הצטרפות למשחק כבר לא נכשלת בשגיאת HTTP (ה-DNS של הרשת שלח אותה לדף החסימה).\n«משהו לא עובד?» מופיע בכל מקום.</string>
+    <string name="whatsNewAndroid">כש-QUIC כבוי, אפליקציות עוברות עכשיו מיד ל-TCP: תגובות באינסטגרם ודומיהן כבר לא נפתחות באיחור.\nהמדינה שלך נקראת קודם מאזור הזמן: הפסקה קצרה כבר לא גורמת ל-Shroudly לחשוב שאתה במקום אחר.\n\"משהו לא עובד?\" מופיע עכשיו רק אחרי ש-Shroudly עצמו נתקל בבעיה, כדי שתוכל לספר לנו.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

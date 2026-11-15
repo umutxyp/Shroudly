@@ -228,7 +228,7 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Laporan hanya dihantar selepas laman atau aplikasi dicuba dengan perlindungan dihidupkan, dan namanya mesti ditulis.";
-"whatsNewMac" = "Roblox: menyertai permainan tidak lagi gagal dengan ralat HTTP (DNS rangkaian menghantarnya ke halaman sekatan).\nLaporan hanya dihantar selepas laman atau aplikasi dicuba dengan perlindungan dihidupkan, dan namanya mesti ditulis.";
+"whatsNewApple" = "Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.";
+"whatsNewMac" = "Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";
