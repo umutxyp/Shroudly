@@ -27,11 +27,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  # Each system's tests on four machines at once: the network tests in three
+  # parts (tests/net/run.js NET_SHARD, balanced by tests/net/durations.json;
+  # on each machine one test after another, as before), the labs and the
+  # engine's unit tests with the first part, and the engine tests on a
+  # sanitizer build on a machine of their own (Linux and macOS). Until
+  # 2.6.79 all of it ran on one machine a system: 35 to 42 minutes a run.
+  net:
+    name: test (${{ matrix.os }}, ${{ matrix.part }})
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-15-intel]
+        part: ['1', '2', '3']
+        include:
+          - { os: ubuntu-latest, part: sanitizer }
+          - { os: macos-latest, part: sanitizer }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -69,13 +80,13 @@ jobs:
       # censored countries (scripts/server/install-helper.sh): POSIX sh, as
       # it runs under "curl | sudo sh" on any distribution.
       - name: Server helper script (shellcheck)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.part == '1' && (matrix.os == 'ubuntu-latest')
         run: shellcheck -s sh scripts/server/install-helper.sh scripts/ci-helper-test.sh
 
       # The Linux Advanced engine on a real packet path: network namespaces, a
       # router with a per-packet filter, NFQUEUE (tests/lab/advanced-lab.sh).
       - name: Advanced mode lab (Linux, real packets)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.part == '1' && (matrix.os == 'ubuntu-latest')
         run: |
           sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh electron/tools/core/linux-x64/shroudly-core-adv
 
@@ -85,7 +96,7 @@ jobs:
       # that it takes the arguments we build, prints what our parser expects,
       # and that --unset-env really clears them again (electron/flatpak-env.js).
       - name: Flatpak program proxy (Linux, real flatpak)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.part == '1' && (matrix.os == 'ubuntu-latest')
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq flatpak
           node tests/lab/flatpak-env.js
@@ -95,7 +106,7 @@ jobs:
       # blocked outright with the network's DNS knowing another (or the same,
       # or slowly), a name nobody filters (tests/lab/censor-lab.sh).
       - name: Censor lab (Linux, real packets)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.part == '1' && (matrix.os == 'ubuntu-latest')
         run: |
           sudo env "PATH=$PATH" bash tests/lab/censor-lab.sh electron/tools/core/linux-x64/shroudly-core
 
@@ -103,7 +114,7 @@ jobs:
       # runner is Administrator): pages still load in full while it changes
       # every first request, and it stops cleanly (tests/lab/advanced-windows.js).
       - name: Advanced mode lab (Windows, real packets)
-        if: matrix.os == 'windows-latest'
+        if: matrix.part == '1' && (matrix.os == 'windows-latest')
         shell: bash
         run: |
           node scripts/fetch-windivert.js
@@ -113,7 +124,7 @@ jobs:
       # (Akbar, 2.6.55): a service another program left behind, and a folder
       # the service manager cannot see; the engine repairs both by itself.
       - name: Advanced mode repair lab (Windows, real driver)
-        if: matrix.os == 'windows-latest'
+        if: matrix.part == '1' && (matrix.os == 'windows-latest')
         shell: bash
         run: node tests/lab/advanced-windows-repair.js electron/tools/core/win32-x64/shroudly-core-adv.exe
 
@@ -124,7 +135,7 @@ jobs:
       # only its own, and the switch and the uninstaller take out only those
       # (tests/lab/uwp-loopback.js). It changes the runner's exemptions.
       - name: Store apps lab (Windows, app containers and loopback)
-        if: runner.os == 'Windows'
+        if: matrix.part == '1' && (runner.os == 'Windows')
         run: node tests/lab/uwp-loopback.js
 
       # The system proxy against WinINET's own saves (another program setting
@@ -133,11 +144,11 @@ jobs:
       # ours back (tests/lab/wininet-save.js). It changes this user's proxy
       # setting and puts it back.
       - name: WinINET lab (Windows, the system proxy against WinINET's saves)
-        if: runner.os == 'Windows'
+        if: matrix.part == '1' && (runner.os == 'Windows')
         run: node tests/lab/wininet-save.js
 
       - name: Engine unit tests, sanitizers, fuzzing
-        if: runner.os != 'Windows'
+        if: matrix.part == '1' && (runner.os != 'Windows')
         working-directory: core
         run: |
           make test
@@ -145,6 +156,7 @@ jobs:
           make fuzz
 
       - name: Translations
+        if: matrix.part == '1'
         run: npm run check:translations
 
       # The reference Shadowsocks (shadowsocks-libev): Shroudly's own client
@@ -157,12 +169,20 @@ jobs:
           echo SHROUDLY_SS_REF=1 >> "$GITHUB_ENV"
 
       - name: Network tests
+        if: matrix.part != 'sanitizer'
+        env:
+          NET_SHARD: ${{ matrix.part }}/3
+          # The labs and unit tests run with the first part: it takes fewer
+          # network tests (seconds counted as already used).
+          NET_SHARD_HEAD: '300'
+          NET_RETRY: '1'
         run: npm run test:net
 
       # Shadowsocks, sharing and the user's own server again under Electron's
       # own runtime, the one the app runs on: its crypto is BoringSSL, not
       # OpenSSL, and has no ChaCha20-Poly1305 (chacha20poly1305.js stands in).
       - name: Shadowsocks under Electron's runtime
+        if: matrix.part == '1'
         shell: bash
         env:
           ELECTRON_RUN_AS_NODE: '1'
@@ -174,14 +194,29 @@ jobs:
       # app's own build, so it is not one of them; a new engine-* test belongs
       # in this list). Linux is the only platform with the decoy technique.
       - name: Network tests on a sanitizer build (Linux, macOS)
-        if: runner.os != 'Windows'
+        if: matrix.part == 'sanitizer'
         shell: bash
+        env:
+          NET_RETRY: '1'
         run: |
           cc -std=c11 -g -O1 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o "$RUNNER_TEMP/core-asan" core/src/*.c
           SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js \
             engine-cut engine-dial engine-family engine-hostile engine-late-reset engine-outage engine-refused \
             engine-resume engine-search engine-silent engine-site engine-slowpath engine-socks4 engine-http-blockpage engine-upstream \
             discord doh watchdog
+
+  # The names the repository's rules require (test (ubuntu-latest) and the
+  # others): green once every part of every system passed.
+  test:
+    if: always()
+    needs: net
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-15-intel]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every part passed
+        run: test "${{ needs.net.result }}" = success
 
   # The engine built with each distribution's own compiler and C library,
   # and the network tests run there.
@@ -205,6 +240,8 @@ jobs:
           node scripts/build-core.js
           cd core && make test
       - name: Network tests
+        env:
+          NET_RETRY: '1'
         run: node tests/net/run.js
 
   # The real app, end to end (tests/e2e): started into the tray, its window
