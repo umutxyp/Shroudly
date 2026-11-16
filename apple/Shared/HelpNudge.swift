@@ -82,7 +82,7 @@ enum HelpNudge {
      * country answering in a bad moment once made a phone in Turkey
      * "Iranian" for good (SR-XM82). */
     static func country(remembered: String?, zone: String = TimeZone.current.identifier) -> String? {
-        zones[zone] ?? remembered
+        zones[zone] ?? (NationalNet.genericZone(zone) ? remembered : nil)
     }
 
     private enum Key {
@@ -119,11 +119,12 @@ enum HelpNudge {
     }
 
     /* Due now, for this user; the first look starts the count. */
-    static func due(_ d: UserDefaults = .standard, now: TimeInterval = Date().timeIntervalSince1970) -> Bool {
+    static func due(_ d: UserDefaults = .standard, now: TimeInterval = Date().timeIntervalSince1970,
+                    zone: String = TimeZone.current.identifier) -> Bool {
         let kept = load(d)
         let s = begin(kept, now: now)
         if kept == nil { save(s, d) }
-        return isDue(s, now: now, country: country(remembered: d.string(forKey: homeCountryKey)))
+        return isDue(s, now: now, country: country(remembered: d.string(forKey: homeCountryKey), zone: zone))
     }
 
     static func refused(_ d: UserDefaults = .standard, now: TimeInterval = Date().timeIntervalSince1970) {

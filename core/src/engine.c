@@ -3021,6 +3021,10 @@ typedef struct {
    * or address, the address replies come from, its row (conns). */
   struct { char host[256]; uint16_t port; struct sockaddr_storage sa; int slot; } flow[UDP_FLOWS];
   int nflow;
+  /* Port 443 with QUIC turned off: 0 nothing sent there yet, 1 QUIC (its
+   * Initial refused, the rest dropped), 2 not QUIC (a call's or a game's
+   * own datagrams on 443: sent like any other). */
+  int quic443;
 } udp_assoc;
 
 /* Private and link-local ranges (a LAN's own resolver lives there): IPv4
@@ -3438,7 +3442,18 @@ static void udp_from_client(udp_assoc *u) {
     /* With the user's own server every site goes through it over TCP; QUIC
      * would leave from this device's own address (issue #67), so it is
      * dropped and browsers and apps use TCP. */
-    if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) { udp_quic_refused(u, &d, u->buf, payload, plen); continue; }
+    /* Only QUIC: a flow starts with a long header (its Initial), and one
+     * that starts with anything else is not QUIC and goes as any UDP does.
+     * Every datagram to 443 dropped had cut what uses UDP 443 for itself
+     * (calls' relays among them: SR-F040, WhatsApp calls stuck on
+     * "connecting"). */
+    if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) {
+      int long_hdr = plen >= 5 && (payload[0] & 0xc0) == 0xc0 &&
+                     (payload[1] | payload[2] | payload[3] | payload[4]) != 0;
+      if (u->quic443 != 2 && long_hdr) { u->quic443 = 1; udp_quic_refused(u, &d, u->buf, payload, plen); continue; }
+      if (u->quic443 == 1) continue;
+      u->quic443 = 2;
+    }
     /* With the user's own server, a STUN binding request to the internet:
      * dropped. Its answer says the address it came from, and a web page
      * reads that through WebRTC: this device's own address, beside the
