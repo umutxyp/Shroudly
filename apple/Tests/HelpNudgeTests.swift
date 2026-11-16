@@ -34,7 +34,8 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertEqual(HelpNudge.country(remembered: nil, zone: "Asia/Tehran"), "IR")
         XCTAssertEqual(HelpNudge.country(remembered: nil, zone: "Asia/Vladivostok"), "RU")
         XCTAssertNil(HelpNudge.country(remembered: nil, zone: "Europe/Istanbul"))
-        XCTAssertEqual(HelpNudge.country(remembered: "IR", zone: "Europe/Berlin"), "IR", "a shutdown seen there wins")
+        XCTAssertEqual(HelpNudge.country(remembered: "IR", zone: "UTC"), "IR", "a shutdown seen there wins where the zone names no place")
+        XCTAssertNil(HelpNudge.country(remembered: "IR", zone: "Asia/Qatar"), "a zone of a country off the list: not the remembered one (SR-F040)")
         XCTAssertEqual(HelpNudge.country(remembered: "RU", zone: "Asia/Tehran"), "IR", "the zone's own country comes first (SR-XM82)")
     }
 
@@ -56,15 +57,15 @@ final class HelpNudgeTests: XCTestCase {
     func testKeptAcrossLaunches() throws {
         let d = try XCTUnwrap(UserDefaults(suiteName: "help-nudge-test-\(UUID().uuidString)"))
         XCTAssertNil(HelpNudge.load(d))
-        XCTAssertFalse(HelpNudge.due(d, now: 100), "not on the first day")
+        XCTAssertFalse(HelpNudge.due(d, now: 100, zone: "UTC"), "not on the first day")
         XCTAssertEqual(HelpNudge.load(d)?.next, 100 + 3 * day)
-        XCTAssertTrue(HelpNudge.due(d, now: 100 + 3 * day))
+        XCTAssertTrue(HelpNudge.due(d, now: 100 + 3 * day, zone: "UTC"))
         HelpNudge.refused(d, now: 100 + 3 * day)
         XCTAssertEqual(HelpNudge.load(d)?.refusals, 1)
-        XCTAssertFalse(HelpNudge.due(d, now: 100 + 3 * day + 6 * day))
-        XCTAssertTrue(HelpNudge.due(d, now: 100 + 10 * day))
+        XCTAssertFalse(HelpNudge.due(d, now: 100 + 3 * day + 6 * day, zone: "UTC"))
+        XCTAssertTrue(HelpNudge.due(d, now: 100 + 10 * day, zone: "UTC"))
         d.set("IR", forKey: HelpNudge.homeCountryKey)
-        XCTAssertFalse(HelpNudge.due(d, now: 100 + 10 * day))
+        XCTAssertFalse(HelpNudge.due(d, now: 100 + 10 * day, zone: "UTC"))
     }
 
     func testWhatChangedOnceAfterAnUpdate() throws {

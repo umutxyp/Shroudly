@@ -90,8 +90,14 @@ enum NationalNet {
      * answering a phone in Turkey for a moment while the rest did not:
      * SR-XM82). */
     static func plausible(_ cc: String, zone: String = TimeZone.current.identifier) -> Bool {
-        guard let z = zones[zone] else { return true }
-        return z == cc
+        if let z = zones[zone] { return z == cc }
+        return genericZone(zone)
+    }
+
+    /* A time zone that names no place (UTC, GMT, Etc/...); any other names
+     * a country, even one not on the list (Asia/Qatar: SR-F040). */
+    static func genericZone(_ zone: String) -> Bool {
+        zone.isEmpty || zone.range(of: "^(UTC|GMT|UCT|Zulu|Universal|Greenwich|Etc/.*)$", options: [.regularExpression, .caseInsensitive]) != nil
     }
 
     /* The guide in the app's language (Shutdowns-<code> in the wiki). */

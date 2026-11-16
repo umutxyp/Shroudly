@@ -574,6 +574,17 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
       t.ok(vn && vn.host === host && vn.port === 443, `the answer comes as from ${host}:443, where the app sent it`);
     }
     t.ok((await eng3.stats()).bytes_up - b0 === 0, 'and nothing of it went out to the network');
+    // What is not QUIC on port 443 (a call's relay, a game) goes as any UDP
+    // does, on an association of its own: dropping every datagram to 443
+    // had cut those too (SR-F040, WhatsApp calls stuck on "connecting").
+    const g2 = await associate(P3);
+    const c2 = await client();
+    const b1 = (await eng3.stats()).bytes_up;
+    for (let i = 0; i < 3; i++) c2.s.send(Buffer.concat([header('192.0.2.1', 443), Buffer.from([0x01, 0x00, 0x00, 0x2c]), Buffer.alloc(96, 7)]), g2.port, '127.0.0.1');
+    await sleep(600);
+    const sent = (await eng3.stats()).bytes_up - b1;
+    t.ok(sent >= 300, `QUIC off: datagrams to 443 that are not QUIC still go out (${sent} bytes of 300)`);
+    g2.ctl.destroy(); c2.close();
     if (e6) {
       r = await roundTrip(cg, g.port, LAN6, e6.port, Buffer.from('six'), 1500);
       t.ok(!r, 'IPv6 off: a datagram to an IPv6 address is dropped');

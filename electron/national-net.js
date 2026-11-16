@@ -107,16 +107,28 @@ function zoneCountry(tz) {
   return null;
 }
 
+/* A time zone that names no place (UTC, GMT, Etc/...): it says nothing of
+ * the country. Any other zone does, even one of a country not on the list. */
+function genericZone(tz) {
+  return !tz || /^(UTC|GMT|UCT|Zulu|Universal|Greenwich|Etc\/.*)$/i.test(String(tz));
+}
+
 /* Whether cc's own sites answering alone can mean a national-only network
- * here: not when the time zone is another country's of the list. */
+ * here: only when the time zone is cc's, or names no place. A zone of
+ * another country, on the list or not, says it is only abroad (Iranian and
+ * Russian sites answering a phone in Qatar for a moment, SR-F040). */
 function plausible(cc, tz = systemZone()) {
   const z = zoneCountry(tz);
-  return z === null || z === cc;
+  return z === cc || (z === null && genericZone(tz));
 }
 
 function homeCountry({ remembered, tz = systemZone() } = {}) {
-  for (const [cc, zones] of Object.entries(ZONES)) if (zones.includes(tz)) return cc;
-  if (remembered && DOMESTIC[remembered]) return remembered;
+  const z = zoneCountry(tz);
+  if (z) return z;
+  // Remembered from a shutdown only where the zone names no place: a zone of
+  // a country not on the list (Asia/Qatar) is that country, not a remembered
+  // one (SR-F040: a phone in Qatar kept Iranian decoys).
+  if (remembered && DOMESTIC[remembered] && genericZone(tz)) return remembered;
   return null;
 }
 

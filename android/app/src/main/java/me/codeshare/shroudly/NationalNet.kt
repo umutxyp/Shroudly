@@ -56,7 +56,13 @@ object NationalNet {
      * site of another country answering in a bad moment once made a phone in
      * Turkey "Iranian" for good, its decoys Iranian names (SR-XM82). */
     fun homeCountry(remembered: String?, timeZone: String): String? =
-        zoneCountry(timeZone) ?: remembered?.takeIf { DOMESTIC.containsKey(it) }
+        zoneCountry(timeZone) ?: remembered?.takeIf { DOMESTIC.containsKey(it) && genericZone(timeZone) }
+
+    /* A time zone that names no place (UTC, GMT, Etc/...): it says nothing of
+     * the country; any other zone does, even one of a country not on the
+     * list (Asia/Qatar: SR-F040, a phone there kept Iranian decoys). */
+    fun genericZone(timeZone: String): Boolean =
+        timeZone.isEmpty() || Regex("^(UTC|GMT|UCT|Zulu|Universal|Greenwich|Etc/.*)$", RegexOption.IGNORE_CASE).matches(timeZone)
 
     fun zoneCountry(timeZone: String): String? = ZONES.entries.firstOrNull { timeZone in it.value }?.key
 
@@ -65,7 +71,7 @@ object NationalNet {
      * the list, where that site is simply abroad and reachable (Iran's
      * digikala.com answering a phone in Turkey for a moment while the rest
      * did not: SR-XM82). */
-    fun plausible(cc: String, timeZone: String): Boolean = zoneCountry(timeZone).let { it == null || it == cc }
+    fun plausible(cc: String, timeZone: String): Boolean = zoneCountry(timeZone).let { it == cc || (it == null && genericZone(timeZone)) }
 
     /* The names the engine's decoys carry there (--decoy-name): its large
      * sites, which a network that lets only allowed sites through keeps open. */

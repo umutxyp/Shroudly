@@ -19,6 +19,8 @@ final class NationalNetTests: XCTestCase {
         XCTAssertNil(turkey)
         let tehran = await NationalNet.check(zone: "Asia/Tehran") { host in host == "www.aparat.com" }
         XCTAssertEqual(tehran, "IR")
+        let qatar = await NationalNet.check(zone: "Asia/Qatar") { host in host == "www.aparat.com" }
+        XCTAssertNil(qatar, "a zone of a country off the list: an Iranian site answering is only abroad (SR-F040)")
     }
 
     func testTheDesktopsSites() throws {

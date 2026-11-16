@@ -59,11 +59,11 @@ function untar(file, dest) {
 const cache = new Map();
 async function bundle(name, work) {
   if (cache.has(name)) return cache.get(name);
-  const file = `tor-expert-bundle-${name}-${VERSION}.tar.gz`;
+  const file = T.fileName(name);
   const tgz = path.join(work, file);
   let last = null;
   // Every source in turn (the Tor Project's, then its mirrors).
-  for (const base of T.SOURCES) {
+  for (const base of T.sourcesFor(T.versionOf(name))) {
     try {
       console.log(`[tor] downloading ${base}${file}`);
       await download(base + file, tgz);

@@ -185,6 +185,7 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
                 .start()
         } catch (e: Exception) { fail("Tor could not start: ${e.message}"); return }
         proc = p
+        said = 0
         state = "starting"; progress = 0
         log(when (stage) {
             "snowflake" -> "The last way out: starting Tor through Snowflake, for sites nothing else opened"
@@ -200,8 +201,16 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         armStall(g)
     }
 
+    // Tor's own warnings and errors said in the log, a few a start: "Tor
+    // ended (1)" alone said nothing of why (2.6.80, Tor 16.0.1 on phones).
+    private var said = 0
+
     private fun line(l: String, g: Int) = synchronized(lock) {
         if (g != gen) return@synchronized
+        if ((l.contains("[err]") || l.contains("[warn]")) && said < 8) {
+            said++
+            log("Tor: " + l.substringAfter("] ").take(240))
+        }
         val m = Regex("Bootstrapped (\\d+)%").find(l)
         if (m != null) {
             val pct = m.groupValues[1].toInt()

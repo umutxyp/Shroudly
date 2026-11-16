@@ -41,13 +41,16 @@ class NationalNetTest {
         // The country a shutdown showed first, else the time zone's.
         assertEquals("IR", NationalNet.homeCountry(null, "Asia/Tehran"))
         assertEquals("RU", NationalNet.homeCountry(null, "Asia/Vladivostok"))
-        assertEquals("IR", NationalNet.homeCountry("IR", "Europe/Berlin"))
+        assertEquals("IR", NationalNet.homeCountry("IR", "UTC"))
+        // A zone of a country off the list is that country, not a remembered one (SR-F040, Qatar).
+        assertNull(NationalNet.homeCountry("IR", "Asia/Qatar"))
         assertEquals("AZ", NationalNet.homeCountry("ZZ", "Asia/Baku"))
         assertNull(NationalNet.homeCountry(null, "Europe/Berlin"))
         // The zone's country before one remembered (SR-XM82: a phone in Turkey taken for Iranian).
         assertEquals("TR", NationalNet.homeCountry("IR", "Europe/Istanbul"))
         assertEquals(true, NationalNet.plausible("IR", "Asia/Tehran"))
-        assertEquals(true, NationalNet.plausible("IR", "Europe/Berlin"))
+        assertEquals(true, NationalNet.plausible("IR", "Etc/UTC"))
+        assertEquals(false, NationalNet.plausible("IR", "Asia/Qatar"))
         assertEquals(false, NationalNet.plausible("IR", "Europe/Istanbul"))
         assertEquals(NationalNet.DOMESTIC.getValue("IR"), NationalNet.decoyNames("IR"))
         assertTrue(NationalNet.decoyNames(null).isEmpty() && NationalNet.decoyNames("ZZ").isEmpty())
