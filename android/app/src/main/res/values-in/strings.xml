@@ -336,7 +336,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Shroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.</string>
+    <string name="whatsNewAndroid">Jalan terakhir (Tor) kembali berjalan di ponsel: di 2.6.80 ia langsung berhenti.\nSaat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.\nDi negara yang tidak punya daftar di Shroudly, gangguan singkat tidak lagi membuatnya mengira kamu di negara lain.\nShroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

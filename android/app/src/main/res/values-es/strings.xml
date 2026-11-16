@@ -336,7 +336,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Shroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.</string>
+    <string name="whatsNewAndroid">La última salida (Tor) vuelve a iniciarse en los teléfonos: en 2.6.80 se cerraba al instante.\nCon QUIC desactivado, las llamadas y juegos que usan el puerto UDP 443 vuelven a pasar; solo se rechaza QUIC.\nEn un país para el que Shroudly no tiene lista, un corte breve ya no le hace creer que estás en otro país.\nShroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

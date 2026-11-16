@@ -336,7 +336,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Shroudly kann jetzt bessere Einstellungen für dein Netz erhalten, ohne auf ein Update zu warten – von uns signiert und geprüft.</string>
+    <string name="whatsNewAndroid">Der letzte Ausweg (Tor) startet auf Handys wieder: in 2.6.80 beendete er sich sofort.\nIst QUIC aus, kommen Anrufe und Spiele, die UDP-Port 443 selbst nutzen, wieder durch; nur QUIC wird abgewiesen.\nIn einem Land, für das Shroudly keine Liste hat, lässt ein kurzer Ausfall es nicht mehr glauben, du wärst in einem anderen Land.\nShroudly kann jetzt bessere Einstellungen für dein Netz erhalten, ohne auf ein Update zu warten – von uns signiert und geprüft.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

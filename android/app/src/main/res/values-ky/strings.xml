@@ -336,7 +336,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Shroudly эми жаңыртууну күтпөй эле тармагыңыз үчүн жакшыраак жөндөөлөрдү ала алат; аларга биз кол коюп, текшеребиз.</string>
+    <string name="whatsNewAndroid">Акыркы жол (Tor) телефондордо кайра иштейт: 2.6.80де дароо жабылчу.\nQUIC өчүк болсо, UDP 443 портун өзү колдонгон чалуулар жана оюндар кайра өтөт; QUIC гана четке кагылат.\nShroudlyде тизмеси жок өлкөдө кыска үзгүлтүк эми аны сизди башка өлкөдө деп ойлотпойт.\nShroudly эми жаңыртууну күтпөй эле тармагыңыз үчүн жакшыраак жөндөөлөрдү ала алат; аларга биз кол коюп, текшеребиз.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

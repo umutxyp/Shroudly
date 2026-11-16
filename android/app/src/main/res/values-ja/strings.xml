@@ -336,7 +336,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">Shroudly は、アップデートを待たずに、あなたのネットワークに合ったより良い設定を受け取れるようになりました。設定は私たちが署名・確認したものです。</string>
+    <string name="whatsNewAndroid">最後の手段（Tor）がスマートフォンで再び起動するようになりました。2.6.80 ではすぐに終了していました。\nQUIC がオフのとき、UDP 443 番ポートを自分で使う通話やゲームが再び通るようになりました。断るのは QUIC だけです。\nShroudly にリストのない国では、短い通信障害で別の国にいると誤認することはもうありません。\nShroudly は、アップデートを待たずに、あなたのネットワークに合ったより良い設定を受け取れるようになりました。設定は私たちが署名・確認したものです。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

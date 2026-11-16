@@ -336,7 +336,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Shroudly теперь может получать лучшие настройки для вашей сети, не дожидаясь обновления; они подписаны и проверены нами.</string>
+    <string name="whatsNewAndroid">Последний путь (Tor) снова запускается на телефонах: в 2.6.80 он сразу завершался.\nКогда QUIC выключен, звонки и игры, которые сами используют UDP-порт 443, снова проходят; отклоняется только QUIC.\nВ стране, для которой у Shroudly нет списка, короткий сбой больше не заставляет его считать, что вы в другой стране.\nShroudly теперь может получать лучшие настройки для вашей сети, не дожидаясь обновления; они подписаны и проверены нами.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

@@ -336,7 +336,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">يمكن لـ Shroudly الآن تلقّي إعدادات أفضل لشبكتك دون انتظار تحديث، موقّعة ومتحقَّق منها من قبلنا.</string>
+    <string name="whatsNewAndroid">المخرج الأخير (Tor) يعمل مجدداً على الهواتف: في 2.6.80 كان يتوقف فوراً.\nعند إيقاف QUIC تمرّ مجدداً المكالمات والألعاب التي تستخدم منفذ UDP 443 لنفسها؛ يُرفض QUIC وحده.\nفي بلد ليست له قائمة لدى Shroudly، لم يعد انقطاع قصير يجعله يظن أنك في بلد آخر.\nيمكن لـ Shroudly الآن تلقّي إعدادات أفضل لشبكتك دون انتظار تحديث، موقّعة ومتحقَّق منها من قبلنا.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

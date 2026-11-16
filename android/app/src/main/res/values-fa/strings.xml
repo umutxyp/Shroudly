@@ -336,7 +336,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">Shroudly حالا می‌تواند تنظیمات بهتری برای شبکهٔ شما را بدون انتظار برای به‌روزرسانی دریافت کند؛ امضاشده و بررسی‌شده توسط ما.</string>
+    <string name="whatsNewAndroid">آخرین راه (Tor) دوباره روی گوشی‌ها روشن می‌شود: در 2.6.80 بی‌درنگ بسته می‌شد.\nوقتی QUIC خاموش است، تماس‌ها و بازی‌هایی که خودشان از پورت UDP 443 استفاده می‌کنند دوباره عبور می‌کنند؛ فقط QUIC رد می‌شود.\nدر کشوری که Shroudly فهرستی برایش ندارد، یک قطعی کوتاه دیگر باعث نمی‌شود شما را در کشور دیگری بداند.\nShroudly حالا می‌تواند تنظیمات بهتری برای شبکهٔ شما را بدون انتظار برای به‌روزرسانی دریافت کند؛ امضاشده و بررسی‌شده توسط ما.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

@@ -228,7 +228,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Shroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
-"whatsNewMac" = "Shroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
+"whatsNewApple" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.\nShroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
+"whatsNewMac" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.\nShroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";
