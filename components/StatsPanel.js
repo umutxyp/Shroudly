@@ -274,7 +274,7 @@ function Connections({ active }) {
   );
 }
 
-export default function StatsPanel({ active }) {
+export default function StatsPanel({ active, children }) {
   const { t, locale } = useLanguage();
   const [stats, setStats] = useState(null);
   const [dlRate, setDlRate] = useState(0);
@@ -331,6 +331,7 @@ export default function StatsPanel({ active }) {
 
   return (
     <div className="flex flex-col gap-3 py-4">
+      {children}
       {!active && (
         <div className="flex items-start gap-2.5 rounded-[var(--radius-sm)] px-3.5 py-3 text-[12.5px] leading-snug"
              style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent-line)', color: 'var(--text-dim)' }}>

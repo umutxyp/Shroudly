@@ -135,6 +135,17 @@ async function record(label, pid) {
     await page.screenshot({ path: path.join(SHOTS, `window-${process.platform}-${process.arch}.png`) });
     const opened = await record('2 window open, protection off', pid);
     ok(opened.kinds.has('renderer'), 'the window has its process');
+    if (!BASELINE) {
+      await page.locator('[data-tour="nav-stats"]').click();
+      const dashboard = page.getByRole('region', { name: tr.connectionDashboard });
+      await dashboard.getByRole('status').filter({ hasText: tr.inactive }).waitFor();
+      const lastChecked = dashboard.locator('time');
+      const first = await lastChecked.getAttribute('datetime');
+      await dashboard.getByRole('button', { name: tr.connectionRefresh }).click();
+      ok(!!(await until(async () => (await lastChecked.getAttribute('datetime')) !== first, 5000)),
+        'Statistics shows the localized connection dashboard and a fresh status timestamp');
+      await page.locator('[data-tour="nav-control"]').click();
+    }
     stop();
 
     // ── 3. left alone: closed by itself ──

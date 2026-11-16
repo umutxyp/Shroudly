@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import TitleBar from '../components/TitleBar';
 import ControlPanel from '../components/ControlPanel';
 import SettingsPanel from '../components/SettingsPanel';
 import LogsPanel from '../components/LogsPanel';
 import StatsPanel from '../components/StatsPanel';
+import ConnectionDashboard from '../components/ConnectionDashboard';
 import InfoPanel, { FollowSection } from '../components/InfoPanel';
 import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
@@ -44,7 +45,10 @@ export default function Home() {
   const logo = useLogo();
   const [activeTab, setActiveTab] = useState('control');
   const { t, isLoaded } = useLanguage();
-  const [dpiStatus, setDpiStatus] = useState({ active: false, stats: {} });
+  const [{ dpiStatus, checkedAt, readFailed, unavailable }, setStatus] = useState({
+    dpiStatus: { active: false, stats: {} }, checkedAt: null, readFailed: false, unavailable: false,
+  });
+  const requests = useRef({ started: 0, applied: 0 });
   const [version, setVersion] = useState(null);
   // Bumped to bring "Support Shroudly" into view (the card, the tray).
   const [supportFocus, setSupportFocus] = useState(0);
@@ -54,29 +58,43 @@ export default function Home() {
   const help = useHelpNudge();
   const news = useWhatsNew();
 
+  const refresh = useCallback(async () => {
+    const e = window.electron;
+    if (!e?.getDPIStatus) return;
+    const id = ++requests.current.started;
+    try {
+      const data = await e.getDPIStatus();
+      if (typeof data?.active !== 'boolean') throw new Error('Invalid protection status');
+      if (id <= requests.current.applied) return;
+      requests.current.applied = id;
+      setStatus({ dpiStatus: data, checkedAt: Date.now(), readFailed: false, unavailable: false });
+    } catch {
+      if (id <= requests.current.applied) return;
+      requests.current.applied = id;
+      setStatus((previous) => previous.readFailed ? previous : { ...previous, readFailed: true });
+    }
+  }, []);
+
   useEffect(() => {
-    const check = async () => {
-      if (typeof window !== 'undefined' && window.electron?.getDPIStatus) {
-        try { setDpiStatus(await window.electron.getDPIStatus()); } catch {}
-      }
-    };
+    const e = window.electron;
+    if (!e?.getDPIStatus) {
+      setStatus((previous) => ({ ...previous, unavailable: true }));
+      return;
+    }
     const loadInfo = async () => {
       if (typeof window !== 'undefined' && window.electron?.getAppInfo) {
         try { const i = await window.electron.getAppInfo(); if (i?.version) setVersion(i.version); } catch {}
       }
     };
-    check(); loadInfo();
-    if (typeof window !== 'undefined' && window.electron?.onDPIStatusChanged) {
-      window.electron.onDPIStatusChanged(() => check());
-    }
-    const iv = setInterval(check, 1000);
+    refresh(); loadInfo();
+    e.onDPIStatusChanged?.(refresh);
+    const iv = setInterval(refresh, 1000);
     return () => {
+      requests.current.applied = requests.current.started;
       clearInterval(iv);
-      if (typeof window !== 'undefined' && window.electron?.removeDPIStatusListener) {
-        window.electron.removeDPIStatusListener();
-      }
+      e.removeDPIStatusListener?.();
     };
-  }, []);
+  }, [refresh]);
 
   // The main process closes this window when it goes unused (main.js):
   // tell it about use, at most every 20 s, and save what is being typed
@@ -96,12 +114,6 @@ export default function Home() {
     const off = typeof window !== 'undefined' ? window.electron?.onNavigate?.((tab) => { if (tab === 'support') openSupport(); }) : null;
     return () => { if (typeof off === 'function') off(); };
   }, []);
-
-  const refresh = async () => {
-    if (typeof window !== 'undefined' && window.electron?.getDPIStatus) {
-      try { setDpiStatus(await window.electron.getDPIStatus()); } catch {}
-    }
-  };
 
   const active = !!dpiStatus.active;
   // On, but browsers are not going through it (main.js notRouting): amber,
@@ -200,7 +212,12 @@ export default function Home() {
         className="scroll rise min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 sm:px-5 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-[760px]"
       >
         {activeTab === 'control'  && <ControlPanel dpiStatus={dpiStatus} onStatusChange={refresh} onSupport={supportLink ? openSupport : null} />}
-        {activeTab === 'stats'    && <StatsPanel active={active} />}
+        {activeTab === 'stats' && (
+          <StatsPanel active={active}>
+            <ConnectionDashboard statusText={statusText} tone={tone} checkedAt={checkedAt}
+                                 readFailed={readFailed} unavailable={unavailable} onRefresh={refresh} />
+          </StatsPanel>
+        )}
         {activeTab === 'settings' && <SettingsPanel active={active} />}
         {activeTab === 'logs'     && <LogsPanel />}
         {activeTab === 'follow'   && <div className="flex flex-col gap-3 py-4"><FollowSection /></div>}
