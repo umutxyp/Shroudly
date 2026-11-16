@@ -159,12 +159,17 @@ class RemoteConfig {
   settings() { return effective(this.current, this.ctx()); }
   serial() { return this.current ? this.current.serial : 0; }
 
-  /* A file and its signature as fetched: used when it checks and is newer. */
-  offer(text, sig) {
-    if (!text || !sig || Buffer.byteLength(text) > MAX_BYTES) return false;
-    if (!verify(text, sig, this.publicKey)) { this.log('warning', 'Remote settings: a file whose signature does not check was refused'); return false; }
+  /* A null result lets refresh try the next source. A verified file with
+   * the current serial counts as a check but does not change settings. */
+  accept(text, sig) {
+    if (!text || !sig || Buffer.byteLength(text) > MAX_BYTES) return null;
+    if (!verify(text, sig, this.publicKey)) {
+      this.log('warning', 'Remote settings: a file whose signature does not check was refused');
+      return null;
+    }
     const c = parse(text, this.now());
-    if (!c || c.serial <= this.serial()) return false;
+    if (!c || c.serial < this.serial()) return null;
+    if (c.serial === this.serial()) return false;
     this.current = c;
     this.store.set('remoteConfig', { text, sig });
     this.log('info', `Remote settings: number ${c.serial} in use`);
@@ -178,8 +183,10 @@ class RemoteConfig {
     for (const base of SOURCES) {
       try {
         const [text, sig] = await Promise.all([this.fetchText(base + FILE), this.fetchText(base + SIG)]);
+        const changed = this.accept(text, sig);
+        if (changed === null) continue;
         this.store.set('remoteConfigAt', this.now());
-        return this.offer(text, sig);
+        return changed;
       } catch {}
     }
     return false;

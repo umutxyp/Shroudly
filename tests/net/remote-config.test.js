@@ -68,6 +68,30 @@ const t = suite('remote-config');
   const again = new R.RemoteConfig({ store, publicKey: pub, ctx: () => ({}), fetchText: async () => { throw new Error('offline'); } });
   t.ok(again.serial() === 2 && again.settings().quicOff === false, 'what was taken is there again at the next start, offline too');
 
+  // HTTP 200 is not enough: a mirror can have a mismatched file/signature pair.
+  const next = file({ serial: 3, set: { quicOff: true } });
+  const requests = [];
+  const mirrored = new R.RemoteConfig({ store, publicKey: pub, ctx: () => ({}),
+    fetchText: async (url) => {
+      requests.push(url);
+      if (url.endsWith('.sig')) return sign(next);
+      return url.startsWith(R.SOURCES[0]) ? next + ' ' : next;
+    } });
+  t.ok(await mirrored.refresh({ force: true }) && mirrored.serial() === 3 && mirrored.settings().quicOff === true,
+    'a mismatched primary response falls back to the mirror and applies its verified file');
+  t.ok(requests.length === 4 && requests[2].startsWith(R.SOURCES[1]) && !mirrored.due(),
+    'the successful mirror counts as the scheduled check');
+
+  const count = requests.length;
+  mirrored.fetchText = async (url) => { requests.push(url); return url.endsWith('.sig') ? sign(next) : next; };
+  t.ok(!(await mirrored.refresh({ force: true })) && requests.length === count + 2,
+    'a verified primary with the current serial finishes without a restart or a redundant mirror request');
+
+  kept.delete('remoteConfigAt');
+  mirrored.fetchText = async (url) => url.endsWith('.sig') ? sign(a) : next;
+  t.ok(!(await mirrored.refresh()) && mirrored.serial() === 3 && mirrored.due(),
+    'if both sources fail verification, the last good file stays in use and a retry remains due');
+
   // The desktop's engine: the remote arguments and decoys go in.
   const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
   const em = new EngineManager({ get: () => undefined, set: () => {} }, { remote: () => ({ engineArgs: ['--strategy', 'disorder', '--upstream-file', '/x'], decoyNames: {} }) });
