@@ -336,7 +336,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">နောက်ဆုံးလမ်း (Tor) ဖုန်းများတွင် ပြန်စတင်သည်- 2.6.80 တွင် ချက်ချင်း ရပ်သွားခဲ့သည်။\nQUIC ပိတ်ထားလျှင် UDP port 443 ကို ကိုယ်တိုင်သုံးသော ဖုန်းခေါ်ဆိုမှုနှင့် ဂိမ်းများ ပြန်ဖြတ်သွားနိုင်သည်- QUIC ကိုသာ ငြင်းသည်။\nShroudly တွင် စာရင်းမရှိသော နိုင်ငံ၌ ခဏတာ ပြတ်တောက်မှုကြောင့် သင် အခြားနိုင်ငံတွင် ရှိသည်ဟု မထင်တော့ပါ။</string>
+    <string name="whatsNewAndroid">Shroudly သည် ယခု အပ်ဒိတ်ကို မစောင့်ဘဲ သင့်ကွန်ရက်အတွက် ပိုကောင်းသော ဆက်တင်များကို ရယူနိုင်သည်- ကျွန်ုပ်တို့ လက်မှတ်ထိုး၍ စစ်ဆေးထားသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

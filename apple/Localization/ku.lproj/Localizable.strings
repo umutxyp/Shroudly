@@ -228,7 +228,7 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Dema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.";
-"whatsNewMac" = "Dema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.";
+"whatsNewApple" = "Shroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.";
+"whatsNewMac" = "Shroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

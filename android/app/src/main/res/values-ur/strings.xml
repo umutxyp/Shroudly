@@ -336,7 +336,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">آخری راستہ (Tor) فونز پر پھر سے شروع ہوتا ہے: 2.6.80 میں یہ فوراً بند ہو جاتا تھا۔\nQUIC بند ہو تو UDP پورٹ 443 خود استعمال کرنے والی کالز اور گیمز پھر سے گزرتی ہیں؛ صرف QUIC روکا جاتا ہے۔\nجس ملک کی Shroudly کے پاس فہرست نہیں، وہاں مختصر رکاوٹ اب اسے یہ نہیں سمجھاتی کہ آپ کسی اور ملک میں ہیں۔</string>
+    <string name="whatsNewAndroid">Shroudly اب اپ ڈیٹ کا انتظار کیے بغیر آپ کے نیٹ ورک کے لیے بہتر سیٹنگز لے سکتا ہے؛ ہماری طرف سے دستخط شدہ اور جانچی ہوئی۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

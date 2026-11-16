@@ -228,7 +228,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.";
-"whatsNewMac" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.";
+"whatsNewApple" = "Shroudly can now get better settings for your network without waiting for an update, checked and signed by us.";
+"whatsNewMac" = "Shroudly can now get better settings for your network without waiting for an update, checked and signed by us.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

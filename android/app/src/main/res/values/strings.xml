@@ -336,7 +336,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">The last way out (Tor) starts again on phones: in 2.6.80 it ended at once.\nWith QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.\nIn a country Shroudly has no list for, a short outage no longer makes it take you for another country.</string>
+    <string name="whatsNewAndroid">Shroudly can now get better settings for your network without waiting for an update, checked and signed by us.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

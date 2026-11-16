@@ -336,7 +336,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Соңғы жол (Tor) телефондарда қайта іске қосылады: 2.6.80-де бірден жабылатын.\nQUIC өшірулі болса, UDP 443 портын өзі қолданатын қоңыраулар мен ойындар қайта өтеді; тек QUIC қабылданбайды.\nShroudly-де тізімі жоқ елде қысқа үзіліс енді оны сізді басқа елде деп ойлатпайды.</string>
+    <string name="whatsNewAndroid">Shroudly енді жаңартуды күтпей-ақ желіңіз үшін жақсырақ баптауларды ала алады; оларға біз қол қойып, тексереміз.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

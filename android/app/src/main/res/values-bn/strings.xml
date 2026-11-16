@@ -336,7 +336,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">শেষ পথ (Tor) ফোনে আবার চালু হয়: 2.6.80-এ এটি সঙ্গে সঙ্গে বন্ধ হয়ে যেত।\nQUIC বন্ধ থাকলে যেসব কল ও গেম নিজেরাই UDP পোর্ট 443 ব্যবহার করে সেগুলো আবার যায়; শুধু QUIC ফেরানো হয়।\nযে দেশের তালিকা Shroudly-র কাছে নেই, সেখানে অল্প বিভ্রাটে সে আর ভাবে না আপনি অন্য দেশে আছেন।</string>
+    <string name="whatsNewAndroid">Shroudly এখন আপডেটের অপেক্ষা না করেই আপনার নেটওয়ার্কের জন্য ভালো সেটিংস পেতে পারে; আমাদের স্বাক্ষর করা ও যাচাই করা।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

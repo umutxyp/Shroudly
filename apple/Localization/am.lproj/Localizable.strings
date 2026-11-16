@@ -228,7 +228,7 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "QUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።";
-"whatsNewMac" = "QUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።";
+"whatsNewApple" = "Shroudly አሁን ዝማኔ ሳይጠብቅ ለአውታረ መረብዎ የተሻሉ ቅንብሮችን መቀበል ይችላል፤ በእኛ የተፈረሙና የተረጋገጡ።";
+"whatsNewMac" = "Shroudly አሁን ዝማኔ ሳይጠብቅ ለአውታረ መረብዎ የተሻሉ ቅንብሮችን መቀበል ይችላል፤ በእኛ የተፈረሙና የተረጋገጡ።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

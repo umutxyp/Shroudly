@@ -336,7 +336,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Oxirgi yo‘l (Tor) telefonlarda yana ishga tushadi: 2.6.80 da darhol yopilardi.\nQUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly’da ro‘yxati yo‘q mamlakatda qisqa uzilish endi uni sizni boshqa mamlakatda deb o‘ylatmaydi.</string>
+    <string name="whatsNewAndroid">Shroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>
