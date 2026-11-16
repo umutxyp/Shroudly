@@ -9,9 +9,10 @@
  * computers fetch Tor the first time a site needs it, issue #75).
  */
 const VERSION = '16.0.1';
-// Android stays on 16.0: with 16.0.1 (Tor 0.4.9.16) Tor ended with code 1
-// at once on phones that ran 16.0 fine (2.6.80: Qatar, Iran), while the same
-// Tor runs on the computers. Moved on once a phone is seen to run it.
+// Android stays on 16.0: the Tor Project's Android build of 16.0.1 asks for
+// libz.so.1, which no Android has, so Tor ended with code 1 the moment it
+// started (2.6.80: Qatar, Iran, Jordan). scripts/fetch-tor.js now refuses
+// such a bundle; move on with a version whose Android build passes it.
 const ANDROID_VERSION = '16.0';
 const versionOf = (bundle) => (String(bundle).startsWith('android-') ? ANDROID_VERSION : VERSION);
 const sourcesFor = (version) => [
