@@ -106,9 +106,52 @@ async function desktop(target, work) {
   console.log(`[tor] ${target} -> ${path.relative(ROOT, out)}`);
 }
 
+/* The libraries an ELF program asks for (DT_NEEDED), read from its file:
+ * ELF32 or ELF64, little-endian. [] when it names none. */
+function needed(file) {
+  const b = fs.readFileSync(file);
+  if (b.readUInt32BE(0) !== 0x7f454c46) throw new Error(`${file}: not an ELF file`);
+  const is64 = b[4] === 2;
+  const u = (o) => (is64 ? Number(b.readBigUInt64LE(o)) : b.readUInt32LE(o));
+  const shoff = u(is64 ? 0x28 : 0x20);
+  const shentsize = b.readUInt16LE(is64 ? 0x3a : 0x2e);
+  const shnum = b.readUInt16LE(is64 ? 0x3c : 0x30);
+  const sec = (i) => {
+    const o = shoff + i * shentsize;
+    return { type: b.readUInt32LE(o + 4), offset: u(o + (is64 ? 0x18 : 0x10)), size: u(o + (is64 ? 0x20 : 0x14)), link: b.readUInt32LE(o + (is64 ? 0x28 : 0x18)) };
+  };
+  const out = [];
+  for (let i = 0; i < shnum; i++) {
+    const s = sec(i);
+    if (s.type !== 6) continue;                       // SHT_DYNAMIC
+    const str = sec(s.link);
+    const ent = is64 ? 16 : 8;
+    for (let o = s.offset; o + ent <= s.offset + s.size; o += ent) {
+      const tag = is64 ? Number(b.readBigInt64LE(o)) : b.readInt32LE(o);
+      if (tag === 0) break;
+      if (tag !== 1) continue;                         // DT_NEEDED
+      const at = str.offset + u(o + (is64 ? 8 : 4));
+      out.push(b.toString('latin1', at, b.indexOf(0, at)));
+    }
+  }
+  return out;
+}
+
+/* What every Android has for a program in an app (the NDK's stable system
+ * libraries). Tor 16.0.1's Android build asked for libz.so.1, which no
+ * Android has: Tor ended with code 1 the moment it started, on every phone
+ * (2.6.80). A bundle like that stops the build here instead. */
+const ANDROID_SYSTEM_LIBS = new Set(['libc.so', 'libm.so', 'libdl.so', 'liblog.so', 'libz.so', 'libandroid.so']);
+function checkAndroid(file) {
+  const bad = needed(file).filter((n) => !ANDROID_SYSTEM_LIBS.has(n));
+  if (bad.length) throw new Error(`${path.basename(file)} needs ${bad.join(', ')}, which Android does not have: it would not start on a phone`);
+}
+
 async function android(abi, work) {
   const src = await bundle(ANDROID[abi], work);
   const out = path.join(ROOT, 'android', 'app', 'src', 'main', 'jniLibs', abi);
+  checkAndroid(path.join(src, 'tor', 'libTor.so'));
+  checkAndroid(path.join(src, PT, 'lyrebird'));
   place(path.join(src, 'tor', 'libTor.so'), path.join(out, 'libtor.so'), 0o755);
   place(path.join(src, PT, 'lyrebird'), path.join(out, 'liblyrebird.so'), 0o755);
   const assets = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'tor');
@@ -136,4 +179,4 @@ async function main() {
 if (require.main === module) main().catch((e) => { console.error('[tor]', e.message); process.exit(1); });
 
 // For apple/scripts/fetch-tor.js: the bundle's bridge list, checked the same way.
-module.exports = { SHA256, DESKTOP, ANDROID, VERSION, bundle, download, PT };
+module.exports = { SHA256, DESKTOP, ANDROID, VERSION, bundle, download, PT, needed, checkAndroid };
