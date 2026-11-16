@@ -631,11 +631,15 @@ function DataFolder({ t }) {
   );
 }
 
-export default function SettingsPanel({ active = false }) {
+export default function SettingsPanel({ active = false, focusSiteTest = false }) {
   const { language, setLanguage, t, availableLanguages, locale, isRTL } = useLanguage();
   const strategyLabelId = useId();
   const languageLabelId = useId();
   const [testHost, setTestHost] = useState('');
+  const testInput = useRef(null);
+  useEffect(() => {
+    if (focusSiteTest) testInput.current?.focus();
+  }, [focusSiteTest]);
   // macOS has a menu bar where the others have a tray: said so (ML-13).
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(window.electron?.platform === 'darwin'); }, []);
@@ -953,6 +957,7 @@ export default function SettingsPanel({ active = false }) {
             onSubmit={(e) => { e.preventDefault(); runTest(); }}
           >
             <input
+              ref={testInput}
               value={testHost}
               onChange={(e) => setTestHost(e.target.value)}
               placeholder={t('testPlaceholder')}

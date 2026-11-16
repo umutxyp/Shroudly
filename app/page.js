@@ -43,7 +43,8 @@ function Footer({ t }) {
 
 export default function Home() {
   const logo = useLogo();
-  const [activeTab, setActiveTab] = useState('control');
+  const [view, setActiveTab] = useState('control');
+  const activeTab = view === 'site-test' ? 'settings' : view;
   const { t, isLoaded } = useLanguage();
   const [{ dpiStatus, checkedAt, readFailed, unavailable }, setStatus] = useState({
     dpiStatus: { active: false, stats: {} }, checkedAt: null, readFailed: false, unavailable: false,
@@ -214,11 +215,11 @@ export default function Home() {
         {activeTab === 'control'  && <ControlPanel dpiStatus={dpiStatus} onStatusChange={refresh} onSupport={supportLink ? openSupport : null} />}
         {activeTab === 'stats' && (
           <StatsPanel active={active}>
-            <ConnectionDashboard statusText={statusText} tone={tone} checkedAt={checkedAt}
-                                 readFailed={readFailed} unavailable={unavailable} onRefresh={refresh} />
+            <ConnectionDashboard dpiStatus={dpiStatus} statusText={statusText} tone={tone} checkedAt={checkedAt}
+                                 readFailed={readFailed} unavailable={unavailable} onRefresh={refresh} onNavigate={setActiveTab} />
           </StatsPanel>
         )}
-        {activeTab === 'settings' && <SettingsPanel active={active} />}
+        {activeTab === 'settings' && <SettingsPanel active={active} focusSiteTest={view === 'site-test'} />}
         {activeTab === 'logs'     && <LogsPanel />}
         {activeTab === 'follow'   && <div className="flex flex-col gap-3 py-4"><FollowSection /></div>}
         {activeTab === 'info'     && <InfoPanel version={version} supportFocus={supportFocus} />}
