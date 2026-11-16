@@ -43,6 +43,13 @@ const t = suite('remote-config');
   t.ok(JSON.stringify(R.torBridges({ torBridges: { snowflake: ['snowflake 192.0.2.3:80 ABC', 'obfs4 x'], 'bad kind!': ['x'] } })) === JSON.stringify({ snowflake: ['snowflake 192.0.2.3:80 ABC'] }),
     'Tor bridges: only lines of their own transport');
 
+  // A restart only when what the engine starts with changes (issue #90).
+  t.ok(R.engineKey({}) === R.engineKey({ reportOffer: 'never' }) && R.engineKey({}) !== R.engineKey({ engineArgs: ['--drop-quic'] })
+    && R.engineKey({}) !== R.engineKey({ torAllowed: false }) && R.engineKey({ engineArgs: ['--port', '1'] }) === R.engineKey({}),
+    'a file that changes nothing the engine uses (an empty first one, the report rule) does not restart it');
+  const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  t.ok(/engineKey\(remoteSettings\(\)\) !== before/.test(main), 'the desktop restarts the engine only then');
+
   // The keeper: kept across starts, newer only, a bad signature refused.
   const kept = new Map();
   const store = { get: (k) => kept.get(k), set: (k, v) => kept.set(k, v) };

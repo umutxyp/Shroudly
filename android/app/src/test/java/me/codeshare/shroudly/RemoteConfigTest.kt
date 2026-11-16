@@ -65,6 +65,15 @@ class RemoteConfigTest {
     }
 
     @Test
+    fun aRestartOnlyWhenWhatTheEngineUsesChanges() {
+        val empty = RemoteConfig.engineKey(JSONObject())
+        assertEquals(empty, RemoteConfig.engineKey(JSONObject("""{"reportOffer":"never"}""")))
+        assertEquals(empty, RemoteConfig.engineKey(JSONObject("""{"engineArgs":["--port","1"]}""")))
+        assertTrue(empty != RemoteConfig.engineKey(JSONObject("""{"engineArgs":["--drop-quic"]}""")))
+        assertTrue(empty != RemoteConfig.engineKey(JSONObject("""{"torAllowed":false}""")))
+    }
+
+    @Test
     fun bridgesOnlyOfTheirOwnTransport() {
         val eff = JSONObject("""{"torBridges":{"snowflake":["snowflake 192.0.2.3:80 ABC","obfs4 x"],"bad kind!":["x"]}}""")
         assertEquals(mapOf("snowflake" to listOf("snowflake 192.0.2.3:80 ABC")), RemoteConfig.torBridges(eff))
