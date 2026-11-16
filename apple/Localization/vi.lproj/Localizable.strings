@@ -228,7 +228,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Khi tắt QUIC, ứng dụng giờ chuyển sang TCP ngay lập tức: bình luận Instagram và những thứ tương tự không còn mở chậm nữa.\n\"Có gì đó không hoạt động?\" giờ chỉ hiện khi chính Shroudly gặp sự cố, để bạn báo cho chúng tôi.";
-"whatsNewMac" = "Khi tắt QUIC, ứng dụng giờ chuyển sang TCP ngay lập tức: bình luận Instagram và những thứ tương tự không còn mở chậm nữa.\n\"Có gì đó không hoạt động?\" giờ chỉ hiện khi chính Shroudly gặp sự cố, để bạn báo cho chúng tôi.";
+"whatsNewApple" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.";
+"whatsNewMac" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

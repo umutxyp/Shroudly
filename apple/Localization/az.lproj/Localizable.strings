@@ -228,7 +228,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "QUIC söndürüləndə tətbiqlər indi dərhal TCP-yə keçir: Instagram şərhləri və bənzərləri artıq gec açılmır.\n\"Nəsə işləmir?\" indi yalnız Shroudly-nin özündə problem olanda görünür ki, bizə bildirə biləsiniz.";
-"whatsNewMac" = "QUIC söndürüləndə tətbiqlər indi dərhal TCP-yə keçir: Instagram şərhləri və bənzərləri artıq gec açılmır.\n\"Nəsə işləmir?\" indi yalnız Shroudly-nin özündə problem olanda görünür ki, bizə bildirə biləsiniz.";
+"whatsNewApple" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.";
+"whatsNewMac" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

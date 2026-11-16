@@ -228,7 +228,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "QUIC o‘chiq bo‘lsa, ilovalar endi darhol TCP’ga o‘tadi: Instagram izohlari va shunga o‘xshashlar endi kechikib ochilmaydi.\n“Nimadir ishlamayaptimi?” endi faqat Shroudly’ning o‘zida muammo chiqqanda ko‘rinadi, shunda bizga xabar berishingiz mumkin.";
-"whatsNewMac" = "QUIC o‘chiq bo‘lsa, ilovalar endi darhol TCP’ga o‘tadi: Instagram izohlari va shunga o‘xshashlar endi kechikib ochilmaydi.\n“Nimadir ishlamayaptimi?” endi faqat Shroudly’ning o‘zida muammo chiqqanda ko‘rinadi, shunda bizga xabar berishingiz mumkin.";
+"whatsNewApple" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.";
+"whatsNewMac" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

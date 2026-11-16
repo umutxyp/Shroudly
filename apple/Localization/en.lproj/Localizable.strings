@@ -228,7 +228,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "With QUIC off, apps now move to TCP at once: Instagram comments and the like no longer open late.\n\"Something not working?\" now shows only after Shroudly itself runs into a problem, so you can tell us about it.";
-"whatsNewMac" = "With QUIC off, apps now move to TCP at once: Instagram comments and the like no longer open late.\n\"Something not working?\" now shows only after Shroudly itself runs into a problem, so you can tell us about it.";
+"whatsNewApple" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.";
+"whatsNewMac" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

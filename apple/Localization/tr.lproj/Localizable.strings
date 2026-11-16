@@ -228,7 +228,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "QUIC kapalıyken uygulamalar artık hemen TCP'ye geçiyor: Instagram yorumları ve benzerleri artık geç açılmıyor.\n\"Çalışmayan bir şey mi var?\" artık yalnızca Shroudly bir sorunla karşılaştığında çıkıyor; böylece bize bildirebiliyorsun.";
-"whatsNewMac" = "QUIC kapalıyken uygulamalar artık hemen TCP'ye geçiyor: Instagram yorumları ve benzerleri artık geç açılmıyor.\n\"Çalışmayan bir şey mi var?\" artık yalnızca Shroudly bir sorunla karşılaştığında çıkıyor; böylece bize bildirebiliyorsun.";
+"whatsNewApple" = "QUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.";
+"whatsNewMac" = "QUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

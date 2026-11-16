@@ -336,7 +336,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">QUIC öçük bolanda programmalar indi derrew TCP-ä geçýär: Instagram teswirleri we şuňa meňzeşler indi gijä galyp açylmaýar.\nÝurduňyz ilki sagat guşagyndan okalýar: gysga kesilme indi Shroudly-ni sizi başga ýerde diýip pikir etdirmeýär.\n\"Bir zat işlemeýärmi?\" indi diňe Shroudly-niň özünde mesele çykanda görünýär, şonda bize habar berip bilersiňiz.</string>
+    <string name="whatsNewAndroid">Iň soňky ýol (Tor) telefonlarda täzeden işleýär: 2.6.80-de derrew ýapylýardy.\nQUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly-de sanawy bolmadyk ýurtda gysga kesilme indi ony sizi başga ýurtda diýip pikir etdirmeýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

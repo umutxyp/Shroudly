@@ -336,7 +336,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Ist QUIC aus, wechseln Apps jetzt sofort zu TCP: Instagram-Kommentare und Ähnliches öffnen nicht mehr verspätet.\nDein Land wird zuerst aus der Zeitzone gelesen: Ein kurzer Ausfall lässt Shroudly nicht mehr glauben, du wärst woanders.\n„Funktioniert etwas nicht?\" erscheint jetzt nur noch, wenn bei Shroudly selbst etwas schiefgeht, damit du es uns melden kannst.</string>
+    <string name="whatsNewAndroid">Der letzte Ausweg (Tor) startet auf Handys wieder: in 2.6.80 beendete er sich sofort.\nIst QUIC aus, kommen Anrufe und Spiele, die UDP-Port 443 selbst nutzen, wieder durch; nur QUIC wird abgewiesen.\nIn einem Land, für das Shroudly keine Liste hat, lässt ein kurzer Ausfall es nicht mehr glauben, du wärst in einem anderen Land.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

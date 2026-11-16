@@ -336,7 +336,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Avec QUIC désactivé, les applis passent désormais tout de suite à TCP : les commentaires Instagram et autres ne s\'ouvrent plus en retard.\nVotre pays est d\'abord lu dans le fuseau horaire : une courte coupure ne fait plus croire à Shroudly que vous êtes ailleurs.\n« Quelque chose ne marche pas? » n\'apparaît plus que lorsque Shroudly lui-même rencontre un problème, pour que vous puissiez nous le signaler.</string>
+    <string name="whatsNewAndroid">La dernière issue (Tor) redémarre sur les téléphones : en 2.6.80, elle s\'arrêtait aussitôt.\nAvec QUIC désactivé, les appels et jeux qui utilisent eux-mêmes le port UDP 443 passent de nouveau ; seul QUIC est refusé.\nDans un pays pour lequel Shroudly n\'a pas de liste, une courte coupure ne lui fait plus croire que vous êtes dans un autre pays.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>
