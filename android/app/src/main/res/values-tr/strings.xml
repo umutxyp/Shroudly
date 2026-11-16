@@ -336,7 +336,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Shroudly artık ağın için daha iyi ayarları güncelleme beklemeden alabiliyor; bizim tarafımızdan imzalı ve doğrulanmış olarak.</string>
+    <string name="whatsNewAndroid">Son çıkış yolu (Tor) telefonlarda yeniden başlıyor: 2.6.80\'de hemen kapanıyordu.\nQUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.\nShroudly\'nin listesinde olmayan bir ülkede kısa bir kesinti artık seni başka bir ülkede sanmasına yol açmıyor.\nShroudly artık ağın için daha iyi ayarları güncelleme beklemeden alabiliyor; bizim tarafımızdan imzalı ve doğrulanmış olarak.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

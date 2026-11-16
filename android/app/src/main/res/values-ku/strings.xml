@@ -336,7 +336,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Shroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.</string>
+    <string name="whatsNewAndroid">Riya dawî (Tor) dîsa li ser telefonan dest pê dike: di 2.6.80 de yekser digirt.\nDema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.\nLi welatekî ku Shroudly lîsteya wî tune, qutbûneke kurt êdî nahêle ew bifikire ku tu li welatekî din î.\nShroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

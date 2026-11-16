@@ -228,7 +228,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Shroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
-"whatsNewMac" = "Shroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
+"whatsNewApple" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.\nShroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
+"whatsNewMac" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.\nShroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

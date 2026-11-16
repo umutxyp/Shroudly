@@ -228,7 +228,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Shroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
-"whatsNewMac" = "Shroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
+"whatsNewApple" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
+"whatsNewMac" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

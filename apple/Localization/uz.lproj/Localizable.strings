@@ -228,7 +228,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Shroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
-"whatsNewMac" = "Shroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
+"whatsNewApple" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
+"whatsNewMac" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

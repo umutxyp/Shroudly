@@ -228,7 +228,7 @@
 "upload" = "Envoi";
 "uptime" = "Durée d’activité";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Shroudly peut désormais recevoir de meilleurs réglages pour votre réseau sans attendre une mise à jour, signés et vérifiés par nous.";
-"whatsNewMac" = "Shroudly peut désormais recevoir de meilleurs réglages pour votre réseau sans attendre une mise à jour, signés et vérifiés par nous.";
+"whatsNewApple" = "Avec QUIC désactivé, les appels et jeux qui utilisent eux-mêmes le port UDP 443 passent de nouveau ; seul QUIC est refusé.\nShroudly peut désormais recevoir de meilleurs réglages pour votre réseau sans attendre une mise à jour, signés et vérifiés par nous.";
+"whatsNewMac" = "Avec QUIC désactivé, les appels et jeux qui utilisent eux-mêmes le port UDP 443 passent de nouveau ; seul QUIC est refusé.\nShroudly peut désormais recevoir de meilleurs réglages pour votre réseau sans attendre une mise à jour, signés et vérifiés par nous.";
 "whatsNewOk" = "Compris";
 "whatsNewTitle" = "Nouveautés de la {version}";
