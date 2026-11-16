@@ -90,8 +90,11 @@ object AppSettings {
      * decoys carry its sites' names. */
     fun homeCountry(ctx: Context): String? = prefs(ctx).getString(KEY_HOME_COUNTRY, null)
     fun setHomeCountry(ctx: Context, cc: String) { if (homeCountry(ctx) != cc) prefs(ctx).edit().putString(KEY_HOME_COUNTRY, cc).apply() }
-    fun decoyNames(ctx: Context): List<String> =
-        NationalNet.decoyNames(NationalNet.homeCountry(homeCountry(ctx), java.util.TimeZone.getDefault().id))
+    fun decoyNames(ctx: Context): List<String> {
+        val cc = NationalNet.homeCountry(homeCountry(ctx), java.util.TimeZone.getDefault().id)
+        // The remote settings may name this country's decoys (RemoteConfig).
+        return RemoteConfig.decoyNames(RemoteConfig.settings(ctx), cc)?.takeIf { it.isNotEmpty() } ?: NationalNet.decoyNames(cc)
+    }
 
     fun ownServerTyped(ctx: Context): String = prefs(ctx).getString(KEY_OWN_SERVER, null) ?: ""
 
@@ -108,7 +111,11 @@ object AppSettings {
      * crawling), while over TCP Shroudly can do its work; the cost is the
      * one round trip QUIC saves on a new connection. Only the user's own
      * choice is ever stored (setQuicOff). */
-    fun quicOff(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_QUIC_OFF, true)
+    /* The user's own choice; none made: the remote settings' default, else on. */
+    fun quicOff(ctx: Context): Boolean = prefs(ctx).let { p ->
+        if (p.contains(KEY_QUIC_OFF)) p.getBoolean(KEY_QUIC_OFF, true)
+        else RemoteConfig.settings(ctx).let { if (it.has("quicOff")) it.optBoolean("quicOff", true) else true }
+    }
 
     fun setQuicOff(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_QUIC_OFF, on).apply()

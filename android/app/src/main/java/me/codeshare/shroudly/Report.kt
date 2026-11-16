@@ -214,6 +214,11 @@ object Report {
     }
 
     fun offered(ctx: Context): Boolean {
+        // The remote settings may show it always, or never (RemoteConfig).
+        when (RemoteConfig.reportOffer(RemoteConfig.settings(ctx))) {
+            "always" -> return true
+            "never" -> return false
+        }
         val faultAt = maxOf(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_FAULT, 0), Protection.faultAt)
         val last = load(ctx).maxOfOrNull { it.at } ?: 0L
         return offered(faultAt, last, System.currentTimeMillis())

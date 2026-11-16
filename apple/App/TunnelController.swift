@@ -123,6 +123,13 @@ final class TunnelController: ObservableObject {
         await restart()
     }
 
+    /* New remote settings (RemoteConfig): the tunnel again with them, if on. */
+    func remoteChanged() async {
+        guard phase == .on || phase == .starting else { return }
+        log.write("Remote settings: protection starts again with them")
+        await restart()
+    }
+
     private func restart() async {
         guard let m = manager else { return }
         userStopped = true

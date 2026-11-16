@@ -131,6 +131,9 @@ enum EngineArgs {
         // The last way out (TorRoute): Tor, for a connection nothing else got
         // through; never with the user's own server, which carries everything.
         else if let fallbackFile { a += ["--fallback-file", fallbackFile] }
+        // What the remote settings add, technique tuning only
+        // (RemoteConfig.engineAllowed: never a server, a file or a port).
+        a += RemoteConfig.engineArgs(RemoteConfig.settings()["engineArgs"])
         return a
     }
 

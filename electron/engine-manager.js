@@ -251,6 +251,8 @@ class EngineManager {
     // The ad and tracker list in use, when "Block ads and trackers" is on
     // (adblock.js keeps it): the path, or null for none yet.
     this.adblockFile = hooks.adblockFile || (() => null);
+    // The remote settings (remote-config.js) in use: {} when there are none.
+    this.remote = hooks.remote || (() => ({}));
     this._adblockChecks = [];
     // Where the file naming the user's own server goes (Settings, "Your
     // own server"; own-server.js): this user's own folder, as it holds the
@@ -478,6 +480,11 @@ class EngineManager {
     // the user's country, which a network that lets only allowed sites
     // through keeps open (national-net.js).
     for (const n of this.decoyNames()) a.push('--decoy-name', n);
+    // What the remote settings add, technique tuning only (remote-config.js
+    // engineArgs: never a server, a file, a port or an address).
+    let extra = [];
+    try { extra = require('./remote-config').engineArgs(this.remote().engineArgs); } catch {}
+    a.push(...extra);
     return a;
   }
 
@@ -487,7 +494,11 @@ class EngineManager {
     let remembered = null;
     try { remembered = this.store && this.store.get ? this.store.get('homeCountry') : null; } catch {}
     const NationalNet = require('./national-net');
-    return NationalNet.decoyNames(NationalNet.homeCountry({ remembered }));
+    const cc = NationalNet.homeCountry({ remembered });
+    // The remote settings may name this country's decoys (remote-config.js).
+    let remote = null;
+    try { remote = require('./remote-config').decoyNames(this.remote(), cc); } catch {}
+    return remote && remote.length ? remote : NationalNet.decoyNames(cc);
   }
 
   /* The engine's last events about sites, as it sent them, for a report

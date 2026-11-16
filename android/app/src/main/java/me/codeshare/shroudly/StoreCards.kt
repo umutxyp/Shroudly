@@ -120,6 +120,7 @@ object StoreCards {
      * days. A tap opens the window, which shows the card. */
     fun look(ctx: Context, port: Int, auth: SocksAuth?) {
         Stores.refreshIfDue(ctx, port, auth)
+        RemoteConfig.refreshIfDue(ctx, port, auth)
         val now = System.currentTimeMillis()
         if (promptedThisRun || !windowIdle(Usage.windowSeenAt(ctx), now)) return
         val working = Protection.state == Protection.State.ON && Protection.troubleRes == 0

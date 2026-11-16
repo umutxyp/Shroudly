@@ -160,6 +160,9 @@ dependencies {
     // so a release sent after the store's review is not flagged again.
     if (playBuild) implementation("androidx.fragment:fragment:1.9.1")
     testImplementation("junit:junit:4.13.2")
+    // org.json for the unit tests (RemoteConfigTest): the JVM's android.jar
+    // carries only stubs of it.
+    testImplementation("org.json:json:20240303")
 }
 
 // The hev tree that is built must be the pinned one, file for file: a tree

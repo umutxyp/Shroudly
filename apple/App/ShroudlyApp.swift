@@ -62,6 +62,14 @@ struct ShroudlyApp: App {
                 Logos.apply()
                 #endif
                 await controller.load()
+                // The remote settings, every six hours while the app is open
+                // (RemoteConfig): a new one restarts protection with it.
+                Task {
+                    while !Task.isCancelled {
+                        if await RemoteConfig.refreshIfDue(log: { SharedLog(name: "app.log").write($0) }) { await controller.remoteChanged() }
+                        try? await Task.sleep(nanoseconds: 3600 * 1_000_000_000)
+                    }
+                }
                 #if DEBUG
                 // A test on a Mac (a debug build only): protection started at
                 // launch (-ShroudlyStart YES), or stopped (-ShroudlyStop YES), no click needed.

@@ -389,6 +389,8 @@ open class MainActivity : Activity() {
         showNotice()
         // Is Shroudly on Google Play (stores.json): asked now and then.
         Stores.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
+        // The remote settings, every six hours (RemoteConfig).
+        RemoteConfig.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
         fromPlay = StoreCards.fromPlay(InstallSource.installer(this))
         playStore = !fromPlay && StoreCards.playStoreInstalled(this)
         country = Country.of(this)

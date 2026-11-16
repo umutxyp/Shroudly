@@ -74,6 +74,7 @@ class Engine(
             upstream: File? = null,
             decoyNames: List<String> = emptyList(),
             fallback: File? = null,
+            remote: List<String> = emptyList(),
         ): List<String> {
             // The technique chosen in Settings: automatic (the engine looks for
             // what works per site and keeps it) or one for every site.
@@ -105,6 +106,9 @@ class Engine(
             // a network that lets only allowed sites through keeps open
             // (NationalNet.decoyNames); host names only, at most eight.
             for (n in decoyNames.take(8)) if (Regex("^[A-Za-z0-9.-]{4,253}$").matches(n)) a += listOf("--decoy-name", n)
+            // What the remote settings add, technique tuning only
+            // (RemoteConfig.ENGINE_ALLOWED: never a server, a file or a port).
+            a += remote
             return a
         }
 

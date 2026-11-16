@@ -259,6 +259,12 @@ enum Report {
     }
 
     static func offered(faultAt: TimeInterval, _ defaults: UserDefaults = .standard, now: Date = Date()) -> Bool {
+        // The remote settings may show it always, or never (RemoteConfig).
+        switch RemoteConfig.reportOffer(RemoteConfig.settings()) {
+        case "always": return true
+        case "never": return false
+        default: break
+        }
         let last = load(defaults).map { $0.at.timeIntervalSince1970 }.max() ?? 0
         return offered(faultAt: faultAt, lastSentAt: last, now: now.timeIntervalSince1970)
     }

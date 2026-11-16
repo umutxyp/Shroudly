@@ -650,7 +650,7 @@ class ShroudlyVpnService : VpnService() {
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
             val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),
-                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this), fallback))
+                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this), fallback, RemoteConfig.engineArgs(this)))
             // Read once, at its start: the secrets are not left lying in a file.
             authFile?.delete()
             upstream?.delete()

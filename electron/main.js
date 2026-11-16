@@ -304,6 +304,10 @@ function reportFault() {
   try { toWindow('report:offered', reportOffered()); } catch {}
 }
 function reportOffered() {
+  // The remote settings may show it always, or never (remote-config.js).
+  const rule = require('./remote-config').reportOffer(remoteSettings());
+  if (rule === 'always') return true;
+  if (rule === 'never') return false;
   let last = 0;
   try { last = Math.max(0, ...(store.get('reports') || []).map((r) => Number(r && r.at) || 0)); } catch {}
   return require('./report-check').offered(Number(store.get('reportFaultAt', 0)) || 0, last, Date.now());
@@ -735,6 +739,48 @@ async function torForReport(waitMs = REPORT_TOR_WAIT_MS) {
 /* The same through Chromium's network (net.request: Electron 22 has it,
  * net.fetch came in 25), so it follows the session's proxy: through the
  * engine while protection is on (syncOwnProxy). */
+/* The remote settings (remote-config.js): read at once from what was kept,
+ * asked for again every six hours through Shroudly (Electron's net goes by
+ * the system proxy, the engine while protection is on). A new one takes
+ * effect at once: the engine starts again with it while protection is on. */
+let remoteConfig = null;
+function remoteSettings() { try { return remoteConfig ? remoteConfig.settings() : {}; } catch { return {}; } }
+function remoteCtx() {
+  let country = null;
+  try { country = require('./national-net').homeCountry({ remembered: store.get('homeCountry') }); } catch {}
+  if (!country) { try { country = (app.getLocaleCountryCode() || '').toUpperCase() || null; } catch {} }
+  return { platform: process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'macos' : 'linux', country, app: app.getVersion() };
+}
+function netText(url, timeout) {
+  return new Promise((resolve, reject) => {
+    const req = require('electron').net.request({ url, redirect: 'follow' });
+    let done = false;
+    const end = (e, v) => { if (done) return; done = true; clearTimeout(timer); if (e) { try { req.abort(); } catch {} reject(e); } else resolve(v); };
+    const timer = setTimeout(() => end(new Error('timed out')), timeout);
+    req.on('response', (res) => {
+      if (res.statusCode !== 200) { end(new Error(`HTTP ${res.statusCode}`)); return; }
+      let body = '';
+      res.on('data', (d) => { body += d; if (body.length > 256 * 1024) end(new Error('too large')); });
+      res.on('end', () => end(null, body));
+      res.on('error', end);
+    });
+    req.on('error', end);
+    req.end();
+  });
+}
+function startRemoteConfig() {
+  const { RemoteConfig } = require('./remote-config');
+  remoteConfig = new RemoteConfig({ store, fetchText: (u) => netText(u, 15000), ctx: remoteCtx, log: addLog });
+  const look = (force) => remoteConfig.refresh({ force }).then((changed) => {
+    if (changed && engine && engine.isActive()) {
+      addLog('info', 'Remote settings: the engine starts again with them');
+      engine.restart().catch((e) => { if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`); broadcastStatus(false); });
+    }
+  }).catch(() => {});
+  setTimeout(() => look(false), 20000).unref?.();
+  setInterval(() => look(false), 60 * 60 * 1000).unref?.();
+}
+
 function netJson(url, timeout) {
   return new Promise((resolve, reject) => {
     const req = require('electron').net.request({ url, redirect: 'follow' });
@@ -1507,11 +1553,13 @@ app.whenReady().then(async () => {
   });
   ownSitesOnly();
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
+  // The remote settings first: the engine and Tor read them (remote-config.js).
+  if (!remoteConfig) startRemoteConfig();
   // The last way out (tor-route.js): Tor through Snowflake, for a site
   // nothing else opened; started by the engine's need of it.
   let torWasReady = false;
   const torRoute = new TorRoute({
-    dataDir: app.getPath('userData'), log: addLog,
+    dataDir: app.getPath('userData'), log: addLog, remote: remoteSettings,
     // The bridges the Tor Project gives out for this country, asked through
     // Shroudly's own server (bridges.torproject.org is blocked where they
     // are needed), through the engine while it runs (tor-route.js).
@@ -1542,6 +1590,8 @@ app.whenReady().then(async () => {
   });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus, torRoute,
+    // The remote settings: technique arguments and decoys (remote-config.js).
+    remote: remoteSettings,
     // Tor needed, not yet allowed: the user is asked (askTor).
     onTorAsk: (host) => askTor(host),
     // An antivirus took, refused or keeps ending the engine.
