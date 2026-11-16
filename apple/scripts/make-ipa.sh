@@ -30,7 +30,8 @@ node apple/scripts/gen-version.js
 
 cd apple
 xcodebuild -project Shroudly.xcodeproj -scheme Shroudly -configuration Release -destination 'generic/platform=iOS' \
-  -derivedDataPath build/ipa CODE_SIGNING_ALLOWED=NO -quiet build
+  -derivedDataPath build/ipa CODE_SIGNING_ALLOWED=NO -quiet \
+  SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) SHROUDLY_SIDELOAD' build
 app="build/ipa/Build/Products/Release-iphoneos/Shroudly.app"
 ext="$app/PlugIns/ShroudlyTunnel.appex"
 [ -d "$ext" ] || { echo "[ipa] the packet tunnel is not in the app" >&2; exit 1; }

@@ -76,7 +76,9 @@ struct AboutView: View {
             if !HelpNudge.torBlockedHere() {
             Section {
                 #if !os(tvOS)
-                // Shroudly itself (Snowflake.swift), while it runs.
+                // Shroudly itself (Snowflake.swift), while it runs: not in
+                // the store copy (Distribution.snowflake).
+                if Distribution.snowflake {
                 Toggle(isOn: Binding(get: { snowflakeOn }, set: { on in
                     snowflakeOn = on
                     snowflake.sync(active: on)
@@ -87,6 +89,7 @@ struct AboutView: View {
                     Text(line).font(.footnote).foregroundStyle(snowflake.state == .unreachable ? .orange : Theme.secondaryText)
                 }
                 Text(tr("snowflakeHow")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                }
                 Text(tr("helpOthersBodyConduit")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 #endif
                 WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
