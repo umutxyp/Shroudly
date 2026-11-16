@@ -339,6 +339,8 @@ final class TorRoute: @unchecked Sendable {  // its state is touched on `queue` 
     func need() {
         queue.async { [self] in
             guard Self.available, port > 0 else { return }
+            // Turned off by the remote settings (a Tor that fails everywhere, say).
+            if (RemoteConfig.settings()["torAllowed"] as? Bool) == false { return }
             if state == .failed && Date().timeIntervalSince(failedAt) < Self.retry { return }
             if state == .starting || state == .ready { return }
             if started { network(on: true); return }
@@ -352,7 +354,8 @@ final class TorRoute: @unchecked Sendable {  // its state is touched on `queue` 
     private func start() {
         guard let url = Bundle.main.url(forResource: "tor-bridges", withExtension: "json"),
               let data = try? Data(contentsOf: url) else { return }
-        bridges = Self.bridgesOf(data)
+        // Bridges the remote settings name come first (RemoteConfig).
+        bridges = Self.mergeBridges(RemoteConfig.torBridges(RemoteConfig.settings()), Self.bridgesOf(data))
         let dir = AppGroup.folder.appendingPathComponent("tor", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         let ptDir = dir.appendingPathComponent("pt_state").path

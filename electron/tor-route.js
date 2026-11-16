@@ -166,8 +166,10 @@ class TorRoute {
    *                without it, only a Tor already in place is used
    */
   constructor({ dataDir, log, onChange, dir = null, platform = process.platform, spawn: sp = spawn, ownerPid = process.pid,
-    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS, fetch = null, countryBridges = null } = {}) {
+    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS, fetch = null, countryBridges = null, remote = null } = {}) {
     this.dataDir = dataDir;
+    // The remote settings (remote-config.js): torAllowed, torBridges.
+    this.remote = remote || (() => ({}));
     this.log = log || (() => {});
     this.onChange = onChange || (() => {});
     this.platform = platform;
@@ -251,6 +253,14 @@ class TorRoute {
   /* The engine had a connection for it and found nothing listening. */
   need() {
     if (this.proc || !this.port || !this.available() || this._fetching) return;
+    // Turned off by the remote settings (a Tor that fails everywhere, say).
+    let r = {};
+    try { r = this.remote() || {}; } catch {}
+    if (r.torAllowed === false) {
+      if (!this._remoteOffSaid) { this._remoteOffSaid = true; this.log('info', 'The last way out is turned off for now by the remote settings'); }
+      return;
+    }
+    this._remoteOffSaid = false;
     if (this.state === 'failed' && Date.now() - this.failedAt < this.retryMs) return;
     const first = this._countryWorked && this._country ? 'country' : 'snowflake';
     if (this.present()) { this._start(first); return; }
@@ -264,6 +274,8 @@ class TorRoute {
     let bridges = {};
     try { bridges = bridgesOf(fs.readFileSync(f.config, 'utf8')); } catch {}
     if (stage === 'country') bridges = mergeBridges(this._country && this._country.bridges, bridges);
+    // Bridges the remote settings name come first (remote-config.js).
+    try { bridges = mergeBridges(require('./remote-config').torBridges(this.remote() || {}), bridges); } catch {}
     if (!bridges.snowflake && stage === 'snowflake') stage = 'all';
     // Where Tor can read every path (asciiDir); found once.
     if (this._base === undefined) {

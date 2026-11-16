@@ -165,6 +165,12 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     /* The engine had a connection for it and nothing was listening. */
     fun need() = synchronized(lock) {
         if (proc != null || port == 0 || !available()) return@synchronized
+        // Turned off by the remote settings (a Tor that fails everywhere, say).
+        if (RemoteConfig.settings(ctx).optBoolean("torAllowed", true) == false) {
+            if (!remoteOffSaid) { remoteOffSaid = true; log("The last way out is turned off for now by the remote settings") }
+            return@synchronized
+        }
+        remoteOffSaid = false
         if (state == "failed" && System.currentTimeMillis() - failedAt < RETRY_MS) return@synchronized
         start(if (countryWorked && country != null) "country" else "snowflake")
     }
@@ -173,7 +179,9 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         kill()
         val g = ++gen
         val bundled = try { bridgesOf(ctx.assets.open("tor/pt_config.json").bufferedReader().use { it.readText() }) } catch (_: Exception) { emptyMap() }
-        val bridges = if (s == "country") mergeBridges(country, bundled) else bundled
+        val base = if (s == "country") mergeBridges(country, bundled) else bundled
+        // Bridges the remote settings name come first (RemoteConfig).
+        val bridges = mergeBridges(RemoteConfig.torBridges(RemoteConfig.settings(ctx)), base)
         stage = if (s == "snowflake" && bridges["snowflake"] == null) "all" else s
         val data = File(ctx.filesDir, "tor").apply { mkdirs(); setReadable(false, false); setReadable(true, true); setExecutable(false, false); setExecutable(true, true); setWritable(false, false); setWritable(true, true) }
         val rc = File(ctx.filesDir, "torrc").apply { writeText(torrc(port, data.path, lyrebird.path, bridges, stage, android.os.Process.myPid())) }
@@ -204,6 +212,7 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
     // Tor's own warnings and errors said in the log, a few a start: "Tor
     // ended (1)" alone said nothing of why (2.6.80, Tor 16.0.1 on phones).
     private var said = 0
+    private var remoteOffSaid = false
 
     private fun line(l: String, g: Int) = synchronized(lock) {
         if (g != gen) return@synchronized
