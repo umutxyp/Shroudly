@@ -1,3 +1,6 @@
 # Installed as is by the Linux packages, and compared byte for byte by
 # scripts/gen-polkit.js --check: LF on every checkout, Windows' included.
 scripts/linux/*.policy text eol=lf
+# Signed bytes: never changed by a checkout (Windows CRLF broke the signature).
+remote.json -text
+remote.json.sig -text
