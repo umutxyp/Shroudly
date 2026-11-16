@@ -228,7 +228,7 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "QUIC ሲጠፋ መተግበሪያዎች አሁን ወዲያውኑ ወደ TCP ይሄዳሉ፦ የInstagram አስተያየቶችና መሰል ነገሮች ከእንግዲህ ዘግይተው አይከፈቱም።\n\"የማይሰራ ነገር አለ?\" አሁን የሚታየው Shroudly ራሱ ችግር ሲገጥመው ብቻ ነው፣ እንዲያሳውቁን።";
-"whatsNewMac" = "QUIC ሲጠፋ መተግበሪያዎች አሁን ወዲያውኑ ወደ TCP ይሄዳሉ፦ የInstagram አስተያየቶችና መሰል ነገሮች ከእንግዲህ ዘግይተው አይከፈቱም።\n\"የማይሰራ ነገር አለ?\" አሁን የሚታየው Shroudly ራሱ ችግር ሲገጥመው ብቻ ነው፣ እንዲያሳውቁን።";
+"whatsNewApple" = "QUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።";
+"whatsNewMac" = "QUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

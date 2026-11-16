@@ -336,7 +336,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">关闭 QUIC 时,应用现在会立即改用 TCP:Instagram 评论等内容不再延迟打开。\n现在优先根据时区判断你所在的国家:短暂断网不会再让 Shroudly 误以为你在别处。\n\"有什么用不了吗？\"现在只会在 Shroudly 自身出现问题后显示,方便你告诉我们。</string>
+    <string name="whatsNewAndroid">最后的出路(Tor)在手机上重新可以启动:2.6.80 中它会立即退出。\n关闭 QUIC 时,自己使用 UDP 443 端口的通话和游戏重新可以通过;只拒绝 QUIC。\n在 Shroudly 没有列表的国家,短暂断网不会再让它误以为你在另一个国家。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

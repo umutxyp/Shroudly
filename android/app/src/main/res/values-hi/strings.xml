@@ -336,7 +336,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">QUIC बंद होने पर ऐप्स अब तुरंत TCP पर चले जाते हैं: Instagram की टिप्पणियाँ और ऐसी चीज़ें अब देर से नहीं खुलतीं।\nआपका देश अब पहले टाइम ज़ोन से पढ़ा जाता है: छोटी रुकावट से अब Shroudly यह नहीं समझता कि आप कहीं और हैं।\n\"कुछ काम नहीं कर रहा?\" अब तभी दिखता है जब Shroudly को खुद कोई समस्या आए, ताकि आप हमें बता सकें।</string>
+    <string name="whatsNewAndroid">आख़िरी रास्ता (Tor) फ़ोन पर फिर से शुरू होता है: 2.6.80 में यह तुरंत बंद हो जाता था।\nQUIC बंद होने पर UDP पोर्ट 443 खुद इस्तेमाल करने वाली कॉल और गेम फिर से निकलते हैं; सिर्फ़ QUIC लौटाया जाता है।\nजिस देश की Shroudly के पास सूची नहीं है, वहाँ छोटी रुकावट से अब वह यह नहीं समझता कि आप किसी और देश में हैं।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

@@ -336,7 +336,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">เมื่อปิด QUIC แอปจะเปลี่ยนไปใช้ TCP ทันที: ความคิดเห็นใน Instagram และอื่น ๆ ไม่เปิดช้าอีกต่อไป\nประเทศของคุณจะอ่านจากเขตเวลาก่อน: การขัดข้องสั้น ๆ จะไม่ทำให้ Shroudly เข้าใจว่าคุณอยู่ที่อื่นอีกต่อไป\n\"มีอะไรใช้งานไม่ได้ไหม?\" จะแสดงเฉพาะเมื่อ Shroudly เองเกิดปัญหา เพื่อให้คุณแจ้งเราได้</string>
+    <string name="whatsNewAndroid">ทางออกสุดท้าย (Tor) เริ่มทำงานบนโทรศัพท์อีกครั้ง: ใน 2.6.80 มันหยุดทันที\nเมื่อปิด QUIC การโทรและเกมที่ใช้พอร์ต UDP 443 เองจะผ่านได้อีกครั้ง มีแค่ QUIC ที่ถูกปฏิเสธ\nในประเทศที่ Shroudly ไม่มีรายการ การขัดข้องสั้น ๆ จะไม่ทำให้มันเข้าใจว่าคุณอยู่ประเทศอื่นอีกต่อไป</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

@@ -228,7 +228,7 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.";
-"whatsNewMac" = "Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.";
+"whatsNewApple" = "Apabila QUIC dimatikan, panggilan dan permainan yang menggunakan port UDP 443 sendiri kembali lalu; hanya QUIC ditolak.";
+"whatsNewMac" = "Apabila QUIC dimatikan, panggilan dan permainan yang menggunakan port UDP 443 sendiri kembali lalu; hanya QUIC ditolak.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

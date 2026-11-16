@@ -228,7 +228,7 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "Com o QUIC desligado, os apps agora passam para TCP na hora: comentários do Instagram e afins não abrem mais com atraso.\n\"Algo não está funcionando?\" agora aparece só quando o próprio Shroudly tem um problema, para você nos contar.";
-"whatsNewMac" = "Com o QUIC desligado, os apps agora passam para TCP na hora: comentários do Instagram e afins não abrem mais com atraso.\n\"Algo não está funcionando?\" agora aparece só quando o próprio Shroudly tem um problema, para você nos contar.";
+"whatsNewApple" = "Com o QUIC desligado, chamadas e jogos que usam a porta UDP 443 voltam a passar; só o QUIC é recusado.";
+"whatsNewMac" = "Com o QUIC desligado, chamadas e jogos que usam a porta UDP 443 voltam a passar; só o QUIC é recusado.";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

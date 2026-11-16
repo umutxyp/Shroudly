@@ -336,7 +336,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Apabila QUIC dimatikan, aplikasi kini terus beralih ke TCP: komen Instagram dan seumpamanya tidak lagi lambat dibuka.\nNegara anda kini dibaca daripada zon waktu dahulu: gangguan singkat tidak lagi membuatkan Shroudly menyangka anda di tempat lain.\n\"Ada yang tidak berfungsi?\" kini hanya muncul selepas Shroudly sendiri menghadapi masalah, supaya anda boleh memberitahu kami.</string>
+    <string name="whatsNewAndroid">Jalan terakhir (Tor) kembali bermula pada telefon: dalam 2.6.80 ia terus berhenti.\nApabila QUIC dimatikan, panggilan dan permainan yang menggunakan port UDP 443 sendiri kembali lalu; hanya QUIC ditolak.\nDi negara yang tiada senarai dalam Shroudly, gangguan singkat tidak lagi membuatkannya menyangka anda di negara lain.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

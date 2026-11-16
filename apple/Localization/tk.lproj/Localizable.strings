@@ -228,7 +228,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "QUIC öçük bolanda programmalar indi derrew TCP-ä geçýär: Instagram teswirleri we şuňa meňzeşler indi gijä galyp açylmaýar.\n\"Bir zat işlemeýärmi?\" indi diňe Shroudly-niň özünde mesele çykanda görünýär, şonda bize habar berip bilersiňiz.";
-"whatsNewMac" = "QUIC öçük bolanda programmalar indi derrew TCP-ä geçýär: Instagram teswirleri we şuňa meňzeşler indi gijä galyp açylmaýar.\n\"Bir zat işlemeýärmi?\" indi diňe Shroudly-niň özünde mesele çykanda görünýär, şonda bize habar berip bilersiňiz.";
+"whatsNewApple" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.";
+"whatsNewMac" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

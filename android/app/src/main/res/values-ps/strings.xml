@@ -336,7 +336,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">کله چې QUIC بند وي، اپونه اوس سمدستي TCP ته ځي: د انسټاګرام تبصرې او ورته شیان نور په ځنډ نه پرانیستل کېږي.\nستاسو هېواد لومړی له وخت سیمې لوستل کېږي: لنډ پرې کېدل نور Shroudly دې ته نه اړ باسي چې فکر وکړي تاسو بل ځای یاست.\n«څه کار نه کوي؟» اوس یوازې هغه وخت ښکاري چې پخپله Shroudly له ستونزې سره مخ شي، څو تاسو موږ ته ووایاست.</string>
+    <string name="whatsNewAndroid">وروستۍ لاره (Tor) بیا په ټیلیفونونو کې پیلېږي: په 2.6.80 کې سمدستي بندېده.\nکله چې QUIC بند وي، هغه زنګونه او لوبې چې پخپله د UDP 443 پورټ کاروي بیا تېرېږي؛ یوازې QUIC ردېږي.\nپه هغه هېواد کې چې Shroudly ورته لېست نه لري، لنډ پرې کېدل نور دا نه اړ باسي چې فکر وکړي تاسو په بل هېواد کې یاست.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

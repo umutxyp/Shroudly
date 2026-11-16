@@ -336,7 +336,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">وقتی QUIC خاموش است، برنامه‌ها حالا بی‌درنگ به TCP می‌روند: نظرهای اینستاگرام و مانند آن دیگر دیر باز نمی‌شوند.\nکشور شما اول از منطقهٔ زمانی خوانده می‌شود: یک قطعی کوتاه دیگر باعث نمی‌شود Shroudly فکر کند جای دیگری هستید.\n«چیزی کار نمی‌کند؟» حالا فقط وقتی نشان داده می‌شود که خود Shroudly به مشکلی بخورد، تا بتوانید آن را به ما بگویید.</string>
+    <string name="whatsNewAndroid">آخرین راه (Tor) دوباره روی گوشی‌ها روشن می‌شود: در 2.6.80 بی‌درنگ بسته می‌شد.\nوقتی QUIC خاموش است، تماس‌ها و بازی‌هایی که خودشان از پورت UDP 443 استفاده می‌کنند دوباره عبور می‌کنند؛ فقط QUIC رد می‌شود.\nدر کشوری که Shroudly فهرستی برایش ندارد، یک قطعی کوتاه دیگر باعث نمی‌شود شما را در کشور دیگری بداند.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

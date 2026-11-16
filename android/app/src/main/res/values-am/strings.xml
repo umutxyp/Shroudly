@@ -336,7 +336,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">QUIC ሲጠፋ መተግበሪያዎች አሁን ወዲያውኑ ወደ TCP ይሄዳሉ፦ የInstagram አስተያየቶችና መሰል ነገሮች ከእንግዲህ ዘግይተው አይከፈቱም።\nአገርዎ አሁን መጀመሪያ ከሰዓት ሰቅ ይነበባል፦ አጭር መቋረጥ ከእንግዲህ Shroudly ሌላ ቦታ እንዳሉ እንዲያስብ አያደርግም።\n\"የማይሰራ ነገር አለ?\" አሁን የሚታየው Shroudly ራሱ ችግር ሲገጥመው ብቻ ነው፣ እንዲያሳውቁን።</string>
+    <string name="whatsNewAndroid">የመጨረሻው መንገድ (Tor) በስልኮች ላይ እንደገና ይጀምራል፦ በ2.6.80 ወዲያውኑ ይቆም ነበር።\nQUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።\nShroudly ዝርዝር በሌለው አገር አጭር መቋረጥ ከእንግዲህ ሌላ አገር እንዳሉ እንዲያስብ አያደርገውም።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

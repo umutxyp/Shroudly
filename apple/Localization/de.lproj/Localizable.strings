@@ -228,7 +228,7 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Ist QUIC aus, wechseln Apps jetzt sofort zu TCP: Instagram-Kommentare und Ähnliches öffnen nicht mehr verspätet.\n„Funktioniert etwas nicht?\" erscheint jetzt nur noch, wenn bei Shroudly selbst etwas schiefgeht, damit du es uns melden kannst.";
-"whatsNewMac" = "Ist QUIC aus, wechseln Apps jetzt sofort zu TCP: Instagram-Kommentare und Ähnliches öffnen nicht mehr verspätet.\n„Funktioniert etwas nicht?\" erscheint jetzt nur noch, wenn bei Shroudly selbst etwas schiefgeht, damit du es uns melden kannst.";
+"whatsNewApple" = "Ist QUIC aus, kommen Anrufe und Spiele, die UDP-Port 443 selbst nutzen, wieder durch; nur QUIC wird abgewiesen.";
+"whatsNewMac" = "Ist QUIC aus, kommen Anrufe und Spiele, die UDP-Port 443 selbst nutzen, wieder durch; nur QUIC wird abgewiesen.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";
