@@ -176,7 +176,18 @@ function get(url, o = {}) {
       await new Promise((resolve) => require('child_process').execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', '1'],
         { windowsHide: true, timeout: 90000 }, () => resolve()));
       const at = await DA.startedAt({ exe: path.basename(process.execPath) });
-      t.ok(typeof at === 'number' && at <= Date.now() && at > Date.now() - 7 * 86400000, `Windows: when a running program started, from PowerShell (${at && new Date(at).toISOString()})`);
+      const fine = typeof at === 'number' && at <= Date.now() && at > Date.now() - 7 * 86400000;
+      // Nothing back: is it this code, or PowerShell on this runner reading
+      // no process's start at all (seen on Windows on ARM runners)? Asked
+      // for this very process by its id: if that is empty too, the runner.
+      let runnerBlind = false;
+      if (!fine) {
+        const own = await new Promise((resolve) => require('child_process').execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+          `try { (Get-Process -Id ${process.pid}).StartTime.ToUniversalTime().ToString('o') } catch {}`], { windowsHide: true, timeout: 60000 }, (e, o) => resolve(e ? '' : String(o).trim())));
+        runnerBlind = !own;
+      }
+      if (runnerBlind) console.log('  --  PowerShell on this runner reads no process\'s start time, not even its own caller\'s: not this code\'s doing, skipped');
+      else t.ok(fine, `Windows: when a running program started, from PowerShell (${at && new Date(at).toISOString()})`);
     } else {
       // (Minimal containers have no ps; the lookup is for macOS, where it always is.)
       const out = await new Promise((r) => require('child_process').execFile('ps', ['-o', 'etime=', '-p', String(process.pid)], (e, o) => r(e ? null : String(o || ''))));
