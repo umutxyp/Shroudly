@@ -258,7 +258,10 @@ async function startedAt(v) {
     const mine = Number.isInteger(session) ? ` | Where-Object { $_.SessionId -eq ${session} }` : '';
     const out = await new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
       `Get-Process -Name '${name.replace(/'/g, "''")}' -ErrorAction SilentlyContinue${mine} | ForEach-Object { try { $_.StartTime.ToUniversalTime().ToString('o') } catch {} }`],
-    { windowsHide: true, timeout: 15000, env: envFor('powershell.exe') }, (err, o) => resolve(err ? '' : String(o))));
+    // 45 s: on a slow or busy machine PowerShell took longer than 15 s, and
+    // an unknown start costs Discord a needless restart (it waits in the
+    // background; nothing is held up by it).
+    { windowsHide: true, timeout: 45000, env: envFor('powershell.exe') }, (err, o) => resolve(err ? '' : String(o))));
     return oldestStart(out, { platform: 'win32' });
   }
   const list = await pids(v);
