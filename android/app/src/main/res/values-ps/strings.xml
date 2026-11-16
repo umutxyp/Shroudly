@@ -336,7 +336,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">وروستۍ لاره (Tor) بیا په ټیلیفونونو کې پیلېږي: په 2.6.80 کې سمدستي بندېده.\nکله چې QUIC بند وي، هغه زنګونه او لوبې چې پخپله د UDP 443 پورټ کاروي بیا تېرېږي؛ یوازې QUIC ردېږي.\nپه هغه هېواد کې چې Shroudly ورته لېست نه لري، لنډ پرې کېدل نور دا نه اړ باسي چې فکر وکړي تاسو په بل هېواد کې یاست.</string>
+    <string name="whatsNewAndroid">Shroudly اوس کولی شي له تازه کولو پرته ستاسو د شبکې لپاره ښې ترتیبات ترلاسه کړي؛ زموږ لخوا لاسلیک او تایید شوي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

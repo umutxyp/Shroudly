@@ -228,7 +228,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Con QUIC desactivado, las llamadas y juegos que usan el puerto UDP 443 vuelven a pasar; solo se rechaza QUIC.";
-"whatsNewMac" = "Con QUIC desactivado, las llamadas y juegos que usan el puerto UDP 443 vuelven a pasar; solo se rechaza QUIC.";
+"whatsNewApple" = "Shroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.";
+"whatsNewMac" = "Shroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

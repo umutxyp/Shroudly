@@ -228,7 +228,7 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Saat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.";
-"whatsNewMac" = "Saat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.";
+"whatsNewApple" = "Shroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.";
+"whatsNewMac" = "Shroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

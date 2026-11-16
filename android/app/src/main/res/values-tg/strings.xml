@@ -336,7 +336,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Роҳи охирин (Tor) дар телефонҳо боз оғоз мешавад: дар 2.6.80 фавран қатъ мешуд.\nВақте QUIC хомӯш аст, зангҳо ва бозиҳое, ки худашон порти UDP 443-ро истифода мебаранд, боз мегузаранд; танҳо QUIC рад мешавад.\nДар кишваре, ки Shroudly барояш рӯйхат надорад, қатъи кӯтоҳ дигар онро водор намекунад, ки шуморо дар кишвари дигар гумон кунад.</string>
+    <string name="whatsNewAndroid">Shroudly акнун метавонад бе интизори навсозӣ танзимоти беҳтарро барои шабакаи шумо гирад; онҳо аз ҷониби мо имзо ва санҷида шудаанд.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

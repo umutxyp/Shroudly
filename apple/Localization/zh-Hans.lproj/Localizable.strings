@@ -228,7 +228,7 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "关闭 QUIC 时,自己使用 UDP 443 端口的通话和游戏重新可以通过;只拒绝 QUIC。";
-"whatsNewMac" = "关闭 QUIC 时,自己使用 UDP 443 端口的通话和游戏重新可以通过;只拒绝 QUIC。";
+"whatsNewApple" = "Shroudly 现在无需等待更新即可为你的网络获取更好的设置,这些设置由我们签名并校验。";
+"whatsNewMac" = "Shroudly 现在无需等待更新即可为你的网络获取更好的设置,这些设置由我们签名并校验。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";
