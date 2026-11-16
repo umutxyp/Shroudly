@@ -132,6 +132,13 @@ function torBridges(eff) {
   }
   return out;
 }
+/* What of the settings the engine and Tor start with: a new file restarts
+ * them only when this changes (a first file that changes nothing, or one
+ * that changes only the report rule, must not cut every open connection). */
+function engineKey(eff) {
+  const e = isObj(eff) ? eff : {};
+  return JSON.stringify([engineArgs(e.engineArgs), isObj(e.decoyNames) ? e.decoyNames : null, e.torAllowed === false, torBridges(e), e.quicOff === undefined ? null : !!e.quicOff]);
+}
 function reportOffer(eff) { return ['fault', 'always', 'never'].includes(eff.reportOffer) ? eff.reportOffer : 'fault'; }
 
 /*
@@ -179,4 +186,4 @@ class RemoteConfig {
   }
 }
 
-module.exports = { PUBLIC_KEY, SOURCES, ENGINE_ALLOWED, verify, parse, cmpVersion, matches, effective, engineArgs, decoyNames, torBridges, reportOffer, bool, RemoteConfig };
+module.exports = { PUBLIC_KEY, SOURCES, ENGINE_ALLOWED, verify, parse, cmpVersion, matches, effective, engineArgs, engineKey, decoyNames, torBridges, reportOffer, bool, RemoteConfig };

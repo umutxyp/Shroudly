@@ -771,12 +771,18 @@ function netText(url, timeout) {
 function startRemoteConfig() {
   const { RemoteConfig } = require('./remote-config');
   remoteConfig = new RemoteConfig({ store, fetchText: (u) => netText(u, 15000), ctx: remoteCtx, log: addLog });
-  const look = (force) => remoteConfig.refresh({ force }).then((changed) => {
-    if (changed && engine && engine.isActive()) {
+  const { engineKey } = require('./remote-config');
+  const look = (force) => {
+    const before = engineKey(remoteSettings());
+    return remoteConfig.refresh({ force }).then((changed) => {
+    // Only when what the engine starts with changed: a restart cuts every
+    // open connection (issue #90: a first, empty file restarted it).
+    if (changed && engineKey(remoteSettings()) !== before && engine && engine.isActive()) {
       addLog('info', 'Remote settings: the engine starts again with them');
       engine.restart().catch((e) => { if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`); broadcastStatus(false); });
     }
   }).catch(() => {});
+  };
   setTimeout(() => look(false), 20000).unref?.();
   setInterval(() => look(false), 60 * 60 * 1000).unref?.();
 }

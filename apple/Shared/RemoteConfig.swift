@@ -114,6 +114,14 @@ enum RemoteConfig {
         return out
     }
 
+    /* What of the settings the tunnel starts with: a new file restarts it
+     * only when this changes (issue #90: a first, empty file restarted it). */
+    static func engineKey(_ eff: [String: Any]) -> String {
+        let decoys = (try? JSONSerialization.data(withJSONObject: eff["decoyNames"] ?? [:], options: .sortedKeys)).map { String(decoding: $0, as: UTF8.self) } ?? ""
+        let bridges = torBridges(eff).sorted { $0.key < $1.key }.map { "\($0.key)=\($0.value.joined(separator: ","))" }.joined(separator: ";")
+        return [engineArgs(eff["engineArgs"]).joined(separator: " "), decoys, "\((eff["torAllowed"] as? Bool) ?? true)", bridges].joined(separator: "|")
+    }
+
     static func reportOffer(_ eff: [String: Any]) -> String {
         let r = eff["reportOffer"] as? String ?? ""
         return ["fault", "always", "never"].contains(r) ? r : "fault"
@@ -165,7 +173,10 @@ enum RemoteConfig {
                 let (s, sr) = try await session.data(from: su)
                 guard (fr as? HTTPURLResponse)?.statusCode == 200, (sr as? HTTPURLResponse)?.statusCode == 200 else { continue }
                 d.set(Date().timeIntervalSince1970, forKey: Key.at)
-                return offer(String(decoding: f, as: UTF8.self), sig: String(decoding: s, as: UTF8.self), d, log: log)
+                let before = engineKey(settings(d))
+                // True (protection starts again) only when what the tunnel
+                // starts with changed.
+                return offer(String(decoding: f, as: UTF8.self), sig: String(decoding: s, as: UTF8.self), d, log: log) && engineKey(settings(d)) != before
             } catch { continue }
         }
         return false

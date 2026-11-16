@@ -150,6 +150,17 @@ object RemoteConfig {
         return (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { shape.matches(it) }.take(8)
     }
 
+    /* What of the settings the engine and Tor start with: a new file
+     * restarts them only when this changes (issue #90: a first, empty file
+     * restarted the engine and cut every open connection). */
+    fun engineKey(eff: JSONObject): String = listOf(
+        engineArgs(eff.optJSONArray("engineArgs")).joinToString("\u0000"),
+        eff.optJSONObject("decoyNames")?.toString() ?: "",
+        eff.optBoolean("torAllowed", true).toString(),
+        torBridges(eff).toString(),
+        if (eff.has("quicOff")) eff.optBoolean("quicOff").toString() else "",
+    ).joinToString("|")
+
     fun reportOffer(eff: JSONObject): String = eff.optString("reportOffer").takeIf { it in setOf("fault", "always", "never") } ?: "fault"
 
     // ── this phone's settings ─────────────────────────────────────────────
@@ -209,7 +220,9 @@ object RemoteConfig {
                         val s = UpdateCheck.fetch(host, "$path.sig", "text/plain", port, auth)
                         if (f.status != 200 || s.status != 200) continue
                         p.edit().putLong("checkedAt", System.currentTimeMillis()).apply()
-                        if (offer(app, f.body.toString(Charsets.UTF_8), s.body.toString(Charsets.UTF_8)) && Protection.state == Protection.State.ON) {
+                        val before = engineKey(settings(app))
+                        if (offer(app, f.body.toString(Charsets.UTF_8), s.body.toString(Charsets.UTF_8)) &&
+                            engineKey(settings(app)) != before && Protection.state == Protection.State.ON) {
                             Protector.tell(app, ShroudlyVpnService.ACTION_SETTINGS, "network")
                         }
                         break

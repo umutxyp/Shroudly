@@ -35,6 +35,14 @@ final class RemoteConfigTests: XCTestCase {
         XCTAssertEqual(RemoteConfig.torBridges(["torBridges": ["snowflake": ["snowflake 192.0.2.3:80 ABC", "obfs4 x"], "bad kind!": ["x"]]]), ["snowflake": ["snowflake 192.0.2.3:80 ABC"]])
     }
 
+    func testARestartOnlyWhenWhatTheTunnelUsesChanges() {
+        let empty = RemoteConfig.engineKey([:])
+        XCTAssertEqual(empty, RemoteConfig.engineKey(["reportOffer": "never"]))
+        XCTAssertEqual(empty, RemoteConfig.engineKey(["engineArgs": ["--port", "1"]]))
+        XCTAssertNotEqual(empty, RemoteConfig.engineKey(["engineArgs": ["--drop-quic"]]))
+        XCTAssertNotEqual(empty, RemoteConfig.engineKey(["torAllowed": false]))
+    }
+
     func testTheRepositorysFileIsSigned() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("../..").standardized
         let text = try String(contentsOf: root.appendingPathComponent("remote.json"), encoding: .utf8)
