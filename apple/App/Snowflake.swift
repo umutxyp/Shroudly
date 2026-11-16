@@ -58,7 +58,8 @@ final class Snowflake: NSObject, ObservableObject, WKScriptMessageHandler {
 
     /* Running exactly while it is on and the app may run it. */
     func sync(active: Bool) {
-        if enabled && active { start() } else { stop() }
+        // Never in the store copy, whatever was set before (Distribution).
+        if Distribution.snowflake && enabled && active { start() } else { stop() }
     }
 
     private func start() {

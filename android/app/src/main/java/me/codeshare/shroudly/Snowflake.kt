@@ -45,7 +45,11 @@ class Snowflake(private val ctx: Context, private val log: (String) -> Unit) {
         // Never in the lite APK (issue #75), whatever an earlier copy kept.
         // Nor where Tor itself is blocked (HelpNudge.torBlockedHere): the
         // user there is among those who need the help.
-        fun enabled(ctx: Context) = BuildConfig.APK_VARIANT != "lite" &&
+        // Nor in the Google Play copy: Play takes a proxy for other people
+        // only in an app made for that (Psiphon's Conduit, which the help
+        // card links to, is one); Shroudly is not.
+        fun offered() = BuildConfig.APK_VARIANT != "lite" && !BuildConfig.STORE_BUILD
+        fun enabled(ctx: Context) = offered() &&
             ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, false) &&
             !HelpNudge.torBlockedHere(ctx)
         fun setEnabled(ctx: Context, on: Boolean) =

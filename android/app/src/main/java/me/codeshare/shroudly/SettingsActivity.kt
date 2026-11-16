@@ -270,7 +270,7 @@ class SettingsActivity : Activity() {
         for (id in intArrayOf(R.id.snowflakeDivider, R.id.torDivider)) findViewById<View>(id).visibility = if (lite) View.GONE else View.VISIBLE
         // Where Tor itself is blocked the user is among those who need the
         // help: the Snowflake switch is not shown (HelpNudge.torBlockedHere).
-        val helpHidden = lite || HelpNudge.torBlockedHere(this)
+        val helpHidden = !Snowflake.offered() || HelpNudge.torBlockedHere(this)
         findViewById<View>(R.id.snowflakeDivider).visibility = if (helpHidden) View.GONE else View.VISIBLE
         // Inside Shroudly while on, charging, on Wi-Fi (Snowflake).
         findViewById<Switch>(R.id.snowflake).apply {
