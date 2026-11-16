@@ -170,6 +170,11 @@ function get(url, o = {}) {
       && DA.oldestStart('', { platform: 'win32' }) === null, "Windows: the oldest of PowerShell's start times; none: unknown");
     // The real lookup, on this machine's own processes.
     if (process.platform === 'win32') {
+      // PowerShell started once first: its very first start can take longer
+      // than the lookup's 15 s on a cold runner (Windows on ARM), which is
+      // the runner's start, not what is being tested here.
+      await new Promise((resolve) => require('child_process').execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', '1'],
+        { windowsHide: true, timeout: 90000 }, () => resolve()));
       const at = await DA.startedAt({ exe: path.basename(process.execPath) });
       t.ok(typeof at === 'number' && at <= Date.now() && at > Date.now() - 7 * 86400000, `Windows: when a running program started, from PowerShell (${at && new Date(at).toISOString()})`);
     } else {
