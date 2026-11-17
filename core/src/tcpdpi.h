@@ -300,6 +300,11 @@ int  tcpdpi_xlate_live(uint64_t now_ms);
  * decoy_room (raw_desync.h) keeps the decoys within. */
 #define TCPDPI_WIRE_MAX 1500
 
+/* The packet size every IPv4 path carries (RFC 791): what the stronger
+ * first segment's seqovl part may grow to when the real first segment is
+ * smaller (tcpdpi_build_strong4). */
+#define TCPDPI_PATH_MIN 576
+
 /* Where the TSval of a TCP timestamp option (kind 8, length 10) sits in a TCP
  * header tcp[0, tcphl): its offset from the start of the TCP header (the
  * TSecr follows it), or -1 when the header carries none. The options are
@@ -340,8 +345,10 @@ int tcpdpi_build_seqovl_prefix4(uint8_t *dst, size_t dstcap,
  *                        (*ts_used = 1), else low-TTL (`decoy_ttl`),
  *                        bad-checksum ones (*ts_used = 0); is_fake = 1;
  *   segs[repeats]        real[0, 1) with the decoy in front of it as the
- *                        seqovl prefix (tcpdpi_build_seqovl_prefix4, within
- *                        TCPDPI_WIRE_MAX);
+ *                        seqovl prefix (tcpdpi_build_seqovl_prefix4), no
+ *                        larger than the real segment it stands for (at
+ *                        least TCPDPI_PATH_MIN, at most TCPDPI_WIRE_MAX):
+ *                        the path has carried that size already;
  *   segs[repeats + 1]    real[1, real_len) at seq + 1.
  * The real parts carry `ttl` and good checksums. `cap` is the room in segs
  * (at least repeats + 2), repeats in [1, TCPDPI_STRONG_REPEATS], real_len at
