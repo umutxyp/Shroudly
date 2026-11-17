@@ -30,6 +30,32 @@ object ApkUpdatePolicy {
         return listOfNotNull(own, mirror).distinct()
     }
 
+    /* One try at fetching the APK: from `url`, through the engine or
+     * directly (Proxy.NO_PROXY; Shroudly's own connections are outside its
+     * VPN), and in which round (0 the first). */
+    data class Attempt(val url: String, val throughEngine: Boolean, val round: Int)
+
+    /* Every try at fetching the APK, in order, until one gives it.
+     *
+     * Protection off (no engine): each source once, directly, as it always
+     * was.
+     *
+     * Protection on: each source through the engine, as it always was; then,
+     * only if every one of them failed, each through the engine once more;
+     * then, only if those failed too, each directly. On a network that drops
+     * a blocked connection silently, the engine's first connection to a
+     * server can take longer than the 15 s an update waits for an answer
+     * (UpdateCheck.getViaEngine), while it goes down its ladder of
+     * techniques; it remembers the one that worked, so the next connection
+     * to the same server goes through at once. One try per source gave up
+     * right there: "github.com did not give it (Read timed out)", the same
+     * for Shroudly's download server, and the update was never fetched. The
+     * direct round is for a network where the engine itself is in the way
+     * and the servers are not blocked at all. */
+    fun attempts(sources: List<String>, throughEngine: Boolean): List<Attempt> =
+        if (!throughEngine) sources.map { Attempt(it, false, 0) }
+        else sources.map { Attempt(it, true, 0) } + sources.map { Attempt(it, true, 1) } + sources.map { Attempt(it, false, 2) }
+
     /* Where a redirect goes: https only, at most REDIRECTS of them. */
     fun redirect(from: String, location: String?, hops: Int): String? {
         if (location.isNullOrBlank() || hops >= REDIRECTS) return null

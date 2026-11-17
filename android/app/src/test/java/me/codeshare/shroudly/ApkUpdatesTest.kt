@@ -37,6 +37,32 @@ class ApkUpdatesTest {
         assertEquals(listOf(mirror), ApkUpdatePolicy.sources(null, "v2.6.45"))
     }
 
+    /* A Turkish user's log: github.com, then the download server, each
+     * "Read timed out" once through the engine, and nothing more. Through
+     * the engine every source gets a second round (it has learnt the way by
+     * then), then a direct one; without protection nothing changes. */
+    @Test
+    fun aSecondRoundThroughTheEngineThenDirectly() {
+        val gh = "https://github.com/umutxyp/Shroudly/releases/download/v2.6.82/Shroudly-2.6.82-Android.apk"
+        val mirror = "https://shroudly.codeshare.me/dl/Shroudly-2.6.82-Android.apk"
+        val both = ApkUpdatePolicy.sources(gh, "2.6.82")
+        assertEquals(listOf(gh, mirror), both)
+        val on = ApkUpdatePolicy.attempts(both, throughEngine = true)
+        assertEquals(listOf(
+            ApkUpdatePolicy.Attempt(gh, true, 0), ApkUpdatePolicy.Attempt(mirror, true, 0),
+            ApkUpdatePolicy.Attempt(gh, true, 1), ApkUpdatePolicy.Attempt(mirror, true, 1),
+            ApkUpdatePolicy.Attempt(gh, false, 2), ApkUpdatePolicy.Attempt(mirror, false, 2)), on)
+        // The first round is today's, in today's order: what worked first still does.
+        assertEquals(both.map { ApkUpdatePolicy.Attempt(it, true, 0) }, on.take(both.size))
+        // Protection off: each source once, directly, as before.
+        assertEquals(listOf(ApkUpdatePolicy.Attempt(gh, false, 0), ApkUpdatePolicy.Attempt(mirror, false, 0)),
+            ApkUpdatePolicy.attempts(both, throughEngine = false))
+        // One source (found on the mirror already): three tries, one a round.
+        assertEquals(listOf(ApkUpdatePolicy.Attempt(mirror, true, 0), ApkUpdatePolicy.Attempt(mirror, true, 1), ApkUpdatePolicy.Attempt(mirror, false, 2)),
+            ApkUpdatePolicy.attempts(listOf(mirror), throughEngine = true))
+        assertTrue(ApkUpdatePolicy.attempts(emptyList(), throughEngine = true).isEmpty())
+    }
+
     @Test
     fun redirectsOverHttpsOnly() {
         val from = "https://github.com/umutxyp/Shroudly/releases/download/v1/a.apk"
