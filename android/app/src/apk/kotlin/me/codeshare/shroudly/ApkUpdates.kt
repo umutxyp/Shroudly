@@ -119,10 +119,21 @@ object ApkUpdates {
         val file = File(dir, "Shroudly-$version.apk")
         try {
             var fetched = false
-            for (src in ApkUpdatePolicy.sources(url, version, variant)) {
+            // Each source through the engine; if all of them fail, once more
+            // through it (it has learnt the way meanwhile); then directly
+            // (ApkUpdatePolicy.attempts). Without protection: each directly,
+            // once.
+            for (a in ApkUpdatePolicy.attempts(ApkUpdatePolicy.sources(url, version, variant), port > 0)) {
+                val src = a.url
                 try {
-                    ShroudlyVpnService.log("Update $version: downloading from ${URL(src).host}${if (port > 0) " through the engine" else ""}")
-                    fetch(src, file, port, auth) { done, total -> if (total > 0) set(Now(version, Stage.DOWNLOADING, (done * 100 / total).toInt())) }
+                    val how = when {
+                        a.throughEngine && a.round > 0 -> " through the engine, once more"
+                        a.throughEngine -> " through the engine"
+                        port > 0 -> " directly, as through the engine it did not come"
+                        else -> ""
+                    }
+                    ShroudlyVpnService.log("Update $version: downloading from ${URL(src).host}$how")
+                    fetch(src, file, if (a.throughEngine) port else 0, auth) { done, total -> if (total > 0) set(Now(version, Stage.DOWNLOADING, (done * 100 / total).toInt())) }
                     fetched = true
                     break
                 } catch (e: Exception) {
