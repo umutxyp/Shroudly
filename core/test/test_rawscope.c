@@ -10,6 +10,9 @@
  * "desynced within", the no-decoy table and its expiry, the TLS record
  * classifier, the signs that a decoy hurt a handshake (and the ones that must
  * not count: a close_notify late in a healthy flow, another flow, too late),
+ * the escalate table (only a resent first segment puts a server in; new
+ * connections, other servers and no-decoy servers keep the usual way; each
+ * further resend goes the other way; expiry, renewal, a full flow table),
  * and the raw_stats line.
  */
 #include "../src/rawscope.h"
@@ -418,12 +421,93 @@ static void test_decoy_hurt(void) {
   rawscope_touch_reset(); rawscope_nodecoy_reset(); rawscope_counters_reset();
 }
 
+/* The escalate table: a server the usual way did not open (its decoyed first
+ * segment went out again, the same flow and sequence number) gets the
+ * stronger way; nothing else does, and the no-decoy table wins. */
+static void test_escalate(void) {
+  uint8_t srv[4] = { 198, 51, 100, 20 }, other[4] = { 198, 51, 100, 21 };
+  uint8_t srv6[16]; p6("2001:db8::20", srv6);
+  rawscope_escalate_reset(); rawscope_counters_reset();
+  const uint64_t T = 1000000;
+
+  /* The usual path is untouched: first segments of new connections, and a
+   * later segment of the same connection, are never sent the stronger way,
+   * however many go out, and nothing is counted. */
+  for (int i = 0; i < 300; i++)
+    CHECK(rawscope_escalate_first(srv, 4, 443, (uint16_t)(40000 + i), 1000u + (uint32_t)i, 1, T + (uint64_t)i) == 0);
+  CHECK(rawscope_escalate_first(srv, 4, 443, 40299, 5000, 1, T + 400) == 0);   /* another sequence: not a resend */
+  CHECK(rawscope_escalated(srv, 4, T + 400) == 0);
+  CHECK(rawscope_counter(RAWSCOPE_ESCALATED) == 0);
+
+  /* The same first segment again: the stronger way, and the server is in. */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51000, 7777, 1, T + 1000) == 0);
+  CHECK(rawscope_escalate_first(other, 4, 443, 51000, 7777, 1, T + 2000) == 1);
+  CHECK(rawscope_escalated(other, 4, T + 2000) == 1 && rawscope_counter(RAWSCOPE_ESCALATED) == 1);
+  /* Its next connections go the stronger way from the first segment on ... */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51001, 9000, 1, T + 3000) == 1);
+  /* ... another server's do not ... */
+  CHECK(rawscope_escalate_first(srv, 4, 443, 51002, 9100, 1, T + 3000) == 0);
+  /* ... nor does a server the decoy upsets (no decoy): nothing is noted. */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51003, 9200, 0, T + 3000) == 0);
+  CHECK(rawscope_escalate_first(other, 4, 443, 51003, 9200, 0, T + 3500) == 0);
+  CHECK(rawscope_counter(RAWSCOPE_ESCALATED) == 1);
+
+  /* Each further resend goes the other way from the last: usual, stronger,
+   * usual... A resend after the stronger way takes the server out; one
+   * after the usual way puts it back (counted once per flow). */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51000, 7777, 1, T + 4000) == 0);
+  CHECK(rawscope_escalated(other, 4, T + 4000) == 0);
+  CHECK(rawscope_escalate_first(other, 4, 443, 51004, 9300, 1, T + 4100) == 0);   /* a new one: usual */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51000, 7777, 1, T + 5000) == 1);
+  CHECK(rawscope_escalated(other, 4, T + 5000) == 1 && rawscope_counter(RAWSCOPE_ESCALATED) == 1);
+  /* A connection that started the stronger way and is resent goes the usual
+   * way, and the server is out until the usual way fails again. */
+  CHECK(rawscope_escalate_first(other, 4, 443, 51005, 9400, 1, T + 6000) == 1);
+  CHECK(rawscope_escalate_first(other, 4, 443, 51005, 9400, 1, T + 6500) == 0);
+  CHECK(rawscope_escalated(other, 4, T + 6500) == 0);
+  CHECK(rawscope_escalate_first(other, 4, 443, 51005, 9400, 1, T + 7500) == 1);
+  CHECK(rawscope_escalated(other, 4, T + 7500) == 1 && rawscope_counter(RAWSCOPE_ESCALATED) == 2);
+
+  /* The same numbers after the resend window: another connection, not a resend. */
+  CHECK(rawscope_escalate_first(srv, 4, 443, 52000, 100, 1, T) == 0);
+  CHECK(rawscope_escalate_first(srv, 4, 443, 52000, 100, 1, T + RAWSCOPE_RETX_WINDOW_MS + 1) == 0);
+  CHECK(rawscope_escalated(srv, 4, T + RAWSCOPE_RETX_WINDOW_MS + 1) == 0);
+  /* A different port to the same server is another flow. */
+  CHECK(rawscope_escalate_first(srv, 4, 443, 52001, 100, 1, T + 100) == 0);
+  CHECK(rawscope_escalate_first(srv, 4, 80, 52001, 100, 1, T + 200) == 0);
+
+  /* The table forgets after its time, unless renewed by use. */
+  rawscope_escalate_reset();
+  rawscope_escalate_add(srv, 4, T);
+  CHECK(rawscope_escalated(srv, 4, T + RAWSCOPE_ESCALATE_TTL_MS) == 1);
+  CHECK(rawscope_escalated(srv, 4, T + RAWSCOPE_ESCALATE_TTL_MS + 1) == 0);
+  rawscope_escalate_add(srv, 4, T);
+  CHECK(rawscope_escalate_first(srv, 4, 443, 53000, 1, 1, T + RAWSCOPE_ESCALATE_TTL_MS - 5) == 1);  /* renews */
+  CHECK(rawscope_escalated(srv, 4, T + 2 * RAWSCOPE_ESCALATE_TTL_MS - 10) == 1);
+  rawscope_escalate_drop(srv, 4);
+  CHECK(rawscope_escalated(srv, 4, T + 2 * RAWSCOPE_ESCALATE_TTL_MS - 10) == 0);
+
+  /* IPv6 and IPv4 kept apart; bad lengths never noted. */
+  rawscope_escalate_add(srv6, 16, T);
+  CHECK(rawscope_escalated(srv6, 16, T) == 1 && rawscope_escalated(srv, 4, T) == 0);
+  CHECK(rawscope_escalate_first(srv, 5, 443, 1, 1, 1, T) == 0 && rawscope_escalate_first(srv, 5, 443, 1, 1, 1, T + 1) == 0);
+  CHECK(rawscope_escalate_first(NULL, 4, 443, 1, 1, 1, T) == 0);
+
+  /* A full flow table reuses its oldest entry: the newest flows still count. */
+  rawscope_escalate_reset(); rawscope_counters_reset();
+  for (int i = 0; i < RAWSCOPE_FIRST_CAP + 10; i++)
+    rawscope_escalate_first(srv, 4, 443, (uint16_t)(10000 + i), 1, 1, T + (uint64_t)i);
+  CHECK(rawscope_escalate_first(srv, 4, 443, (uint16_t)(10000 + RAWSCOPE_FIRST_CAP + 9), 1, 1, T + 1000) == 1);
+  rawscope_escalate_reset(); rawscope_counters_reset();
+}
+
 static void test_stats(void) {
-  char line[512];
+  char line[768];
   rawscope_counters_reset();
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0,"
-                     "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0,\"dns_answered\":0,\"dns_passed\":0,\"grown\":0,\"decoy_named\":0}") == 0);
+                     "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0,\"dns_answered\":0,\"dns_passed\":0,\"grown\":0,\"decoy_named\":0,"
+                     "\"escalated\":0,\"strong\":0,\"strong_ts\":0}") == 0);
   rawscope_count(RAWSCOPE_DESYNCED); rawscope_count(RAWSCOPE_DESYNCED);
   rawscope_count(RAWSCOPE_SKIPPED);
   for (int i = 0; i < 3; i++) rawscope_count(RAWSCOPE_RST_DROPPED);
@@ -437,14 +521,18 @@ static void test_stats(void) {
   for (int i = 0; i < 11; i++) rawscope_count(RAWSCOPE_DNS_PASSED);
   for (int i = 0; i < 12; i++) rawscope_count(RAWSCOPE_GROWN);
   for (int i = 0; i < 13; i++) rawscope_count(RAWSCOPE_DECOY_NAMED);
+  for (int i = 0; i < 14; i++) rawscope_count(RAWSCOPE_ESCALATED);
+  for (int i = 0; i < 15; i++) rawscope_count(RAWSCOPE_STRONG);
+  for (int i = 0; i < 16; i++) rawscope_count(RAWSCOPE_STRONG_TS);
   rawscope_count(-1); rawscope_count(RAWSCOPE_NCOUNTERS);   /* ignored */
   CHECK(rawscope_counter(RAWSCOPE_DESYNCED) == 2);
   CHECK(rawscope_counter(RAWSCOPE_NCOUNTERS) == 0);
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6,"
-                     "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9,\"dns_answered\":10,\"dns_passed\":11,\"grown\":12,\"decoy_named\":13}") == 0);
+                     "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9,\"dns_answered\":10,\"dns_passed\":11,\"grown\":12,\"decoy_named\":13,"
+                     "\"escalated\":14,\"strong\":15,\"strong_ts\":16}") == 0);
   /* The largest counters still fit the line rawscope_stats_print writes. */
-  char big[512];
+  char big[768];
   for (int c = 0; c < RAWSCOPE_NCOUNTERS; c++) for (int i = 0; i < 3; i++) rawscope_count(c);
   CHECK(rawscope_stats_json(big, sizeof big) > 0 && strlen(big) + RAWSCOPE_NCOUNTERS * 19 < sizeof big);
   CHECK(rawscope_stats_json(line, 10) == 0 && line[0] == 0);  /* too small: nothing */
@@ -482,6 +570,7 @@ int main(void) {
   test_tls_kind();
   test_decoy_hurt();
   test_decoy_hurt_more();
+  test_escalate();
   test_stats();
   if (fails) { printf("test_rawscope: %d of %d checks FAILED\n", fails, checks); return 1; }
   printf("test_rawscope: all %d checks passed\n", checks);

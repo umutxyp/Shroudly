@@ -220,6 +220,78 @@ int rawscope_decoy_hurt_in(const uint8_t *raddr, int alen, uint16_t rport, uint1
   return f ? hurt(raddr, alen, f, now_ms) : 0;
 }
 
+/* ───────────────────────── escalate ───────────────────────── */
+static addr_ent g_escalate[RAWSCOPE_ESCALATE_CAP];
+
+/* Decoyed first segments by flow, with their sequence number, so the same
+ * one going out again is recognised. */
+typedef struct {
+  uint8_t a[16]; uint16_t rport, lport; uint32_t seq; uint64_t t;
+  int used;
+  int strong;   /* the way it went last time: 1 the stronger one */
+  int counted;  /* RAWSCOPE_ESCALATED counted for this flow */
+} first_ent;
+static first_ent g_first[RAWSCOPE_FIRST_CAP];
+
+void rawscope_escalate_reset(void) {
+  memset(g_escalate, 0, sizeof(g_escalate));
+  memset(g_first, 0, sizeof(g_first));
+}
+
+void rawscope_escalate_add(const uint8_t *addr, int alen, uint64_t now_ms) {
+  uint8_t key[16];
+  if (addr_key(addr, alen, key)) tab_put(g_escalate, RAWSCOPE_ESCALATE_CAP, key, now_ms);
+}
+
+void rawscope_escalate_drop(const uint8_t *addr, int alen) {
+  uint8_t key[16];
+  if (!addr_key(addr, alen, key)) return;
+  for (int i = 0; i < RAWSCOPE_ESCALATE_CAP; i++)
+    if (g_escalate[i].used && !memcmp(g_escalate[i].a, key, 16)) g_escalate[i].used = 0;
+}
+
+int rawscope_escalated(const uint8_t *addr, int alen, uint64_t now_ms) {
+  uint8_t key[16];
+  if (!addr_key(addr, alen, key)) return 0;
+  return tab_get(g_escalate, RAWSCOPE_ESCALATE_CAP, key, now_ms, RAWSCOPE_ESCALATE_TTL_MS) != NULL;
+}
+
+int rawscope_escalate_first(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
+                            uint32_t seq, int decoy, uint64_t now_ms) {
+  uint8_t key[16];
+  if (!decoy || !addr_key(raddr, alen, key)) return 0;
+  /* This flow's entry (a stale one is taken as free), else a free slot,
+   * else the oldest. */
+  int slot = -1, free_slot = -1, oldest = -1;
+  for (int i = 0; i < RAWSCOPE_FIRST_CAP; i++) {
+    first_ent *f = &g_first[i];
+    if (f->used && now_ms - f->t > RAWSCOPE_RETX_WINDOW_MS) f->used = 0;
+    if (!f->used) { if (free_slot < 0) free_slot = i; continue; }
+    if (f->rport == rport && f->lport == lport && !memcmp(f->a, key, 16)) { slot = i; break; }
+    if (oldest < 0 || f->t < g_first[oldest].t) oldest = i;
+  }
+  first_ent *f = slot >= 0 ? &g_first[slot] : &g_first[free_slot >= 0 ? free_slot : oldest];
+  if (slot >= 0 && f->seq == seq) {
+    /* The same first segment again: nothing came back for the way it went
+     * last time, so this time it goes the other way. */
+    f->t = now_ms;
+    f->strong = !f->strong;
+    if (f->strong) {
+      if (!f->counted) { f->counted = 1; rawscope_count(RAWSCOPE_ESCALATED); }
+      rawscope_escalate_add(raddr, alen, now_ms);
+    } else {
+      rawscope_escalate_drop(raddr, alen);
+    }
+    return f->strong;
+  }
+  memcpy(f->a, key, 16);
+  f->rport = rport; f->lport = lport; f->seq = seq; f->t = now_ms; f->used = 1;
+  f->counted = 0;
+  f->strong = rawscope_escalated(raddr, alen, now_ms);
+  if (f->strong) rawscope_escalate_add(raddr, alen, now_ms);   /* in use: renewed */
+  return f->strong;
+}
+
 /* ───────────────────────── counters ───────────────────────── */
 static atomic_ulong g_counters[RAWSCOPE_NCOUNTERS];
 
@@ -241,20 +313,23 @@ int rawscope_stats_json(char *buf, size_t cap) {
   int n = snprintf(buf, cap,
     "{\"type\":\"raw_stats\",\"desynced\":%lu,\"skipped\":%lu,\"rst_dropped\":%lu,\"rst_passed\":%lu,"
     "\"nodecoy\":%lu,\"decoy_hurt\":%lu,\"udp_seen\":%lu,\"udp_decoys\":%lu,\"quic_dropped\":%lu,"
-    "\"dns_answered\":%lu,\"dns_passed\":%lu,\"grown\":%lu,\"decoy_named\":%lu}",
+    "\"dns_answered\":%lu,\"dns_passed\":%lu,\"grown\":%lu,\"decoy_named\":%lu,"
+    "\"escalated\":%lu,\"strong\":%lu,\"strong_ts\":%lu}",
     rawscope_counter(RAWSCOPE_DESYNCED), rawscope_counter(RAWSCOPE_SKIPPED),
     rawscope_counter(RAWSCOPE_RST_DROPPED), rawscope_counter(RAWSCOPE_RST_PASSED),
     rawscope_counter(RAWSCOPE_NODECOY), rawscope_counter(RAWSCOPE_DECOY_HURT),
     rawscope_counter(RAWSCOPE_UDP_SEEN), rawscope_counter(RAWSCOPE_UDP_DECOYS),
     rawscope_counter(RAWSCOPE_QUIC_DROPPED),
     rawscope_counter(RAWSCOPE_DNS_ANSWERED), rawscope_counter(RAWSCOPE_DNS_PASSED),
-    rawscope_counter(RAWSCOPE_GROWN), rawscope_counter(RAWSCOPE_DECOY_NAMED));
+    rawscope_counter(RAWSCOPE_GROWN), rawscope_counter(RAWSCOPE_DECOY_NAMED),
+    rawscope_counter(RAWSCOPE_ESCALATED), rawscope_counter(RAWSCOPE_STRONG),
+    rawscope_counter(RAWSCOPE_STRONG_TS));
   if (n < 0 || (size_t)n >= cap) { buf[0] = 0; return 0; }
   return n;
 }
 
 void rawscope_stats_print(void) {
-  char line[512];
+  char line[768];
   if (rawscope_stats_json(line, sizeof line) > 0) {
     printf("%s\n", line);
     fflush(stdout);
