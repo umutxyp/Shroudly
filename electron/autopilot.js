@@ -656,14 +656,37 @@ function day(t) {
  * services a game started once and that stay. Counting those kept Advanced
  * mode off for good on such a PC, where it was never anywhere near a game.
  * They count only next to a game known to be protected by one, or an
- * Unreal or BattlEye game (its "-Win64-Shipping" or "_BE" program) while one
- * of them runs. The parts an anti-cheat runs only inside a game (GameGuard,
- * XIGNCODE, PunkBuster's game-side program) count by themselves. */
+ * Unreal game (its "-Win64-Shipping" program) while one of them runs. The
+ * parts an anti-cheat runs only inside a game (GameGuard, XIGNCODE,
+ * PunkBuster's game-side program) count by themselves.
+ *
+ * So do an anti-cheat's bootstrappers (ANTI_CHEAT_LAUNCHERS and the names
+ * ending "_EAC", "_EAC_EOS" or "_BE"): the small programs a protected game is
+ * started through, which start the anti-cheat's service and have it look at
+ * the PC's drivers before the game's own program runs. Fortnite goes
+ * FortniteLauncher.exe, then FortniteClient-Win64-Shipping_EAC_EOS.exe (Easy
+ * Anti-Cheat's bootstrapper: it starts the service and scans the drivers),
+ * then FortniteClient-Win64-Shipping.exe. Waiting for the service and the
+ * game's own program to be seen together paused Advanced mode only after the
+ * scan had already found the packet driver, and Fortnite kicked the player
+ * for a "forbidden tool". These programs exist only while a protected game
+ * is being started or played (none of them is left running by a launcher or
+ * a service: the Epic Games Launcher, Steam, the anti-cheats' services and
+ * Vanguard's are not among them), so they count by themselves, like the
+ * in-game parts. */
 const RESIDENT_ANTI_CHEAT = ['vgc.exe', 'vgtray.exe', 'EasyAntiCheat.exe', 'EasyAntiCheat_EOS.exe', 'BEService.exe', 'BEService_x64.exe',
   'FACEIT.exe', 'faceitservice.exe', 'FACEITClient.exe', 'EAAntiCheat.GameService.exe', 'EAAntiCheat.GameServiceLauncher.exe', 'PnkBstrA.exe',
   'ACE-Tray.exe', 'SGuardSvc64.exe'];
 const IN_GAME_ANTI_CHEAT = ['GameMon.des', 'GameMon64.des', 'GameGuard.des', 'xcoronahost.xem', 'x3.xem', 'xigncode.exe', 'PnkBstrB.exe',
   'EasyAntiCheat_launcher.exe', 'start_protected_game.exe', 'SGuard64.exe'];
+// Bootstrappers by program name: Fortnite's launcher (it starts the Easy
+// Anti-Cheat bootstrapper and stays the game's parent while it runs, and is
+// not the Epic Games Launcher, EpicGamesLauncher.exe), BattlEye's launcher
+// some games ship as BELauncher.exe, and Arma 3's. The names ending "_EAC",
+// "_EAC_EOS" and "_BE" (ANTI_CHEAT_LAUNCHER_NAME) are the rest of them, as
+// Easy Anti-Cheat and BattlEye name them after the game they start.
+const ANTI_CHEAT_LAUNCHERS = ['FortniteLauncher.exe', 'BELauncher.exe', 'arma3battleye.exe'];
+const ANTI_CHEAT_LAUNCHER_NAME = /(?:_EAC|_EAC_EOS|_BE)\.exe$/i;
 // Games whose anti-cheat runs beside them (Vanguard, Easy Anti-Cheat,
 // BattlEye, EA, FACEIT, ACE): a few of the most played, by program name.
 // Riot's clients count too: the sign-in and Vanguard's check happen in the
@@ -680,9 +703,11 @@ function antiCheatIn(out) {
   const has = (list) => { const set = new Set(list.map((n) => n.toLowerCase())); return seen.find((n) => set.has(n.toLowerCase())) || null; };
   const inGame = has(IN_GAME_ANTI_CHEAT);
   if (inGame) return inGame;
+  const launcher = has(ANTI_CHEAT_LAUNCHERS) || seen.find((n) => ANTI_CHEAT_LAUNCHER_NAME.test(n));
+  if (launcher) return launcher;
   const resident = has(RESIDENT_ANTI_CHEAT);
   if (!resident) return null;
-  return has(PROTECTED_GAMES) || seen.find((n) => /-Win64-Shipping\.exe$|_BE\.exe$/i.test(n)) || null;
+  return has(PROTECTED_GAMES) || seen.find((n) => /-Win64-Shipping\.exe$/i.test(n)) || null;
 }
 
 function antiCheatRunning(platform = process.platform) {

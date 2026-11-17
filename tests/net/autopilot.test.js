@@ -872,6 +872,21 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'GameMon64.des')) === 'GameMon64.des', "an anti-cheat's in-game part counts by itself");
     t.ok(Autopilot.antiCheatIn(ps('SomeIndie-Win64-Shipping.exe', 'cs2.exe')) === null, 'a game with no anti-cheat running: nothing to keep away from');
     t.ok(Autopilot.antiCheatIn('"svchost.exe","900","Services","0","9,000 K"') === null, 'and nothing else is taken for one');
+    // The Fortnite report ("forbidden tool"): Fortnite starts through
+    // FortniteLauncher.exe, then Easy Anti-Cheat's bootstrapper (which scans
+    // the drivers), then the game. Each step counts by itself, before the
+    // service and the game are seen together.
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'EpicGamesLauncher.exe', 'FortniteLauncher.exe')) === 'FortniteLauncher.exe',
+      "Fortnite's launcher, before Easy Anti-Cheat's service runs: found");
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'FortniteClient-Win64-Shipping_EAC_EOS.exe')) === 'FortniteClient-Win64-Shipping_EAC_EOS.exe',
+      "Easy Anti-Cheat's bootstrapper (_EAC_EOS) by itself: found");
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'SomeGame_EAC.exe')) === 'SomeGame_EAC.exe', "an older Easy Anti-Cheat bootstrapper (_EAC) by itself: found");
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'TslGame_BE.exe')) === 'TslGame_BE.exe', "a BattlEye bootstrapper (_BE) by itself, its service not yet running: found");
+    t.ok(Autopilot.antiCheatIn(ps('BELauncher.exe')) === 'BELauncher.exe' && Autopilot.antiCheatIn(ps('arma3battleye.exe')) === 'arma3battleye.exe',
+      "BattlEye's launchers by name: found");
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'EpicGamesLauncher.exe', 'EpicWebHelper.exe', 'EasyAntiCheat_EOS.exe', 'steam.exe',
+      'EAAntiCheat.GameServiceLauncher.exe', 'BEService_x64.exe', 'vgc.exe', 'vgtray.exe')) === null,
+    "the launchers and anti-cheat services that stay running with no game (Epic, Steam, EA, BattlEye, Vanguard): still nothing");
     let tries = 0;
     const r = rig({ adv: { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; }, antiCheat: async () => 'vgc.exe' } });
     t.ok(await r.ap.needAdvanced('a.example') === false && tries === 0, 'with an anti-cheat running, Advanced mode is not started by itself');
