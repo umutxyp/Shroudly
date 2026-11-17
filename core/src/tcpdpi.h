@@ -256,4 +256,102 @@ void tcpdpi_xlate_end(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t d
 /* How many connections are currently remembered (for the raw_stats line). */
 int  tcpdpi_xlate_live(uint64_t now_ms);
 
+/* ───────── the stronger first segment (zapret fake,multisplit, fooling=ts, seqovl with a ClientHello) ─────────
+ * Only for a server the usual way did not open: its first data segment went
+ * out with the decoy and the cut, and came back out again unanswered (the
+ * TCP stack sent it once more), so the server is in rawscope's "escalate"
+ * table (rawscope.h). Rostelecom's filter, in Russia, let none of YouTube's
+ * video servers answer after the usual decoy and every technique of the
+ * proxy, while zapret's recipe for Google opened them:
+ *   --dpi-desync=fake,multisplit --dpi-desync-split-pos=1
+ *   --dpi-desync-split-seqovl=681 --dpi-desync-split-seqovl-pattern=<a ClientHello>
+ *   --dpi-desync-fooling=ts --dpi-desync-repeats=8 --dpi-desync-fake-tls=<the same>
+ * That is, against the usual way:
+ *   - the decoy sent several times over, not once;
+ *   - the decoy kept from the server by the TCP timestamp ("ts" fooling), not
+ *     by a low TTL and a bad checksum, where the connection carries
+ *     timestamps: the decoy goes the whole way with a good checksum, and its
+ *     timestamp is moved back far enough that the server drops it as an old
+ *     duplicate (PAWS, RFC 7323). A filter that does not keep track of
+ *     timestamps reads it. Without a timestamp option on the connection,
+ *     the usual low-TTL, bad-checksum decoy is sent the same number of times;
+ *   - the real first segment cut after its first byte, and that first byte
+ *     sent with a whole ClientHello for an allowed name in front of it, its
+ *     sequence number moved back by that length (seqovl): the server already
+ *     has those sequence numbers behind it and keeps only the real byte,
+ *     while a filter that does not check reads a ClientHello for the allowed
+ *     name. The ClientHello is the decoy's own (proto_decoy_rename, the name
+ *     from --decoy-name; the scrambled copy where there is none).
+ * Everything here is pure, like the rest of this file; the backends send. */
+
+/* What the "ts" fooling takes off the decoy's TSval (zapret's
+ * --dpi-desync-ts-increment default, -600000): far behind anything the
+ * server has seen on the connection, and still far from wrapping round. */
+#define TCPDPI_TS_BACK 600000u
+
+/* The decoys sent ahead of the stronger first segment (zapret's repeats=8),
+ * and the most a caller may ask for. */
+#define TCPDPI_STRONG_REPEATS 8
+
+/* Segments tcpdpi_build_strong4 may write: the decoys and the two real parts. */
+#define TCPDPI_STRONG_SEGS (TCPDPI_STRONG_REPEATS + 2)
+
+/* The largest packet built here for the wire: a 1500-byte path, as
+ * decoy_room (raw_desync.h) keeps the decoys within. */
+#define TCPDPI_WIRE_MAX 1500
+
+/* Where the TSval of a TCP timestamp option (kind 8, length 10) sits in a TCP
+ * header tcp[0, tcphl): its offset from the start of the TCP header (the
+ * TSecr follows it), or -1 when the header carries none. The options are
+ * walked as a receiver walks them: End of Options stops, a No-Operation is
+ * one byte, every other option gives its own length; a list that runs past
+ * the header, or a timestamp option of the wrong length, is taken as none. */
+int tcpdpi_ts_offset(const uint8_t *tcp, int tcphl);
+
+/* The "ts" decoy: what tcpdpi_build_segment4 writes, with a GOOD checksum and
+ * TTL `ttl`, but the TSval of the template's timestamp option moved back by
+ * `ts_back` (the TSecr unchanged). Returns the length, or 0 when the
+ * template has no timestamp option (the caller sends its TTL / bad-checksum
+ * decoy) or on any error. */
+int tcpdpi_build_ts_decoy4(uint8_t *dst, size_t dstcap,
+                           const uint8_t *ip_tmpl, int ihl,
+                           const uint8_t *tcp_tmpl, int tcphl,
+                           uint16_t ip_id, uint32_t seq, int ttl,
+                           const uint8_t *payload, int seg_len, uint32_t ts_back);
+
+/* seqovl whose overlap is real bytes, not a fill byte: the segment carries
+ * prefix[0, overlap) and then real[0, real_len), at sequence seq - overlap,
+ * good checksum, TTL `ttl`. The overlap is the whole prefix, made shorter
+ * where it has to be so the packet stays within `max_total` bytes (the path:
+ * TCPDPI_WIRE_MAX); *overlap_out (optional) says how long it came out.
+ * Returns the length, or 0 when not one prefix byte fits, or on any error. */
+int tcpdpi_build_seqovl_prefix4(uint8_t *dst, size_t dstcap,
+                                const uint8_t *ip_tmpl, int ihl,
+                                const uint8_t *tcp_tmpl, int tcphl,
+                                uint16_t ip_id, uint32_t seq, int ttl,
+                                const uint8_t *prefix, int prefix_len,
+                                const uint8_t *real, int real_len,
+                                int max_total, int *overlap_out);
+
+/* The whole stronger first segment, in the order to send:
+ *   segs[0 .. repeats)   the decoy (decoy[0, decoy_len), at seq), `repeats`
+ *                        times: "ts" decoys with TTL `ttl` and a good
+ *                        checksum when the template has a timestamp option
+ *                        (*ts_used = 1), else low-TTL (`decoy_ttl`),
+ *                        bad-checksum ones (*ts_used = 0); is_fake = 1;
+ *   segs[repeats]        real[0, 1) with the decoy in front of it as the
+ *                        seqovl prefix (tcpdpi_build_seqovl_prefix4, within
+ *                        TCPDPI_WIRE_MAX);
+ *   segs[repeats + 1]    real[1, real_len) at seq + 1.
+ * The real parts carry `ttl` and good checksums. `cap` is the room in segs
+ * (at least repeats + 2), repeats in [1, TCPDPI_STRONG_REPEATS], real_len at
+ * least 2. Returns 1 and fills *nsegs, or 0 on any error, with nothing to
+ * send (the caller then goes the usual way). */
+int tcpdpi_build_strong4(tcpdpi_seg *segs, int cap, int *nsegs, int *ts_used,
+                         const uint8_t *ip_tmpl, int ihl,
+                         const uint8_t *tcp_tmpl, int tcphl,
+                         uint16_t ip_id, uint32_t seq, int ttl,
+                         const uint8_t *real, int real_len,
+                         const uint8_t *decoy, int decoy_len, int decoy_ttl, int repeats);
+
 #endif

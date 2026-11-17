@@ -431,3 +431,60 @@ store (100 entries), apart from the sites' techniques.
 a CONNECT or a SOCKS request by name whose system answer is private only (not
 a known block page) goes there, and public DNS is not asked; a loopback or
 0.0.0.0 answer is followed when public DNS has no public address for the name.
+
+## Update 11: Advanced mode — a stronger first segment, only for a server the usual way did not open
+
+On Rostelecom (Russia) YouTube's video servers (googlevideo.com) gave "no
+answer after 20 techniques (note=silent)" with Advanced mode on, while
+zapret's recipe for Google opened them (`fake,multisplit`, split at 1,
+`split-seqovl=681` with a ClientHello as the pattern, `fooling=ts`,
+`repeats=8`). What the usual way lacked: the decoy sent more than once, a
+decoy kept from the server by the TCP timestamp rather than a low TTL and a
+bad checksum, and a seqovl prefix that is a real ClientHello for an allowed
+name rather than a fill byte.
+
+- **When.** A filter that drops silently lets nothing come back for the first
+  segment, and the client's TCP stack sends it again: the same server, ports
+  and sequence number, within 15 s. A decoyed TLS ClientHello to 443 seen
+  going out again puts its server in an "escalate" table (`rawscope.h`, 256
+  addresses, 10 minutes, renewed while in use). Only then, and only for that
+  server, is the first segment sent the stronger way: the resend itself (the
+  stuck connection gets its second chance) and every new connection's.
+- **Nothing else changes.** A server never seen to resend gets exactly what it
+  got before; the decision is pure bookkeeping until a resend is seen
+  (`core/test/test_rawscope.c` drives hundreds of first segments through it
+  and none goes the stronger way). The no-decoy table wins: a server the
+  decoy upsets never escalates. The fakedsplit modes and tlsrec (a user's own
+  choices; tlsrec's grown connections would fall out of step with its
+  translation table) keep their own way.
+- **Never only the stronger way.** Each further resend of the same first
+  segment goes the other way from the last: usual, stronger, usual. A resend
+  after the stronger way takes the server out of the table, one after the
+  usual way puts it back. A server taken in by mistake (a tail-loss probe
+  while a slow server thinks, a lost answer) that the stronger way does not
+  suit (a firewall in front of it that drops a segment starting that far
+  behind its window) costs one connection one resend.
+- **What is sent** (`tcpdpi_build_strong4`, pure, `core/test/test_tcpdpi.c`):
+  1. the decoy (the usual one: the ClientHello with the name from
+     `--decoy-name`, else scrambled) eight times. Where the connection carries
+     TCP timestamps, as "ts" decoys: the whole way, good checksum, the TSval
+     600000 behind the connection's own, so the server drops them as old
+     duplicates (PAWS, RFC 7323) while a filter that does not keep track of
+     timestamps reads them. Without a timestamp option, the usual low-TTL,
+     bad-checksum decoy, eight times;
+  2. the real first byte, with the decoy's ClientHello in front of it and the
+     sequence number moved back by its length (seqovl): the server has those
+     numbers behind it and keeps the one real byte; a filter that does not
+     check reads a ClientHello for the allowed name. The whole decoy is the
+     prefix (zapret's 681 is the length of its own ClientHello file), made
+     shorter where the packet would pass 1500 bytes;
+  3. the rest of the real segment, from its second byte.
+  If any of it cannot be built (a segment over 1500 bytes, a one-byte
+  payload), nothing is sent and the usual way goes instead.
+- Windows and Linux alike (the outbound filter / queue already takes every
+  resent segment, so no new rule). IPv4, as the rest of both backends.
+- `raw_stats` adds `"escalated"` (flows whose decoyed first segment went out
+  again and put their server in the table), `"strong"` (first segments sent
+  the stronger way) and `"strong_ts"` (of them, with "ts" decoys).
+- Not covered by a lab yet: `tests/lab/advanced-lab.sh` needs Linux and root;
+  its filter (iptables' string match) is fooled by the usual cut already.

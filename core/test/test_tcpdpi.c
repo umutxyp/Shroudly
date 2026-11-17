@@ -9,7 +9,14 @@
  * (the three TTL bands and the unmeasurable case), the seqovl builder (sequence
  * moved back by the overlap, length and checksums correct) and the
  * fakedsplit / fakeddisorder builder (two real segments + one fake, order,
- * sequence numbers, TTLs and checksums).
+ * sequence numbers, TTLs and checksums), and the stronger first segment for a
+ * server the usual way did not open: the TCP timestamp option found (and not
+ * found) among the others, the "ts" decoy (TSval moved back, everything else
+ * as the plain segment, good checksum), seqovl with a ClientHello in front
+ * (sequence moved back by the prefix, the prefix then the original, shrunk to
+ * the path's 1500 bytes) and the whole sequence (decoys, then the real
+ * payload cut after its first byte, which the server puts back together as
+ * the original).
  */
 #include "../src/tcpdpi.h"
 #include <stdio.h>
@@ -397,6 +404,182 @@ static void test_xlate(void) {
   tcpdpi_xlate_reset();
 }
 
+/* ───────── the stronger first segment (ts decoys, seqovl with a ClientHello) ───────── */
+/* An IPv4+TCP template whose TCP header is 32 bytes: NOP, NOP, then a
+ * timestamp option (TSval tsval, TSecr tsecr), as Windows and Linux send it
+ * once timestamps are on. Returns ihl + tcphl (52). */
+static int mk_hdr_ts(uint8_t *b, uint32_t seq, uint32_t tsval, uint32_t tsecr) {
+  memset(b, 0, 52);
+  mk_hdr(b, 50000, 443, 0x18, seq);
+  b[32] = 0x80;                         /* data offset 8: 32 bytes */
+  b[40] = 1; b[41] = 1;                 /* NOP NOP */
+  b[42] = 8; b[43] = 10;                /* timestamps, length 10 */
+  wr32(b + 44, tsval);
+  wr32(b + 48, tsecr);
+  return 52;
+}
+
+static void test_ts_offset(void) {
+  uint8_t t[60];
+  mk_hdr_ts(t, 1, 0x11223344, 0x55667788);
+  CHECK(tcpdpi_ts_offset(t + 20, 32) == 24);           /* TSval right after kind, length */
+  /* MSS, window scale, SACK permitted, then the timestamp: found past them. */
+  uint8_t o[40] = {0};
+  o[12] = 0xa0;                                        /* data offset 10: 40 bytes */
+  int i = 20;
+  o[i++] = 2; o[i++] = 4; o[i++] = 0x05; o[i++] = 0xb4; /* MSS */
+  o[i++] = 1; o[i++] = 3; o[i++] = 3; o[i++] = 7;       /* NOP, window scale */
+  o[i++] = 4; o[i++] = 2;                              /* SACK permitted */
+  o[i++] = 8; o[i++] = 10;                             /* timestamps */
+  CHECK(tcpdpi_ts_offset(o, 40) == i);
+  /* None: a bare 20-byte header, End of Options first, NOPs alone. */
+  uint8_t b[40]; mk_hdr(b, 50000, 443, 0x18, 1);
+  CHECK(tcpdpi_ts_offset(b + 20, 20) == -1);
+  uint8_t e[32] = {0}; e[20] = 0; e[21] = 8; e[22] = 10;
+  CHECK(tcpdpi_ts_offset(e, 32) == -1);                /* after End of Options: not read */
+  uint8_t n[24] = {0}; n[20] = n[21] = n[22] = n[23] = 1;
+  CHECK(tcpdpi_ts_offset(n, 24) == -1);
+  /* Malformed: a length past the header, a zero length, a timestamp of the
+   * wrong length, a header length out of range. */
+  uint8_t m[28] = {0}; m[20] = 2; m[21] = 12;
+  CHECK(tcpdpi_ts_offset(m, 28) == -1);
+  m[21] = 0;
+  CHECK(tcpdpi_ts_offset(m, 28) == -1);
+  m[20] = 8; m[21] = 8;
+  CHECK(tcpdpi_ts_offset(m, 28) == -1);
+  CHECK(tcpdpi_ts_offset(t + 20, 19) == -1 && tcpdpi_ts_offset(t + 20, 64) == -1 && tcpdpi_ts_offset(NULL, 32) == -1);
+  /* An option whose length byte would be the header's last byte + 1. */
+  uint8_t l[24] = {0}; l[20] = 1; l[21] = 1; l[22] = 1; l[23] = 2;
+  CHECK(tcpdpi_ts_offset(l, 24) == -1);
+}
+
+static void test_ts_decoy(void) {
+  uint8_t t[60]; int hl = mk_hdr_ts(t, 777000, 0x01000000u, 0x0abcdef0u);
+  uint8_t pay[100]; for (int i = 0; i < 100; i++) pay[i] = (uint8_t)(0x30 + i);
+  uint8_t out[1600], plain[1600];
+  int n = tcpdpi_build_ts_decoy4(out, sizeof out, t, 20, t + 20, 32, 0x4242, 777000, 64, pay, 100, TCPDPI_TS_BACK);
+  CHECK(n == hl + 100);
+  CHECK(rd32(out + 20 + 24) == 0x01000000u - TCPDPI_TS_BACK);  /* TSval moved back */
+  CHECK(rd32(out + 20 + 28) == 0x0abcdef0u);                   /* TSecr as it was */
+  CHECK(rd32(out + 24) == 777000 && out[8] == 64 && rd16(out + 4) == 0x4242);
+  CHECK(memcmp(out + hl, pay, 100) == 0);
+  CHECK(ip_csum_ok(out, 20));
+  CHECK(tcp_csum_ok(out, n, 20));                              /* GOOD: the filter keeps it */
+  /* Byte for byte the plain segment but for the TSval and the checksum. */
+  int m = tcpdpi_build_segment4(plain, sizeof plain, t, 20, t + 20, 32, 0x4242, 777000, 64, pay, 100, 0);
+  CHECK(m == n);
+  for (int i = 0; i < n; i++)
+    if (!((i >= 44 && i < 48) || i == 36 || i == 37)) CHECK(out[i] == plain[i]);
+  /* A TSval below the amount taken off wraps round, as TCP's arithmetic does. */
+  mk_hdr_ts(t, 777000, 5, 0);
+  n = tcpdpi_build_ts_decoy4(out, sizeof out, t, 20, t + 20, 32, 1, 777000, 64, pay, 100, TCPDPI_TS_BACK);
+  CHECK(n > 0 && rd32(out + 44) == (uint32_t)(5u - TCPDPI_TS_BACK));
+  CHECK(tcp_csum_ok(out, n, 20));
+  /* No timestamp option: nothing (the caller sends its TTL decoy). */
+  uint8_t b[40]; mk_hdr(b, 50000, 443, 0x18, 1);
+  CHECK(tcpdpi_build_ts_decoy4(out, sizeof out, b, 20, b + 20, 20, 1, 1, 64, pay, 100, TCPDPI_TS_BACK) == 0);
+  CHECK(tcpdpi_build_ts_decoy4(out, 50, t, 20, t + 20, 32, 1, 1, 64, pay, 100, TCPDPI_TS_BACK) == 0); /* no room */
+}
+
+static void test_seqovl_prefix(void) {
+  uint8_t t[60]; mk_hdr_ts(t, 0, 1000, 2000);
+  uint8_t pre[1400]; for (int i = 0; i < 1400; i++) pre[i] = (uint8_t)(i * 7 + 3);
+  uint8_t real[1448]; for (int i = 0; i < 1448; i++) real[i] = (uint8_t)(0x80 ^ i);
+  uint8_t out[1600];
+  uint32_t seq = 5000000;
+  int ovl = -1;
+  /* 681 bytes of ClientHello, as zapret's Google recipe, ahead of one real byte. */
+  int n = tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, pre, 681, real, 1,
+                                      TCPDPI_WIRE_MAX, &ovl);
+  CHECK(ovl == 681 && n == 52 + 681 + 1);
+  CHECK(rd32(out + 24) == seq - 681);                  /* seq = original seq minus the prefix */
+  CHECK(memcmp(out + 52, pre, 681) == 0);              /* the prefix ... */
+  CHECK(out[52 + 681] == real[0]);                     /* ... then the original */
+  CHECK(rd16(out + 2) == n && ip_csum_ok(out, 20) && tcp_csum_ok(out, n, 20));
+  CHECK(rd32(out + 44) == 1000);                       /* the real segment's own timestamp */
+  /* Too long for the path: the overlap shrinks so the packet is exactly 1500. */
+  n = tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, pre, 1400, real, 100,
+                                  TCPDPI_WIRE_MAX, &ovl);
+  CHECK(n == TCPDPI_WIRE_MAX && ovl == TCPDPI_WIRE_MAX - 52 - 100);
+  CHECK(rd32(out + 24) == seq - (uint32_t)ovl);
+  CHECK(memcmp(out + 52, pre, (size_t)ovl) == 0 && memcmp(out + 52 + ovl, real, 100) == 0);
+  CHECK(tcp_csum_ok(out, n, 20));
+  /* No room for even one prefix byte: nothing. */
+  CHECK(tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, pre, 10, real, 1448,
+                                    TCPDPI_WIRE_MAX, &ovl) == 0);
+  /* Bad input. */
+  CHECK(tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, pre, 0, real, 1, 1500, NULL) == 0);
+  CHECK(tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, pre, 10, real, 0, 1500, NULL) == 0);
+  CHECK(tcpdpi_build_seqovl_prefix4(out, sizeof out, t, 20, t + 20, 32, 9, seq, 64, NULL, 10, real, 1, 1500, NULL) == 0);
+}
+
+static void test_strong(void) {
+  static tcpdpi_seg segs[TCPDPI_STRONG_SEGS];
+  uint8_t t[60]; mk_hdr_ts(t, 0, 0x7f000000u, 0x12345678u);
+  uint8_t real[600]; for (int i = 0; i < 600; i++) real[i] = (uint8_t)(i * 13 + 1);
+  real[0] = 0x16;
+  uint8_t decoy[520]; for (int i = 0; i < 520; i++) decoy[i] = (uint8_t)(i * 5 + 9);
+  uint32_t seq = 0x10000;
+  int ns = 0, ts = -1;
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 100, seq, 117,
+                             real, 600, decoy, 520, 3, TCPDPI_STRONG_REPEATS) == 1);
+  CHECK(ns == TCPDPI_STRONG_REPEATS + 2 && ts == 1);
+  /* The decoys: "ts" ones, the whole way (the real TTL) with a good checksum. */
+  for (int i = 0; i < TCPDPI_STRONG_REPEATS; i++) {
+    const uint8_t *d = segs[i].data;
+    CHECK(segs[i].is_fake == 1 && segs[i].len == 52 + 520);
+    CHECK(rd32(d + 24) == seq && d[8] == 117 && rd16(d + 4) == (uint16_t)(100 + i));
+    CHECK(rd32(d + 44) == 0x7f000000u - TCPDPI_TS_BACK && rd32(d + 48) == 0x12345678u);
+    CHECK(memcmp(d + 52, decoy, 520) == 0);
+    CHECK(ip_csum_ok(d, 20) && tcp_csum_ok(d, segs[i].len, 20));
+  }
+  /* The real first byte behind the decoy, at seq - 520; then the rest at seq + 1. */
+  const tcpdpi_seg *a = &segs[TCPDPI_STRONG_REPEATS], *b = &segs[TCPDPI_STRONG_REPEATS + 1];
+  CHECK(a->is_fake == 0 && a->len == 52 + 520 + 1);
+  CHECK(rd32(a->data + 24) == seq - 520 && memcmp(a->data + 52, decoy, 520) == 0 && a->data[52 + 520] == 0x16);
+  CHECK(rd32(a->data + 44) == 0x7f000000u && a->data[8] == 117 && tcp_csum_ok(a->data, a->len, 20));
+  CHECK(b->is_fake == 0 && b->len == 52 + 599);
+  CHECK(rd32(b->data + 24) == seq + 1 && memcmp(b->data + 52, real + 1, 599) == 0);
+  CHECK(rd32(b->data + 44) == 0x7f000000u && tcp_csum_ok(b->data, b->len, 20));
+  /* What the server keeps, put back together by sequence number, is the
+   * original payload exactly: byte 0 from the seqovl part, the rest after. */
+  uint8_t back[600];
+  back[0] = a->data[52 + (seq - rd32(a->data + 24))];
+  memcpy(back + 1, b->data + 52, 599);
+  CHECK(memcmp(back, real, 600) == 0);
+
+  /* No timestamp option: the usual low-TTL, bad-checksum decoy, as often. */
+  uint8_t p[40]; mk_hdr(p, 50000, 443, 0x18, 0);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, p, 20, p + 20, 20, 100, seq, 117,
+                             real, 600, decoy, 520, 3, 6) == 1);
+  CHECK(ns == 8 && ts == 0);
+  for (int i = 0; i < 6; i++) {
+    CHECK(segs[i].is_fake == 1 && segs[i].data[8] == 3);
+    CHECK(ip_csum_ok(segs[i].data, 20) && !tcp_csum_ok(segs[i].data, segs[i].len, 20));
+  }
+  CHECK(rd32(segs[6].data + 24) == seq - 520 && tcp_csum_ok(segs[6].data, segs[6].len, 20));
+  CHECK(rd32(segs[7].data + 24) == seq + 1 && tcp_csum_ok(segs[7].data, segs[7].len, 20));
+
+  /* A full-size first segment: the decoy prefix shrinks to keep the path's 1500. */
+  uint8_t big[1448]; memset(big, 0x16, sizeof big);
+  uint8_t bigdecoy[1448]; memset(bigdecoy, 0x42, sizeof bigdecoy);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64,
+                             big, 1448, bigdecoy, 1448, 3, 2) == 1);
+  CHECK(segs[2].len == TCPDPI_WIRE_MAX && rd32(segs[2].data + 24) == seq - (uint32_t)(TCPDPI_WIRE_MAX - 52 - 1));
+  CHECK(segs[3].len == 52 + 1447);
+
+  /* Nothing to send when it cannot all be built: too short to cut, no decoy,
+   * repeats out of range, too little room. */
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 1, decoy, 520, 3, 8) == 0);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 600, decoy, 0, 3, 8) == 0);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 600, decoy, 520, 3, 0) == 0);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 600, decoy, 520, 3, TCPDPI_STRONG_REPEATS + 1) == 0);
+  CHECK(tcpdpi_build_strong4(segs, 5, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 600, decoy, 520, 3, 4) == 0);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, big, 1448, decoy, 520, 3, 2) == 1);
+  uint8_t huge[1700]; memset(huge, 1, sizeof huge);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, huge, 1700, decoy, 520, 3, 2) == 0);
+}
+
 int main(void) {
   test_rst();
   test_hops();
@@ -406,6 +589,10 @@ int main(void) {
   test_tlsrec();
   test_tlsrec_pair();
   test_xlate();
+  test_ts_offset();
+  test_ts_decoy();
+  test_seqovl_prefix();
+  test_strong();
   if (fails == 0) { printf("ALL TCPDPI TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails); return 1;
 }

@@ -17,7 +17,10 @@
   address ranges (IPv4 and IPv6, every edge), the table of recently desynced servers
   a reset must come from to be dropped, the no-decoy table, the TLS record classifier
   (plaintext alert / 19-byte encrypted alert / other) and the signs that a decoy broke
-  a handshake (a late close_notify does not count), and the raw_stats line
+  a handshake (a late close_notify does not count), the escalate table (only a resent
+  decoyed first segment puts a server in; other connections, other servers and
+  no-decoy servers keep the usual way; each further resend goes the other way), and
+  the raw_stats line
 - `test_socksudp.c` — the SOCKS5 UDP header (RFC 1928 §7): parsing IPv4 / IPv6 / name
   destinations, refusing fragments and malformed headers, building reply headers, plus a
   random / mutation pass run under ASan by `make test-asan`

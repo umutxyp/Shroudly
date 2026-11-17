@@ -436,3 +436,96 @@ int tcpdpi_xlate_live(uint64_t now_ms) {
     if (g_xl[i].used && now_ms - g_xl[i].t <= TCPDPI_XLATE_TTL_MS) n++;
   return n;
 }
+
+/* ───────────────────────── the stronger first segment ───────────────────────── */
+int tcpdpi_ts_offset(const uint8_t *tcp, int tcphl) {
+  if (!tcp || tcphl < 20 || tcphl > 60) return -1;
+  int i = 20;
+  while (i < tcphl) {
+    uint8_t kind = tcp[i];
+    if (kind == 0) return -1;                 /* End of Options */
+    if (kind == 1) { i++; continue; }         /* No-Operation */
+    if (i + 1 >= tcphl) return -1;
+    int olen = tcp[i + 1];
+    if (olen < 2 || i + olen > tcphl) return -1;
+    if (kind == 8) return olen == 10 ? i + 2 : -1;
+    i += olen;
+  }
+  return -1;
+}
+
+int tcpdpi_build_ts_decoy4(uint8_t *dst, size_t dstcap,
+                           const uint8_t *ip_tmpl, int ihl,
+                           const uint8_t *tcp_tmpl, int tcphl,
+                           uint16_t ip_id, uint32_t seq, int ttl,
+                           const uint8_t *payload, int seg_len, uint32_t ts_back) {
+  int at = tcpdpi_ts_offset(tcp_tmpl, tcphl);
+  if (at < 0) return 0;
+  int n = tcpdpi_build_segment4(dst, dstcap, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                ip_id, seq, ttl, payload, seg_len, 0);
+  if (n <= 0) return 0;
+  uint8_t *ts = dst + ihl + at;
+  uint32_t v = ((uint32_t)ts[0] << 24) | ((uint32_t)ts[1] << 16) | ((uint32_t)ts[2] << 8) | ts[3];
+  wr32(ts, v - ts_back);                      /* older than the server has seen: PAWS drops it */
+  fill_checksums4(dst, n, ihl, 0);            /* good: the filter must not discard it */
+  return n;
+}
+
+int tcpdpi_build_seqovl_prefix4(uint8_t *dst, size_t dstcap,
+                                const uint8_t *ip_tmpl, int ihl,
+                                const uint8_t *tcp_tmpl, int tcphl,
+                                uint16_t ip_id, uint32_t seq, int ttl,
+                                const uint8_t *prefix, int prefix_len,
+                                const uint8_t *real, int real_len,
+                                int max_total, int *overlap_out) {
+  if (!prefix || !real || prefix_len < 1 || real_len < 1 || ihl < 20 || tcphl < 20) return 0;
+  if (max_total > TCPDPI_SEG_MAX) max_total = TCPDPI_SEG_MAX;
+  /* As much of the prefix as the path takes, the real bytes always whole. */
+  int overlap = prefix_len, room = max_total - ihl - tcphl - real_len;
+  if (overlap > room) overlap = room;
+  if (overlap < 1) return 0;
+  uint8_t pay[TCPDPI_SEG_MAX];
+  memcpy(pay, prefix, (size_t)overlap);
+  memcpy(pay + overlap, real, (size_t)real_len);
+  /* Sequence moved back by the overlap: the prefix lands on sequence numbers
+   * the server has behind it, and only real[0,real_len) is taken. */
+  int n = tcpdpi_build_segment4(dst, dstcap, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                ip_id, seq - (uint32_t)overlap, ttl,
+                                pay, overlap + real_len, 0);
+  if (n > 0 && overlap_out) *overlap_out = overlap;
+  return n;
+}
+
+int tcpdpi_build_strong4(tcpdpi_seg *segs, int cap, int *nsegs, int *ts_used,
+                         const uint8_t *ip_tmpl, int ihl,
+                         const uint8_t *tcp_tmpl, int tcphl,
+                         uint16_t ip_id, uint32_t seq, int ttl,
+                         const uint8_t *real, int real_len,
+                         const uint8_t *decoy, int decoy_len, int decoy_ttl, int repeats) {
+  if (!segs || !nsegs || !real || !decoy || decoy_len < 1 || real_len < 2) return 0;
+  if (repeats < 1 || repeats > TCPDPI_STRONG_REPEATS || cap < repeats + 2) return 0;
+  int ts = tcpdpi_ts_offset(tcp_tmpl, tcphl) >= 0;
+  /* The real parts first: if they cannot be built, nothing is sent at all. */
+  tcpdpi_seg *a = &segs[repeats], *b = &segs[repeats + 1];
+  a->len = tcpdpi_build_seqovl_prefix4(a->data, sizeof a->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                       (uint16_t)(ip_id + repeats), seq, ttl,
+                                       decoy, decoy_len, real, 1, TCPDPI_WIRE_MAX, NULL);
+  b->len = tcpdpi_build_segment4(b->data, sizeof b->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                 (uint16_t)(ip_id + repeats + 1), seq + 1u, ttl,
+                                 real + 1, real_len - 1, 0);
+  if (a->len <= 0 || b->len <= 0) return 0;
+  a->is_fake = 0; b->is_fake = 0;
+  for (int i = 0; i < repeats; i++) {
+    tcpdpi_seg *d = &segs[i];
+    d->len = ts
+      ? tcpdpi_build_ts_decoy4(d->data, sizeof d->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                               (uint16_t)(ip_id + i), seq, ttl, decoy, decoy_len, TCPDPI_TS_BACK)
+      : tcpdpi_build_segment4(d->data, sizeof d->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                              (uint16_t)(ip_id + i), seq, decoy_ttl, decoy, decoy_len, 1);
+    if (d->len <= 0) return 0;
+    d->is_fake = 1;
+  }
+  *nsegs = repeats + 2;
+  if (ts_used) *ts_used = ts;
+  return 1;
+}

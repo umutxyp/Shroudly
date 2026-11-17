@@ -26,7 +26,11 @@
  * reset is only dropped from a server this engine recently desynced
  * (rawscope.h). A server the decoy itself reaches and upsets (a TLS alert
  * right after a decoyed ClientHello, either way) gets no more decoys for a
- * while, only the cut (rawscope.h, "no decoy").
+ * while, only the cut (rawscope.h, "no decoy"). A server the usual way does
+ * not open (its decoyed ClientHello goes out again, unanswered) gets the
+ * stronger way for a while: more decoys, kept from the server by the TCP
+ * timestamp, and a ClientHello for an allowed name in front of the real one
+ * (rawscope.h, "escalate"; tcpdpi.h, tcpdpi_build_strong4).
  *
  * This defeats stateful DPI (Iran/China) and the inbound-RST teardown Turkish
  * networks (Türk Telekom, Turkcell) use, which the userspace engine cannot.
@@ -306,27 +310,34 @@ static void send_udp_decoys(uint32_t saddr, uint32_t daddr, uint16_t sportn,
   }
 }
 
+/* The decoy's payload, written to pay (room for 1600 bytes; plen is at most
+ * 1500): a name the network allows (--decoy-name), where one is given and
+ * fits; else the name scrambled. Returns its length. Shared by send_fake and
+ * send_strong. */
+static int decoy_payload(uint8_t *pay, int cap, const uint8_t *payload, int plen,
+                         const proto_info *pi, int ihl, int tcphl) {
+  int dlen = proto_decoy_rename(pay, cap, payload, plen, pi->kind == PROTO_TLS,
+                                 pi->host_off, pi->host_len, decoy_room(plen, ihl, tcphl));
+  if (dlen > 0) {
+    rawscope_count(RAWSCOPE_DECOY_NAMED);
+    return dlen;
+  }
+  memcpy(pay, payload, (size_t)plen);
+  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
+    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
+  } else {
+    for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
+  }
+  return plen;
+}
+
 /* Send the scrambled-SNI decoy with the effective (autottl or fixed) TTL. */
 static void send_fake(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
                       const proto_info *pi, int ttl, const WINDIVERT_ADDRESS *addr) {
   int plen = len - poff;
   if (plen <= 0 || plen > 1500) return;
   uint8_t pay[1600];
-  /* A name the network allows (--decoy-name), where one is given and fits;
-   * else the name scrambled. */
-  int dlen = proto_decoy_rename(pay, (int)sizeof pay, pkt + poff, plen, pi->kind == PROTO_TLS,
-                                 pi->host_off, pi->host_len, decoy_room(plen, ihl, tcphl));
-  if (dlen > 0) {
-    rawscope_count(RAWSCOPE_DECOY_NAMED);
-  } else {
-    dlen = plen;
-    memcpy(pay, pkt + poff, (size_t)plen);
-    if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
-      for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
-    } else {
-      for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
-    }
-  }
+  int dlen = decoy_payload(pay, (int)sizeof pay, pkt + poff, plen, pi, ihl, tcphl);
   uint8_t out[1600];
   uint32_t seq = rd32be(pkt + ihl + 4);
   int eff = ttl > 0 ? ttl : g_cfg.fake_ttl;
@@ -352,6 +363,41 @@ static int decoy_ttl_for(uint32_t daddr) {
     if (hops > 0) return tcpdpi_decoy_ttl(hops, g_cfg.autottl_margin, g_cfg.autottl_min);
   }
   return g_cfg.fake_ttl;
+}
+
+/* The stronger first segment can be sent this way: a TLS ClientHello to port
+ * 443, in the default decoy mode (the fakedsplit modes are a user's own
+ * choice, left as they are), and without tlsrec (whose grown connections the
+ * stronger way would leave out of step with the translation table). */
+static int strong_fits(const proto_info *pi, int dport) {
+  return pi->kind == PROTO_TLS && dport == 443 && !g_cfg.tlsrec && g_cfg.desync_mode == RAW_DESYNC_FAKE;
+}
+
+/* The stronger first segment, only for a server the usual way did not open
+ * (rawscope.h, "escalate"; tcpdpi.h, tcpdpi_build_strong4): the decoy eight
+ * times ("ts" decoys where the connection carries timestamps, else the usual
+ * low-TTL, bad-checksum ones), then the real segment cut after its first
+ * byte, that byte behind the decoy's ClientHello as a seqovl prefix. Returns
+ * 1 when it went out (the original is consumed), 0 when it could not be
+ * built: then nothing was sent and the caller goes the usual way. */
+static int send_strong(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
+                       const proto_info *pi, const WINDIVERT_ADDRESS *addr) {
+  int plen = len - poff;
+  if (plen < 2 || plen > 1500) return 0;
+  int otl = pkt[8] ? pkt[8] : 64;
+  uint8_t pay[1600];
+  int dlen = decoy_payload(pay, (int)sizeof pay, pkt + poff, plen, pi, ihl, tcphl);
+  static tcpdpi_seg segs[TCPDPI_STRONG_SEGS];   /* the packet loop's alone */
+  int ns = 0, ts = 0;
+  if (!tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, pkt, ihl, pkt + ihl, tcphl,
+                            g_ipid, rd32be(pkt + ihl + 4), otl, pkt + poff, plen, pay, dlen,
+                            decoy_ttl_for(rd32be(pkt + 16)), TCPDPI_STRONG_REPEATS))
+    return 0;
+  g_ipid = (uint16_t)(g_ipid + ns);
+  for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+  rawscope_count(RAWSCOPE_STRONG);
+  if (ts) rawscope_count(RAWSCOPE_STRONG_TS);
+  return 1;
 }
 
 /* Send the real first segment cut so that no segment carries the whole name.
@@ -489,6 +535,7 @@ int raw_windows_start(const raw_config *cfg) {
   tcpdpi_xlate_reset();
   rawscope_touch_reset();
   rawscope_nodecoy_reset();
+  rawscope_escalate_reset();
   if (load_windivert() != 0) return -1;
 
   /* The kernel filter takes only what the loop below acts on:
@@ -743,7 +790,13 @@ int raw_windows_start(const raw_config *cfg) {
         if (!decoy) rawscope_count(RAWSCOPE_NODECOY);
         else if (pi.kind == PROTO_TLS)
           rawscope_decoy_sent(pkt + 16, 4, dport, sport, rawscope_tls_next_seq(seq, pkt + poff, plen), now);
-        handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, decoy, &addr);
+        /* A server the usual way did not open (its decoyed first segment
+         * came back out unanswered): the stronger way, for it alone
+         * (rawscope.h, "escalate"). Any other server, or one the decoy
+         * upsets (no decoy), goes on below exactly as before. */
+        if (strong_fits(&pi, dport) && rawscope_escalate_first(pkt + 16, 4, dport, sport, seq, decoy, now))
+          handled = send_strong(pkt, (int)len, ihl, tcphl, poff, &pi, &addr);
+        if (!handled) handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, decoy, &addr);
       }
     }
     if (!handled) { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); } /* real packet */

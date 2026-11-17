@@ -110,6 +110,64 @@ int rawscope_decoy_hurt_out(const uint8_t *raddr, int alen, uint16_t rport, uint
 int rawscope_decoy_hurt_in(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
                            const uint8_t *p, int plen, uint64_t now_ms);
 
+/* ── servers the usual way did not open ──────────────────────────────────
+ * The usual first segment (one decoy, then the real one cut) gets most
+ * servers through. Where it does not, a filter that drops silently (as
+ * Rostelecom's did for YouTube's video servers) lets nothing come back, and
+ * the client's TCP stack sends the same first segment again after its
+ * retransmission timeout: the same server, the same ports, the same sequence
+ * number. That is the sign used here. Such a server goes into a third table,
+ * "escalate", for RAWSCOPE_ESCALATE_TTL_MS, and while it is there its first
+ * segments go the stronger way (tcpdpi_build_strong4): the retransmission
+ * itself, so the connection that was stuck gets a second chance, and every
+ * new connection's.
+ *
+ * Each time the same first segment goes out again, it goes the other way
+ * from the last time: the usual way, then the stronger one, then the usual
+ * one again, and so on. A resend after the stronger way takes the server out
+ * of the table again (the usual way may be what it needs, and the stronger
+ * way did not get an answer either); a resend after the usual way puts it
+ * back. So a server wrongly taken in (its first segment resent for another
+ * reason: a tail-loss probe of a TCP stack while a slow server thinks, a
+ * lost answer) and that the stronger way does not suit (a firewall in front
+ * of it that drops a segment starting that far behind the window) costs one
+ * connection one resend, never more: no connection is ever left with only
+ * the stronger way.
+ *
+ * Only a first segment that carried the decoy counts, and only one the
+ * backend could send the stronger way (a TLS ClientHello to port 443, in the
+ * default decoy mode, without tlsrec: the caller checks that before calling).
+ * A server in the no-decoy table never escalates: the decoy upsets it, and
+ * the stronger way is more decoys. A server never seen to resend keeps the
+ * usual way exactly as before: nothing here changes what is sent to it.
+ *
+ * First segments are remembered by flow for RAWSCOPE_RETX_WINDOW_MS (a TCP
+ * stack resends an unanswered one within a few seconds; a later one with the
+ * same numbers is another connection reusing the port). Same threading as
+ * the other tables: one packet thread, no lock. */
+#define RAWSCOPE_ESCALATE_CAP     256
+#define RAWSCOPE_ESCALATE_TTL_MS  600000 /* 10 minutes, renewed while in use */
+#define RAWSCOPE_FIRST_CAP        256
+#define RAWSCOPE_RETX_WINDOW_MS   15000
+
+void rawscope_escalate_reset(void);  /* also forgets the first segments */
+void rawscope_escalate_add(const uint8_t *addr, int alen, uint64_t now_ms);
+void rawscope_escalate_drop(const uint8_t *addr, int alen);
+int  rawscope_escalated(const uint8_t *addr, int alen, uint64_t now_ms);
+
+/* A first segment, raddr/rport the server, lport the client's port, seq its
+ * sequence number; decoy is 0 when the server is in the no-decoy table.
+ * Notes it, and returns 1 when it is to go the stronger way, 0 for the usual
+ * way:
+ *   - a new first segment: 1 while the server is in the escalate table
+ *     (renewed then), else 0;
+ *   - the same segment going out again: the other way from its last time.
+ *     After the usual way the server is put in the table (RAWSCOPE_ESCALATED
+ *     counted, once per flow); after the stronger way it is taken out.
+ * Returns 0, and notes nothing, when decoy is 0. */
+int  rawscope_escalate_first(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
+                             uint32_t seq, int decoy, uint64_t now_ms);
+
 /* ── counters ────────────────────────────────────────────────────────────
  * Bumped by the packet thread, read by whoever reports them (the supervise
  * thread at stop), so they are atomic. */
@@ -128,6 +186,9 @@ enum {
   RAWSCOPE_DNS_PASSED,   /* ... and sent on to their own server unchanged */
   RAWSCOPE_GROWN,        /* ClientHellos whose TLS record was split (tlsrec, #48) */
   RAWSCOPE_DECOY_NAMED,  /* decoys that carried a name the network allows (--decoy-name) */
+  RAWSCOPE_ESCALATED,    /* flows whose decoyed first segment went out again unanswered */
+  RAWSCOPE_STRONG,       /* first segments sent the stronger way (tcpdpi_build_strong4) */
+  RAWSCOPE_STRONG_TS,    /* ... of them, with "ts" decoys (the flow carried timestamps) */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);
@@ -137,9 +198,10 @@ void          rawscope_counters_reset(void);
 /* The counters as one status line, without a newline:
  *   {"type":"raw_stats","desynced":N,"skipped":N,"rst_dropped":N,"rst_passed":N,
  *    "nodecoy":N,"decoy_hurt":N,"udp_seen":N,"udp_decoys":N,"quic_dropped":N,
- *    "dns_answered":N,"dns_passed":N}
+ *    "dns_answered":N,"dns_passed":N,"grown":N,"decoy_named":N,
+ *    "escalated":N,"strong":N,"strong_ts":N}
  * ("desynced" counts every first segment the engine cut or decoyed, the
- * no-decoy ones included.)
+ * no-decoy and the stronger ones included.)
  * Returns its length, or 0 when it does not fit cap. */
 int  rawscope_stats_json(char *buf, size_t cap);
 /* Print that line to stdout (the status file when the engine is elevated). */
