@@ -568,6 +568,18 @@ static void test_strong(void) {
   CHECK(segs[2].len == TCPDPI_WIRE_MAX && rd32(segs[2].data + 24) == seq - (uint32_t)(TCPDPI_WIRE_MAX - 52 - 1));
   CHECK(segs[3].len == 52 + 1447);
 
+  /* A PPPoE line (MTU 1492): the real first segment is 52 + 1400 bytes, and
+   * the seqovl part is never larger than that, however long the decoy. */
+  uint8_t ppp[1400]; memset(ppp, 0x16, sizeof ppp);
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64,
+                             ppp, 1400, bigdecoy, 1448, 3, 2) == 1);
+  CHECK(segs[2].len == 52 + 1400 && rd32(segs[2].data + 24) == seq - (uint32_t)(1400 - 1));
+  CHECK(segs[3].len == 52 + 1399);
+  /* A small first segment: the seqovl part may still grow to 576 bytes. */
+  CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64,
+                             real, 200, bigdecoy, 1448, 3, 2) == 1);
+  CHECK(segs[2].len == TCPDPI_PATH_MIN && rd32(segs[2].data + 24) == seq - (uint32_t)(TCPDPI_PATH_MIN - 52 - 1));
+
   /* Nothing to send when it cannot all be built: too short to cut, no decoy,
    * repeats out of range, too little room. */
   CHECK(tcpdpi_build_strong4(segs, TCPDPI_STRONG_SEGS, &ns, &ts, t, 20, t + 20, 32, 1, seq, 64, real, 1, decoy, 520, 3, 8) == 0);

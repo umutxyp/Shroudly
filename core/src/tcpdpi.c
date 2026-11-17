@@ -507,9 +507,18 @@ int tcpdpi_build_strong4(tcpdpi_seg *segs, int cap, int *nsegs, int *ts_used,
   int ts = tcpdpi_ts_offset(tcp_tmpl, tcphl) >= 0;
   /* The real parts first: if they cannot be built, nothing is sent at all. */
   tcpdpi_seg *a = &segs[repeats], *b = &segs[repeats + 1];
+  /* The seqovl part is never larger than the segment it stands for, which
+   * this path has already carried: on a PPPoE line (MTU 1492, as on
+   * Rostelecom) a 1500-byte packet with DF set would be dropped on the way,
+   * and the stronger way would fail exactly where it is needed. A small
+   * first segment may still grow to 576 bytes, the size every IPv4 path
+   * carries. */
+  int max_total = ihl + tcphl + real_len;
+  if (max_total < TCPDPI_PATH_MIN) max_total = TCPDPI_PATH_MIN;
+  if (max_total > TCPDPI_WIRE_MAX) max_total = TCPDPI_WIRE_MAX;
   a->len = tcpdpi_build_seqovl_prefix4(a->data, sizeof a->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
                                        (uint16_t)(ip_id + repeats), seq, ttl,
-                                       decoy, decoy_len, real, 1, TCPDPI_WIRE_MAX, NULL);
+                                       decoy, decoy_len, real, 1, max_total, NULL);
   b->len = tcpdpi_build_segment4(b->data, sizeof b->data, ip_tmpl, ihl, tcp_tmpl, tcphl,
                                  (uint16_t)(ip_id + repeats + 1), seq + 1u, ttl,
                                  real + 1, real_len - 1, 0);
