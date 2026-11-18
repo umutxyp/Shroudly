@@ -49,8 +49,10 @@ object WhatsNew {
         return p.getString(KEY_PENDING, null)
     }
 
+    /* Written at once (commit, not apply): an app ended right after the
+     * notes were closed (by the system, or swiped away) showed them again. */
     fun seen(ctx: Context) {
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove(KEY_PENDING).apply()
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove(KEY_PENDING).commit()
     }
 
     /* The notes, as a short digest: the same notes, the same digest; none
