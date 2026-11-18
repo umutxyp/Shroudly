@@ -281,7 +281,7 @@
     "electron": "43.8.1",
     "electron-builder": "26.15.3",
     "lucide-react": "1.47.0",
-    "next": "^16.4.2",
+    "next": "^16.4.5",
     "playwright-core": "1.63.0",
     "postcss": "^8.4.0",
     "react": "^18.3.0",
