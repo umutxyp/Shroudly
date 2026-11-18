@@ -212,6 +212,47 @@ int main(void) {
   CHECK(start_of("a.aged.example") == 102);                   /* still the technique to race */
   hs_put("a.aged.example", 2);                                /* confirmed */
   CHECK(!stale_of("a.aged.example") && !stale_of("b.aged.example"));
+  /* in use (hs_keep): its age starts over, where it came from (the name's
+   * own entry, or the site's when inherited); the app is told at most every
+   * HS_TELL_MS, and always when the untouched request was shown blocked
+   * beside it; another technique learned meanwhile is left alone */
+  { char k[256]; int i;
+    mutex_lock(&g_hs_mx);
+    if ((i = hs_find("a.aged.example")) >= 0) g_hs[i].t -= HS_VERIFY_MS + 1;
+    if ((i = hs_find("aged.example")) >= 0) g_hs[i].t -= HS_VERIFY_MS + 1;
+    mutex_unlock(&g_hs_mx);
+    CHECK(stale_of("a.aged.example") && stale_of("b.aged.example"));
+    CHECK(hs_keep("a.aged.example", 0, 2, 0, k, sizeof(k)) == 0);      /* told when learned, just now */
+    CHECK(!stale_of("a.aged.example") && stale_of("b.aged.example"));  /* the site's own age is its own */
+    CHECK(hs_keep("b.aged.example", 1, 2, 0, k, sizeof(k)) == 0);
+    CHECK(!stale_of("b.aged.example"));
+    mutex_lock(&g_hs_mx);
+    if ((i = hs_find("aged.example")) >= 0) g_hs[i].told -= HS_TELL_MS + 1;
+    mutex_unlock(&g_hs_mx);
+    CHECK(hs_keep("b.aged.example", 1, 2, 0, k, sizeof(k)) == 1 && strcmp(k, "aged.example") == 0);
+    CHECK(hs_keep("b.aged.example", 1, 2, 0, k, sizeof(k)) == 0);      /* not again within HS_TELL_MS */
+    CHECK(hs_keep("a.aged.example", 0, 2, 1, k, sizeof(k)) == 1 && strcmp(k, "a.aged.example") == 0);  /* proven */
+    CHECK(hs_keep("a.aged.example", 0, 7, 1, k, sizeof(k)) == 0);      /* another technique: left alone */
+    CHECK(hs_keep("c.github.io", 1, 2, 0, k, sizeof(k)) == 0);         /* no site, nothing */
+    /* in use all along, but not shown needed for HS_RECHECK_MS: raced all the
+     * same, so a lifted block is still found */
+    mutex_lock(&g_hs_mx);
+    if ((i = hs_find("a.aged.example")) >= 0) g_hs[i].proved -= HS_RECHECK_MS + 1;
+    mutex_unlock(&g_hs_mx);
+    hs_keep("a.aged.example", 0, 2, 0, k, sizeof(k));                /* used again: no proof */
+    CHECK(stale_of("a.aged.example"));
+    CHECK(hs_keep("a.aged.example", 0, 2, 1, k, sizeof(k)) == 1);      /* confirmed by the race */
+    CHECK(!stale_of("a.aged.example"));
+  }
+  /* given back by the app (LEARN): its age, its proof and what the app was
+   * told are that old */
+  CHECK(engine_restore("r.restored.example", strategy_preset(0)->name, 20 * 60 * 1000) == 0);
+  { char k[256];
+    CHECK(!stale_of("r.restored.example"));
+    CHECK(hs_keep("r.restored.example", 0, 0, 0, k, sizeof(k)) == 1);  /* the app last heard 20 minutes ago */
+  }
+  CHECK(engine_restore("s.restored.example", strategy_preset(0)->name, HS_VERIFY_MS + 1000) == 0);
+  CHECK(stale_of("s.restored.example"));
   printf("  learned techniques age: OK\n");
 
   /* 4c. what opens sites on this network (net_best): only once one technique

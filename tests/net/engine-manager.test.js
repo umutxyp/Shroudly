@@ -343,6 +343,12 @@ const t = suite('engine-manager');
     em.proc = realProc;
     t.ok(written.join('') === 'LEARN gateway.discord.gg disorder-tlsrec 3600\nLEARN discord.com tlsrec-sni 0\n',
       `…and given to the engine with their age in seconds (${JSON.stringify(written.join(''))})`);
+    // A technique that opened its site again ("kept"): its age starts over,
+    // and nothing else is said or done for it.
+    const lines0 = logs.length;
+    em._onLine(JSON.stringify({ type: 'kept', host: 'gateway.discord.gg', strategy: 'disorder-tlsrec' }));
+    const ages = em._learned(Date.now()).filter(([h]) => h === 'gateway.discord.gg').map(([, v]) => Date.now() - v.t);
+    t.ok(ages.length === 1 && ages[0] < 5000 && logs.length === lines0, `"kept": the age the next engine is given starts over, silently (${ages[0]} ms)`);
     for (let i = 0; i < 320; i++) em._rememberTechnique(`h${i}.example`, 'tlsrec-sni', now - 1000 + i);
     t.ok(Object.keys(mem.learnedTechniques).length === 300 && mem.learnedTechniques['h319.example'] && !mem.learnedTechniques['h0.example'],
       'at most 300 are kept, the newest');

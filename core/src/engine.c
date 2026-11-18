@@ -744,13 +744,40 @@ static int room_take(void) {
 static void room_give(void) { atomic_fetch_sub(&g_extra_legs, 1); }
 
 /* ── per-host learned strategy (auto-probe cache) ───────────────────────── */
-typedef struct { char host[256]; int preset; uint64_t t; int used; } hoststrat;
+/* t: when it was learned, or last opened the name (hs_keep); proved: when
+ * the untouched request was last shown blocked beside it (learned, or
+ * confirmed by a race); told: when the app was last told it still works
+ * (the "kept" line). */
+typedef struct { char host[256]; int preset; uint64_t t; int used; uint64_t proved, told; } hoststrat;
 #define HS_SIZE 512
-/* A technique learned this long ago is checked again before it is relied on:
- * the next ladder races the untouched request against it (see handle). A
- * block that was lifted, or a technique learned from a fluke, is then let go,
- * and one still needed costs that check next to nothing. */
-#define HS_VERIFY_MS (30 * 60 * 1000)
+/* A technique unused this long is checked again before it is relied on: the
+ * next ladder races the untouched request against it (see handle). A block
+ * that was lifted, or a technique learned from a fluke, is then let go, and
+ * one still needed costs that check next to nothing.
+ *
+ * Counted from the last time it opened the name, not from when it was
+ * learned. Until 2.6.82 it counted from the learning alone, and the race to
+ * confirm a technique taught the app nothing new, so the age the app keeps
+ * (LEARN, after every start) only ever grew: from half an hour after a site
+ * was learned, every start of the engine (a reboot, Android ending the app,
+ * an update) had every site the user opens race the untouched request
+ * first, its moment alone (race_head, up to a second) paid on each site's
+ * first connection, for a month, where ByeByeDPI pays nothing (a report
+ * from Türk Telekom). Now a technique that opens the name moves t on
+ * (hs_keep), and the app is told so (the "kept" line, at most every
+ * HS_TELL_MS for a name), so a site in use keeps its technique across
+ * restarts without that race.
+ *
+ * Its use is not proof the block is still there, though, and a lifted one
+ * must still be found: one in use for HS_RECHECK_MS since it was last shown
+ * needed (proved) is raced all the same. The app keeps one time only, so
+ * after a restart `proved` is the time it gives back (the last use): a
+ * site in use all day across restarts is then checked once it rests half
+ * an hour, which every site does at night. Fewer checks also means fewer of
+ * the wrong letting-go that a throttled check can cause (issue #89). */
+#define HS_VERIFY_MS  (30 * 60 * 1000)
+#define HS_RECHECK_MS (6 * 60 * 60 * 1000)
+#define HS_TELL_MS    (10 * 60 * 1000)
 static hoststrat g_hs[HS_SIZE];
 static mutex_t   g_hs_mx;
 
@@ -809,6 +836,7 @@ static void hs_store(const char *k, int preset) {
   memset(&g_hs[slot], 0, sizeof(g_hs[slot]));
   strncpy(g_hs[slot].host, k, sizeof(g_hs[slot].host) - 1);
   g_hs[slot].preset = preset; g_hs[slot].t = now_ms(); g_hs[slot].used = 1;
+  g_hs[slot].proved = g_hs[slot].told = g_hs[slot].t;
 }
 
 /* Learned for the host, and for its site: the network showed this host needs
@@ -840,6 +868,39 @@ static void hs_unlearn(const char *h, int inherited) {
   int i = hs_find(inherited ? site : h);
   if (i >= 0) g_hs[i].used = 0;
   mutex_unlock(&g_hs_mx);
+}
+
+/* The technique the ladder opened with, `preset`, opened the name again:
+ * where it came from (the name's own entry, or its site's when inherited),
+ * it is as fresh as now (see HS_VERIFY_MS); proven: and the untouched
+ * request was shown blocked beside it. 1 with the entry's key in out when
+ * the app is to be told (at most every HS_TELL_MS for it, unless proven):
+ * another thread may have learned another technique for it meanwhile, which
+ * is then left alone. */
+static int hs_keep(const char *h, int inherited, int preset, int proven, char *out, size_t cap) {
+  char site[256];
+  if (inherited && !site_key(h, site, sizeof(site))) return 0;
+  const char *k = inherited ? site : h;
+  int tell = 0;
+  mutex_lock(&g_hs_mx);
+  uint64_t now = now_ms();
+  int i = hs_find(k);
+  if (i >= 0 && g_hs[i].preset == preset) {
+    g_hs[i].t = now;
+    if (proven) g_hs[i].proved = now;
+    if (proven || age_ms(now, g_hs[i].told) >= HS_TELL_MS) { g_hs[i].told = now; tell = 1; }
+  }
+  mutex_unlock(&g_hs_mx);
+  if (tell) snprintf(out, cap, "%s", k);
+  return tell;
+}
+
+/* Tell the app a technique it keeps still works for host (see hs_keep). */
+static void json_host(char *out, size_t cap, const char *in);
+static void tell_kept(const char *host, int preset) {
+  char h[256];
+  json_host(h, sizeof(h), host);
+  engine_printf("{\"type\":\"kept\",\"host\":\"%s\",\"strategy\":\"%s\"}\n", h, strategy_preset(preset)->name);
 }
 
 /* ── what opens sites on this network ───────────────────────────────────
@@ -970,7 +1031,7 @@ static void ladder_start(const char *h, int resume, int *from, int *learned, int
     if (l < 0 && has_site && (l = hs_find(site)) >= 0) *inherited = 1;
     if (l >= 0) {
       *learned = g_hs[l].preset;
-      *stale = age_ms(now, g_hs[l].t) >= HS_VERIFY_MS;
+      *stale = age_ms(now, g_hs[l].t) >= HS_VERIFY_MS || age_ms(now, g_hs[l].proved) >= HS_RECHECK_MS;
     } else if (resume && has_site && (r = rs_live(site, now)) >= 0 && (resume != 2 || g_rs[r].plain)) {
       *from = g_rs[r].next;
       *site_from = 1;
@@ -2890,9 +2951,23 @@ static int ladder_won(ladder_st *st, const leg *w) {
     if (w->cand != st->learned)
       report("bypass", st->key, strategy_preset(w->cand)->name, st->made, w->fam,
              st->saw_refusal ? NULL : "silent");
+    else {
+      /* The technique it knew, confirmed (a race against the untouched
+       * request, see HS_VERIFY_MS): learned again just now, so the app is
+       * told, or the age it keeps would have the next start race it again. */
+      char k[256];
+      if (hs_keep(st->key, 0, w->cand, 1, k, sizeof(k))) tell_kept(k, w->cand);
+    }
     return 1;
   } else if (st->tls || st->dropped) {
     rs_drop(st->key);
+  }
+  /* The technique it opened with answered first, as known: nothing new, but
+   * it is in use, which keeps it from being raced again for a while and
+   * keeps the app's copy as fresh (hs_keep, HS_VERIFY_MS). */
+  if (st->opened_learned && w->idx == 0 && w->cand == st->learned) {
+    char k[256];
+    if (hs_keep(st->key, st->inherited, w->cand, 0, k, sizeof(k))) tell_kept(k, w->cand);
   }
   return 0;
 }
@@ -5929,8 +6004,8 @@ int engine_restore(const char *host, const char *technique, uint64_t age) {
   char site[256];
   mutex_lock(&g_hs_mx);
   int i = hs_find(host);
-  if (i >= 0) g_hs[i].t = t;
-  if (site_key(host, site, sizeof(site)) && (i = hs_find(site)) >= 0) g_hs[i].t = t;
+  if (i >= 0) g_hs[i].t = g_hs[i].proved = g_hs[i].told = t;
+  if (site_key(host, site, sizeof(site)) && (i = hs_find(site)) >= 0) g_hs[i].t = g_hs[i].proved = g_hs[i].told = t;
   mutex_unlock(&g_hs_mx);
   return 0;
 }
