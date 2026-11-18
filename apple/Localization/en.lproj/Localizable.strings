@@ -202,9 +202,12 @@
 "stop" = "Stop protection";
 "stopping" = "Stopping…";
 "stratAuto" = "Auto (recommended)";
+"stratChop" = "Small random pieces";
 "stratDisorderSni" = "Disorder at SNI";
 "stratDoubleSplit" = "Double split";
+"stratMultiRec" = "Several TLS records";
 "stratNone" = "Off (encrypted DNS only)";
+"stratOobRec" = "Urgent byte + TLS record split";
 "stratSplit2" = "Split at byte 2";
 "stratSplitMid" = "Split in the middle of SNI";
 "stratSplitSni" = "Split at SNI";

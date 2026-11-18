@@ -202,9 +202,12 @@
 "stop" = "หยุดการป้องกัน";
 "stopping" = "กำลังหยุด…";
 "stratAuto" = "อัตโนมัติ (แนะนำ)";
+"stratChop" = "ชิ้นเล็กแบบสุ่ม";
 "stratDisorderSni" = "สลับลำดับที่ SNI";
 "stratDoubleSplit" = "แบ่งสองครั้ง";
+"stratMultiRec" = "หลายเรคคอร์ด TLS";
 "stratNone" = "ปิด (เฉพาะ DNS แบบเข้ารหัส)";
+"stratOobRec" = "ไบต์เร่งด่วน + แยกเรคคอร์ด TLS";
 "stratSplit2" = "แบ่งที่ไบต์ที่ 2";
 "stratSplitMid" = "แบ่งที่กึ่งกลาง SNI";
 "stratSplitSni" = "แบ่งที่ SNI";

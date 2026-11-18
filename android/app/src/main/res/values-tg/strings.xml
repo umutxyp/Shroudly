@@ -287,9 +287,12 @@
     <string name="stop">Ҳимояро хомӯш кунед</string>
     <string name="stopping">Қатъ мешавад…</string>
     <string name="stratAuto">Худкор (тавсия мешавад)</string>
+    <string name="stratChop">Пораҳои хурди тасодуфӣ</string>
     <string name="stratDisorderSni">Бетартибӣ дар SNI</string>
     <string name="stratDoubleSplit">Тақсими дукарата</string>
+    <string name="stratMultiRec">Якчанд сабти TLS</string>
     <string name="stratNone">Хомӯш (танҳо DNS-и рамзгузоришуда)</string>
+    <string name="stratOobRec">Байти фаврӣ + тақсими сабти TLS</string>
     <string name="stratSplit2">Тақсим дар байти 2</string>
     <string name="stratSplitMid">Тақсим дар миёнаи SNI</string>
     <string name="stratSplitSni">Тақсим дар SNI</string>

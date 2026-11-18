@@ -287,9 +287,12 @@
     <string name="stop">Tắt bảo vệ</string>
     <string name="stopping">Đang tắt…</string>
     <string name="stratAuto">Tự động (khuyên dùng)</string>
+    <string name="stratChop">Mảnh nhỏ ngẫu nhiên</string>
     <string name="stratDisorderSni">Đảo thứ tự tại SNI</string>
     <string name="stratDoubleSplit">Tách hai lần</string>
+    <string name="stratMultiRec">Nhiều bản ghi TLS</string>
     <string name="stratNone">Tắt (chỉ DNS mã hóa)</string>
+    <string name="stratOobRec">Byte khẩn + tách bản ghi TLS</string>
     <string name="stratSplit2">Tách tại byte 2</string>
     <string name="stratSplitMid">Tách ở giữa SNI</string>
     <string name="stratSplitSni">Tách tại SNI</string>

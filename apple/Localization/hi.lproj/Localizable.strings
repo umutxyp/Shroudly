@@ -202,9 +202,12 @@
 "stop" = "सुरक्षा बंद करें";
 "stopping" = "बंद हो रहा है…";
 "stratAuto" = "स्वचालित (अनुशंसित)";
+"stratChop" = "छोटे बेतरतीब टुकड़े";
 "stratDisorderSni" = "SNI पर क्रम-भंग";
 "stratDoubleSplit" = "दोहरा विभाजन";
+"stratMultiRec" = "कई TLS रिकॉर्ड";
 "stratNone" = "बंद (सिर्फ़ एन्क्रिप्टेड DNS)";
+"stratOobRec" = "अर्जेंट बाइट + TLS रिकॉर्ड विभाजन";
 "stratSplit2" = "बाइट 2 पर विभाजन";
 "stratSplitMid" = "SNI के बीच में विभाजन";
 "stratSplitSni" = "SNI पर विभाजन";

@@ -202,9 +202,12 @@
 "stop" = "Korumayı durdur";
 "stopping" = "Durduruluyor…";
 "stratAuto" = "Otomatik (önerilen)";
+"stratChop" = "Rastgele küçük parçalar";
 "stratDisorderSni" = "SNI noktasında sırayı karıştır";
 "stratDoubleSplit" = "Çift bölme";
+"stratMultiRec" = "Birden çok TLS kaydı";
 "stratNone" = "Kapalı (yalnızca şifreli DNS)";
+"stratOobRec" = "Acil bayt + TLS kaydı bölme";
 "stratSplit2" = "2. bayttan böl";
 "stratSplitMid" = "SNI ortasından böl";
 "stratSplitSni" = "SNI noktasından böl";

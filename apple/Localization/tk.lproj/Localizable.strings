@@ -202,9 +202,12 @@
 "stop" = "Goragy togtadyň";
 "stopping" = "Togtadylýar…";
 "stratAuto" = "Awtomatik (maslahat berilýär)";
+"stratChop" = "Tötänleýin kiçi bölekler";
 "stratDisorderSni" = "SNI-de tertipsiz iberiş";
 "stratDoubleSplit" = "Iki gezek bölmek";
+"stratMultiRec" = "Birnäçe TLS ýazgysy";
 "stratNone" = "Öçük";
+"stratOobRec" = "Gyssagly baýt + TLS ýazgysyny bölmek";
 "stratSplit2" = "2-nji baýtda bölmek";
 "stratSplitMid" = "SNI-niň ortasyndan bölmek";
 "stratSplitSni" = "SNI-de bölmek";

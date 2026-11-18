@@ -287,9 +287,12 @@
     <string name="stop">หยุดการป้องกัน</string>
     <string name="stopping">กำลังหยุด…</string>
     <string name="stratAuto">อัตโนมัติ (แนะนำ)</string>
+    <string name="stratChop">ชิ้นเล็กแบบสุ่ม</string>
     <string name="stratDisorderSni">สลับลำดับที่ SNI</string>
     <string name="stratDoubleSplit">แบ่งสองครั้ง</string>
+    <string name="stratMultiRec">หลายเรคคอร์ด TLS</string>
     <string name="stratNone">ปิด (เฉพาะ DNS แบบเข้ารหัส)</string>
+    <string name="stratOobRec">ไบต์เร่งด่วน + แยกเรคคอร์ด TLS</string>
     <string name="stratSplit2">แบ่งที่ไบต์ที่ 2</string>
     <string name="stratSplitMid">แบ่งที่กึ่งกลาง SNI</string>
     <string name="stratSplitSni">แบ่งที่ SNI</string>

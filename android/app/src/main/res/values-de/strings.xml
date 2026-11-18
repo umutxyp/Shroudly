@@ -287,9 +287,12 @@
     <string name="stop">Schutz beenden</string>
     <string name="stopping">Wird beendet…</string>
     <string name="stratAuto">Automatisch (empfohlen)</string>
+    <string name="stratChop">Kleine zufällige Stücke</string>
     <string name="stratDisorderSni">Umordnen bei SNI</string>
     <string name="stratDoubleSplit">Doppelt aufteilen</string>
+    <string name="stratMultiRec">Mehrere TLS-Records</string>
     <string name="stratNone">Aus (nur verschlüsseltes DNS)</string>
+    <string name="stratOobRec">Dringendes Byte + TLS-Record teilen</string>
     <string name="stratSplit2">Aufteilen bei Byte 2</string>
     <string name="stratSplitMid">Aufteilen in der SNI-Mitte</string>
     <string name="stratSplitSni">Aufteilen bei SNI</string>

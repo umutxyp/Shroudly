@@ -287,9 +287,12 @@
     <string name="stop">Выключить защиту</string>
     <string name="stopping">Остановка…</string>
     <string name="stratAuto">Авто (рекомендуется)</string>
+    <string name="stratChop">Мелкие случайные куски</string>
     <string name="stratDisorderSni">Перестановка по SNI</string>
     <string name="stratDoubleSplit">Двойное разделение</string>
+    <string name="stratMultiRec">Несколько записей TLS</string>
     <string name="stratNone">Выкл. (только шифрованный DNS)</string>
+    <string name="stratOobRec">Срочный байт + разделение записи TLS</string>
     <string name="stratSplit2">Разделение на 2-м байте</string>
     <string name="stratSplitMid">Разделение в середине SNI</string>
     <string name="stratSplitSni">Разделение по SNI</string>

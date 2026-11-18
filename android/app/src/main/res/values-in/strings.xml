@@ -287,9 +287,12 @@
     <string name="stop">Hentikan perlindungan</string>
     <string name="stopping">Menghentikan…</string>
     <string name="stratAuto">Otomatis (disarankan)</string>
+    <string name="stratChop">Potongan kecil acak</string>
     <string name="stratDisorderSni">Acak urutan di SNI</string>
     <string name="stratDoubleSplit">Pecah ganda</string>
+    <string name="stratMultiRec">Beberapa rekaman TLS</string>
     <string name="stratNone">Mati (hanya DNS terenkripsi)</string>
+    <string name="stratOobRec">Byte mendesak + pemisahan rekaman TLS</string>
     <string name="stratSplit2">Pecah di byte 2</string>
     <string name="stratSplitMid">Pecah di tengah SNI</string>
     <string name="stratSplitSni">Pecah di SNI</string>

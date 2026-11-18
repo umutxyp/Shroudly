@@ -202,9 +202,12 @@
 "stop" = "ကာကွယ်မှု ရပ်ရန်";
 "stopping" = "ရပ်နေသည်…";
 "stratAuto" = "အလိုအလျောက် (အကြံပြု)";
+"stratChop" = "ကျပန်း အပိုင်းငယ်များ";
 "stratDisorderSni" = "SNI နေရာတွင် အစီအစဉ်ပြောင်းခြင်း";
 "stratDoubleSplit" = "နှစ်ကြိမ် ခွဲခြင်း";
+"stratMultiRec" = "TLS မှတ်တမ်း အများအပြား";
 "stratNone" = "ပိတ် (ကုဒ်ဝှက်ထားသော DNS သာ)";
+"stratOobRec" = "အရေးပေါ် ဘိုက် + TLS မှတ်တမ်း ခွဲခြင်း";
 "stratSplit2" = "ဘိုက် ၂ တွင် ခွဲခြင်း";
 "stratSplitMid" = "SNI အလယ်တွင် ခွဲခြင်း";
 "stratSplitSni" = "SNI နေရာတွင် ခွဲခြင်း";

@@ -287,9 +287,12 @@
     <string name="stop">ساتنه ودروئ</string>
     <string name="stopping">درېږي…</string>
     <string name="stratAuto">اتومات (سپارښتل شوی)</string>
+    <string name="stratChop">کوچنۍ تصادفي ټوټې</string>
     <string name="stratDisorderSni">په SNI کې ګډوډ ترتیب</string>
     <string name="stratDoubleSplit">دوه ځلي وېشل</string>
+    <string name="stratMultiRec">څو TLS ریکارډونه</string>
     <string name="stratNone">بند (یوازې کوډ شوی DNS)</string>
+    <string name="stratOobRec">بیړنی بایټ + د TLS ریکارډ ویشل</string>
     <string name="stratSplit2">په دوهم بایټ کې وېشل</string>
     <string name="stratSplitMid">د SNI په منځ کې وېشل</string>
     <string name="stratSplitSni">په SNI کې وېشل</string>

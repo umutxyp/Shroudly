@@ -287,9 +287,12 @@
     <string name="stop">Вимкнути захист</string>
     <string name="stopping">Вимкнення…</string>
     <string name="stratAuto">Авто (рекомендовано)</string>
+    <string name="stratChop">Дрібні випадкові шматки</string>
     <string name="stratDisorderSni">Перестановка на SNI</string>
     <string name="stratDoubleSplit">Подвійне розділення</string>
+    <string name="stratMultiRec">Кілька записів TLS</string>
     <string name="stratNone">Вимк. (лише зашифрований DNS)</string>
+    <string name="stratOobRec">Терміновий байт + поділ запису TLS</string>
     <string name="stratSplit2">Розділення на 2-му байті</string>
     <string name="stratSplitMid">Розділення посередині SNI</string>
     <string name="stratSplitSni">Розділення на SNI</string>

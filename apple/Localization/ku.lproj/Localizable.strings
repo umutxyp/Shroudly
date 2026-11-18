@@ -202,9 +202,12 @@
 "stop" = "Parastinê rawestîne";
 "stopping" = "Radiweste…";
 "stratAuto" = "Xweber (tê pêşniyarkirin)";
+"stratChop" = "Perçeyên biçûk ên rasthatî";
 "stratDisorderSni" = "Li SNI tevlihev bike";
 "stratDoubleSplit" = "Parçekirina ducarî";
+"stratMultiRec" = "Çend tomarên TLS";
 "stratNone" = "Girtî (tenê DNS-a şîfrekirî)";
+"stratOobRec" = "Bayta lezgîn + parvekirina tomara TLS";
 "stratSplit2" = "Li bayta 2an parçe bike";
 "stratSplitMid" = "Di nîvê SNI de parçe bike";
 "stratSplitSni" = "Li SNI parçe bike";

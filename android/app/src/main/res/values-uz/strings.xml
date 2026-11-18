@@ -287,9 +287,12 @@
     <string name="stop">Himoyani oʻchirish</string>
     <string name="stopping">Oʻchirilmoqda…</string>
     <string name="stratAuto">Avto (tavsiya etiladi)</string>
+    <string name="stratChop">Kichik tasodifiy boʻlaklar</string>
     <string name="stratDisorderSni">SNI joyida tartibni buzish</string>
     <string name="stratDoubleSplit">Ikki marta boʻlish</string>
+    <string name="stratMultiRec">Bir nechta TLS yozuvi</string>
     <string name="stratNone">Oʻchiq (faqat shifrlangan DNS)</string>
+    <string name="stratOobRec">Shoshilinch bayt + TLS yozuvini boʻlish</string>
     <string name="stratSplit2">2-baytdan boʻlish</string>
     <string name="stratSplitMid">SNI oʻrtasidan boʻlish</string>
     <string name="stratSplitSni">SNI joyidan boʻlish</string>

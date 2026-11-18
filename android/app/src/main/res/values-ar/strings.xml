@@ -287,9 +287,12 @@
     <string name="stop">إيقاف الحماية</string>
     <string name="stopping">جارٍ الإيقاف…</string>
     <string name="stratAuto">تلقائي (موصى به)</string>
+    <string name="stratChop">قطع صغيرة عشوائية</string>
     <string name="stratDisorderSni">خلط الترتيب عند SNI</string>
     <string name="stratDoubleSplit">تقسيم مزدوج</string>
+    <string name="stratMultiRec">عدة سجلات TLS</string>
     <string name="stratNone">إيقاف (DNS مشفَّر فقط)</string>
+    <string name="stratOobRec">بايت عاجل + تقسيم سجل TLS</string>
     <string name="stratSplit2">التقسيم عند البايت 2</string>
     <string name="stratSplitMid">التقسيم في منتصف SNI</string>
     <string name="stratSplitSni">التقسيم عند SNI</string>

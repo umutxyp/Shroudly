@@ -202,9 +202,12 @@
 "stop" = "Hentikan perlindungan";
 "stopping" = "Menghentikan…";
 "stratAuto" = "Otomatis (disarankan)";
+"stratChop" = "Potongan kecil acak";
 "stratDisorderSni" = "Acak urutan di SNI";
 "stratDoubleSplit" = "Pecah ganda";
+"stratMultiRec" = "Beberapa rekaman TLS";
 "stratNone" = "Mati (hanya DNS terenkripsi)";
+"stratOobRec" = "Byte mendesak + pemisahan rekaman TLS";
 "stratSplit2" = "Pecah di byte 2";
 "stratSplitMid" = "Pecah di tengah SNI";
 "stratSplitSni" = "Pecah di SNI";

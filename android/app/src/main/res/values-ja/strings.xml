@@ -287,9 +287,12 @@
     <string name="stop">保護を停止</string>
     <string name="stopping">停止しています…</string>
     <string name="stratAuto">自動（推奨）</string>
+    <string name="stratChop">ランダムな小さな断片</string>
     <string name="stratDisorderSni">SNI で順序入れ替え</string>
     <string name="stratDoubleSplit">二重分割</string>
+    <string name="stratMultiRec">複数の TLS レコード</string>
     <string name="stratNone">オフ（暗号化 DNS のみ）</string>
+    <string name="stratOobRec">緊急バイト + TLS レコード分割</string>
     <string name="stratSplit2">2 バイト目で分割</string>
     <string name="stratSplitMid">SNI の中央で分割</string>
     <string name="stratSplitSni">SNI で分割</string>

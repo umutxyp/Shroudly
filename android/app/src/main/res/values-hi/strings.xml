@@ -287,9 +287,12 @@
     <string name="stop">सुरक्षा बंद करें</string>
     <string name="stopping">बंद हो रहा है…</string>
     <string name="stratAuto">स्वचालित (अनुशंसित)</string>
+    <string name="stratChop">छोटे बेतरतीब टुकड़े</string>
     <string name="stratDisorderSni">SNI पर क्रम-भंग</string>
     <string name="stratDoubleSplit">दोहरा विभाजन</string>
+    <string name="stratMultiRec">कई TLS रिकॉर्ड</string>
     <string name="stratNone">बंद (सिर्फ़ एन्क्रिप्टेड DNS)</string>
+    <string name="stratOobRec">अर्जेंट बाइट + TLS रिकॉर्ड विभाजन</string>
     <string name="stratSplit2">बाइट 2 पर विभाजन</string>
     <string name="stratSplitMid">SNI के बीच में विभाजन</string>
     <string name="stratSplitSni">SNI पर विभाजन</string>
