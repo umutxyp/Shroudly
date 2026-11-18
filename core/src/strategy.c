@@ -15,6 +15,9 @@ static pos_ref parse_ref(const char *s, int *off) {
   *off = 0;
   const char *plus = strpbrk(s, "+-");
   if (plus) *off = atoi(plus);
+  if (strncmp(s, "midsld", 6) == 0)  return POS_MIDSLD;
+  if (strncmp(s, "endsld", 6) == 0)  return POS_ENDSLD;
+  if (strncmp(s, "sld", 3) == 0)     return POS_SLD;
   if (strncmp(s, "sni_mid", 7) == 0) return POS_SNI_MID;
   if (strncmp(s, "sni_end", 7) == 0) return POS_SNI_END;
   if (strncmp(s, "sni", 3) == 0)     return POS_SNI;
@@ -167,6 +170,23 @@ static void ensure_presets(void) {
    * a TTL guess were removed, because a guess that lands short delivers the
    * forged request to the origin and poisons that site for the session. */
   add("fake-decoy",           "fake(md5,ttl=6)");
+  /* Added in 2.6.83, at the end so nothing above moves (a ladder's order is
+   * what makes a network's early winner early; what the apps keep is by
+   * name, so the place itself is free).
+   *
+   * ByeByeDPI's default (-o1 -r-5+se): the record cut five bytes before the
+   * name's end, and one urgent byte right after the first, which a filter
+   * that ignores the urgent pointer takes into the record header it reads.
+   * The one Türk Telekom's users run, and the split(1) variant of it from
+   * the same community's lists. With what opens sites on this network tried
+   * first for new names (engine.c, net_best), a late place costs a network
+   * where only these work two sites, not every site. */
+  add("oob-tlsrec-end",       "oob(1),tlsrec(sni_end-5)");
+  add("split-tlsrec-end",     "split(1),tlsrec(sni_end-5)");
+  /* The record cut in the middle of the name's own label: what sni_mid is
+   * for a short name, for a long CDN name (rr3---sn-x.googlevideo.com),
+   * where sni_mid falls in the subdomain. */
+  add("tlsrec-midsld",        "tlsrec(midsld)");
 }
 
 int strategy_preset_count(void) { ensure_presets(); return N_PRESETS; }
