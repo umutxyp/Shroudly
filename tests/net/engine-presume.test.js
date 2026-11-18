@@ -184,7 +184,10 @@ function sni(h) {
   t.ok(r.ok && r.tries.length === 2 && r.tries[1].shape === 'mid' && r.tries[1].passed && r.ms < 900 && r.ms < slow,
     `third site opens through the presumed technique on its first try after the untouched request: ${r.ms} ms, where the first took ${slow} ms (${shapes(r)})`);
   t.ok(r.bypass && r.bypass.attempts === 2 && r.bypass.note === 'silent', `and is learned, the untouched request having never arrived: ${JSON.stringify(r.bypass)}`);
-  t.ok(r.bypass && Number.isInteger(r.bypass.ms) && r.bypass.ms <= r.ms, `the bypass line says how long the site took to open (${r.bypass && r.bypass.ms} ms)`);
+  // Within the client's own time, give or take two ticks of the engine's
+  // clock: Windows counts it in steps of about 16 ms (GetTickCount64), so it
+  // said 281 ms for a visit the client timed at 271 ms (Windows on ARM in CI).
+  t.ok(r.bypass && Number.isInteger(r.bypass.ms) && r.bypass.ms <= r.ms + 32, `the bypass line says how long the site took to open (${r.bypass && r.bypass.ms} ms; the client: ${r.ms} ms)`);
   r = await eng.visit('fine2.example');
   t.ok(r.ok && r.tries.length === 1 && r.tries[0].shape === 'one', `a site that is not blocked is relayed untouched (${shapes(r)})`);
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
