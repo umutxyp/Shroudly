@@ -93,8 +93,16 @@
  * technique whose answer comes seconds late (a slow path) is still the one
  * that opens the site. ATT_BUDGET_ALL_MS: the most a ladder that does this
  * may take in all. */
-#define BURST_BATCH        7
-#define BURST_SITE         10   /* a name whose site the last way out carries: two batches */
+/* Sized to the list: three batches for the whole of it, two for a name whose
+ * site the last way out carries, so that its time to the last way out stays
+ * what it was. They were 7 and 10 for the 19 or 20 techniques of 2.6.82; the
+ * three added after them (22 or 23) would have made four batches and three,
+ * a wait of VERIFY_SILENT_MS more before the last way out for a name nothing
+ * opens, and an app that gives up on a connection in two seconds (Instagram
+ * on Irancell) no longer sent there at once after a few. One more connection
+ * a batch keeps the count. */
+#define BURST_BATCH        8
+#define BURST_SITE         12   /* a name whose site the last way out carries: two batches */
 #define BURST_GAP_MS       40
 #define ATT_BUDGET_ALL_MS  24000
 /* The first attempt's wait is long, for a server that is slow. But when
