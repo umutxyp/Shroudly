@@ -202,9 +202,12 @@
 "stop" = "Parar proteção";
 "stopping" = "Parando…";
 "stratAuto" = "Automática (recomendada)";
+"stratChop" = "Pedaços pequenos aleatórios";
 "stratDisorderSni" = "Desordenar no SNI";
 "stratDoubleSplit" = "Divisão dupla";
+"stratMultiRec" = "Vários registros TLS";
 "stratNone" = "Desligado (só DNS criptografado)";
+"stratOobRec" = "Byte urgente + divisão do registro TLS";
 "stratSplit2" = "Dividir no byte 2";
 "stratSplitMid" = "Dividir no meio do SNI";
 "stratSplitSni" = "Dividir no SNI";
@@ -228,7 +231,7 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "Com o QUIC desligado, chamadas e jogos que usam a porta UDP 443 voltam a passar; só o QUIC é recusado.\nO Shroudly agora pode receber configurações melhores para a sua rede sem esperar uma atualização, assinadas e verificadas por nós.";
-"whatsNewMac" = "Com o QUIC desligado, chamadas e jogos que usam a porta UDP 443 voltam a passar; só o QUIC é recusado.\nO Shroudly agora pode receber configurações melhores para a sua rede sem esperar uma atualização, assinadas e verificadas por nós.";
+"whatsNewApple" = "Sites bloqueados abrem mais rápido: um novo começa com o que já abriu outros sites bloqueados na sua rede, e os nomes de um mesmo serviço (YouTube, Instagram, Discord…) compartilham o que um deles encontra.\nUma técnica que continua funcionando não é mais verificada de novo na primeira conexão após reiniciar.\nTécnicas novas: três opções fixas nas Configurações (vários registros TLS, pedaços pequenos aleatórios, byte urgente + divisão do registro), mais três no Automático e reescritas do cabeçalho Host para HTTP simples.";
+"whatsNewMac" = "Sites bloqueados abrem mais rápido: um novo começa com o que já abriu outros sites bloqueados na sua rede, e os nomes de um mesmo serviço (YouTube, Instagram, Discord…) compartilham o que um deles encontra.\nUma técnica que continua funcionando não é mais verificada de novo na primeira conexão após reiniciar.\nTécnicas novas: três opções fixas nas Configurações (vários registros TLS, pedaços pequenos aleatórios, byte urgente + divisão do registro), mais três no Automático e reescritas do cabeçalho Host para HTTP simples.";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

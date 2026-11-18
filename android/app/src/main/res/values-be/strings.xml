@@ -287,9 +287,12 @@
     <string name="stop">Выключыць абарону</string>
     <string name="stopping">Выключэнне…</string>
     <string name="stratAuto">Аўта (рэкамендуецца)</string>
+    <string name="stratChop">Дробныя выпадковыя кавалкі</string>
     <string name="stratDisorderSni">Перамешванне па SNI</string>
     <string name="stratDoubleSplit">Падвойны падзел</string>
+    <string name="stratMultiRec">Некалькі запісаў TLS</string>
     <string name="stratNone">Выкл. (толькі зашыфраваны DNS)</string>
+    <string name="stratOobRec">Тэрміновы байт + падзел запісу TLS</string>
     <string name="stratSplit2">Падзел на 2-м байце</string>
     <string name="stratSplitMid">Падзел пасярэдзіне SNI</string>
     <string name="stratSplitSni">Падзел па SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Апошні шлях (Tor) зноў запускаецца на тэлефонах: у 2.6.80 ён адразу завяршаўся.\nКалі QUIC выключаны, званкі і гульні, якія самі выкарыстоўваюць UDP-порт 443, зноў праходзяць; адхіляецца толькі QUIC.\nУ краіне, для якой у Shroudly няма спісу, кароткі збой больш не прымушае яго лічыць, што вы ў іншай краіне.\nShroudly цяпер можа атрымліваць лепшыя налады для вашай сеткі, не чакаючы абнаўлення; яны падпісаныя і правераныя намі.</string>
+    <string name="whatsNewAndroid">Заблакаваныя сайты адкрываюцца хутчэй: новы сайт пачынаецца з тэхнікі, якая ўжо адкрыла іншыя заблакаваныя сайты ў вашай сетцы, а адрасы аднаго сэрвісу (YouTube, Instagram, Discord…) дзеляцца знойдзеным.\nТэхніка, якая працягвае працаваць, больш не правяраецца нанова пры першым злучэнні пасля перазапуску.\nНовыя тэхнікі: тры сталыя варыянты ў наладах (некалькі запісаў TLS, дробныя выпадковыя кавалкі, тэрміновы байт + падзел запісу), яшчэ тры ў «Аўта» і перапіс загалоўка Host для звычайнага HTTP.\nСпампоўка абнаўлення, якая перапынілася па тайм-аўце, паўтараецца, потым наўпрост.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

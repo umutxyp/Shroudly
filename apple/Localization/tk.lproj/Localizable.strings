@@ -202,9 +202,12 @@
 "stop" = "Goragy togtadyň";
 "stopping" = "Togtadylýar…";
 "stratAuto" = "Awtomatik (maslahat berilýär)";
+"stratChop" = "Tötänleýin kiçi bölekler";
 "stratDisorderSni" = "SNI-de tertipsiz iberiş";
 "stratDoubleSplit" = "Iki gezek bölmek";
+"stratMultiRec" = "Birnäçe TLS ýazgysy";
 "stratNone" = "Öçük";
+"stratOobRec" = "Gyssagly baýt + TLS ýazgysyny bölmek";
 "stratSplit2" = "2-nji baýtda bölmek";
 "stratSplitMid" = "SNI-niň ortasyndan bölmek";
 "stratSplitSni" = "SNI-de bölmek";
@@ -228,7 +231,7 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
-"whatsNewMac" = "QUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.";
+"whatsNewApple" = "Petiklenen saýtlar has çalt açylýar: täze saýt ulgamyňyzda beýleki petiklenen saýtlary açan usul bilen başlaýar, bir hyzmatyň atlary (YouTube, Instagram, Discord…) biriniň tapanyny paýlaşýar.\nIşlemegini dowam edýän usul täzeden başlanandan soňky ilkinji birikmede indi gaýtadan barlanmaýar.\nTäze usullar: Sazlamalarda üç hemişelik saýlaw (birnäçe TLS ýazgysy, tötänleýin kiçi bölekler, gyssagly baýt + ýazgyny bölmek), «Awto»da ýene üçüsi we ýönekeý HTTP üçin Host sözbaşysyny täzeden ýazmak.";
+"whatsNewMac" = "Petiklenen saýtlar has çalt açylýar: täze saýt ulgamyňyzda beýleki petiklenen saýtlary açan usul bilen başlaýar, bir hyzmatyň atlary (YouTube, Instagram, Discord…) biriniň tapanyny paýlaşýar.\nIşlemegini dowam edýän usul täzeden başlanandan soňky ilkinji birikmede indi gaýtadan barlanmaýar.\nTäze usullar: Sazlamalarda üç hemişelik saýlaw (birnäçe TLS ýazgysy, tötänleýin kiçi bölekler, gyssagly baýt + ýazgyny bölmek), «Awto»da ýene üçüsi we ýönekeý HTTP üçin Host sözbaşysyny täzeden ýazmak.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

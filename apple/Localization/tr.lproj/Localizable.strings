@@ -202,9 +202,12 @@
 "stop" = "Korumayı durdur";
 "stopping" = "Durduruluyor…";
 "stratAuto" = "Otomatik (önerilen)";
+"stratChop" = "Rastgele küçük parçalar";
 "stratDisorderSni" = "SNI noktasında sırayı karıştır";
 "stratDoubleSplit" = "Çift bölme";
+"stratMultiRec" = "Birden çok TLS kaydı";
 "stratNone" = "Kapalı (yalnızca şifreli DNS)";
+"stratOobRec" = "Acil bayt + TLS kaydı bölme";
 "stratSplit2" = "2. bayttan böl";
 "stratSplitMid" = "SNI ortasından böl";
 "stratSplitSni" = "SNI noktasından böl";
@@ -228,7 +231,7 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "QUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.\nShroudly artık ağın için daha iyi ayarları güncelleme beklemeden alabiliyor; bizim tarafımızdan imzalı ve doğrulanmış olarak.";
-"whatsNewMac" = "QUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.\nShroudly artık ağın için daha iyi ayarları güncelleme beklemeden alabiliyor; bizim tarafımızdan imzalı ve doğrulanmış olarak.";
+"whatsNewApple" = "Engelli siteler daha hızlı açılıyor: yeni bir site, ağında başka engelli siteleri açmış olan teknikle başlıyor; bir servisin adları (YouTube, Instagram, Discord…) birinin bulduğunu paylaşıyor.\nÇalışmaya devam eden bir teknik, yeniden başlatmadan sonraki ilk bağlantıda artık yeniden denetlenmiyor.\nYeni teknikler: Ayarlar'da üç sabit seçenek (birden çok TLS kaydı, rastgele küçük parçalar, acil bayt + kayıt bölme), Otomatik'te üç yeni teknik ve düz HTTP için Host başlığı yeniden yazımları.";
+"whatsNewMac" = "Engelli siteler daha hızlı açılıyor: yeni bir site, ağında başka engelli siteleri açmış olan teknikle başlıyor; bir servisin adları (YouTube, Instagram, Discord…) birinin bulduğunu paylaşıyor.\nÇalışmaya devam eden bir teknik, yeniden başlatmadan sonraki ilk bağlantıda artık yeniden denetlenmiyor.\nYeni teknikler: Ayarlar'da üç sabit seçenek (birden çok TLS kaydı, rastgele küçük parçalar, acil bayt + kayıt bölme), Otomatik'te üç yeni teknik ve düz HTTP için Host başlığı yeniden yazımları.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

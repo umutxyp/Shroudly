@@ -287,9 +287,12 @@
     <string name="stop">Коргоону токтотуу</string>
     <string name="stopping">Токтотулууда…</string>
     <string name="stratAuto">Авто (сунушталат)</string>
+    <string name="stratChop">Кокустан майда бөлүктөр</string>
     <string name="stratDisorderSni">SNI боюнча иретсиз жөнөтүү</string>
     <string name="stratDoubleSplit">Эки жолу бөлүү</string>
+    <string name="stratMultiRec">Бир нече TLS жазуусу</string>
     <string name="stratNone">Өчүк (шифрленген DNS гана)</string>
+    <string name="stratOobRec">Шашылыш байт + TLS жазуусун бөлүү</string>
     <string name="stratSplit2">2-байтта бөлүү</string>
     <string name="stratSplitMid">SNI ортосунан бөлүү</string>
     <string name="stratSplitSni">SNI боюнча бөлүү</string>
@@ -336,7 +339,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Акыркы жол (Tor) телефондордо кайра иштейт: 2.6.80де дароо жабылчу.\nQUIC өчүк болсо, UDP 443 портун өзү колдонгон чалуулар жана оюндар кайра өтөт; QUIC гана четке кагылат.\nShroudlyде тизмеси жок өлкөдө кыска үзгүлтүк эми аны сизди башка өлкөдө деп ойлотпойт.\nShroudly эми жаңыртууну күтпөй эле тармагыңыз үчүн жакшыраак жөндөөлөрдү ала алат; аларга биз кол коюп, текшеребиз.</string>
+    <string name="whatsNewAndroid">Бөгөттөлгөн сайттар тезирээк ачылат: жаңы сайт тармагыңызда башка бөгөттөлгөн сайттарды ачкан ыкма менен башталат, ал бир кызматтын аттары (YouTube, Instagram, Discord…) бирөө тапканын бөлүшөт.\nИштеп жаткан ыкма кайра иштетүүдөн кийинки биринчи туташууда мындан ары кайра текшерилбейт.\nЖаңы ыкмалар: жөндөөлөрдө үч туруктуу тандоо (бир нече TLS жазуусу, кокустан майда бөлүктөр, шашылыш байт + жазууну бөлүү), «Авто» режиминде дагы үчөө жана жөнөкөй HTTP үчүн Host башын кайра жазуу.\nУбакыты бүткөн жаңыртуу жүктөөсү кайра, андан кийин түз аракет кылынат.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

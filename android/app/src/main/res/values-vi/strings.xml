@@ -287,9 +287,12 @@
     <string name="stop">Tắt bảo vệ</string>
     <string name="stopping">Đang tắt…</string>
     <string name="stratAuto">Tự động (khuyên dùng)</string>
+    <string name="stratChop">Mảnh nhỏ ngẫu nhiên</string>
     <string name="stratDisorderSni">Đảo thứ tự tại SNI</string>
     <string name="stratDoubleSplit">Tách hai lần</string>
+    <string name="stratMultiRec">Nhiều bản ghi TLS</string>
     <string name="stratNone">Tắt (chỉ DNS mã hóa)</string>
+    <string name="stratOobRec">Byte khẩn + tách bản ghi TLS</string>
     <string name="stratSplit2">Tách tại byte 2</string>
     <string name="stratSplitMid">Tách ở giữa SNI</string>
     <string name="stratSplitSni">Tách tại SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Lối thoát cuối (Tor) chạy lại trên điện thoại: ở 2.6.80 nó tắt ngay lập tức.\nKhi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.\nỞ quốc gia Shroudly không có danh sách, một lần mất mạng ngắn không còn khiến nó nghĩ bạn ở nước khác.\nShroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.</string>
+    <string name="whatsNewAndroid">Trang bị chặn mở nhanh hơn: trang mới bắt đầu bằng cách đã mở các trang bị chặn khác trên mạng của bạn, và các tên miền của cùng một dịch vụ (YouTube, Instagram, Discord…) dùng chung cách mà một trong số đó tìm ra.\nMột kỹ thuật vẫn đang hoạt động không còn bị kiểm tra lại ở kết nối đầu tiên sau khi khởi động lại.\nKỹ thuật mới: ba lựa chọn cố định trong Cài đặt (nhiều bản ghi TLS, mảnh nhỏ ngẫu nhiên, byte khẩn + tách bản ghi), thêm ba trong Tự động, và viết lại tiêu đề Host cho HTTP thường.\nLượt tải bản cập nhật bị hết thời gian được thử lại, rồi tải trực tiếp.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

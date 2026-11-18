@@ -287,9 +287,12 @@
     <string name="stop">Stop protection</string>
     <string name="stopping">Stopping…</string>
     <string name="stratAuto">Auto (recommended)</string>
+    <string name="stratChop">Small random pieces</string>
     <string name="stratDisorderSni">Disorder at SNI</string>
     <string name="stratDoubleSplit">Double split</string>
+    <string name="stratMultiRec">Several TLS records</string>
     <string name="stratNone">Off (encrypted DNS only)</string>
+    <string name="stratOobRec">Urgent byte + TLS record split</string>
     <string name="stratSplit2">Split at byte 2</string>
     <string name="stratSplitMid">Split in the middle of SNI</string>
     <string name="stratSplitSni">Split at SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">The last way out (Tor) starts again on phones: in 2.6.80 it ended at once.\nWith QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.\nIn a country Shroudly has no list for, a short outage no longer makes it take you for another country.\nShroudly can now get better settings for your network without waiting for an update, checked and signed by us.</string>
+    <string name="whatsNewAndroid">Blocked sites open faster: a new one starts with what already opened other blocked sites on your network, and the names of one service (YouTube, Instagram, Discord…) share what one of them finds.\nA technique that keeps working is no longer checked again on the first connection after a restart.\nNew techniques: three fixed choices in Settings (several TLS records, small random pieces, an urgent byte with a record split), three more in Auto, and Host header rewrites for plain HTTP.\nAn update download that timed out is tried again, then directly.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

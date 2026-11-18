@@ -287,9 +287,12 @@
     <string name="stop">সুরক্ষা বন্ধ করুন</string>
     <string name="stopping">বন্ধ হচ্ছে…</string>
     <string name="stratAuto">স্বয়ংক্রিয় (প্রস্তাবিত)</string>
+    <string name="stratChop">ছোট এলোমেলো টুকরো</string>
     <string name="stratDisorderSni">SNI-তে ক্রম এলোমেলো</string>
     <string name="stratDoubleSplit">দ্বৈত বিভাজন</string>
+    <string name="stratMultiRec">একাধিক TLS রেকর্ড</string>
     <string name="stratNone">বন্ধ (শুধু এনক্রিপ্ট করা DNS)</string>
+    <string name="stratOobRec">জরুরি বাইট + TLS রেকর্ড ভাগ</string>
     <string name="stratSplit2">২য় বাইটে বিভাজন</string>
     <string name="stratSplitMid">SNI-এর মাঝখানে বিভাজন</string>
     <string name="stratSplitSni">SNI-তে বিভাজন</string>
@@ -336,7 +339,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">শেষ পথ (Tor) ফোনে আবার চালু হয়: 2.6.80-এ এটি সঙ্গে সঙ্গে বন্ধ হয়ে যেত।\nQUIC বন্ধ থাকলে যেসব কল ও গেম নিজেরাই UDP পোর্ট 443 ব্যবহার করে সেগুলো আবার যায়; শুধু QUIC ফেরানো হয়।\nযে দেশের তালিকা Shroudly-র কাছে নেই, সেখানে অল্প বিভ্রাটে সে আর ভাবে না আপনি অন্য দেশে আছেন।\nShroudly এখন আপডেটের অপেক্ষা না করেই আপনার নেটওয়ার্কের জন্য ভালো সেটিংস পেতে পারে; আমাদের স্বাক্ষর করা ও যাচাই করা।</string>
+    <string name="whatsNewAndroid">ব্লক করা সাইট দ্রুত খোলে: নতুন সাইট সেই উপায়ে শুরু হয় যা আপনার নেটওয়ার্কে অন্য ব্লক করা সাইট খুলেছে, আর একটি পরিষেবার নামগুলো (YouTube, Instagram, Discord…) একটির পাওয়া উপায় ভাগ করে।\nযে উপায় কাজ করে চলেছে, তা আর রিস্টার্টের পর প্রথম সংযোগে আবার যাচাই করা হয় না।\nনতুন উপায়: সেটিংসে তিনটি স্থির বিকল্প (একাধিক TLS রেকর্ড, ছোট এলোমেলো টুকরো, জরুরি বাইট + রেকর্ড ভাগ), অটোতে আরও তিনটি, আর সাধারণ HTTP-র জন্য Host হেডার পুনর্লিখন।\nসময় শেষ হওয়া আপডেট ডাউনলোড আবার, তারপর সরাসরি চেষ্টা করা হয়।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

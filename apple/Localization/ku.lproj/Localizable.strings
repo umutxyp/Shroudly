@@ -202,9 +202,12 @@
 "stop" = "Parastinê rawestîne";
 "stopping" = "Radiweste…";
 "stratAuto" = "Xweber (tê pêşniyarkirin)";
+"stratChop" = "Perçeyên biçûk ên rasthatî";
 "stratDisorderSni" = "Li SNI tevlihev bike";
 "stratDoubleSplit" = "Parçekirina ducarî";
+"stratMultiRec" = "Çend tomarên TLS";
 "stratNone" = "Girtî (tenê DNS-a şîfrekirî)";
+"stratOobRec" = "Bayta lezgîn + parvekirina tomara TLS";
 "stratSplit2" = "Li bayta 2an parçe bike";
 "stratSplitMid" = "Di nîvê SNI de parçe bike";
 "stratSplitSni" = "Li SNI parçe bike";
@@ -228,7 +231,7 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Dema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.\nShroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.";
-"whatsNewMac" = "Dema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.\nShroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.";
+"whatsNewApple" = "Malperên astengkirî zûtir vedibin: malpereke nû bi rêbaza ku li ser tora te malperên din ên astengkirî vekiriye dest pê dike, û navên xizmetekê (YouTube, Instagram, Discord…) tiştê ku yek ji wan dibîne parve dikin.\nRêbaza ku xebata xwe didomîne êdî di girêdana yekem a piştî ji nû ve destpêkirinê de dîsa nayê kontrolkirin.\nRêbazên nû: di Mîhengan de sê vebijarkên sabît (çend tomarên TLS, perçeyên biçûk ên rasthatî, bayta lezgîn + parvekirina tomarê), sê yên din di Otomatîk de, û ji nû ve nivîsandina sernavê Host ji bo HTTP-ya sade.";
+"whatsNewMac" = "Malperên astengkirî zûtir vedibin: malpereke nû bi rêbaza ku li ser tora te malperên din ên astengkirî vekiriye dest pê dike, û navên xizmetekê (YouTube, Instagram, Discord…) tiştê ku yek ji wan dibîne parve dikin.\nRêbaza ku xebata xwe didomîne êdî di girêdana yekem a piştî ji nû ve destpêkirinê de dîsa nayê kontrolkirin.\nRêbazên nû: di Mîhengan de sê vebijarkên sabît (çend tomarên TLS, perçeyên biçûk ên rasthatî, bayta lezgîn + parvekirina tomarê), sê yên din di Otomatîk de, û ji nû ve nivîsandina sernavê Host ji bo HTTP-ya sade.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

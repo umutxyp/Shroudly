@@ -287,9 +287,12 @@
     <string name="stop">Schutz beenden</string>
     <string name="stopping">Wird beendet…</string>
     <string name="stratAuto">Automatisch (empfohlen)</string>
+    <string name="stratChop">Kleine zufällige Stücke</string>
     <string name="stratDisorderSni">Umordnen bei SNI</string>
     <string name="stratDoubleSplit">Doppelt aufteilen</string>
+    <string name="stratMultiRec">Mehrere TLS-Records</string>
     <string name="stratNone">Aus (nur verschlüsseltes DNS)</string>
+    <string name="stratOobRec">Dringendes Byte + TLS-Record teilen</string>
     <string name="stratSplit2">Aufteilen bei Byte 2</string>
     <string name="stratSplitMid">Aufteilen in der SNI-Mitte</string>
     <string name="stratSplitSni">Aufteilen bei SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Der letzte Ausweg (Tor) startet auf Handys wieder: in 2.6.80 beendete er sich sofort.\nIst QUIC aus, kommen Anrufe und Spiele, die UDP-Port 443 selbst nutzen, wieder durch; nur QUIC wird abgewiesen.\nIn einem Land, für das Shroudly keine Liste hat, lässt ein kurzer Ausfall es nicht mehr glauben, du wärst in einem anderen Land.\nShroudly kann jetzt bessere Einstellungen für dein Netz erhalten, ohne auf ein Update zu warten – von uns signiert und geprüft.</string>
+    <string name="whatsNewAndroid">Gesperrte Seiten öffnen schneller: eine neue beginnt mit dem, was in deinem Netz schon andere gesperrte Seiten geöffnet hat, und die Namen eines Dienstes (YouTube, Instagram, Discord…) teilen, was einer findet.\nEine Technik, die weiter funktioniert, wird bei der ersten Verbindung nach einem Neustart nicht mehr erneut geprüft.\nNeue Techniken: drei feste Optionen in den Einstellungen (mehrere TLS-Records, kleine zufällige Stücke, dringendes Byte + Record teilen), drei weitere in Auto und Host-Header-Umschreibungen für einfaches HTTP.\nEin abgebrochener Update-Download wird erneut versucht, dann direkt.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

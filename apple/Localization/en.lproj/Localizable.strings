@@ -202,9 +202,12 @@
 "stop" = "Stop protection";
 "stopping" = "Stopping…";
 "stratAuto" = "Auto (recommended)";
+"stratChop" = "Small random pieces";
 "stratDisorderSni" = "Disorder at SNI";
 "stratDoubleSplit" = "Double split";
+"stratMultiRec" = "Several TLS records";
 "stratNone" = "Off (encrypted DNS only)";
+"stratOobRec" = "Urgent byte + TLS record split";
 "stratSplit2" = "Split at byte 2";
 "stratSplitMid" = "Split in the middle of SNI";
 "stratSplitSni" = "Split at SNI";
@@ -228,7 +231,7 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.\nShroudly can now get better settings for your network without waiting for an update, checked and signed by us.";
-"whatsNewMac" = "With QUIC off, calls and games that use UDP port 443 for themselves go through again; only QUIC is turned away.\nShroudly can now get better settings for your network without waiting for an update, checked and signed by us.";
+"whatsNewApple" = "Blocked sites open faster: a new one starts with what already opened other blocked sites on your network, and the names of one service (YouTube, Instagram, Discord…) share what one of them finds.\nA technique that keeps working is no longer checked again on the first connection after a restart.\nNew techniques: three fixed choices in Settings (several TLS records, small random pieces, an urgent byte with a record split), three more in Auto, and Host header rewrites for plain HTTP.";
+"whatsNewMac" = "Blocked sites open faster: a new one starts with what already opened other blocked sites on your network, and the names of one service (YouTube, Instagram, Discord…) share what one of them finds.\nA technique that keeps working is no longer checked again on the first connection after a restart.\nNew techniques: three fixed choices in Settings (several TLS records, small random pieces, an urgent byte with a record split), three more in Auto, and Host header rewrites for plain HTTP.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

@@ -287,9 +287,12 @@
     <string name="stop">Korumayı durdur</string>
     <string name="stopping">Durduruluyor…</string>
     <string name="stratAuto">Otomatik (önerilen)</string>
+    <string name="stratChop">Rastgele küçük parçalar</string>
     <string name="stratDisorderSni">SNI noktasında sırayı karıştır</string>
     <string name="stratDoubleSplit">Çift bölme</string>
+    <string name="stratMultiRec">Birden çok TLS kaydı</string>
     <string name="stratNone">Kapalı (yalnızca şifreli DNS)</string>
+    <string name="stratOobRec">Acil bayt + TLS kaydı bölme</string>
     <string name="stratSplit2">2. bayttan böl</string>
     <string name="stratSplitMid">SNI ortasından böl</string>
     <string name="stratSplitSni">SNI noktasından böl</string>
@@ -336,7 +339,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Son çıkış yolu (Tor) telefonlarda yeniden başlıyor: 2.6.80\'de hemen kapanıyordu.\nQUIC kapalıyken UDP 443 portunu kendisi kullanan aramalar ve oyunlar yeniden geçiyor; sadece QUIC geri çevriliyor.\nShroudly\'nin listesinde olmayan bir ülkede kısa bir kesinti artık seni başka bir ülkede sanmasına yol açmıyor.\nShroudly artık ağın için daha iyi ayarları güncelleme beklemeden alabiliyor; bizim tarafımızdan imzalı ve doğrulanmış olarak.</string>
+    <string name="whatsNewAndroid">Engelli siteler daha hızlı açılıyor: yeni bir site, ağında başka engelli siteleri açmış olan teknikle başlıyor; bir servisin adları (YouTube, Instagram, Discord…) birinin bulduğunu paylaşıyor.\nÇalışmaya devam eden bir teknik, yeniden başlatmadan sonraki ilk bağlantıda artık yeniden denetlenmiyor.\nYeni teknikler: Ayarlar\'da üç sabit seçenek (birden çok TLS kaydı, rastgele küçük parçalar, acil bayt + kayıt bölme), Otomatik\'te üç yeni teknik ve düz HTTP için Host başlığı yeniden yazımları.\nZaman aşımına uğrayan güncelleme indirmesi yeniden, sonra doğrudan deneniyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

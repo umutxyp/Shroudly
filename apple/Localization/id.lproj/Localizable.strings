@@ -202,9 +202,12 @@
 "stop" = "Hentikan perlindungan";
 "stopping" = "Menghentikan…";
 "stratAuto" = "Otomatis (disarankan)";
+"stratChop" = "Potongan kecil acak";
 "stratDisorderSni" = "Acak urutan di SNI";
 "stratDoubleSplit" = "Pecah ganda";
+"stratMultiRec" = "Beberapa rekaman TLS";
 "stratNone" = "Mati (hanya DNS terenkripsi)";
+"stratOobRec" = "Byte mendesak + pemisahan rekaman TLS";
 "stratSplit2" = "Pecah di byte 2";
 "stratSplitMid" = "Pecah di tengah SNI";
 "stratSplitSni" = "Pecah di SNI";
@@ -228,7 +231,7 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Saat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.\nShroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.";
-"whatsNewMac" = "Saat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.\nShroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.";
+"whatsNewApple" = "Situs yang diblokir terbuka lebih cepat: situs baru dimulai dengan cara yang sudah membuka situs terblokir lain di jaringan Anda, dan nama-nama satu layanan (YouTube, Instagram, Discord…) berbagi apa yang ditemukan salah satunya.\nTeknik yang terus berhasil tidak lagi diperiksa ulang pada koneksi pertama setelah mulai ulang.\nTeknik baru: tiga pilihan tetap di Setelan (beberapa rekaman TLS, potongan kecil acak, byte mendesak + pemisahan rekaman), tiga lagi di Otomatis, dan penulisan ulang header Host untuk HTTP biasa.";
+"whatsNewMac" = "Situs yang diblokir terbuka lebih cepat: situs baru dimulai dengan cara yang sudah membuka situs terblokir lain di jaringan Anda, dan nama-nama satu layanan (YouTube, Instagram, Discord…) berbagi apa yang ditemukan salah satunya.\nTeknik yang terus berhasil tidak lagi diperiksa ulang pada koneksi pertama setelah mulai ulang.\nTeknik baru: tiga pilihan tetap di Setelan (beberapa rekaman TLS, potongan kecil acak, byte mendesak + pemisahan rekaman), tiga lagi di Otomatis, dan penulisan ulang header Host untuk HTTP biasa.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

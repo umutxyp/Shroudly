@@ -287,9 +287,12 @@
     <string name="stop">Выключить защиту</string>
     <string name="stopping">Остановка…</string>
     <string name="stratAuto">Авто (рекомендуется)</string>
+    <string name="stratChop">Мелкие случайные куски</string>
     <string name="stratDisorderSni">Перестановка по SNI</string>
     <string name="stratDoubleSplit">Двойное разделение</string>
+    <string name="stratMultiRec">Несколько записей TLS</string>
     <string name="stratNone">Выкл. (только шифрованный DNS)</string>
+    <string name="stratOobRec">Срочный байт + разделение записи TLS</string>
     <string name="stratSplit2">Разделение на 2-м байте</string>
     <string name="stratSplitMid">Разделение в середине SNI</string>
     <string name="stratSplitSni">Разделение по SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Последний путь (Tor) снова запускается на телефонах: в 2.6.80 он сразу завершался.\nКогда QUIC выключен, звонки и игры, которые сами используют UDP-порт 443, снова проходят; отклоняется только QUIC.\nВ стране, для которой у Shroudly нет списка, короткий сбой больше не заставляет его считать, что вы в другой стране.\nShroudly теперь может получать лучшие настройки для вашей сети, не дожидаясь обновления; они подписаны и проверены нами.</string>
+    <string name="whatsNewAndroid">Заблокированные сайты открываются быстрее: новый сайт начинается с техники, которая уже открыла другие заблокированные сайты в вашей сети, а адреса одного сервиса (YouTube, Instagram, Discord…) делятся найденным.\nТехника, которая продолжает работать, больше не проверяется заново при первом соединении после перезапуска.\nНовые техники: три постоянных варианта в настройках (несколько записей TLS, мелкие случайные куски, срочный байт + разделение записи), ещё три в «Авто» и переписывание заголовка Host для обычного HTTP.\nЗагрузка обновления, прервавшаяся по тайм-ауту, повторяется, затем напрямую.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

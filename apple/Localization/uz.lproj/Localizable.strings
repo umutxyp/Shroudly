@@ -202,9 +202,12 @@
 "stop" = "Himoyani oʻchirish";
 "stopping" = "Oʻchirilmoqda…";
 "stratAuto" = "Avto (tavsiya etiladi)";
+"stratChop" = "Kichik tasodifiy boʻlaklar";
 "stratDisorderSni" = "SNI joyida tartibni buzish";
 "stratDoubleSplit" = "Ikki marta boʻlish";
+"stratMultiRec" = "Bir nechta TLS yozuvi";
 "stratNone" = "Oʻchiq (faqat shifrlangan DNS)";
+"stratOobRec" = "Shoshilinch bayt + TLS yozuvini boʻlish";
 "stratSplit2" = "2-baytdan boʻlish";
 "stratSplitMid" = "SNI oʻrtasidan boʻlish";
 "stratSplitSni" = "SNI joyidan boʻlish";
@@ -228,7 +231,7 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
-"whatsNewMac" = "QUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.";
+"whatsNewApple" = "Bloklangan saytlar tezroq ochiladi: yangi sayt tarmogʻingizda boshqa bloklangan saytlarni ochgan usul bilan boshlanadi, bir xizmatning nomlari (YouTube, Instagram, Discord…) esa biri topganini boʻlishadi.\nIshlashda davom etayotgan usul qayta ishga tushirilgandan keyingi birinchi ulanishda endi qayta tekshirilmaydi.\nYangi usullar: Sozlamalarda uchta doimiy tanlov (bir nechta TLS yozuvi, kichik tasodifiy boʻlaklar, shoshilinch bayt + yozuvni boʻlish), «Avto»da yana uchtasi va oddiy HTTP uchun Host sarlavhasini qayta yozish.";
+"whatsNewMac" = "Bloklangan saytlar tezroq ochiladi: yangi sayt tarmogʻingizda boshqa bloklangan saytlarni ochgan usul bilan boshlanadi, bir xizmatning nomlari (YouTube, Instagram, Discord…) esa biri topganini boʻlishadi.\nIshlashda davom etayotgan usul qayta ishga tushirilgandan keyingi birinchi ulanishda endi qayta tekshirilmaydi.\nYangi usullar: Sozlamalarda uchta doimiy tanlov (bir nechta TLS yozuvi, kichik tasodifiy boʻlaklar, shoshilinch bayt + yozuvni boʻlish), «Avto»da yana uchtasi va oddiy HTTP uchun Host sarlavhasini qayta yozish.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

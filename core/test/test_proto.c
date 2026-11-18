@@ -116,9 +116,9 @@ static void test_presets(void) {
   int n = strategy_preset_count();
   CHECK(n > 0);
   /* The engine's ladder holds every preset and the untouched request in one
-   * set of connections (LEG_MAX 24 in engine.c), and STRATEGY_MAX_PRESETS
+   * set of connections (LEG_MAX 26 in engine.c), and STRATEGY_MAX_PRESETS
    * bounds the list. */
-  CHECK(n <= STRATEGY_MAX_PRESETS && n + 1 <= 24);
+  CHECK(n <= STRATEGY_MAX_PRESETS && n + 1 <= 26);
   /* What the apps keep is by name: the ones of 2.6.82 keep their place, and
    * the later ones come after them (see ensure_presets). */
   CHECK(strcmp(strategy_preset(0)->name, "tlsrec-sni-mid") == 0 && strcmp(strategy_preset(19)->name, "fake-decoy") == 0);

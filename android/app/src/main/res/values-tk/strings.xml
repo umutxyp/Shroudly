@@ -287,9 +287,12 @@
     <string name="stop">Goragy togtadyň</string>
     <string name="stopping">Togtadylýar…</string>
     <string name="stratAuto">Awtomatik (maslahat berilýär)</string>
+    <string name="stratChop">Tötänleýin kiçi bölekler</string>
     <string name="stratDisorderSni">SNI-de tertipsiz iberiş</string>
     <string name="stratDoubleSplit">Iki gezek bölmek</string>
+    <string name="stratMultiRec">Birnäçe TLS ýazgysy</string>
     <string name="stratNone">Öçük</string>
+    <string name="stratOobRec">Gyssagly baýt + TLS ýazgysyny bölmek</string>
     <string name="stratSplit2">2-nji baýtda bölmek</string>
     <string name="stratSplitMid">SNI-niň ortasyndan bölmek</string>
     <string name="stratSplitSni">SNI-de bölmek</string>
@@ -336,7 +339,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Iň soňky ýol (Tor) telefonlarda täzeden işleýär: 2.6.80-de derrew ýapylýardy.\nQUIC öçük bolanda UDP 443 portuny özi ulanýan jaňlar we oýunlar täzeden geçýär; diňe QUIC ret edilýär.\nShroudly-de sanawy bolmadyk ýurtda gysga kesilme indi ony sizi başga ýurtda diýip pikir etdirmeýär.\nShroudly indi täzelenmäni garaşman ulgamyňyz üçin has gowy sazlamalary alyp bilýär; olara biz gol çekip, barlaýarys.</string>
+    <string name="whatsNewAndroid">Petiklenen saýtlar has çalt açylýar: täze saýt ulgamyňyzda beýleki petiklenen saýtlary açan usul bilen başlaýar, bir hyzmatyň atlary (YouTube, Instagram, Discord…) biriniň tapanyny paýlaşýar.\nIşlemegini dowam edýän usul täzeden başlanandan soňky ilkinji birikmede indi gaýtadan barlanmaýar.\nTäze usullar: Sazlamalarda üç hemişelik saýlaw (birnäçe TLS ýazgysy, tötänleýin kiçi bölekler, gyssagly baýt + ýazgyny bölmek), «Awto»da ýene üçüsi we ýönekeý HTTP üçin Host sözbaşysyny täzeden ýazmak.\nWagty geçen täzelenme ýüklemesi gaýtadan, soňra göni synanyşylýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

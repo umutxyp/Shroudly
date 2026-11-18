@@ -202,9 +202,12 @@
 "stop" = "Detener protección";
 "stopping" = "Deteniendo…";
 "stratAuto" = "Automática (recomendada)";
+"stratChop" = "Trozos pequeños aleatorios";
 "stratDisorderSni" = "Desordenar en el SNI";
 "stratDoubleSplit" = "División doble";
+"stratMultiRec" = "Varios registros TLS";
 "stratNone" = "Desactivado (solo DNS cifrado)";
+"stratOobRec" = "Byte urgente + división del registro TLS";
 "stratSplit2" = "Dividir en el byte 2";
 "stratSplitMid" = "Dividir en mitad del SNI";
 "stratSplitSni" = "Dividir en el SNI";
@@ -228,7 +231,7 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Con QUIC desactivado, las llamadas y juegos que usan el puerto UDP 443 vuelven a pasar; solo se rechaza QUIC.\nShroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.";
-"whatsNewMac" = "Con QUIC desactivado, las llamadas y juegos que usan el puerto UDP 443 vuelven a pasar; solo se rechaza QUIC.\nShroudly ahora puede recibir mejores ajustes para tu red sin esperar una actualización, firmados y verificados por nosotros.";
+"whatsNewApple" = "Los sitios bloqueados abren más rápido: uno nuevo empieza con lo que ya abrió otros sitios bloqueados en tu red, y los nombres de un mismo servicio (YouTube, Instagram, Discord…) comparten lo que encuentra uno de ellos.\nUna técnica que sigue funcionando ya no se vuelve a comprobar en la primera conexión tras un reinicio.\nTécnicas nuevas: tres opciones fijas en Ajustes (varios registros TLS, trozos pequeños aleatorios, byte urgente + división del registro), tres más en Automático y reescrituras de la cabecera Host para HTTP sin cifrar.";
+"whatsNewMac" = "Los sitios bloqueados abren más rápido: uno nuevo empieza con lo que ya abrió otros sitios bloqueados en tu red, y los nombres de un mismo servicio (YouTube, Instagram, Discord…) comparten lo que encuentra uno de ellos.\nUna técnica que sigue funcionando ya no se vuelve a comprobar en la primera conexión tras un reinicio.\nTécnicas nuevas: tres opciones fijas en Ajustes (varios registros TLS, trozos pequeños aleatorios, byte urgente + división del registro), tres más en Automático y reescrituras de la cabecera Host para HTTP sin cifrar.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

@@ -287,9 +287,12 @@
     <string name="stop">Hentikan perlindungan</string>
     <string name="stopping">Menghentikan…</string>
     <string name="stratAuto">Auto (disyorkan)</string>
+    <string name="stratChop">Kepingan kecil rawak</string>
     <string name="stratDisorderSni">Ubah susunan pada SNI</string>
     <string name="stratDoubleSplit">Pisah berganda</string>
+    <string name="stratMultiRec">Beberapa rekod TLS</string>
     <string name="stratNone">Mati (DNS tersulit sahaja)</string>
+    <string name="stratOobRec">Bait segera + pemisahan rekod TLS</string>
     <string name="stratSplit2">Pisah pada bait 2</string>
     <string name="stratSplitMid">Pisah di tengah SNI</string>
     <string name="stratSplitSni">Pisah pada SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Jalan terakhir (Tor) kembali bermula pada telefon: dalam 2.6.80 ia terus berhenti.\nApabila QUIC dimatikan, panggilan dan permainan yang menggunakan port UDP 443 sendiri kembali lalu; hanya QUIC ditolak.\nDi negara yang tiada senarai dalam Shroudly, gangguan singkat tidak lagi membuatkannya menyangka anda di negara lain.\nShroudly kini boleh menerima tetapan yang lebih baik untuk rangkaian anda tanpa menunggu kemas kini, ditandatangani dan disemak oleh kami.</string>
+    <string name="whatsNewAndroid">Laman yang disekat dibuka lebih pantas: laman baharu bermula dengan cara yang sudah membuka laman disekat lain di rangkaian anda, dan nama-nama satu perkhidmatan (YouTube, Instagram, Discord…) berkongsi apa yang ditemui salah satunya.\nTeknik yang terus berfungsi tidak lagi disemak semula pada sambungan pertama selepas dimulakan semula.\nTeknik baharu: tiga pilihan tetap dalam Tetapan (beberapa rekod TLS, kepingan kecil rawak, bait segera + pemisahan rekod), tiga lagi dalam Auto, dan penulisan semula pengepala Host untuk HTTP biasa.\nMuat turun kemas kini yang tamat masa dicuba semula, kemudian secara terus.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

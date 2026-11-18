@@ -287,9 +287,12 @@
     <string name="stop">توقف محافظت</string>
     <string name="stopping">در حال توقف…</string>
     <string name="stratAuto">خودکار (توصیه‌شده)</string>
+    <string name="stratChop">تکه‌های کوچک تصادفی</string>
     <string name="stratDisorderSni">جابه‌جایی ترتیب در SNI</string>
     <string name="stratDoubleSplit">تقسیم دوگانه</string>
+    <string name="stratMultiRec">چند رکورد TLS</string>
     <string name="stratNone">خاموش (فقط DNS رمزگذاری‌شده)</string>
+    <string name="stratOobRec">بایت فوری + تقسیم رکورد TLS</string>
     <string name="stratSplit2">تقسیم در بایت 2</string>
     <string name="stratSplitMid">تقسیم در میانهٔ SNI</string>
     <string name="stratSplitSni">تقسیم در SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">آخرین راه (Tor) دوباره روی گوشی‌ها روشن می‌شود: در 2.6.80 بی‌درنگ بسته می‌شد.\nوقتی QUIC خاموش است، تماس‌ها و بازی‌هایی که خودشان از پورت UDP 443 استفاده می‌کنند دوباره عبور می‌کنند؛ فقط QUIC رد می‌شود.\nدر کشوری که Shroudly فهرستی برایش ندارد، یک قطعی کوتاه دیگر باعث نمی‌شود شما را در کشور دیگری بداند.\nShroudly حالا می‌تواند تنظیمات بهتری برای شبکهٔ شما را بدون انتظار برای به‌روزرسانی دریافت کند؛ امضاشده و بررسی‌شده توسط ما.</string>
+    <string name="whatsNewAndroid">سایت‌های مسدود سریع‌تر باز می‌شوند: سایت جدید با روشی شروع می‌شود که سایت‌های مسدود دیگر را در شبکهٔ شما باز کرده است و نام‌های یک سرویس (YouTube، Instagram، Discord…) یافته‌های هم را به کار می‌برند.\nروشی که همچنان کار می‌کند، دیگر در نخستین اتصال پس از راه‌اندازی دوباره بررسی نمی‌شود.\nروش‌های تازه: سه گزینهٔ ثابت در تنظیمات (چند رکورد TLS، تکه‌های کوچک تصادفی، بایت فوری + تقسیم رکورد)، سه روش دیگر در خودکار و بازنویسی سرآیند Host برای HTTP ساده.\nدانلود به‌روزرسانی که زمانش تمام شد، دوباره و سپس مستقیم امتحان می‌شود.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

@@ -287,9 +287,12 @@
     <string name="stop">ساتنه ودروئ</string>
     <string name="stopping">درېږي…</string>
     <string name="stratAuto">اتومات (سپارښتل شوی)</string>
+    <string name="stratChop">کوچنۍ تصادفي ټوټې</string>
     <string name="stratDisorderSni">په SNI کې ګډوډ ترتیب</string>
     <string name="stratDoubleSplit">دوه ځلي وېشل</string>
+    <string name="stratMultiRec">څو TLS ریکارډونه</string>
     <string name="stratNone">بند (یوازې کوډ شوی DNS)</string>
+    <string name="stratOobRec">بیړنی بایټ + د TLS ریکارډ ویشل</string>
     <string name="stratSplit2">په دوهم بایټ کې وېشل</string>
     <string name="stratSplitMid">د SNI په منځ کې وېشل</string>
     <string name="stratSplitSni">په SNI کې وېشل</string>
@@ -336,7 +339,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">وروستۍ لاره (Tor) بیا په ټیلیفونونو کې پیلېږي: په 2.6.80 کې سمدستي بندېده.\nکله چې QUIC بند وي، هغه زنګونه او لوبې چې پخپله د UDP 443 پورټ کاروي بیا تېرېږي؛ یوازې QUIC ردېږي.\nپه هغه هېواد کې چې Shroudly ورته لېست نه لري، لنډ پرې کېدل نور دا نه اړ باسي چې فکر وکړي تاسو په بل هېواد کې یاست.\nShroudly اوس کولی شي له تازه کولو پرته ستاسو د شبکې لپاره ښې ترتیبات ترلاسه کړي؛ زموږ لخوا لاسلیک او تایید شوي.</string>
+    <string name="whatsNewAndroid">بند سایټونه ژر خلاصېږي: نوی سایټ په هغه لار پیلېږي چې ستاسو په شبکه کې یې نور بند سایټونه خلاص کړي، او د یوه خدمت نومونه (YouTube، Instagram، Discord…) د یوه موندنه شریکوي.\nهغه لار چې کار ته دوام ورکوي، نور له بیا پیلولو وروسته په لومړي اتصال کې بیا نه ازمویل کېږي.\nنوې لارې: په امستنو کې درې ثابت انتخابونه (څو TLS ریکارډونه، کوچنۍ تصادفي ټوټې، بیړنی بایټ + د ریکارډ ویشل)، په اتومات کې نورې درې، او د ساده HTTP لپاره د Host سرلیک بیا لیکل.\nد تازه کولو هغه ښکته کول چې وخت یې تېر شو، بیا او بیا مستقیم ازمویل کېږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

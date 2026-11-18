@@ -202,9 +202,12 @@
 "stop" = "Tắt bảo vệ";
 "stopping" = "Đang tắt…";
 "stratAuto" = "Tự động (khuyên dùng)";
+"stratChop" = "Mảnh nhỏ ngẫu nhiên";
 "stratDisorderSni" = "Đảo thứ tự tại SNI";
 "stratDoubleSplit" = "Tách hai lần";
+"stratMultiRec" = "Nhiều bản ghi TLS";
 "stratNone" = "Tắt (chỉ DNS mã hóa)";
+"stratOobRec" = "Byte khẩn + tách bản ghi TLS";
 "stratSplit2" = "Tách tại byte 2";
 "stratSplitMid" = "Tách ở giữa SNI";
 "stratSplitSni" = "Tách tại SNI";
@@ -228,7 +231,7 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.\nShroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
-"whatsNewMac" = "Khi tắt QUIC, cuộc gọi và trò chơi tự dùng cổng UDP 443 lại đi qua được; chỉ QUIC bị từ chối.\nShroudly giờ có thể nhận cài đặt tốt hơn cho mạng của bạn mà không cần chờ bản cập nhật, được chúng tôi ký và kiểm tra.";
+"whatsNewApple" = "Trang bị chặn mở nhanh hơn: trang mới bắt đầu bằng cách đã mở các trang bị chặn khác trên mạng của bạn, và các tên miền của cùng một dịch vụ (YouTube, Instagram, Discord…) dùng chung cách mà một trong số đó tìm ra.\nMột kỹ thuật vẫn đang hoạt động không còn bị kiểm tra lại ở kết nối đầu tiên sau khi khởi động lại.\nKỹ thuật mới: ba lựa chọn cố định trong Cài đặt (nhiều bản ghi TLS, mảnh nhỏ ngẫu nhiên, byte khẩn + tách bản ghi), thêm ba trong Tự động, và viết lại tiêu đề Host cho HTTP thường.";
+"whatsNewMac" = "Trang bị chặn mở nhanh hơn: trang mới bắt đầu bằng cách đã mở các trang bị chặn khác trên mạng của bạn, và các tên miền của cùng một dịch vụ (YouTube, Instagram, Discord…) dùng chung cách mà một trong số đó tìm ra.\nMột kỹ thuật vẫn đang hoạt động không còn bị kiểm tra lại ở kết nối đầu tiên sau khi khởi động lại.\nKỹ thuật mới: ba lựa chọn cố định trong Cài đặt (nhiều bản ghi TLS, mảnh nhỏ ngẫu nhiên, byte khẩn + tách bản ghi), thêm ba trong Tự động, và viết lại tiêu đề Host cho HTTP thường.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

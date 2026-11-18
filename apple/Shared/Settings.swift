@@ -32,6 +32,10 @@ enum Strategies {
         Strategy(id: "split-sni-mid", labelKey: "stratSplitMid", spec: "split(sni_mid)", auto: false),
         Strategy(id: "double-split", labelKey: "stratDoubleSplit", spec: "split(1),split(sni)", auto: false),
         Strategy(id: "split2", labelKey: "stratSplit2", spec: "split(2)", auto: false),
+        // One technique for every site from the first packet (see the desktop's list).
+        Strategy(id: "multi-rec", labelKey: "stratMultiRec", spec: "tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)", auto: false),
+        Strategy(id: "chop", labelKey: "stratChop", spec: "chop(100-200)", auto: false),
+        Strategy(id: "oob-rec", labelKey: "stratOobRec", spec: "oob(1),tlsrec(sni_end-5)", auto: false),
         // Off: connections untouched, encrypted DNS only (issue #37).
         Strategy(id: "none", labelKey: "stratNone", spec: "none", auto: false),
     ]

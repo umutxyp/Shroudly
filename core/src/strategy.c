@@ -3,6 +3,7 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 #include "strategy.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -65,6 +66,8 @@ int strategy_parse(const char *spec, strategy *out) {
     else if (strcmp(tok, "httpcase") == 0) op.kind = OP_HTTP_CASE;
     else if (strcmp(tok, "tlsrec") == 0)   op.kind = OP_TLSREC;
     else if (strcmp(tok, "oob") == 0)      op.kind = OP_OOB;
+    else if (strcmp(tok, "chop") == 0)     op.kind = OP_CHOP;
+    else if (strcmp(tok, "http") == 0)     op.kind = OP_HTTP;
     else continue;
 
     if (op.kind == OP_FAKE) {
@@ -78,6 +81,37 @@ int strategy_parse(const char *spec, strategy *out) {
       op.offset = -1;
       { char *at = strstr(args, "pos=");
         if (at) op.offset = atoi(at + 4); }
+    } else if (op.kind == OP_CHOP) {
+      /* chop(MIN-MAX) or chop(MIN-MAX:WMIN-WMAX): segments of MIN..MAX
+       * bytes, each followed by a pause of WMIN..WMAX ms (Xray's fragment
+       * "length" and "interval"). A single number is a fixed size or pause.
+       * Kept sane: at least one byte, at most 1400, a pause of at most 100
+       * ms, so a ClientHello never takes long to leave. */
+      int a = 0, b = 0, wa = 0, wb = 0;
+      /* ':' rather than '/': what remote settings allow in a technique. */
+      char *colon = strchr(args, ':');
+      if (colon) { *colon = 0; if (sscanf(colon + 1, "%d-%d", &wa, &wb) < 2) wb = wa; }
+      if (sscanf(args, "%d-%d", &a, &b) < 2) b = a;
+      if (a < 1) a = 1;
+      if (b < a) b = a;
+      if (b > 1400) b = 1400;
+      if (a > b) a = b;
+      if (wa < 0) wa = 0;
+      if (wb < wa) wb = wa;
+      if (wb > 100) wb = 100;
+      if (wa > wb) wa = wb;
+      out->chop_min = a; out->chop_max = b; out->chop_wait_min = wa; out->chop_wait_max = wb;
+    } else if (op.kind == OP_HTTP) {
+      /* http(hostcase+domcase+hosttab+nospace+methodeol): which rewrites,
+       * joined with '+' (a comma ends the operation). */
+      int m = 0;
+      if (strstr(args, "hostcase"))  m |= HTTP_HOSTCASE;
+      if (strstr(args, "domcase"))   m |= HTTP_DOMCASE;
+      if (strstr(args, "hosttab"))   m |= HTTP_HOSTTAB;
+      if (strstr(args, "nospace"))   m |= HTTP_NOSPACE;
+      if (strstr(args, "methodeol")) m |= HTTP_METHODEOL;
+      if (!m) continue;
+      op.offset = m;
     } else if (op.kind == OP_TLSREC || op.kind == OP_OOB) {
       op.ref = parse_ref(args, &op.offset);
       if (op.ref == POS_ABS && args[0]) op.offset = atoi(args);
@@ -187,6 +221,21 @@ static void ensure_presets(void) {
    * for a short name, for a long CDN name (rr3---sn-x.googlevideo.com),
    * where sni_mid falls in the subdomain. */
   add("tlsrec-midsld",        "tlsrec(midsld)");
+  /* Plain HTTP only (left out of every other ladder, so a TLS site's list,
+   * and the time it takes to reach the last way out, stay as they were):
+   * the Host header written the ways the RFC allows that a byte-for-byte
+   * match misses (tpws), and a cut in the name. Only the rewrites every
+   * server tried took: a tab after "Host:" got 400 from example.com, and an
+   * empty line before the request 400 from captive.apple.com (2026-11-18),
+   * and a 400 is an answer the ladder would have learned; those two stay for
+   * a strategy written by hand.
+   *
+   * The other newer TLS techniques (several records, random-size segments)
+   * are not in this list: each one added here is one more a site nothing
+   * opens walks before the last way out. They are a fixed choice in
+   * Settings, applied to every site from the first packet, and remote
+   * settings can give them to a network that needs them. */
+  add("http-tricks",          "http(hostcase+domcase+nospace),split(sni_mid)");
 }
 
 int strategy_preset_count(void) { ensure_presets(); return N_PRESETS; }

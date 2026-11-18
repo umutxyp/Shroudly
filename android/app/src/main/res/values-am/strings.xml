@@ -287,9 +287,12 @@
     <string name="stop">ጥበቃ ያቁሙ</string>
     <string name="stopping">በማቆም ላይ…</string>
     <string name="stratAuto">ራስ-ሰር (የሚመከር)</string>
+    <string name="stratChop">ትናንሽ የዘፈቀደ ቁርጥራጮች</string>
     <string name="stratDisorderSni">በSNI ላይ ቅደም ተከተል ማዛባት</string>
     <string name="stratDoubleSplit">ድርብ ክፍፍል</string>
+    <string name="stratMultiRec">በርካታ TLS መዝገቦች</string>
     <string name="stratNone">ጠፍቷል (የተመሰጠረ DNS ብቻ)</string>
+    <string name="stratOobRec">አስቸኳይ ባይት + የTLS መዝገብ መከፋፈል</string>
     <string name="stratSplit2">በባይት 2 ላይ መክፈል</string>
     <string name="stratSplitMid">በSNI መሃል ላይ መክፈል</string>
     <string name="stratSplitSni">በSNI ላይ መክፈል</string>
@@ -336,7 +339,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">የመጨረሻው መንገድ (Tor) በስልኮች ላይ እንደገና ይጀምራል፦ በ2.6.80 ወዲያውኑ ይቆም ነበር።\nQUIC ሲጠፋ UDP ወደብ 443ን ራሳቸው የሚጠቀሙ ጥሪዎችና ጨዋታዎች እንደገና ያልፋሉ፤ QUIC ብቻ ይመለሳል።\nShroudly ዝርዝር በሌለው አገር አጭር መቋረጥ ከእንግዲህ ሌላ አገር እንዳሉ እንዲያስብ አያደርገውም።\nShroudly አሁን ዝማኔ ሳይጠብቅ ለአውታረ መረብዎ የተሻሉ ቅንብሮችን መቀበል ይችላል፤ በእኛ የተፈረሙና የተረጋገጡ።</string>
+    <string name="whatsNewAndroid">የታገዱ ጣቢያዎች በፍጥነት ይከፈታሉ፦ አዲስ ጣቢያ በአውታረ መረብዎ ላይ ሌሎች የታገዱ ጣቢያዎችን በከፈተው ዘዴ ይጀምራል፣ የአንድ አገልግሎት ስሞችም (YouTube፣ Instagram፣ Discord…) አንዱ ያገኘውን ይጋራሉ።\nመስራቱን የቀጠለ ዘዴ ዳግም ከተጀመረ በኋላ ባለው የመጀመሪያ ግንኙነት ላይ ከእንግዲህ እንደገና አይፈተሽም።\nአዳዲስ ዘዴዎች፦ በቅንብሮች ውስጥ ሶስት ቋሚ ምርጫዎች (በርካታ TLS መዝገቦች፣ ትናንሽ የዘፈቀደ ቁርጥራጮች፣ አስቸኳይ ባይት + የመዝገብ መከፋፈል)፣ በራስ-ሰር ሶስት ተጨማሪ፣ እና ለተራ HTTP የHost ራስጌ እንደገና መጻፍ።\nጊዜው ያለፈበት የዝማኔ ማውረድ እንደገና፣ ከዚያም በቀጥታ ይሞከራል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>
