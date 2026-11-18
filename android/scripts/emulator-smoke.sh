@@ -845,6 +845,13 @@ window() {
     wait_for 30 tun_gone || fail "protection did not go off before the window checks"
     sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
   fi
+  # Its first opening after the copy was installed over itself is an update:
+  # What's new is shown, over everything a check looks for. Closed, as a
+  # user would.
+  if ui_has "What&apos;s new in\|What's new in"; then
+    sh_ "input keyevent KEYCODE_BACK" >/dev/null; sleep 1
+    say "What's new shown once after the update, closed"
+  fi
 }
 # The links and Share logs are on the About tab, as on the desktop.
 about_tab() { sh_ "am start -W -n $PKG/.MainActivity --es me.codeshare.shroudly.TAB ABOUT" >/dev/null; sleep 2; }
