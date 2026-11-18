@@ -947,9 +947,19 @@ static int preset_usable(const strategy *st) {
   return 0;
 }
 
+/* The techniques a ladder can walk here: the length of a TLS site's list,
+ * which is what "N techniques" means wherever it is said. One that only
+ * rewrites plain HTTP (TRAIT_HTTP) is not in a TLS ladder, so not counted. */
+static int preset_http_only(const strategy *st) {
+  for (int i = 0; i < st->n_ops; i++) if (st->ops[i].kind == OP_HTTP) return 1;
+  return 0;
+}
 static int usable_presets(void) {
   int n = 0;
-  for (int i = 0; i < strategy_preset_count(); i++) n += preset_usable(strategy_preset(i));
+  for (int i = 0; i < strategy_preset_count(); i++) {
+    const strategy *st = strategy_preset(i);
+    n += preset_usable(st) && !preset_http_only(st);
+  }
   return n;
 }
 
