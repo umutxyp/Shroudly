@@ -842,6 +842,77 @@ static void hs_unlearn(const char *h, int inherited) {
   mutex_unlock(&g_hs_mx);
 }
 
+/* ── what opens sites on this network ───────────────────────────────────
+ * A filter is one machine with one way of reading a handshake, so the
+ * technique that gets past it for one blocked site nearly always gets past
+ * it for the next. Yet a name with nothing learned for it, nor for its site,
+ * started from the untouched request every time: behind a filter that drops
+ * without a word, that is a second or more of silence (UNHEARD_MS) before
+ * any technique goes out, then the list a batch at a time, for every new
+ * blocked name, every time. ByeByeDPI, which applies one fixed method to
+ * everything from the first packet, opened the same sites visibly sooner on
+ * the same line (a report from Türk Telekom), with the line itself just as
+ * fast through Shroudly as without it.
+ *
+ * So the engine keeps, for this run, which TLS technique opened which
+ * sites, from proof alone: a ladder that learned it the way ladder_won
+ * learns (the untouched request refused, or still unanswered while the
+ * technique got through). Once one technique has opened two different
+ * sites like that (by site, so two names of one site count once), a name
+ * with nothing of its own races it against the untouched request
+ * (net_best, see handle): the untouched request still goes first, with the
+ * same short moment to itself as a technique learned long ago is raced
+ * with (race_head), so a site that is not blocked answers it and is relayed
+ * untouched, as before; a blocked one is answered through the technique a
+ * moment later, instead of after the silence and the batches. It is a
+ * presumption, never evidence: nothing is learned for the name from it
+ * unless the untouched request is shown blocked (see ladder_won).
+ *
+ * Of a network, and this engine is not told which network it is on, so it
+ * is forgotten when the app says the network changed (NET-CHANGED) and at
+ * every start; not kept across restarts, where a few blocked sites learn
+ * it again within the first minute. On a network it no longer fits it costs
+ * nothing a fresh ladder would not: the untouched request has its moment,
+ * and the technique that fails there is followed at the same time as a
+ * fresh ladder would start on its list. The most recently proven technique
+ * of those that opened two sites is the one used, so a filter that changes
+ * what it looks at is followed within two sites. Under g_hs_mx. */
+#define NET_SITES 2
+typedef struct { char site[NET_SITES][256]; int n; uint64_t t; } netbest;
+static netbest g_net[STRATEGY_MAX_PRESETS];
+
+/* Caller holds g_hs_mx. h was shown blocked here and opened with preset. */
+static void net_note(const char *h, int preset) {
+  if (preset < 0 || preset >= STRATEGY_MAX_PRESETS || !h[0]) return;
+  char site[256];
+  if (!site_of(h, site, sizeof(site))) snprintf(site, sizeof(site), "%s", h);
+  netbest *b = &g_net[preset];
+  int k = 0;
+  while (k < b->n && strcmp(b->site[k], site) != 0) k++;
+  if (k == b->n && b->n < NET_SITES) memcpy(b->site[b->n++], site, strlen(site) + 1);
+  b->t = now_ms();
+}
+
+/* The technique that opened NET_SITES sites here, the most recently proven
+ * of them, or -1. */
+static int net_best(void) {
+  int best = -1, np = strategy_preset_count();
+  mutex_lock(&g_hs_mx);
+  for (int i = 0; i < np && i < STRATEGY_MAX_PRESETS; i++)
+    if (g_net[i].n >= NET_SITES && (best < 0 || g_net[i].t > g_net[best].t)) best = i;
+  mutex_unlock(&g_hs_mx);
+  return best;
+}
+
+static void net_forget(void) {
+  mutex_lock(&g_hs_mx);
+  memset(g_net, 0, sizeof(g_net));
+  mutex_unlock(&g_hs_mx);
+}
+
+/* The app says the network changed (NET-CHANGED). */
+void engine_network_changed(void) { net_forget(); }
+
 /* ── where a silent ladder left off ──────────────────────────────────────
  * On a network that drops a blocked handshake without a word, every attempt
  * costs its whole wait, so one connection's budget covers the untouched
@@ -1047,17 +1118,23 @@ static int preset_fits(int i, unsigned avoid) {
 
 /* The browser turned down the handshake a technique produced (client_refused):
  * that technique's kind is left out for this name, and its next connection
- * opens with the next technique of another kind. Returns that one, or -1. */
-static int hs_on_refused(const char *h, int cand) {
+ * opens with the next technique of another kind. Returns that one, or -1.
+ * presumed: the technique was only presumed from other sites (net_best), and
+ * the name was never shown blocked: the kind is left out all the same, but
+ * nothing is stored for the name, whose next connection then starts
+ * untouched like any name with nothing known (a server that is not blocked,
+ * DDoS-Guard's #68, then simply opens as it did before). */
+static int hs_on_refused(const char *h, int cand, int presumed) {
   int np = strategy_preset_count();
   if (np <= 0 || cand < 0 || cand >= np || !g_cfg.auto_probe) return -1;
   unsigned mask = preset_traits(strategy_preset(cand));
   unsigned avoid = mask | av_get(h);
   int next = -1;
-  for (int k = 1; k < np && next < 0; k++)
+  for (int k = 1; k < np && next < 0 && !presumed; k++)
     if (preset_fits((cand + k) % np, avoid)) next = (cand + k) % np;
   mutex_lock(&g_hs_mx);
   if (mask) av_add(h, mask);
+  if (presumed) { mutex_unlock(&g_hs_mx); return -1; }
   if (next >= 0) hs_store(h, next);
   else { int i = hs_find(h); if (i >= 0) g_hs[i].used = 0; }
   mutex_unlock(&g_hs_mx);
@@ -2625,6 +2702,8 @@ typedef struct {
   int learned, inherited;  /* the technique known for the host (-1: none), and whether it is the site's */
   int opened_learned;      /* the ladder opened with that technique */
   int race;                /* the ladder raced the untouched request against a technique */
+  int presumed;            /* ... one that opened other sites on this network (net_best), nothing
+                            * known for this name: a place to start, not evidence */
   int saw_refusal;         /* some attempt was refused */
   int plain_refused;       /* the untouched request was */
   int plain_alert;         /* ... with a TLS alert */
@@ -2693,6 +2772,18 @@ static int await_legs(ladder_st *st, int wait_ms, uint8_t *rbuf, int rcap, int *
   }
 }
 
+/* await_legs until the time `end`, going on past connections refused
+ * meanwhile: ATT_OK with *win set, ATT_SILENT when the time ran out with some
+ * still open, ATT_REFUSED when every one of them was refused. */
+static int await_until(ladder_st *st, uint64_t end, uint8_t *rbuf, int rcap, int *rlen, int *win) {
+  for (;;) {
+    uint64_t t = now_ms();
+    if (t >= end) return ATT_SILENT;
+    int r = await_legs(st, (int)(end - t), rbuf, rcap, rlen, win);
+    if (r != ATT_REFUSED || st->L.n == 0) return r;
+  }
+}
+
 /* Room for the next attempt's connection (see EXTRA_LEGS_MAX). While there is
  * none, the ladder's open connections are listened to, a little at a time,
  * so an answer on one of them is not kept waiting. 1 with room taken; 2 when
@@ -2753,7 +2844,7 @@ static int race_legs(ladder_st *st, sock_t client, uint8_t *rbuf, int rcap, int 
  * a technique learned like that before, and this one replaced it after it
  * failed here. Anything else teaches nothing: the known technique answering
  * at once, or the untouched request answering, however late. */
-static void ladder_won(ladder_st *st, const leg *w) {
+static int ladder_won(ladder_st *st, const leg *w) {
   atomic_fetch_add(&g_stats.probe_success, 1);
   cool_drop(st->key);   /* it answers: whatever came to nothing before is over */
   if (w->cand == ATT_PLAIN) {
@@ -2762,26 +2853,48 @@ static void ladder_won(ladder_st *st, const leg *w) {
      * needed here, and a silent search is over. */
     if (st->learned >= 0) hs_unlearn(st->key, st->inherited);
     if (st->tls || st->dropped) rs_drop(st->key);
-    return;
+    return 0;
   }
-  if (w->cand < 0) return;
+  if (w->cand < 0) return 0;
   int plain_open = 0;
-  for (int i = 0; i < st->L.n; i++) if (st->L.l[i].cand == ATT_PLAIN) plain_open = 1;
+  uint64_t plain_at = 0;
+  for (int i = 0; i < st->L.n; i++) if (st->L.l[i].cand == ATT_PLAIN) { plain_open = 1; plain_at = st->L.l[i].at; }
   /* Plain HTTP: only when the untouched request never arrived (legs_unheard);
    * unanswered alone, it may be a slow server's. */
   int untouched_blocked = st->plain_refused || (plain_open && (st->tls || st->dropped || legs_unheard(&st->L)));
+  /* A ladder that raced a technique only because it opened other sites on
+   * this network (net_best) gave the untouched request a moment alone
+   * (race_head), not the seconds a fresh ladder gives it, so "still
+   * unanswered" proves nothing yet: a server that is slow to answer a
+   * handshake would have its name learned as blocked. It is shown blocked
+   * when it was refused, when it never arrived (legs_unheard: unacknowledged
+   * a while after it went out, which a slow server does not do), or when it
+   * went unanswered for as long as a technique is given to answer
+   * (VERIFY_DESYNC_MS) while one got through. */
+  if (st->presumed)
+    untouched_blocked = st->plain_refused ||
+      (plain_open && (legs_unheard(&st->L) || age_ms(now_ms(), plain_at) >= VERIFY_DESYNC_MS));
   int replaces = st->opened_learned && st->first_failed && w->idx != 0;
   if (untouched_blocked || replaces) {
     hs_put(st->key, w->cand);
+    /* What opens sites on this network (net_best): only from proof, the
+     * same proof that is learned from. */
+    if (st->tls) {
+      mutex_lock(&g_hs_mx);
+      net_note(st->key, w->cand);
+      mutex_unlock(&g_hs_mx);
+    }
     /* News only when it is new, not when a known technique is confirmed. And
      * "silent" when nothing was ever refused: a different kind of filter, and
      * worth telling apart when reading a report. */
     if (w->cand != st->learned)
       report("bypass", st->key, strategy_preset(w->cand)->name, st->made, w->fam,
              st->saw_refusal ? NULL : "silent");
+    return 1;
   } else if (st->tls || st->dropped) {
     rs_drop(st->key);
   }
+  return 0;
 }
 
 /* How long a raced untouched request has to itself (see RACE_HEAD_MIN_MS),
@@ -4949,6 +5062,7 @@ static void handle(sock_t client) {
    * (raw_cand), and when, for raw_result once its fate is known. */
   int raw_cand = 0, raw_inh = 0, raw_done = 1;
   int used_cand = ATT_PLAIN;   /* the technique the relayed connection went out with */
+  int used_presumed = 0;       /* ... presumed from other sites (net_best), learned for nothing */
   uint64_t raw_at = 0;
   int told = 0;      /* the connection's fate is already in the log */
   int gave_up = 0;   /* the ladder ended with nothing answered: blocked, or unreachable */
@@ -5042,7 +5156,16 @@ static void handle(sock_t client) {
        * record where there is a last way out: that pass is what the last way
        * out waits for (hand_over), so it is made now. */
       st.L.max = (ex_recent(key) || (cool_is(key) && !fallback_ok(rq.host))) ? LEG_COOL_MAX : LEG_OPEN;
-      if (resumed || (learned >= 0 && stale && watch_tls)) {
+      /* Nothing known for the name or its site, and nothing of a silent
+       * search to carry on: the technique that opened other sites on this
+       * network, if one did, is raced against the untouched request (see
+       * net_best), unless it is of a kind this name's server cannot take. */
+      int presume = -1;
+      if (watch_tls && !resumed && learned < 0) {
+        presume = net_best();
+        if (presume >= np || (presume >= 0 && !preset_fits(presume, avoid))) presume = -1;
+      }
+      if (resumed || (learned >= 0 && stale && watch_tls) || presume >= 0) {
         /* A race: the untouched request goes first and has a moment to itself
          * (race_head), then the technique goes out beside it on a connection
          * of its own, and the first to answer is used. Whatever it is the
@@ -5061,10 +5184,12 @@ static void handle(sock_t client) {
             if (preset_fits(i, avoid)) cand[ncand++] = i;
           }
         } else {
-          cand[ncand++] = learned;
+          int lead = learned >= 0 ? learned : presume;
+          cand[ncand++] = lead;
           for (int i = 0; i < np && ncand < ATT_MAX; i++)
-            if (i != learned && preset_fits(i, avoid)) cand[ncand++] = i;
+            if (i != lead && preset_fits(i, avoid)) cand[ncand++] = i;
         }
+        st.presumed = !resumed && learned < 0 && presume >= 0;
         /* The last connection was dropped from start to end: the techniques
          * get the shorter wait from the start (not known for another name). */
         st.silent = resumed && !site_from;
@@ -5179,7 +5304,30 @@ static void handle(sock_t client) {
           legs_add(&st.L, cur);
           int quick = UNHEARD_MS + 3 * di.rtt_ms;
           if (quick > UNHEARD_MAX_MS) quick = UNHEARD_MAX_MS;
-          if (a == 0 && !head && wait_ms > quick) {
+          int pk = -1;   /* the untouched request's connection, still open */
+          for (int i = 0; i < st.L.n; i++) if (st.L.l[i].cand == ATT_PLAIN) { pk = i; break; }
+          if (st.presumed && a == 1 && pk >= 0) {
+            /* A technique presumed from other sites (st.presumed) went out
+             * race_head after the untouched request. The rest of the list
+             * waits for the untouched request as long as a fresh ladder
+             * would have before its first technique: until it has been out
+             * `quick`, when whether it arrived is asked (legs_unheard), and
+             * if it did, until VERIFY_PLAIN_MS. Whatever the presumed
+             * technique meets meanwhile, refused or unanswered, so a server
+             * that is only slow, and turns the technique down, still opens
+             * untouched as it did, with nothing reported; and a presumption
+             * that does not fit this name costs no more time than a fresh
+             * ladder before the rest of the list goes out. */
+            uint64_t p0 = st.L.l[pk].at;
+            r = await_until(&st, p0 + (uint64_t)quick, rbuf, RELAY_BUF, &rlen, &win);
+            if (r == ATT_SILENT) {
+              if (legs_unheard(&st.L)) st.silent++;
+              else {
+                uint64_t end = p0 + VERIFY_PLAIN_MS, least = now_ms() + ATT_MIN_WAIT_MS;
+                r = await_until(&st, end > least ? end : least, rbuf, RELAY_BUF, &rlen, &win);
+              }
+            }
+          } else if (a == 0 && !head && wait_ms > quick) {
             r = await_legs(&st, quick, rbuf, RELAY_BUF, &rlen, &win);
             if (r == ATT_SILENT) {
               if (legs_unheard(&st.L)) { st.silent++; if (!watch_tls) st.dropped = 1; }
@@ -5308,7 +5456,10 @@ static void handle(sock_t client) {
         if (rr == 1) pick = win;
         else if (rr == 2) pick = 0;   /* the oldest: on a fresh ladder, the untouched request */
       }
-      if (win >= 0) ladder_won(&st, &st.L.l[win]);
+      if (win >= 0) {
+        int learnt = ladder_won(&st, &st.L.l[win]);
+        used_presumed = st.presumed && !learnt && st.L.l[win].cand >= 0;
+      }
       if (burst) burst_give(key);
       /* The network's own DNS (see there): its address got through, or did
        * not; or every technique failed at our own resolver's addresses. */
@@ -5398,7 +5549,7 @@ static void handle(sock_t client) {
      * and with it parts of the game. */
     if (cw.host && used_cand >= 0 && used_cand < strategy_preset_count()
         && preset_traits(strategy_preset(used_cand)) && client_refused(&cw)) {
-      int next = hs_on_refused(cw.host, used_cand);
+      int next = hs_on_refused(cw.host, used_cand, used_presumed);
       char h[256];
       json_host(h, sizeof(h), cw.host);
       /* avoid: the kinds now left out for it, for the app to keep and give
@@ -5575,6 +5726,7 @@ static void engine_forget(void) {
   mutex_lock(&g_hs_mx);
   memset(g_hs, 0, sizeof(g_hs));
   memset(g_rs, 0, sizeof(g_rs));
+  memset(g_net, 0, sizeof(g_net));
   mutex_unlock(&g_hs_mx);
   mutex_lock(&g_ok_mx);
   memset(g_ok, 0, sizeof(g_ok));

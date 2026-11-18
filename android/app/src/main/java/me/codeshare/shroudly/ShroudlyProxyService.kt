@@ -604,6 +604,8 @@ class ShroudlyProxyService : Service() {
         if (now == null) { kept.clear(); return }
         log("Network: ${Net.describe(cm, now)}")
         doh?.networkChanged()
+        // The technique that opened sites on the old network is not tried first on this one (engine.c, net_best).
+        engine?.send("NET-CHANGED")
         if (!keptGone && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now))) {
             kept += old
             log("The network before (${Net.describe(cm, old)}) still works: apps' connections over it are kept until it goes")

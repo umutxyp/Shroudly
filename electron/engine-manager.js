@@ -1617,9 +1617,14 @@ class EngineManager {
   /* Another network, or a wake (main.js): what the old network's DNS
    * answered through the plain or system fallback (a hotel portal's forged
    * answers before login among them) is dropped and its resolvers are asked
-   * again, instead of being kept for their TTL (doh.c, DNS-CLEAR). */
+   * again, instead of being kept for their TTL (doh.c, DNS-CLEAR). And the
+   * technique that opened sites on the old network is no longer tried first
+   * for new names on this one (engine.c, net_best; NET-CHANGED). */
   networkChanged() {
-    return this.active ? this._command('DNS-CLEAR') : false;
+    if (!this.active) return false;
+    const ok = this._command('DNS-CLEAR');
+    this._command('NET-CHANGED');
+    return ok;
   }
 
   // Ask the engine to probe a host (used by UI "test site").
