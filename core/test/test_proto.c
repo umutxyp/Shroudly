@@ -96,6 +96,16 @@ static void test_strategy_parse(void) {
   CHECK(st.ops[0].kind == OP_DISORDER);
   CHECK(st.ops[0].offset == 1);
 
+  /* The name's own label (sld, midsld, endsld), and ByeByeDPI's default
+   * with an absolute urgent byte. */
+  CHECK(strategy_parse("tlsrec(midsld),split(sld+2),disorder(endsld-1)", &st) == 0 && st.n_ops == 3);
+  CHECK(st.ops[0].kind == OP_TLSREC && st.ops[0].ref == POS_MIDSLD && st.ops[0].offset == 0);
+  CHECK(st.ops[1].ref == POS_SLD && st.ops[1].offset == 2);
+  CHECK(st.ops[2].ref == POS_ENDSLD && st.ops[2].offset == -1);
+  CHECK(strategy_parse("oob(1),tlsrec(sni_end-5)", &st) == 0 && st.n_ops == 2);
+  CHECK(st.ops[0].kind == OP_OOB && st.ops[0].ref == POS_ABS && st.ops[0].offset == 1);
+  CHECK(st.ops[1].kind == OP_TLSREC && st.ops[1].ref == POS_SNI_END && st.ops[1].offset == -5);
+
   CHECK(strategy_parse("", &st) != 0);
   CHECK(strategy_parse("nonsense", &st) != 0);
   /* "none": no operation at all, accepted (Settings "Off", issue #37). */
@@ -105,6 +115,15 @@ static void test_strategy_parse(void) {
 static void test_presets(void) {
   int n = strategy_preset_count();
   CHECK(n > 0);
+  /* The engine's ladder holds every preset and the untouched request in one
+   * set of connections (LEG_MAX 24 in engine.c), and STRATEGY_MAX_PRESETS
+   * bounds the list. */
+  CHECK(n <= STRATEGY_MAX_PRESETS && n + 1 <= 24);
+  /* What the apps keep is by name: the ones of 2.6.82 keep their place, and
+   * the later ones come after them (see ensure_presets). */
+  CHECK(strcmp(strategy_preset(0)->name, "tlsrec-sni-mid") == 0 && strcmp(strategy_preset(19)->name, "fake-decoy") == 0);
+  CHECK(n >= 23 && strcmp(strategy_preset(20)->name, "oob-tlsrec-end") == 0 &&
+        strcmp(strategy_preset(21)->name, "split-tlsrec-end") == 0 && strcmp(strategy_preset(22)->name, "tlsrec-midsld") == 0);
   for (int i = 0; i < n; i++) {
     const strategy *s = strategy_preset(i);
     CHECK(s->n_ops > 0);

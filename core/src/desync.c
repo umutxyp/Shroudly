@@ -3,14 +3,50 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* Resolve a strategy position reference to an absolute offset in the payload. */
-static int resolve_pos(pos_ref ref, int offset, int len, const proto_info *pi) {
+/* Second levels under which people register their own names under a
+ * two-letter country domain (co.uk, com.tr): the name's own label is then
+ * the one before them. The same list as GENERIC_SLD in engine.c; a name it
+ * misses only has its cut land one label off, still inside the name. */
+static const char *const SLD_GENERIC[] = {
+  "co", "com", "net", "org", "gov", "edu", "ac", "gen", "biz", "info", "or", "ne", "go",
+  "mil", "int", "nom", "ltd", "plc", "sch", "k12", "gob", "gouv", "govt", NULL
+};
+
+/* Where the name's own label (see POS_SLD) starts and ends, as offsets into
+ * the name h[0..n): sld[0], sld[1]; both -1 when there is no name. A name of
+ * one label is its own label. */
+static void sld_span(const uint8_t *h, int n, int sld[2]) {
+  sld[0] = sld[1] = -1;
+  if (!h || n <= 0) return;
+  if (h[n - 1] == '.') n--;                 /* "example.com." */
+  if (n <= 0) return;
+  int dot[3] = { -1, -1, -1 }, nd = 0;      /* the last three dots, last first */
+  for (int i = n - 1; i >= 0 && nd < 3; i--) if (h[i] == '.') dot[nd++] = i;
+  if (nd == 0) { sld[0] = 0; sld[1] = n; return; }
+  int b = dot[1] + 1, e = dot[0];           /* the second-to-last label */
+  if (n - dot[0] - 1 == 2 && nd >= 2) {     /* a two-letter country domain */
+    for (int i = 0; SLD_GENERIC[i]; i++)
+      if ((int)strlen(SLD_GENERIC[i]) == e - b && memcmp(h + b, SLD_GENERIC[i], (size_t)(e - b)) == 0) {
+        b = dot[2] + 1; e = dot[1]; break;
+      }
+  }
+  if (e <= b) return;                       /* "..com": no label */
+  sld[0] = b; sld[1] = e;
+}
+
+/* Resolve a strategy position reference to an absolute offset in the payload.
+ * sld: the name's own label (sld_span), relative to the name's start. */
+static int resolve_pos(pos_ref ref, int offset, int len, const proto_info *pi, const int sld[2]) {
   int base;
+  int has_sld = pi->host_off >= 0 && sld[0] >= 0;
   switch (ref) {
     case POS_SNI:     base = pi->host_off >= 0 ? pi->host_off : len / 2; break;
     case POS_SNI_MID: base = pi->host_off >= 0 ? pi->host_off + pi->host_len / 2 : len / 2; break;
     case POS_SNI_END: base = pi->host_off >= 0 ? pi->host_off + pi->host_len : len / 2; break;
     case POS_HOST:    base = pi->http_hdr_off >= 0 ? pi->http_hdr_off : len / 2; break;
+    case POS_SLD:     base = has_sld ? pi->host_off + sld[0] : len / 2; break;
+    case POS_MIDSLD:  base = has_sld ? pi->host_off + (sld[0] + sld[1]) / 2 : len / 2; break;
+    case POS_ENDSLD:  base = has_sld ? pi->host_off + sld[1] : len / 2; break;
     case POS_ABS:
     default:          base = offset < 0 ? len + offset : offset; offset = 0; break;
   }
@@ -130,6 +166,11 @@ int desync_send_first(sock_t up, int family,
                       _Atomic uint64_t *desync_counter) {
   if (len <= 0) return 0;
 
+  /* The name's own label, found before anything below rewrites the payload. */
+  int sld[2] = { -1, -1 };
+  if (pi->host_off >= 0 && pi->host_len > 0 && pi->host_off + pi->host_len <= len)
+    sld_span(payload + pi->host_off, pi->host_len, sld);
+
   /* Optional HTTP Host case-scramble. */
   for (int i = 0; i < st->n_ops; i++) {
     if (st->ops[i].kind == OP_HTTP_CASE && pi->kind == PROTO_HTTP && pi->http_hdr_off >= 0) {
@@ -144,7 +185,7 @@ int desync_send_first(sock_t up, int family,
   for (int i = 0; i < st->n_ops; i++) {
     op_kind k = st->ops[i].kind;
     if (k != OP_SPLIT && k != OP_DISORDER) continue;
-    int p = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi);
+    int p = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi, sld);
     int dup = 0;
     for (int j = 0; j < nsplits; j++) if (splits[j] == p) dup = 1;
     if (!dup && nsplits < MAX_OPS) splits[nsplits++] = p;
@@ -155,7 +196,7 @@ int desync_send_first(sock_t up, int family,
    * record header. */
   for (int i = 0; i < st->n_ops; i++) {
     if (st->ops[i].kind != OP_TLSREC || pi->kind != PROTO_TLS) continue;
-    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi);
+    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi, sld);
     int nl = tls_insert_record(payload, len, cap, pi->tls_record_total, pos);
     if (nl > 0) {
       for (int j = 0; j < nsplits; j++) if (splits[j] > pos) splits[j] += 5;
@@ -168,7 +209,7 @@ int desync_send_first(sock_t up, int family,
    * removes it again, so it is sent on its own rather than combined. */
   for (int i = 0; i < st->n_ops; i++) {
     if (st->ops[i].kind != OP_OOB) continue;
-    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi);
+    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi, sld);
     int r = send_oob_at(up, payload, len, pos);
     if (desync_counter) (*desync_counter)++;
     if (r == 0) return 0;
@@ -182,7 +223,7 @@ int desync_send_first(sock_t up, int family,
    * when TCP resends the segment. Not built on macOS — see fake.h. */
   for (int i = 0; i < st->n_ops; i++) {
     if (st->ops[i].kind != OP_FAKE || !fake_available()) continue;
-    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi);
+    int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi, sld);
     int done = fake_send_first(up, family, payload, pos, pi,
                                st->fake_ttl, st->fmode == FAKE_MD5);
     if (done <= 0) break;                 /* could not: fall through to the rest */

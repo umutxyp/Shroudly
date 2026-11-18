@@ -299,11 +299,13 @@ int main(void) {
   CHECK(now == 0);                         /* past the last usable one: the first */
   CHECK(hs_get("other.rotate.example", NULL) == last);        /* the site did not move */
   if (!fake_available()) {
-    /* The decoy is listed last and cannot be sent here: never cycled onto. */
-    CHECK(!preset_usable(strategy_preset(np - 1)));
-    hs_put("d.rotate2.example", np - 2);
+    /* The decoy cannot be sent here: never cycled onto. */
+    int fi = -1;
+    for (int i = 0; i < np; i++) if (!preset_usable(strategy_preset(i))) fi = i;
+    CHECK(fi > 0 && strcmp(strategy_preset(fi)->name, "fake-decoy") == 0);
+    hs_put("d.rotate2.example", fi - 1);
     hs_on_cut("d.rotate2.example");
-    CHECK(hs_get("d.rotate2.example", NULL) == 0);
+    CHECK(hs_get("d.rotate2.example", NULL) == (fi + 1 < np ? fi + 1 : 0));
   }
   hs_on_cut("fresh.rotate3.example");     /* nothing learned: the first technique */
   CHECK(hs_get("fresh.rotate3.example", NULL) == next_usable(-1));

@@ -180,6 +180,20 @@ int main(void){
   run_unacked();
   /* ByeByeDPI's "-r-1+se" (issue #37): the last label never in one record. */
   run_tlsrec("tlsrec(sni_end-1)","rr3---sn-4g5edndr.googlevideo.com",1);
+  /* ByeByeDPI's default record cut (-r-5+se), alone and after split(1). */
+  run_tlsrec("tlsrec(sni_end-5)","www.example.com",5);
+  run_tlsrec("split(1),tlsrec(sni_end-5)","discord.com",5);
+  /* The name's own label: "googl|evideo.com" (10 bytes after the cut), not
+   * in the subdomain; under a country's second level, "exa|mple.co.uk". */
+  run_tlsrec("tlsrec(midsld)","rr3---sn-4g5edndr.googlevideo.com",10);
+  run_tlsrec("tlsrec(endsld)","rr3---sn-4g5edndr.googlevideo.com",4);
+  run_tlsrec("tlsrec(sld)","rr3---sn-4g5edndr.googlevideo.com",15);
+  run_tlsrec("tlsrec(midsld)","www.example.co.uk",10);
+  run_tlsrec("tlsrec(midsld)","www.example.com.tr",11);
+  run_tlsrec("tlsrec(midsld+1)","cdn.example.org",7);
+  run_tlsrec("tlsrec(midsld)","localhost",5);
+  run_case("split(midsld)","rr3---sn-4g5edndr.googlevideo.com");
+  run_case("split(1),split(sld),split(endsld)","a.b.example.net");
   run_case("split(sni)","www.example.com");
   run_case("disorder(sni)","test.blocked.org");
   run_case("split(sni_mid)","a.verylonghostname.example.net");

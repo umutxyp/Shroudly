@@ -24,7 +24,15 @@ typedef enum {
   POS_SNI,       /* at the SNI / Host value start              */
   POS_SNI_MID,   /* in the middle of the SNI / Host value      */
   POS_SNI_END,   /* just after the SNI / Host value            */
-  POS_HOST       /* at the HTTP Host header name               */
+  POS_HOST,      /* at the HTTP Host header name               */
+  /* The name's own label, the one before its public suffix ("googlevideo"
+   * in rr3---sn-x.googlevideo.com, "example" in www.example.co.uk): where
+   * it starts, its middle, just after it (sld, midsld, endsld). A cut in the
+   * middle of the name (sni_mid) of a long CDN name falls in the subdomain
+   * and leaves the domain a filter looks for whole. */
+  POS_SLD,
+  POS_MIDSLD,
+  POS_ENDSLD
 } pos_ref;
 
 typedef struct {
