@@ -239,6 +239,9 @@ const t = suite('engine-manager');
   mem.dnsProtection = false;
   em._onLine(JSON.stringify({ type: 'blocked', host: 'dead.example', strategy: '', attempts: 5, family: 'ipv4', note: 'silent' }));
   t.ok(logs.some((l) => l.startsWith('success: quiet.example: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently')), 'silent-drop bypass says so');
+  // How long the site took to open, where the engine says.
+  em._onLine(JSON.stringify({ type: 'bypass', host: 'timed.example', strategy: 'tlsrec-sni-mid', attempts: 3, family: 'ipv4', ms: 2437 }));
+  t.ok(logs.includes('success: timed.example: blocked here, opened with tlsrec-sni-mid (3 tries, ipv4, 2.4 s)'), 'a bypass says how long the site took to open');
   t.ok(logs.some((l) => l.startsWith('warning: dead.example: no answer after 5 techniques (ipv4) — the network may be dropping these connections silently, or the site is down')), 'no answer at all is logged as such');
   t.ok(!blockedNotices.length, 'no answer at all is not announced as a blocked site');
   t.ok(mem.dnsProtection === false, 'no answer at all does not switch encrypted DNS back on');

@@ -1384,7 +1384,7 @@ class ShroudlyVpnService : VpnService() {
                     store.remember(ev.host, ev.strategy, System.currentTimeMillis())
                     getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(if (raw) "learnedRaw" else "learned", store.encode()).apply()
                 }
-                if (first) logSite { "${ev.host}: blocked here, opened with ${ev.strategy} (${ev.attempts} tries, ${ev.family})" }
+                if (first) logSite { "${ev.host}: blocked here, opened with ${ev.strategy} (${ev.attempts} tries, ${ev.family}${ev.took})" }
             }
             "blocked" -> if (first) logSite {
                 when {

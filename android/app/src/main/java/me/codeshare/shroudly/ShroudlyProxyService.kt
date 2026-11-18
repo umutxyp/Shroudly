@@ -362,7 +362,7 @@ class ShroudlyProxyService : Service() {
                     store.remember(ev.host, ev.strategy, System.currentTimeMillis())
                     getSharedPreferences("engine", Context.MODE_PRIVATE).edit().putString(if (raw) "learnedRaw" else "learned", store.encode()).apply()
                 }
-                if (first) ShroudlyVpnService.logSite("${ev.host}: blocked here, opened with ${ev.strategy} (${ev.attempts} tries, ${ev.family})")
+                if (first) ShroudlyVpnService.logSite("${ev.host}: blocked here, opened with ${ev.strategy} (${ev.attempts} tries, ${ev.family}${ev.took})")
             }
             "blocked" -> if (first) ShroudlyVpnService.logSite(when {
                 ev.alert -> "${ev.host}: the server refused the connection itself; not a block"
