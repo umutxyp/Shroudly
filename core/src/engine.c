@@ -780,6 +780,9 @@ typedef struct { char host[256]; int preset; uint64_t t; int used; uint64_t prov
 #define HS_TELL_MS    (10 * 60 * 1000)
 static hoststrat g_hs[HS_SIZE];
 static mutex_t   g_hs_mx;
+/* Moves on each time something is learned (hs_put): a ladder under way
+ * looks for what another name of its site found only when it has. */
+static _Atomic unsigned g_hs_gen = 0;
 
 /* Per host, the technique a silent ladder did not get to (see below). Long
  * enough to live through a browser's retries; short enough that a lifted
@@ -847,6 +850,7 @@ static void hs_put(const char *h, int preset) {
   mutex_lock(&g_hs_mx);
   hs_store(h, preset);
   if (in_site && strcmp(site, h) != 0) hs_store(site, preset);
+  atomic_fetch_add(&g_hs_gen, 1);
   /* Something works here now, so where a silent search left off no longer
    * matters: not for this name, and not for any name of its site, which take
    * this instead. */
@@ -5291,7 +5295,25 @@ static void handle(sock_t client) {
       int last_preset = -1;     /* the last technique that actually went out */
       int local_fails = 0;      /* attempts our own send failed for a reason of ours */
       int win = -1, rep_fam = fam;
+      unsigned hs_seen = atomic_load(&g_hs_gen);
       for (int a = 0; a < ncand && win < 0; a++) {
+        /* Another name of the site, or of its service (SITE_FAMILY), found
+         * what opens it while this ladder was on its way down the list: a
+         * browser opens www., static. and cdn. at once, a video player
+         * several of googlevideo.com's names, and each went through the
+         * whole search on its own, paying its silences and batches, though
+         * the answer was already there for the next connection. It is what
+         * this ladder tries next, unless it has tried it already; the rest
+         * of the list follows as it was. Only for a ladder that had nothing
+         * learned to start from, and only after something was learned since
+         * it looked (g_hs_gen). */
+        if (a > 0 && watch_tls && learned < 0 && atomic_load(&g_hs_gen) != hs_seen) {
+          hs_seen = atomic_load(&g_hs_gen);
+          int s2 = hs_get(key, NULL);
+          if (s2 >= 0 && s2 < np && s2 < 32 && !((tried >> s2) & 1u) && preset_fits(s2, avoid))
+            for (int j = a + 1; j < ncand; j++)
+              if (cand[j] == s2) { memmove(&cand[a + 1], &cand[a], (size_t)(j - a) * sizeof(int)); cand[a] = s2; break; }
+        }
         int c = cand[a];
         int head = st.race && a == 0;
         int wait_ms = c == ATT_PLAIN ? (head ? race_head : VERIFY_PLAIN_MS)
