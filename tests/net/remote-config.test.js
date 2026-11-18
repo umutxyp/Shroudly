@@ -68,6 +68,34 @@ const t = suite('remote-config');
   const again = new R.RemoteConfig({ store, publicKey: pub, ctx: () => ({}), fetchText: async () => { throw new Error('offline'); } });
   t.ok(again.serial() === 2 && again.settings().quicOff === false, 'what was taken is there again at the next start, offline too');
 
+  // Each source in turn: an HTTP 200 alone does not end the check.
+  let clock = 1e12;
+  const kept2 = new Map();
+  const store2 = { get: (k) => kept2.get(k), set: (k, v) => kept2.set(k, v) };
+  const next = file({ serial: 3, set: { quicOff: true } });
+  const asked = [];
+  let answer = (u) => (u.endsWith('.sig') ? sign(next) : (u.startsWith(R.SOURCES[0]) ? next + ' ' : next));
+  const m = new R.RemoteConfig({ store: store2, publicKey: pub, ctx: () => ({}), now: () => clock,
+    fetchText: async (u) => { asked.push(u); return answer(u); } });
+  t.ok(await m.refresh({ force: true }) && m.serial() === 3 && m.settings().quicOff === true && asked.length === 4 && asked[2].startsWith(R.SOURCES[1]),
+    'a first source whose file and signature do not match: the mirror is asked, and its file taken');
+  t.ok(!m.due(), 'that counts as the check (six hours to the next)');
+  asked.length = 0; answer = (u) => (u.endsWith('.sig') ? sign(next) : next);
+  t.ok(!(await m.refresh({ force: true })) && asked.length === 2 && m.serial() === 3,
+    'the one in use again from the first source: done, nothing taken, the mirror not asked');
+  asked.length = 0; answer = (u) => (u.endsWith('.sig') ? sign(older) : older);
+  clock += 7 * 3600e3;
+  t.ok(m.due() && !(await m.refresh()) && asked.length === 4 && m.serial() === 3,
+    'older files from both: both asked, the one in use kept');
+  clock += 30 * 60e3;
+  t.ok(!m.due(), 'and asked again in an hour, not at every look');
+  clock += 31 * 60e3;
+  t.ok(m.due(), 'an hour on, due again');
+  asked.length = 0; answer = () => { throw new Error('offline'); };
+  t.ok(!(await m.refresh()) && m.due() && m.serial() === 3, 'offline: nothing changes, still due at the next look (as before)');
+  asked.length = 0; answer = (u) => (u.startsWith(R.SOURCES[0]) ? (() => { throw new Error('HTTP 404'); })() : (u.endsWith('.sig') ? sign(next) : next));
+  t.ok(!(await m.refresh()) && asked.length === 4 && !m.due(), 'a first source that fails, a mirror with the one in use: the check is done');
+
   // The desktop's engine: the remote arguments and decoys go in.
   const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
   const em = new EngineManager({ get: () => undefined, set: () => {} }, { remote: () => ({ engineArgs: ['--strategy', 'disorder', '--upstream-file', '/x'], decoyNames: {} }) });

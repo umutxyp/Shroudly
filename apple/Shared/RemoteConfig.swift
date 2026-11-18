@@ -18,6 +18,8 @@ enum RemoteConfig {
         "https://cdn.jsdelivr.net/gh/umutxyp/Shroudly@main/",
     ]
     static let every: TimeInterval = 6 * 3600
+    // Asked again this soon when a source answered but none gave a usable file.
+    static let retry: TimeInterval = 3600
     private enum Key {
         static let text = "remoteConfigText"
         static let sig = "remoteConfigSig"
@@ -151,34 +153,85 @@ enum RemoteConfig {
 
     static func settings(_ d: UserDefaults = AppGroup.defaults) -> [String: Any] { effective(current(d), ctx) }
 
-    /* A file and its signature as fetched: kept when it checks and is newer. */
-    @discardableResult
-    static func offer(_ text: String, sig: String, _ d: UserDefaults = AppGroup.defaults, log: (String) -> Void = { _ in }) -> Bool {
-        guard text.utf8.count <= 256 * 1024 else { return false }
-        guard verify(text, sig: sig) else { log("Remote settings: a file whose signature does not check was refused"); return false }
-        guard let c = parse(text), let serial = c["serial"] as? Int, serial > Self.serial(d) else { return false }
-        d.set(text, forKey: Key.text)
-        d.set(sig.trimmingCharacters(in: .whitespacesAndNewlines), forKey: Key.sig)
-        log("Remote settings: number \(serial) in use")
-        return true
+    /* What a file and its signature as fetched are worth (the desktop's
+     * take, electron/remote-config.js): .new checks and is newer than the
+     * one in use; .same checks and is the one in use (the check is done,
+     * nothing changes); .unusable is too large, signed wrong (a mirror out
+     * of step, a captive portal's page), not understood, expired or older,
+     * and the next source is asked. An HTTP 200 alone used to end the
+     * check, and an unusable answer from the first source kept the mirror
+     * from being asked until six hours on. */
+    enum Take: Equatable { case new, same, unusable }
+
+    static func worth(_ text: String, sig: String, inUse: Int, key: String = publicKey, now: Date = Date()) -> Take {
+        guard !text.isEmpty, text.utf8.count <= 256 * 1024, verify(text, sig: sig, key: key),
+              let c = parse(text, now: now), let serial = c["serial"] as? Int else { return .unusable }
+        if serial < inUse { return .unusable }
+        return serial == inUse ? .same : .new
     }
 
-    /* Asked for every six hours by the app; true when a new one came. */
+    /* Each source in turn until one gives a usable file. fetch: the file and
+     * its signature, or nil when the source did not answer (offline, not
+     * HTTP 200); take: what they are worth (and kept when new). Returns .new
+     * or .same from the source that gave a usable file, .unusable when one
+     * answered but none gave a usable file, nil when none answered. */
+    static func ask<S>(_ sources: [S], fetch: (S) async -> (String, String)?, take: (String, String) -> Take) async -> Take? {
+        var answered = false
+        for src in sources {
+            guard let got = await fetch(src) else { continue }
+            answered = true
+            let t = take(got.0, got.1)
+            if t != .unusable { return t }
+        }
+        return answered ? .unusable : nil
+    }
+
+    /* When the last check counts as made, after one that ended `how` at
+     * `now`: now after a usable file (six hours to the next); an hour before
+     * the next is due when sources answered but none gave one, rather than
+     * at every look; unchanged (nil) when none answered (offline). */
+    static func checkedAt(_ how: Take?, now: TimeInterval) -> TimeInterval? {
+        switch how {
+        case nil: return nil
+        case .unusable?: return now - every + retry
+        default: return now
+        }
+    }
+
+    /* A file and its signature as fetched, kept when new (worth). */
+    static func take(_ text: String, sig: String, _ d: UserDefaults = AppGroup.defaults, log: (String) -> Void = { _ in }) -> Take {
+        let t = worth(text, sig: sig, inUse: Self.serial(d))
+        if t == .unusable, !text.isEmpty, text.utf8.count <= 256 * 1024, !verify(text, sig: sig) {
+            log("Remote settings: a file whose signature does not check was refused")
+        }
+        guard t == .new else { return t }
+        d.set(text, forKey: Key.text)
+        d.set(sig.trimmingCharacters(in: .whitespacesAndNewlines), forKey: Key.sig)
+        log("Remote settings: number \((parse(text)?["serial"] as? Int) ?? 0) in use")
+        return t
+    }
+
+    /* Kept when it checks and is newer. */
+    @discardableResult
+    static func offer(_ text: String, sig: String, _ d: UserDefaults = AppGroup.defaults, log: (String) -> Void = { _ in }) -> Bool {
+        take(text, sig: sig, d, log: log) == .new
+    }
+
+    /* Asked for every six hours by the app; true when a new one came and
+     * what the tunnel starts with changed (protection starts again). */
     static func refreshIfDue(_ d: UserDefaults = AppGroup.defaults, session: URLSession = .shared, log: (String) -> Void = { _ in }) async -> Bool {
         if Date().timeIntervalSince1970 - d.double(forKey: Key.at) < every { return false }
-        for base in sources {
-            guard let fu = URL(string: base + "remote.json"), let su = URL(string: base + "remote.json.sig") else { continue }
+        let before = engineKey(settings(d))
+        let how = await ask(sources, fetch: { base -> (String, String)? in
+            guard let fu = URL(string: base + "remote.json"), let su = URL(string: base + "remote.json.sig") else { return nil }
             do {
                 let (f, fr) = try await session.data(from: fu)
                 let (s, sr) = try await session.data(from: su)
-                guard (fr as? HTTPURLResponse)?.statusCode == 200, (sr as? HTTPURLResponse)?.statusCode == 200 else { continue }
-                d.set(Date().timeIntervalSince1970, forKey: Key.at)
-                let before = engineKey(settings(d))
-                // True (protection starts again) only when what the tunnel
-                // starts with changed.
-                return offer(String(decoding: f, as: UTF8.self), sig: String(decoding: s, as: UTF8.self), d, log: log) && engineKey(settings(d)) != before
-            } catch { continue }
-        }
-        return false
+                guard (fr as? HTTPURLResponse)?.statusCode == 200, (sr as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+                return (String(decoding: f, as: UTF8.self), String(decoding: s, as: UTF8.self))
+            } catch { return nil }
+        }, take: { take($0, sig: $1, d, log: log) })
+        if let at = checkedAt(how, now: Date().timeIntervalSince1970) { d.set(at, forKey: Key.at) }
+        return how == .new && engineKey(settings(d)) != before
     }
 }
