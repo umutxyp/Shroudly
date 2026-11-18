@@ -35,7 +35,8 @@ const t = suite('engine-manager');
   t.ok(em.coming === false, 'nothing coming at rest');
   {
     // Another network or a wake: the engine drops what the old network's DNS
-    // answered (DNS-CLEAR); nothing is sent to an engine that is not running.
+    // answered (DNS-CLEAR), and the technique that opened sites there
+    // (NET-CHANGED); nothing is sent to an engine that is not running.
     const sent = [];
     const was = { proc: em.proc, active: em.active };
     em.proc = { stdin: { writable: true, write: (l) => sent.push(l) } };
@@ -44,7 +45,7 @@ const t = suite('engine-manager');
     em.active = true;
     const on = em.networkChanged();
     Object.assign(em, was);
-    t.ok(off === false && on === true && sent.join() === 'DNS-CLEAR\n', 'another network: the DNS answers of the old one are dropped, only while running');
+    t.ok(off === false && on === true && sent.join() === 'DNS-CLEAR\n,NET-CHANGED\n', 'another network: the DNS answers and the technique of the old one are dropped, only while running');
     const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
     t.ok(/now !== networkPrint && engine\) engine\.networkChanged\(\)/.test(main) && /function onWake[\s\S]{0,900}engine\.networkChanged\(\)/.test(main),
       'main.js asks for it at a network change and at a wake');

@@ -132,6 +132,9 @@ void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
 int  engine_restore(const char *host, const char *technique, uint64_t age);
 int  engine_avoid(const char *host, unsigned mask, uint64_t age);
+/* NET-CHANGED: the device is on another network now; what opened sites on
+ * the last one (see net_best in engine.c) is no longer presumed here. */
+void engine_network_changed(void);
 int  engine_is_running(void);
 const engine_stats *engine_get_stats(void);
 

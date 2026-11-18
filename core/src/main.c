@@ -433,6 +433,9 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
       if (sscanf(line + 6, "%255s %u %llu", host, &mask, &secs) == 3)
         engine_avoid(host, mask, (uint64_t)secs * 1000ull);
     }
+    /* Another network (the app watches them; the engine is not told
+     * otherwise): what opened sites on the last one is not presumed here. */
+    else if (!strcmp(line, "NET-CHANGED")) engine_network_changed();
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
       char host[256], tech[64]; unsigned long long secs = 0;

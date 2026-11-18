@@ -214,6 +214,37 @@ int main(void) {
   CHECK(!stale_of("a.aged.example") && !stale_of("b.aged.example"));
   printf("  learned techniques age: OK\n");
 
+  /* 4c. what opens sites on this network (net_best): only once one technique
+   *     opened two different sites; two names of one site, or of one
+   *     service (SITE_FAMILY), count once; the most recently proven of those
+   *     that did wins; NET-CHANGED forgets it all */
+  net_forget();
+  CHECK(net_best() == -1);
+  mutex_lock(&g_hs_mx);
+  net_note("www.one.example", 3);
+  net_note("cdn.one.example", 3);                 /* the same site */
+  net_note("rr1.googlevideo.com", 4);
+  net_note("i.ytimg.com", 4);                     /* the same service */
+  mutex_unlock(&g_hs_mx);
+  CHECK(net_best() == -1);
+  mutex_lock(&g_hs_mx);
+  net_note("two.example", 3);
+  mutex_unlock(&g_hs_mx);
+  CHECK(net_best() == 3);
+  mutex_lock(&g_hs_mx);
+  net_note("three.example", 4);
+  g_net[4].t = g_net[3].t + 1;                    /* proven after 3, whatever the clock's grain */
+  mutex_unlock(&g_hs_mx);
+  CHECK(net_best() == 4);
+  mutex_lock(&g_hs_mx);
+  net_note("x.github.io", 6); net_note("y.github.io", 6);   /* strangers: two sites */
+  net_note("", 7); net_note("a.example", -1); net_note("b.example", STRATEGY_MAX_PRESETS);
+  mutex_unlock(&g_hs_mx);
+  CHECK(g_net[6].n == 2 && g_net[7].n == 0);
+  engine_network_changed();
+  CHECK(net_best() == -1 && g_net[3].n == 0);
+  printf("  what opens sites on this network: OK\n");
+
   /* 5. a cut moves the host on to the next technique that can work here,
    *    round the end of the list, and only the host, not its site */
   int np = strategy_preset_count();

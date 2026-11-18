@@ -1162,6 +1162,8 @@ class ShroudlyVpnService : VpnService() {
         if (Protection.troubleRes == R.string.androidNoNetwork) Protection.trouble(0)
         rawWatch.networkChanged()
         if (changed) doh?.networkChanged()
+        // The technique that opened sites on the old network is not tried first on this one (engine.c, net_best).
+        if (changed) engine?.send("NET-CHANGED")
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
         // What was opened over the old network is ended, unless it still
