@@ -309,6 +309,11 @@ class ShroudlyProxyService : Service() {
                 if (ev.avoid > 0) prefs.edit().putString(Avoids.KEY, Avoids.remember(prefs.getString(Avoids.KEY, null), ev.host, ev.avoid, now)).apply()
                 ShroudlyVpnService.logSite("${ev.host}: the app refused the certificate the server sent after ${ev.strategy}; the next connection uses ${ev.next.ifEmpty { "no technique" }} instead")
             }
+            // Its age starts over (Learned.remember checks the names); nothing for the log.
+            is EngineEvent.Kept -> if (ev.host.isNotEmpty() && !ev.strategy.startsWith("raw-")) synchronized(learned) {
+                learned.remember(ev.host, ev.strategy, System.currentTimeMillis())
+                getSharedPreferences("engine", Context.MODE_PRIVATE).edit().putString("learned", learned.encode()).apply()
+            }
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Stats -> {
                 // Carried traffic: a day protection worked (Usage), once a session.

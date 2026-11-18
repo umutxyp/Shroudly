@@ -1344,6 +1344,13 @@ class EngineManager {
           this.log('success', `${msg.host}: blocked here, opened with ${msg.strategy} (${msg.attempts} tries, ${msg.family})${how}`);
         }
         break;
+      // A technique kept here opened its site again (engine.c, hs_keep): its
+      // age starts over, so the next engine is not made to race the untouched
+      // request against it on the site's first connection. At most every ten
+      // minutes a site; nothing to say in the log.
+      case 'kept':
+        if (typeof msg.host === 'string' && typeof msg.strategy === 'string') this._rememberTechnique(msg.host, msg.strategy);
+        break;
       case 'blocked':
         if (msg.raw) { try { this.onRaw('blocked', msg); } catch {} break; }
         try { this.onHostEvent('blocked', msg.host, msg.note || null, { alert: !!msg.alert, siteOk: !!msg.site_ok, note: msg.note || null }); } catch {}

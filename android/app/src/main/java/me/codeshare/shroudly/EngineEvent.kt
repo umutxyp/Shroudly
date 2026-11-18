@@ -75,6 +75,10 @@ sealed class EngineEvent {
             else "$host: reached without the last way out (Tor) again"
     }
     data class DnsAround(val host: String) : EngineEvent()
+    /* A technique kept for a site opened it again (core/src/engine.c,
+     * hs_keep): its age starts over in Learned, so the next start does not
+     * race the untouched request against it. At most every ten minutes a site. */
+    data class Kept(val host: String, val strategy: String) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
     data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
@@ -127,6 +131,7 @@ sealed class EngineEvent {
                 "refused" -> Refused(str("host") ?: "", str("strategy") ?: "", str("next") ?: "", num("avoid").toInt())
                 "direct" -> Direct(str("host") ?: "", str("strategy") ?: "")
                 "dns_around" -> DnsAround(str("host") ?: "")
+                "kept" -> Kept(str("host") ?: "", str("strategy") ?: "")
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
                     str("route") ?: "direct", num("blocked") != 0L, num("refused"), if (m.containsKey("ago")) num("ago") else -1L))
                 "conns_end" -> ConnsEnd(num("n").toInt())

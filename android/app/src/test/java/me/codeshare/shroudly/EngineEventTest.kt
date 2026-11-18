@@ -46,6 +46,9 @@ class EngineEventTest {
         val r = EngineEvent.parse("""{"type":"unreachable","host":"149.154.167.50","stage":"connect","ips":1,"raw":true,"port":443,"cport":50123}""") as EngineEvent.Host
         assertTrue(r.raw && r.port == 443 && r.host == "149.154.167.50")
         assertTrue(!bl.raw && bl.port == 0)
+        // a technique kept for a site that opened it again: its age starts over
+        assertEquals(EngineEvent.Kept("discord.com", "tlsrec-sni-mid"),
+            EngineEvent.parse("""{"type":"kept","host":"discord.com","strategy":"tlsrec-sni-mid"}"""))
     }
 
     @Test

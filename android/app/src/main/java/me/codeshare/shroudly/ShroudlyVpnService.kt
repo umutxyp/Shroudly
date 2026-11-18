@@ -1338,6 +1338,11 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> if (NetDnsText.once(ev, SystemClock.elapsedRealtime())) logSite(NetDnsText.line(ev))
             is EngineEvent.Refused -> onRefused(ev)
+            // Its age starts over (Learned.remember checks the names); nothing for the log.
+            is EngineEvent.Kept -> if (ev.host.isNotEmpty() && !ev.strategy.startsWith("raw-")) synchronized(learned) {
+                learned.remember(ev.host, ev.strategy, System.currentTimeMillis())
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString("learned", learned.encode()).apply()
+            }
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.localIf(OwnServer.whyCode(ev.why), AppSettings.ownServer(this)?.host))
