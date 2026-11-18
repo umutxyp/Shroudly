@@ -26,6 +26,8 @@ object RemoteConfig {
     )
     private const val PREFS = "remote"
     private const val EVERY_MS = 6 * 60 * 60 * 1000L
+    // Asked again this soon when a source answered but none gave a usable file.
+    private const val RETRY_MS = 60 * 60 * 1000L
     private const val MAX_BYTES = 256 * 1024
 
     /* The engine arguments a remote file may add: technique tuning only
@@ -191,22 +193,75 @@ object RemoteConfig {
 
     fun engineArgs(ctx: Context): List<String> = engineArgs(settings(ctx).optJSONArray("engineArgs"))
 
-    /* A file and its signature as fetched: kept when it checks and is newer. */
-    fun offer(ctx: Context, text: String, sig: String): Boolean {
-        if (text.toByteArray().size > MAX_BYTES) return false
-        if (!verify(text, sig)) { ShroudlyVpnService.log("Remote settings: a file whose signature does not check was refused"); return false }
-        val c = parse(text) ?: return false
-        if (c.optInt("serial") <= serial(ctx)) return false
-        prefs(ctx).edit().putString("text", text).putString("sig", sig.trim()).apply()
-        ShroudlyVpnService.log("Remote settings: number ${c.optInt("serial")} in use")
-        return true
+    /* What a file and its signature as fetched are worth (the desktop's
+     * take, electron/remote-config.js): NEW checks and is newer than the
+     * one in use; SAME checks and is the one in use (the check is done,
+     * nothing changes); UNUSABLE is missing, too large, signed wrong (a
+     * mirror out of step, a captive portal's page), not understood,
+     * expired or older, and the next source is asked. An HTTP 200 alone
+     * used to end the check, and an unusable answer from the first source
+     * kept the mirror from being asked until six hours on. */
+    enum class Take { NEW, SAME, UNUSABLE }
+
+    fun worth(text: String, sig: String, inUse: Int, publicKey: String = PUBLIC_KEY, now: Long = System.currentTimeMillis()): Take {
+        if (text.isEmpty() || sig.isBlank() || text.toByteArray().size > MAX_BYTES) return Take.UNUSABLE
+        if (!verify(text, sig, publicKey)) return Take.UNUSABLE
+        val serial = parse(text, now)?.optInt("serial") ?: return Take.UNUSABLE
+        return when {
+            serial < inUse -> Take.UNUSABLE
+            serial == inUse -> Take.SAME
+            else -> Take.NEW
+        }
     }
+
+    /* Each source in turn until one gives a usable file. fetch: the file
+     * and its signature, or null when the source did not answer (offline,
+     * not HTTP 200); take: what they are worth (and kept when new). Returns
+     * NEW or SAME from the source that gave a usable file; UNUSABLE when one
+     * answered but none gave a usable file; null when none answered. Pure,
+     * for the tests. */
+    fun <S> ask(sources: List<S>, fetch: (S) -> Pair<String, String>?, take: (String, String) -> Take): Take? {
+        var answered = false
+        for (src in sources) {
+            val got = try { fetch(src) } catch (_: Exception) { null } ?: continue
+            answered = true
+            val t = take(got.first, got.second)
+            if (t != Take.UNUSABLE) return t
+        }
+        return if (answered) Take.UNUSABLE else null
+    }
+
+    /* When the next check is due after one that ended `how` at `now`: six
+     * hours on after a usable file; an hour on (RETRY_MS) when sources
+     * answered but none gave one, rather than at every look; unchanged
+     * (null) when none answered (offline), as before. Pure, for the tests. */
+    fun checkedAt(how: Take?, now: Long): Long? = when (how) {
+        null -> null
+        Take.UNUSABLE -> now - EVERY_MS + RETRY_MS
+        else -> now
+    }
+
+    /* A file and its signature as fetched, taken when new (worth). */
+    fun take(ctx: Context, text: String, sig: String): Take {
+        val t = worth(text, sig, serial(ctx))
+        if (t == Take.UNUSABLE && text.isNotEmpty() && sig.isNotBlank() && text.toByteArray().size <= MAX_BYTES && !verify(text, sig)) {
+            ShroudlyVpnService.log("Remote settings: a file whose signature does not check was refused")
+        }
+        if (t != Take.NEW) return t
+        prefs(ctx).edit().putString("text", text).putString("sig", sig.trim()).apply()
+        ShroudlyVpnService.log("Remote settings: number ${parse(text)?.optInt("serial")} in use")
+        return t
+    }
+
+    /* Kept when it checks and is newer. */
+    fun offer(ctx: Context, text: String, sig: String): Boolean = take(ctx, text, sig) == Take.NEW
 
     @Volatile private var asking = false
 
     /* On a thread of its own when due; port and auth: the engine's while
      * protection is on (0: directly). A new file: the engine starts again
-     * with it (the same as a network setting changed). */
+     * with it, when what the engine starts with changed (the same as a
+     * network setting changed). */
     fun refreshIfDue(ctx: Context, port: Int, auth: SocksAuth?) {
         val app = ctx.applicationContext
         val p = prefs(app)
@@ -214,19 +269,16 @@ object RemoteConfig {
         asking = true
         Thread({
             try {
-                for ((host, path) in SOURCES) {
-                    try {
-                        val f = UpdateCheck.fetch(host, path, "application/json", port, auth)
-                        val s = UpdateCheck.fetch(host, "$path.sig", "text/plain", port, auth)
-                        if (f.status != 200 || s.status != 200) continue
-                        p.edit().putLong("checkedAt", System.currentTimeMillis()).apply()
-                        val before = engineKey(settings(app))
-                        if (offer(app, f.body.toString(Charsets.UTF_8), s.body.toString(Charsets.UTF_8)) &&
-                            engineKey(settings(app)) != before && Protection.state == Protection.State.ON) {
-                            Protector.tell(app, ShroudlyVpnService.ACTION_SETTINGS, "network")
-                        }
-                        break
-                    } catch (_: Exception) {}
+                val before = engineKey(settings(app))
+                val how = ask(SOURCES, { (host, path) ->
+                    val f = UpdateCheck.fetch(host, path, "application/json", port, auth)
+                    val s = UpdateCheck.fetch(host, "$path.sig", "text/plain", port, auth)
+                    if (f.status != 200 || s.status != 200) null
+                    else f.body.toString(Charsets.UTF_8) to s.body.toString(Charsets.UTF_8)
+                }, { text, sig -> take(app, text, sig) })
+                checkedAt(how, System.currentTimeMillis())?.let { p.edit().putLong("checkedAt", it).apply() }
+                if (how == Take.NEW && engineKey(settings(app)) != before && Protection.state == Protection.State.ON) {
+                    Protector.tell(app, ShroudlyVpnService.ACTION_SETTINGS, "network")
                 }
             } finally { asking = false }
         }, "remote-config").apply { isDaemon = true }.start()

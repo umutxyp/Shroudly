@@ -1,5 +1,6 @@
 package me.codeshare.shroudly
 
+import me.codeshare.shroudly.RemoteConfig.Take as T
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -27,6 +28,44 @@ class RemoteConfigTest {
         assertTrue(RemoteConfig.verify(f, sign(f), pub))
         assertFalse(RemoteConfig.verify("$f ", sign(f), pub))
         assertFalse("another key: the apps' own", RemoteConfig.verify(f, sign(f)))
+    }
+
+    @Test
+    fun eachSourceInTurnUntilOneGivesAUsableFile() {
+        val f3 = """{"v":1,"serial":3,"set":{"quicOff":true}}"""
+        val f1 = """{"v":1,"serial":1}"""
+
+        assertEquals(T.NEW, RemoteConfig.worth(f3, sign(f3), 2, pub))
+        assertEquals(T.SAME, RemoteConfig.worth(f3, sign(f3), 3, pub))
+        assertEquals("older", T.UNUSABLE, RemoteConfig.worth(f1, sign(f1), 3, pub))
+        assertEquals("signed wrong", T.UNUSABLE, RemoteConfig.worth("$f3 ", sign(f3), 2, pub))
+        assertEquals("a portal's page", T.UNUSABLE, RemoteConfig.worth("<html>", sign(f3), 2, pub))
+        assertEquals("expired", T.UNUSABLE, RemoteConfig.worth("""{"v":1,"serial":5,"expires":"2020-01-01T00:00:00Z"}""",
+            sign("""{"v":1,"serial":5,"expires":"2020-01-01T00:00:00Z"}"""), 2, pub))
+
+        val asked = mutableListOf<String>()
+        val take = { t: String, s: String -> RemoteConfig.worth(t, s, 2, pub) }
+        // The first source's file and signature do not match: the mirror is asked.
+        assertEquals(T.NEW, RemoteConfig.ask(listOf("a", "b"), { src -> asked += src; (if (src == "a") "$f3 " else f3) to sign(f3) }, take))
+        assertEquals(listOf("a", "b"), asked)
+        // The first source gives a usable one: the mirror is not asked.
+        asked.clear()
+        assertEquals(T.NEW, RemoteConfig.ask(listOf("a", "b"), { src -> asked += src; f3 to sign(f3) }, take))
+        assertEquals(listOf("a"), asked)
+        // Unusable from both; no answer from either (offline, or not HTTP 200).
+        assertEquals(T.UNUSABLE, RemoteConfig.ask(listOf("a", "b"), { _ -> f1 to sign(f1) }, take))
+        assertNull(RemoteConfig.ask(listOf("a", "b"), { _ -> null }, take))
+        assertNull(RemoteConfig.ask(listOf("a", "b"), { _ -> throw java.io.IOException("offline") }, take))
+        // The first does not answer, the mirror has the one in use: done.
+        assertEquals(T.SAME, RemoteConfig.ask(listOf("a", "b"), { src -> if (src == "a") null else f3 to sign(f3) },
+            { t, s -> RemoteConfig.worth(t, s, 3, pub) }))
+
+        // When the next check is due: six hours on, an hour on, or as before.
+        val now = 100_000_000_000L
+        assertEquals(now, RemoteConfig.checkedAt(T.NEW, now))
+        assertEquals(now, RemoteConfig.checkedAt(T.SAME, now))
+        assertEquals(now - 5 * 3600_000L, RemoteConfig.checkedAt(T.UNUSABLE, now))
+        assertNull(RemoteConfig.checkedAt(null, now))
     }
 
     @Test

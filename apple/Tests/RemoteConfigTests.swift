@@ -24,6 +24,37 @@ final class RemoteConfigTests: XCTestCase {
         XCTAssertEqual(RemoteConfig.serial(d), 0)
     }
 
+    func testEachSourceInTurnUntilOneGivesAUsableFile() async {
+        let f3 = #"{"v":1,"serial":3,"set":{"quicOff":true}}"#
+        let f1 = #"{"v":1,"serial":1}"#
+        XCTAssertEqual(RemoteConfig.worth(f3, sig: sign(f3), inUse: 2, key: pub), .new)
+        XCTAssertEqual(RemoteConfig.worth(f3, sig: sign(f3), inUse: 3, key: pub), .same)
+        XCTAssertEqual(RemoteConfig.worth(f1, sig: sign(f1), inUse: 3, key: pub), .unusable, "older")
+        XCTAssertEqual(RemoteConfig.worth(f3 + " ", sig: sign(f3), inUse: 2, key: pub), .unusable, "signed wrong")
+        XCTAssertEqual(RemoteConfig.worth("<html>", sig: sign(f3), inUse: 2, key: pub), .unusable, "a portal's page")
+
+        let take: (String, String) -> RemoteConfig.Take = { RemoteConfig.worth($0, sig: $1, inUse: 2, key: self.pub) }
+        var asked: [String] = []
+        // The first source's file and signature do not match: the mirror is asked.
+        var got = await RemoteConfig.ask(["a", "b"], fetch: { src -> (String, String)? in asked.append(src); return (src == "a" ? f3 + " " : f3, self.sign(f3)) }, take: take)
+        XCTAssertEqual(got, .new); XCTAssertEqual(asked, ["a", "b"])
+        // A usable one from the first: the mirror is not asked.
+        asked = []
+        got = await RemoteConfig.ask(["a", "b"], fetch: { src -> (String, String)? in asked.append(src); return (f3, self.sign(f3)) }, take: take)
+        XCTAssertEqual(got, .new); XCTAssertEqual(asked, ["a"])
+        // Unusable from both; no answer from either.
+        got = await RemoteConfig.ask(["a", "b"], fetch: { _ -> (String, String)? in (f1, self.sign(f1)) }, take: take)
+        XCTAssertEqual(got, .unusable)
+        got = await RemoteConfig.ask(["a", "b"], fetch: { _ -> (String, String)? in nil }, take: take)
+        XCTAssertNil(got)
+
+        let now: TimeInterval = 2_000_000_000
+        XCTAssertEqual(RemoteConfig.checkedAt(.new, now: now), now)
+        XCTAssertEqual(RemoteConfig.checkedAt(.same, now: now), now)
+        XCTAssertEqual(RemoteConfig.checkedAt(.unusable, now: now), now - 5 * 3600)
+        XCTAssertNil(RemoteConfig.checkedAt(nil, now: now))
+    }
+
     func testRulesAndArguments() {
         let c = RemoteConfig.parse(#"{"v":1,"serial":4,"set":{"reportOffer":"fault"},"rules":[{"when":{"platform":["ios"],"country":["IR"]},"set":{"reportOffer":"always"}},{"when":{"appMin":"2.6.90"},"set":{"reportOffer":"never"}}]}"#)
         XCTAssertEqual(RemoteConfig.reportOffer(RemoteConfig.effective(c, .init(platform: "ios", country: "ir", app: "2.6.81"))), "always")

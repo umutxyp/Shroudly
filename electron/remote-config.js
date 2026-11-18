@@ -148,6 +148,8 @@ function reportOffer(eff) { return ['fault', 'always', 'never'].includes(eff.rep
  * turn.
  */
 const EVERY_MS = 6 * 60 * 60 * 1000;
+// Asked again this soon when a source answered but none gave a usable file.
+const RETRY_MS = 60 * 60 * 1000;
 class RemoteConfig {
   constructor({ store, fetchText, ctx, log = () => {}, now = () => Date.now(), publicKey = PUBLIC_KEY }) {
     this.store = store; this.fetchText = fetchText; this.ctx = ctx; this.log = log; this.now = now; this.publicKey = publicKey;
@@ -159,29 +161,52 @@ class RemoteConfig {
   settings() { return effective(this.current, this.ctx()); }
   serial() { return this.current ? this.current.serial : 0; }
 
-  /* A file and its signature as fetched: used when it checks and is newer. */
-  offer(text, sig) {
-    if (!text || !sig || Buffer.byteLength(text) > MAX_BYTES) return false;
-    if (!verify(text, sig, this.publicKey)) { this.log('warning', 'Remote settings: a file whose signature does not check was refused'); return false; }
+  /* A file and its signature as fetched: what it is worth.
+   *   'new'   it checks and is newer: taken (kept, and in use from now on);
+   *   'same'  it checks and is the one in use: the check is done, nothing
+   *           changes (no engine restart);
+   *   null    unusable: missing, too large, a signature that does not check
+   *           (a mirror out of step, a captive portal's page), unreadable or
+   *           expired, or older than the one in use. The next source is
+   *           asked then: an HTTP 200 alone used to end the check, and an
+   *           unusable answer from the first source kept the mirror from
+   *           ever being asked until the next check, six hours on. */
+  take(text, sig) {
+    if (!text || !sig || Buffer.byteLength(text) > MAX_BYTES) return null;
+    if (!verify(text, sig, this.publicKey)) { this.log('warning', 'Remote settings: a file whose signature does not check was refused'); return null; }
     const c = parse(text, this.now());
-    if (!c || c.serial <= this.serial()) return false;
+    if (!c || c.serial < this.serial()) return null;
+    if (c.serial === this.serial()) return 'same';
     this.current = c;
     this.store.set('remoteConfig', { text, sig });
     this.log('info', `Remote settings: number ${c.serial} in use`);
-    return true;
+    return 'new';
   }
+
+  /* True when it was taken (take: 'new'). */
+  offer(text, sig) { return this.take(text, sig) === 'new'; }
 
   due() { return this.now() - (Number(this.store.get('remoteConfigAt')) || 0) >= EVERY_MS; }
 
+  /* Each source in turn, until one gives a usable file (take). None did,
+   * though one answered: the last good file stays in use, and it is asked
+   * again in an hour (RETRY_MS) rather than in six. None answered at all
+   * (offline): asked again at the next look, as before. */
   async refresh({ force = false } = {}) {
     if (!force && !this.due()) return false;
+    let answered = false;
     for (const base of SOURCES) {
+      let text, sig;
       try {
-        const [text, sig] = await Promise.all([this.fetchText(base + FILE), this.fetchText(base + SIG)]);
-        this.store.set('remoteConfigAt', this.now());
-        return this.offer(text, sig);
-      } catch {}
+        [text, sig] = await Promise.all([this.fetchText(base + FILE), this.fetchText(base + SIG)]);
+      } catch { continue; }
+      answered = true;
+      const got = this.take(text, sig);
+      if (got === null) continue;
+      this.store.set('remoteConfigAt', this.now());
+      return got === 'new';
     }
+    if (answered) this.store.set('remoteConfigAt', this.now() - EVERY_MS + RETRY_MS);
     return false;
   }
 }
