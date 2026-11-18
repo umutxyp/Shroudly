@@ -1341,7 +1341,10 @@ class EngineManager {
           // A silent drop is a different kind of filter from one that refuses,
           // and worth telling apart when reading a report.
           const how = msg.note === 'silent' ? ' — the network drops these connections silently instead of refusing them' : '';
-          this.log('success', `${msg.host}: blocked here, opened with ${msg.strategy} (${msg.attempts} tries, ${msg.family})${how}`);
+          // How long it took to open (engines since 2.6.83 say): what the
+          // first visit to a blocked site cost, for a report to show.
+          const took = Number.isFinite(msg.ms) && msg.ms >= 0 ? `, ${(msg.ms / 1000).toFixed(1)} s` : '';
+          this.log('success', `${msg.host}: blocked here, opened with ${msg.strategy} (${msg.attempts} tries, ${msg.family}${took})${how}`);
         }
         break;
       // A technique kept here opened its site again (engine.c, hs_keep): its

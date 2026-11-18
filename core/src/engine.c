@@ -2777,6 +2777,7 @@ typedef struct {
   int made;                /* attempts that went out */
   int silent;              /* attempts whose wait ran out unanswered */
   int dropped;             /* plain HTTP: the network took the request (legs_unheard) */
+  uint64_t t0;             /* when it started: how long a new site took to open (bypass) */
   legset L;
 } ladder_st;
 
@@ -2952,10 +2953,16 @@ static int ladder_won(ladder_st *st, const leg *w) {
     /* News only when it is new, not when a known technique is confirmed. And
      * "silent" when nothing was ever refused: a different kind of filter, and
      * worth telling apart when reading a report. */
-    if (w->cand != st->learned)
-      report("bypass", st->key, strategy_preset(w->cand)->name, st->made, w->fam,
-             st->saw_refusal ? NULL : "silent");
-    else {
+    if (w->cand != st->learned) {
+      /* "ms": how long the site took to open, from the client's request to
+       * the answer, so a report says what the first visit cost (a
+       * report from Türk Telekom had only "slower than ByeByeDPI"). */
+      char h[256];
+      json_host(h, sizeof(h), st->key);
+      engine_printf("{\"type\":\"bypass\",\"host\":\"%s\",\"strategy\":\"%s\",\"attempts\":%d,\"family\":\"%s\"%s,\"ms\":%llu}\n",
+                    h, strategy_preset(w->cand)->name, st->made, w->fam == AF_INET6 ? "ipv6" : "ipv4",
+                    st->saw_refusal ? "" : ",\"note\":\"silent\"", (unsigned long long)age_ms(now_ms(), st->t0));
+    } else {
       /* The technique it knew, confirmed (a race against the untouched
        * request, see HS_VERIFY_MS): learned again just now, so the app is
        * told, or the age it keeps would have the next start race it again. */
@@ -5289,6 +5296,7 @@ static void handle(sock_t client) {
        * quickly (see fb_site_is). */
       site_short = watch_tls && fallback_ok(rq.host) && fb_site_is(key) && fallback_alive();
       uint64_t ladder_t0 = now_ms();
+      st.t0 = ladder_t0;
       uint64_t deadline = ladder_t0 + ATT_BUDGET_MS;
       int burst = 0, in_batch = 0;   /* the rest of the list at once (BURST_BATCH) */
       int follows = 0;               /* ... by another connection to the name: this one waited for it */

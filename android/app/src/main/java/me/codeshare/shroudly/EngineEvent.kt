@@ -40,7 +40,12 @@ sealed class EngineEvent {
          * the port it went to (core/src/engine.c, raw). */
         val raw: Boolean = false,
         val port: Int = 0,
-    ) : EngineEvent()
+        /* bypass: how long the site took to open, in ms (-1: an engine that does not say). */
+        val ms: Long = -1,
+    ) : EngineEvent() {
+        /* ", 2.4 s" for the log line, or nothing (as the desktop says it). */
+        val took: String get() = if (ms >= 0) ", " + String.format(java.util.Locale.ROOT, "%.1f", ms / 1000.0) + " s" else ""
+    }
 
     /* A site whose addresses from encrypted DNS got nowhere, connected where
      * the network's own DNS says (core/src/engine.c, "the network's own
@@ -122,6 +127,7 @@ sealed class EngineEvent {
                     siteOk = bool("site_ok"),
                     raw = bool("raw"),
                     port = num("port").toInt(),
+                    ms = if (m.containsKey("ms")) num("ms") else -1L,
                 )
                 "netdns" -> NetDns(str("host") ?: "", str("addr") ?: "", str("stage") ?: "")
                 "udp_full" -> UdpFull(num("max").toInt())
