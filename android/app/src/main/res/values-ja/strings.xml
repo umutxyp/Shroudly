@@ -287,9 +287,12 @@
     <string name="stop">保護を停止</string>
     <string name="stopping">停止しています…</string>
     <string name="stratAuto">自動（推奨）</string>
+    <string name="stratChop">ランダムな小さな断片</string>
     <string name="stratDisorderSni">SNI で順序入れ替え</string>
     <string name="stratDoubleSplit">二重分割</string>
+    <string name="stratMultiRec">複数の TLS レコード</string>
     <string name="stratNone">オフ（暗号化 DNS のみ）</string>
+    <string name="stratOobRec">緊急バイト + TLS レコード分割</string>
     <string name="stratSplit2">2 バイト目で分割</string>
     <string name="stratSplitMid">SNI の中央で分割</string>
     <string name="stratSplitSni">SNI で分割</string>
@@ -336,7 +339,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">最後の手段（Tor）がスマートフォンで再び起動するようになりました。2.6.80 ではすぐに終了していました。\nQUIC がオフのとき、UDP 443 番ポートを自分で使う通話やゲームが再び通るようになりました。断るのは QUIC だけです。\nShroudly にリストのない国では、短い通信障害で別の国にいると誤認することはもうありません。\nShroudly は、アップデートを待たずに、あなたのネットワークに合ったより良い設定を受け取れるようになりました。設定は私たちが署名・確認したものです。</string>
+    <string name="whatsNewAndroid">ブロックされたサイトが速く開くように：新しいサイトは、あなたのネットワークで他のブロックされたサイトを開いた方法から始め、同じサービスの各ドメイン（YouTube、Instagram、Discord…）は見つかった方法を共有します。\n動き続けている方法は、再起動後の最初の接続で再確認されなくなりました。\n新しい方法：設定に3つの固定の選択肢（複数の TLS レコード、ランダムな小さな断片、緊急バイト + レコード分割）、自動にさらに3つ、プレーン HTTP の Host ヘッダー書き換え。\nタイムアウトしたアップデートのダウンロードは再試行し、その後直接取得します。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

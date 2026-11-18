@@ -287,9 +287,12 @@
     <string name="stop">Вимкнути захист</string>
     <string name="stopping">Вимкнення…</string>
     <string name="stratAuto">Авто (рекомендовано)</string>
+    <string name="stratChop">Дрібні випадкові шматки</string>
     <string name="stratDisorderSni">Перестановка на SNI</string>
     <string name="stratDoubleSplit">Подвійне розділення</string>
+    <string name="stratMultiRec">Кілька записів TLS</string>
     <string name="stratNone">Вимк. (лише зашифрований DNS)</string>
+    <string name="stratOobRec">Терміновий байт + поділ запису TLS</string>
     <string name="stratSplit2">Розділення на 2-му байті</string>
     <string name="stratSplitMid">Розділення посередині SNI</string>
     <string name="stratSplitSni">Розділення на SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Останній шлях (Tor) знову запускається на телефонах: у 2.6.80 він одразу завершувався.\nКоли QUIC вимкнено, дзвінки та ігри, які самі використовують UDP-порт 443, знову проходять; відхиляється лише QUIC.\nУ країні, для якої в Shroudly немає списку, короткий збій більше не змушує його вважати, що ви в іншій країні.\nShroudly тепер може отримувати кращі налаштування для вашої мережі, не чекаючи оновлення; вони підписані й перевірені нами.</string>
+    <string name="whatsNewAndroid">Заблоковані сайти відкриваються швидше: новий сайт починається з техніки, яка вже відкрила інші заблоковані сайти у вашій мережі, а адреси одного сервісу (YouTube, Instagram, Discord…) діляться знайденим.\nТехніка, що й далі працює, більше не перевіряється заново під час першого з\'єднання після перезапуску.\nНові техніки: три постійні варіанти в налаштуваннях (кілька записів TLS, дрібні випадкові шматки, терміновий байт + поділ запису), ще три в «Авто» та переписування заголовка Host для звичайного HTTP.\nЗавантаження оновлення, що перервалося за тайм-аутом, повторюється, потім напряму.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

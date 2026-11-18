@@ -597,6 +597,9 @@ class SettingsActivity : Activity() {
         "split-sni-mid" -> R.string.stratSplitMid
         "double-split" -> R.string.stratDoubleSplit
         "split2" -> R.string.stratSplit2
+        "multi-rec" -> R.string.stratMultiRec
+        "chop" -> R.string.stratChop
+        "oob-rec" -> R.string.stratOobRec
         else -> R.string.stratAuto
     }
 

@@ -287,9 +287,12 @@
     <string name="stop">إيقاف الحماية</string>
     <string name="stopping">جارٍ الإيقاف…</string>
     <string name="stratAuto">تلقائي (موصى به)</string>
+    <string name="stratChop">قطع صغيرة عشوائية</string>
     <string name="stratDisorderSni">خلط الترتيب عند SNI</string>
     <string name="stratDoubleSplit">تقسيم مزدوج</string>
+    <string name="stratMultiRec">عدة سجلات TLS</string>
     <string name="stratNone">إيقاف (DNS مشفَّر فقط)</string>
+    <string name="stratOobRec">بايت عاجل + تقسيم سجل TLS</string>
     <string name="stratSplit2">التقسيم عند البايت 2</string>
     <string name="stratSplitMid">التقسيم في منتصف SNI</string>
     <string name="stratSplitSni">التقسيم عند SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">المخرج الأخير (Tor) يعمل مجدداً على الهواتف: في 2.6.80 كان يتوقف فوراً.\nعند إيقاف QUIC تمرّ مجدداً المكالمات والألعاب التي تستخدم منفذ UDP 443 لنفسها؛ يُرفض QUIC وحده.\nفي بلد ليست له قائمة لدى Shroudly، لم يعد انقطاع قصير يجعله يظن أنك في بلد آخر.\nيمكن لـ Shroudly الآن تلقّي إعدادات أفضل لشبكتك دون انتظار تحديث، موقّعة ومتحقَّق منها من قبلنا.</string>
+    <string name="whatsNewAndroid">تُفتح المواقع المحجوبة أسرع: يبدأ موقع جديد بالطريقة التي فتحت مواقع محجوبة أخرى على شبكتك، وتتشارك أسماء الخدمة الواحدة (YouTube وInstagram وDiscord…) ما يجده أحدها.\nلم تعد الطريقة التي تواصل العمل تُفحص من جديد في أول اتصال بعد إعادة التشغيل.\nطرق جديدة: ثلاثة خيارات ثابتة في الإعدادات (عدة سجلات TLS، قطع صغيرة عشوائية، بايت عاجل + تقسيم السجل)، وثلاث أخرى في الوضع التلقائي، وإعادة كتابة ترويسة Host لـ HTTP العادي.\nيُعاد تنزيل التحديث الذي انتهت مهلته، ثم مباشرة.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

@@ -287,9 +287,12 @@
     <string name="stop">Ҳимояро хомӯш кунед</string>
     <string name="stopping">Қатъ мешавад…</string>
     <string name="stratAuto">Худкор (тавсия мешавад)</string>
+    <string name="stratChop">Пораҳои хурди тасодуфӣ</string>
     <string name="stratDisorderSni">Бетартибӣ дар SNI</string>
     <string name="stratDoubleSplit">Тақсими дукарата</string>
+    <string name="stratMultiRec">Якчанд сабти TLS</string>
     <string name="stratNone">Хомӯш (танҳо DNS-и рамзгузоришуда)</string>
+    <string name="stratOobRec">Байти фаврӣ + тақсими сабти TLS</string>
     <string name="stratSplit2">Тақсим дар байти 2</string>
     <string name="stratSplitMid">Тақсим дар миёнаи SNI</string>
     <string name="stratSplitSni">Тақсим дар SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Роҳи охирин (Tor) дар телефонҳо боз оғоз мешавад: дар 2.6.80 фавран қатъ мешуд.\nВақте QUIC хомӯш аст, зангҳо ва бозиҳое, ки худашон порти UDP 443-ро истифода мебаранд, боз мегузаранд; танҳо QUIC рад мешавад.\nДар кишваре, ки Shroudly барояш рӯйхат надорад, қатъи кӯтоҳ дигар онро водор намекунад, ки шуморо дар кишвари дигар гумон кунад.\nShroudly акнун метавонад бе интизори навсозӣ танзимоти беҳтарро барои шабакаи шумо гирад; онҳо аз ҷониби мо имзо ва санҷида шудаанд.</string>
+    <string name="whatsNewAndroid">Сомонаҳои басташуда тезтар кушода мешаванд: сомонаи нав бо усуле оғоз мешавад, ки дар шабакаи шумо сомонаҳои басташудаи дигарро кушодааст, ва номҳои як хидмат (YouTube, Instagram, Discord…) ёфтаи якдигарро истифода мебаранд.\nУсуле, ки кор карданро идома медиҳад, дар пайвасти аввал пас аз бозоғозӣ дигар аз нав санҷида намешавад.\nУсулҳои нав: се интихоби доимӣ дар танзимот (якчанд сабти TLS, пораҳои хурди тасодуфӣ, байти фаврӣ + тақсими сабт), се усули дигар дар «Худкор» ва азнавнависии сарлавҳаи Host барои HTTP-и оддӣ.\nБоргирии навсозие, ки вақташ гузашт, аз нав ва баъд мустақим озмуда мешавад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

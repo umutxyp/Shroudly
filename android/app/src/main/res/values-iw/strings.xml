@@ -287,9 +287,12 @@
     <string name="stop">להפסיק הגנה</string>
     <string name="stopping">עוצר…</string>
     <string name="stratAuto">אוטומטי (מומלץ)</string>
+    <string name="stratChop">חתיכות קטנות אקראיות</string>
     <string name="stratDisorderSni">שיבוש סדר ב-SNI</string>
     <string name="stratDoubleSplit">פיצול כפול</string>
+    <string name="stratMultiRec">כמה רשומות TLS</string>
     <string name="stratNone">כבוי (DNS מוצפן בלבד)</string>
+    <string name="stratOobRec">בית דחוף + פיצול רשומת TLS</string>
     <string name="stratSplit2">פיצול בבייט 2</string>
     <string name="stratSplitMid">פיצול באמצע ה-SNI</string>
     <string name="stratSplitSni">פיצול ב-SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">הדרך האחרונה (Tor) עולה שוב בטלפונים: ב-2.6.80 היא נסגרה מיד.\nכש-QUIC כבוי, שיחות ומשחקים שמשתמשים בעצמם בפורט UDP 443 עוברים שוב; רק QUIC נדחה.\nבמדינה שאין ל-Shroudly רשימה עבורה, הפסקה קצרה כבר לא גורמת לו לחשוב שאתה במדינה אחרת.\nShroudly יכול עכשיו לקבל הגדרות טובות יותר לרשת שלך בלי לחכות לעדכון, חתומות ובדוקות על ידינו.</string>
+    <string name="whatsNewAndroid">אתרים חסומים נפתחים מהר יותר: אתר חדש מתחיל בשיטה שכבר פתחה אתרים חסומים אחרים ברשת שלך, והשמות של שירות אחד (YouTube, Instagram, Discord…) חולקים את מה שאחד מהם מוצא.\nשיטה שממשיכה לעבוד כבר לא נבדקת מחדש בחיבור הראשון אחרי הפעלה מחדש.\nשיטות חדשות: שלוש אפשרויות קבועות בהגדרות (כמה רשומות TLS, חתיכות קטנות אקראיות, בית דחוף + פיצול רשומה), עוד שלוש באוטומטי, ושכתוב כותרת Host ל-HTTP רגיל.\nהורדת עדכון שפג זמנה מנוסה שוב, ואז ישירות.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

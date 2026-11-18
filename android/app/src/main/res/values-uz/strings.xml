@@ -287,9 +287,12 @@
     <string name="stop">Himoyani oʻchirish</string>
     <string name="stopping">Oʻchirilmoqda…</string>
     <string name="stratAuto">Avto (tavsiya etiladi)</string>
+    <string name="stratChop">Kichik tasodifiy boʻlaklar</string>
     <string name="stratDisorderSni">SNI joyida tartibni buzish</string>
     <string name="stratDoubleSplit">Ikki marta boʻlish</string>
+    <string name="stratMultiRec">Bir nechta TLS yozuvi</string>
     <string name="stratNone">Oʻchiq (faqat shifrlangan DNS)</string>
+    <string name="stratOobRec">Shoshilinch bayt + TLS yozuvini boʻlish</string>
     <string name="stratSplit2">2-baytdan boʻlish</string>
     <string name="stratSplitMid">SNI oʻrtasidan boʻlish</string>
     <string name="stratSplitSni">SNI joyidan boʻlish</string>
@@ -336,7 +339,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Oxirgi yo‘l (Tor) telefonlarda yana ishga tushadi: 2.6.80 da darhol yopilardi.\nQUIC o‘chiq bo‘lsa, UDP 443 portini o‘zi ishlatadigan qo‘ng‘iroqlar va o‘yinlar yana o‘tadi; faqat QUIC rad etiladi.\nShroudly’da ro‘yxati yo‘q mamlakatda qisqa uzilish endi uni sizni boshqa mamlakatda deb o‘ylatmaydi.\nShroudly endi yangilanishni kutmasdan tarmog‘ingiz uchun yaxshiroq sozlamalarni olishi mumkin; ular biz tomondan imzolangan va tekshirilgan.</string>
+    <string name="whatsNewAndroid">Bloklangan saytlar tezroq ochiladi: yangi sayt tarmogʻingizda boshqa bloklangan saytlarni ochgan usul bilan boshlanadi, bir xizmatning nomlari (YouTube, Instagram, Discord…) esa biri topganini boʻlishadi.\nIshlashda davom etayotgan usul qayta ishga tushirilgandan keyingi birinchi ulanishda endi qayta tekshirilmaydi.\nYangi usullar: Sozlamalarda uchta doimiy tanlov (bir nechta TLS yozuvi, kichik tasodifiy boʻlaklar, shoshilinch bayt + yozuvni boʻlish), «Avto»da yana uchtasi va oddiy HTTP uchun Host sarlavhasini qayta yozish.\nVaqti tugagan yangilanish yuklab olish qayta, soʻng toʻgʻridan-toʻgʻri sinab koʻriladi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

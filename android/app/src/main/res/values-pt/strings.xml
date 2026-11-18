@@ -287,9 +287,12 @@
     <string name="stop">Parar proteção</string>
     <string name="stopping">Parando…</string>
     <string name="stratAuto">Automática (recomendada)</string>
+    <string name="stratChop">Pedaços pequenos aleatórios</string>
     <string name="stratDisorderSni">Desordenar no SNI</string>
     <string name="stratDoubleSplit">Divisão dupla</string>
+    <string name="stratMultiRec">Vários registros TLS</string>
     <string name="stratNone">Desligado (só DNS criptografado)</string>
+    <string name="stratOobRec">Byte urgente + divisão do registro TLS</string>
     <string name="stratSplit2">Dividir no byte 2</string>
     <string name="stratSplitMid">Dividir no meio do SNI</string>
     <string name="stratSplitSni">Dividir no SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">A última saída (Tor) volta a iniciar nos celulares: na 2.6.80 ela fechava na hora.\nCom o QUIC desligado, chamadas e jogos que usam a porta UDP 443 voltam a passar; só o QUIC é recusado.\nNum país para o qual o Shroudly não tem lista, uma queda curta não o faz mais achar que você está em outro país.\nO Shroudly agora pode receber configurações melhores para a sua rede sem esperar uma atualização, assinadas e verificadas por nós.</string>
+    <string name="whatsNewAndroid">Sites bloqueados abrem mais rápido: um novo começa com o que já abriu outros sites bloqueados na sua rede, e os nomes de um mesmo serviço (YouTube, Instagram, Discord…) compartilham o que um deles encontra.\nUma técnica que continua funcionando não é mais verificada de novo na primeira conexão após reiniciar.\nTécnicas novas: três opções fixas nas Configurações (vários registros TLS, pedaços pequenos aleatórios, byte urgente + divisão do registro), mais três no Automático e reescritas do cabeçalho Host para HTTP simples.\nUm download de atualização que expirou é tentado de novo, depois diretamente.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

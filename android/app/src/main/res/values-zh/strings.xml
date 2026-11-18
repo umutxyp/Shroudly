@@ -287,9 +287,12 @@
     <string name="stop">停止保护</string>
     <string name="stopping">正在停止…</string>
     <string name="stratAuto">自动（推荐）</string>
+    <string name="stratChop">随机小片段</string>
     <string name="stratDisorderSni">在 SNI 处乱序</string>
     <string name="stratDoubleSplit">双重拆分</string>
+    <string name="stratMultiRec">多个 TLS 记录</string>
     <string name="stratNone">关闭（仅加密 DNS）</string>
+    <string name="stratOobRec">紧急字节 + TLS 记录拆分</string>
     <string name="stratSplit2">在第 2 字节处拆分</string>
     <string name="stratSplitMid">在 SNI 中间拆分</string>
     <string name="stratSplitSni">在 SNI 处拆分</string>
@@ -336,7 +339,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">最后的出路(Tor)在手机上重新可以启动:2.6.80 中它会立即退出。\n关闭 QUIC 时,自己使用 UDP 443 端口的通话和游戏重新可以通过;只拒绝 QUIC。\n在 Shroudly 没有列表的国家,短暂断网不会再让它误以为你在另一个国家。\nShroudly 现在无需等待更新即可为你的网络获取更好的设置,这些设置由我们签名并校验。</string>
+    <string name="whatsNewAndroid">被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。\n新方法：设置中三个固定选项（多个 TLS 记录、随机小片段、紧急字节 + 记录拆分），自动模式中另外三个，以及普通 HTTP 的 Host 头改写。\n超时的更新下载会再试一次，然后直接下载。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

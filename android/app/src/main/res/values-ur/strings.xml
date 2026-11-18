@@ -287,9 +287,12 @@
     <string name="stop">تحفظ بند کریں</string>
     <string name="stopping">بند ہو رہا ہے…</string>
     <string name="stratAuto">خودکار (تجویز کردہ)</string>
+    <string name="stratChop">چھوٹے بے ترتیب ٹکڑے</string>
     <string name="stratDisorderSni">SNI پر ترتیب میں ردوبدل</string>
     <string name="stratDoubleSplit">دوہری تقسیم</string>
+    <string name="stratMultiRec">متعدد TLS ریکارڈ</string>
     <string name="stratNone">بند (صرف خفیہ DNS)</string>
+    <string name="stratOobRec">فوری بائٹ + TLS ریکارڈ کی تقسیم</string>
     <string name="stratSplit2">بائٹ 2 پر تقسیم</string>
     <string name="stratSplitMid">SNI کے درمیان سے تقسیم</string>
     <string name="stratSplitSni">SNI پر تقسیم</string>
@@ -336,7 +339,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">آخری راستہ (Tor) فونز پر پھر سے شروع ہوتا ہے: 2.6.80 میں یہ فوراً بند ہو جاتا تھا۔\nQUIC بند ہو تو UDP پورٹ 443 خود استعمال کرنے والی کالز اور گیمز پھر سے گزرتی ہیں؛ صرف QUIC روکا جاتا ہے۔\nجس ملک کی Shroudly کے پاس فہرست نہیں، وہاں مختصر رکاوٹ اب اسے یہ نہیں سمجھاتی کہ آپ کسی اور ملک میں ہیں۔\nShroudly اب اپ ڈیٹ کا انتظار کیے بغیر آپ کے نیٹ ورک کے لیے بہتر سیٹنگز لے سکتا ہے؛ ہماری طرف سے دستخط شدہ اور جانچی ہوئی۔</string>
+    <string name="whatsNewAndroid">بلاک سائٹیں تیزی سے کھلتی ہیں: نئی سائٹ اسی طریقے سے شروع ہوتی ہے جس نے آپ کے نیٹ ورک پر دوسری بلاک سائٹیں کھولیں، اور ایک سروس کے نام (YouTube، Instagram، Discord…) ایک کا پایا ہوا طریقہ بانٹتے ہیں۔\nجو طریقہ کام کرتا رہتا ہے، اب ری اسٹارٹ کے بعد پہلے کنکشن پر اسے دوبارہ نہیں جانچا جاتا۔\nنئے طریقے: ترتیبات میں تین مستقل انتخاب (متعدد TLS ریکارڈ، چھوٹے بے ترتیب ٹکڑے، فوری بائٹ + ریکارڈ کی تقسیم)، خودکار میں مزید تین، اور سادہ HTTP کے لیے Host ہیڈر کی دوبارہ تحریر۔\nوقت ختم ہونے والا اپڈیٹ ڈاؤن لوڈ دوبارہ، پھر براہ راست آزمایا جاتا ہے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

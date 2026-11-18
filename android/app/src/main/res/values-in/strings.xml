@@ -287,9 +287,12 @@
     <string name="stop">Hentikan perlindungan</string>
     <string name="stopping">Menghentikan…</string>
     <string name="stratAuto">Otomatis (disarankan)</string>
+    <string name="stratChop">Potongan kecil acak</string>
     <string name="stratDisorderSni">Acak urutan di SNI</string>
     <string name="stratDoubleSplit">Pecah ganda</string>
+    <string name="stratMultiRec">Beberapa rekaman TLS</string>
     <string name="stratNone">Mati (hanya DNS terenkripsi)</string>
+    <string name="stratOobRec">Byte mendesak + pemisahan rekaman TLS</string>
     <string name="stratSplit2">Pecah di byte 2</string>
     <string name="stratSplitMid">Pecah di tengah SNI</string>
     <string name="stratSplitSni">Pecah di SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Jalan terakhir (Tor) kembali berjalan di ponsel: di 2.6.80 ia langsung berhenti.\nSaat QUIC dimatikan, panggilan dan game yang memakai port UDP 443 sendiri kembali tembus; hanya QUIC yang ditolak.\nDi negara yang tidak punya daftar di Shroudly, gangguan singkat tidak lagi membuatnya mengira kamu di negara lain.\nShroudly kini bisa menerima pengaturan yang lebih baik untuk jaringanmu tanpa menunggu pembaruan, ditandatangani dan diperiksa oleh kami.</string>
+    <string name="whatsNewAndroid">Situs yang diblokir terbuka lebih cepat: situs baru dimulai dengan cara yang sudah membuka situs terblokir lain di jaringan Anda, dan nama-nama satu layanan (YouTube, Instagram, Discord…) berbagi apa yang ditemukan salah satunya.\nTeknik yang terus berhasil tidak lagi diperiksa ulang pada koneksi pertama setelah mulai ulang.\nTeknik baru: tiga pilihan tetap di Setelan (beberapa rekaman TLS, potongan kecil acak, byte mendesak + pemisahan rekaman), tiga lagi di Otomatis, dan penulisan ulang header Host untuk HTTP biasa.\nUnduhan pembaruan yang kehabisan waktu dicoba lagi, lalu langsung.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

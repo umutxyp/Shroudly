@@ -202,9 +202,12 @@
 "stop" = "Qorumanı dayandır";
 "stopping" = "Dayandırılır…";
 "stratAuto" = "Avtomatik (tövsiyə olunur)";
+"stratChop" = "Kiçik təsadüfi hissələr";
 "stratDisorderSni" = "SNI nöqtəsində sıranı qarışdır";
 "stratDoubleSplit" = "İkiqat bölmə";
+"stratMultiRec" = "Bir neçə TLS qeydi";
 "stratNone" = "Söndürülüb (yalnız şifrələnmiş DNS)";
+"stratOobRec" = "Təcili bayt + TLS qeydini bölmə";
 "stratSplit2" = "2-ci baytda böl";
 "stratSplitMid" = "SNI-ın ortasından böl";
 "stratSplitSni" = "SNI nöqtəsində böl";
@@ -228,7 +231,7 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.\nShroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
-"whatsNewMac" = "QUIC söndürüləndə UDP 443 portunu özü işlədən zənglər və oyunlar yenidən keçir; yalnız QUIC rədd edilir.\nShroudly indi yeniləməni gözləmədən şəbəkəniz üçün daha yaxşı ayarlar ala bilir; bizim tərəfimizdən imzalanmış və yoxlanılmış.";
+"whatsNewApple" = "Bloklanmış saytlar daha tez açılır: yeni sayt şəbəkənizdə başqa bloklanmış saytları açmış üsulla başlayır, bir xidmətin adları (YouTube, Instagram, Discord…) birinin tapdığını paylaşır.\nİşləməyə davam edən üsul yenidən başlatmadan sonrakı ilk bağlantıda artıq yenidən yoxlanılmır.\nYeni üsullar: Ayarlarda üç sabit seçim (bir neçə TLS qeydi, kiçik təsadüfi hissələr, təcili bayt + qeydi bölmə), Avto rejimində daha üçü və sadə HTTP üçün Host başlığının yenidən yazılması.";
+"whatsNewMac" = "Bloklanmış saytlar daha tez açılır: yeni sayt şəbəkənizdə başqa bloklanmış saytları açmış üsulla başlayır, bir xidmətin adları (YouTube, Instagram, Discord…) birinin tapdığını paylaşır.\nİşləməyə davam edən üsul yenidən başlatmadan sonrakı ilk bağlantıda artıq yenidən yoxlanılmır.\nYeni üsullar: Ayarlarda üç sabit seçim (bir neçə TLS qeydi, kiçik təsadüfi hissələr, təcili bayt + qeydi bölmə), Avto rejimində daha üçü və sadə HTTP üçün Host başlığının yenidən yazılması.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

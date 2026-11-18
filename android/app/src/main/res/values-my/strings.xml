@@ -287,9 +287,12 @@
     <string name="stop">ကာကွယ်မှု ရပ်ရန်</string>
     <string name="stopping">ရပ်နေသည်…</string>
     <string name="stratAuto">အလိုအလျောက် (အကြံပြု)</string>
+    <string name="stratChop">ကျပန်း အပိုင်းငယ်များ</string>
     <string name="stratDisorderSni">SNI နေရာတွင် အစီအစဉ်ပြောင်းခြင်း</string>
     <string name="stratDoubleSplit">နှစ်ကြိမ် ခွဲခြင်း</string>
+    <string name="stratMultiRec">TLS မှတ်တမ်း အများအပြား</string>
     <string name="stratNone">ပိတ် (ကုဒ်ဝှက်ထားသော DNS သာ)</string>
+    <string name="stratOobRec">အရေးပေါ် ဘိုက် + TLS မှတ်တမ်း ခွဲခြင်း</string>
     <string name="stratSplit2">ဘိုက် ၂ တွင် ခွဲခြင်း</string>
     <string name="stratSplitMid">SNI အလယ်တွင် ခွဲခြင်း</string>
     <string name="stratSplitSni">SNI နေရာတွင် ခွဲခြင်း</string>
@@ -336,7 +339,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">နောက်ဆုံးလမ်း (Tor) ဖုန်းများတွင် ပြန်စတင်သည်- 2.6.80 တွင် ချက်ချင်း ရပ်သွားခဲ့သည်။\nQUIC ပိတ်ထားလျှင် UDP port 443 ကို ကိုယ်တိုင်သုံးသော ဖုန်းခေါ်ဆိုမှုနှင့် ဂိမ်းများ ပြန်ဖြတ်သွားနိုင်သည်- QUIC ကိုသာ ငြင်းသည်။\nShroudly တွင် စာရင်းမရှိသော နိုင်ငံ၌ ခဏတာ ပြတ်တောက်မှုကြောင့် သင် အခြားနိုင်ငံတွင် ရှိသည်ဟု မထင်တော့ပါ။\nShroudly သည် ယခု အပ်ဒိတ်ကို မစောင့်ဘဲ သင့်ကွန်ရက်အတွက် ပိုကောင်းသော ဆက်တင်များကို ရယူနိုင်သည်- ကျွန်ုပ်တို့ လက်မှတ်ထိုး၍ စစ်ဆေးထားသည်။</string>
+    <string name="whatsNewAndroid">ပိတ်ထားသော ဆိုက်များ ပိုမြန်စွာ ပွင့်သည်- ဆိုက်အသစ်သည် သင့်ကွန်ရက်ပေါ်ရှိ အခြားပိတ်ဆိုက်များကို ဖွင့်ခဲ့သည့်နည်းဖြင့် စတင်ပြီး ဝန်ဆောင်မှုတစ်ခု၏ အမည်များ (YouTube, Instagram, Discord…) သည် တစ်ခုတွေ့ရှိသည်ကို မျှဝေသုံးသည်။\nဆက်လက်အလုပ်ဖြစ်နေသော နည်းလမ်းကို ပြန်စတင်ပြီးနောက် ပထမချိတ်ဆက်မှုတွင် ထပ်မစစ်ဆေးတော့ပါ။\nနည်းလမ်းအသစ်များ- ဆက်တင်တွင် ပုံသေရွေးချယ်မှု သုံးခု (TLS မှတ်တမ်း အများအပြား၊ ကျပန်း အပိုင်းငယ်များ၊ အရေးပေါ် ဘိုက် + မှတ်တမ်းခွဲခြင်း)၊ အလိုအလျောက်တွင် နောက်ထပ်သုံးခုနှင့် ရိုးရိုး HTTP အတွက် Host ခေါင်းစီး ပြန်ရေးခြင်း။\nအချိန်ကုန်သွားသော အပ်ဒိတ် ဒေါင်းလုဒ်ကို ထပ်မံ၊ ထို့နောက် တိုက်ရိုက် ကြိုးစားသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

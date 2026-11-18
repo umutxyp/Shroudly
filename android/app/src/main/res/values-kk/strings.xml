@@ -287,9 +287,12 @@
     <string name="stop">Қорғанысты тоқтату</string>
     <string name="stopping">Тоқтатылуда…</string>
     <string name="stratAuto">Автоматты (ұсынылады)</string>
+    <string name="stratChop">Кездейсоқ ұсақ бөліктер</string>
     <string name="stratDisorderSni">SNI тұсында ретін ауыстыру</string>
     <string name="stratDoubleSplit">Қос бөлу</string>
+    <string name="stratMultiRec">Бірнеше TLS жазбасы</string>
     <string name="stratNone">Өшірулі (тек шифрланған DNS)</string>
+    <string name="stratOobRec">Шұғыл байт + TLS жазбасын бөлу</string>
     <string name="stratSplit2">2-байттан бөлу</string>
     <string name="stratSplitMid">SNI ортасынан бөлу</string>
     <string name="stratSplitSni">SNI тұсынан бөлу</string>
@@ -336,7 +339,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Соңғы жол (Tor) телефондарда қайта іске қосылады: 2.6.80-де бірден жабылатын.\nQUIC өшірулі болса, UDP 443 портын өзі қолданатын қоңыраулар мен ойындар қайта өтеді; тек QUIC қабылданбайды.\nShroudly-де тізімі жоқ елде қысқа үзіліс енді оны сізді басқа елде деп ойлатпайды.\nShroudly енді жаңартуды күтпей-ақ желіңіз үшін жақсырақ баптауларды ала алады; оларға біз қол қойып, тексереміз.</string>
+    <string name="whatsNewAndroid">Бұғатталған сайттар тезірек ашылады: жаңа сайт желіңізде басқа бұғатталған сайттарды ашқан тәсілден басталады, ал бір қызметтің атаулары (YouTube, Instagram, Discord…) біреуі тапқанын бөліседі.\nЖұмысын жалғастырып жүрген тәсіл қайта іске қосылғаннан кейінгі алғашқы қосылымда енді қайта тексерілмейді.\nЖаңа тәсілдер: баптауларда үш тұрақты нұсқа (бірнеше TLS жазбасы, кездейсоқ ұсақ бөліктер, шұғыл байт + жазбаны бөлу), «Авто» режимінде тағы үшеуі және қарапайым HTTP үшін Host тақырыбын қайта жазу.\nУақыты біткен жаңарту жүктеуі қайта, содан кейін тікелей байқалады.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

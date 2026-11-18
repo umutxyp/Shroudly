@@ -287,9 +287,12 @@
     <string name="stop">Désactiver la protection</string>
     <string name="stopping">Désactivation…</string>
     <string name="stratAuto">Auto (recommandé)</string>
+    <string name="stratChop">Petits morceaux aléatoires</string>
     <string name="stratDisorderSni">Désordre au SNI</string>
     <string name="stratDoubleSplit">Double découpage</string>
+    <string name="stratMultiRec">Plusieurs enregistrements TLS</string>
     <string name="stratNone">Désactivé (DNS chiffré seulement)</string>
+    <string name="stratOobRec">Octet urgent + découpe de l\'enregistrement TLS</string>
     <string name="stratSplit2">Découpage à l’octet 2</string>
     <string name="stratSplitMid">Découpage au milieu du SNI</string>
     <string name="stratSplitSni">Découpage au SNI</string>
@@ -336,7 +339,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">La dernière issue (Tor) redémarre sur les téléphones : en 2.6.80, elle s\'arrêtait aussitôt.\nAvec QUIC désactivé, les appels et jeux qui utilisent eux-mêmes le port UDP 443 passent de nouveau ; seul QUIC est refusé.\nDans un pays pour lequel Shroudly n\'a pas de liste, une courte coupure ne lui fait plus croire que vous êtes dans un autre pays.\nShroudly peut désormais recevoir de meilleurs réglages pour votre réseau sans attendre une mise à jour, signés et vérifiés par nous.</string>
+    <string name="whatsNewAndroid">Les sites bloqués s\'ouvrent plus vite : un nouveau commence par ce qui a déjà ouvert d\'autres sites bloqués sur ton réseau, et les noms d\'un même service (YouTube, Instagram, Discord…) partagent ce que l\'un d\'eux trouve.\nUne technique qui continue de marcher n\'est plus revérifiée à la première connexion après un redémarrage.\nNouvelles techniques : trois choix fixes dans les Réglages (plusieurs enregistrements TLS, petits morceaux aléatoires, octet urgent + découpe d\'enregistrement), trois de plus en Auto et des réécritures de l\'en-tête Host pour le HTTP simple.\nUn téléchargement de mise à jour expiré est réessayé, puis directement.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

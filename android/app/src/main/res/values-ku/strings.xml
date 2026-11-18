@@ -287,9 +287,12 @@
     <string name="stop">Parastinê rawestîne</string>
     <string name="stopping">Radiweste…</string>
     <string name="stratAuto">Xweber (tê pêşniyarkirin)</string>
+    <string name="stratChop">Perçeyên biçûk ên rasthatî</string>
     <string name="stratDisorderSni">Li SNI tevlihev bike</string>
     <string name="stratDoubleSplit">Parçekirina ducarî</string>
+    <string name="stratMultiRec">Çend tomarên TLS</string>
     <string name="stratNone">Girtî (tenê DNS-a şîfrekirî)</string>
+    <string name="stratOobRec">Bayta lezgîn + parvekirina tomara TLS</string>
     <string name="stratSplit2">Li bayta 2an parçe bike</string>
     <string name="stratSplitMid">Di nîvê SNI de parçe bike</string>
     <string name="stratSplitSni">Li SNI parçe bike</string>
@@ -336,7 +339,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Riya dawî (Tor) dîsa li ser telefonan dest pê dike: di 2.6.80 de yekser digirt.\nDema QUIC girtî be, bang û lîstikên ku bi xwe porta UDP 443 bi kar tînin dîsa derbas dibin; tenê QUIC tê redkirin.\nLi welatekî ku Shroudly lîsteya wî tune, qutbûneke kurt êdî nahêle ew bifikire ku tu li welatekî din î.\nShroudly niha dikare bêyî ku li benda nûvekirinê bimîne mîhengên çêtir ji bo tora te bistîne; ji aliyê me ve îmzekirî û kontrolkirî.</string>
+    <string name="whatsNewAndroid">Malperên astengkirî zûtir vedibin: malpereke nû bi rêbaza ku li ser tora te malperên din ên astengkirî vekiriye dest pê dike, û navên xizmetekê (YouTube, Instagram, Discord…) tiştê ku yek ji wan dibîne parve dikin.\nRêbaza ku xebata xwe didomîne êdî di girêdana yekem a piştî ji nû ve destpêkirinê de dîsa nayê kontrolkirin.\nRêbazên nû: di Mîhengan de sê vebijarkên sabît (çend tomarên TLS, perçeyên biçûk ên rasthatî, bayta lezgîn + parvekirina tomarê), sê yên din di Otomatîk de, û ji nû ve nivîsandina sernavê Host ji bo HTTP-ya sade.\nDaxistina nûvekirinê ya ku dema wê derbas bû dîsa, paşê rasterast tê ceribandin.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>
