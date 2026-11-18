@@ -124,11 +124,127 @@ static int send_oob_at(sock_t up, uint8_t *buf, int len, int pos) {
   return sock_send_all(up, buf + pos, (size_t)(len - pos), 0);
 }
 
+/* ── several TLS records ─────────────────────────────────────────────────
+ * The record that holds absolute position p (strictly inside its body) is
+ * cut in two there, the way tls_insert_record cuts the first one. Used when
+ * a strategy asks for more than one record cut (NoDPI's many records): the
+ * handshake then arrives in three or more records, legal by RFC 8446 §5.1,
+ * so a filter that reassembles records only up to a point, or reads only
+ * the first one or two, never holds the whole name. Only whole records
+ * already here are cut. Returns the new length, or -1. */
+static int tls_split_at(uint8_t *buf, int len, int cap, int p) {
+  int o = 0;
+  while (o + 5 <= len) {
+    if (buf[o] != 0x16) return -1;
+    int rl = (buf[o + 3] << 8) | buf[o + 4];
+    int end = o + 5 + rl;
+    if (end > len) return -1;
+    if (p > o + 5 && p < end) {
+      if (len + 5 > cap) return -1;
+      int n1 = p - (o + 5), n2 = rl - n1;
+      memmove(buf + p + 5, buf + p, (size_t)(len - p));
+      buf[o + 3] = (uint8_t)(n1 >> 8); buf[o + 4] = (uint8_t)n1;
+      buf[p] = buf[o]; buf[p + 1] = buf[o + 1]; buf[p + 2] = buf[o + 2];
+      buf[p + 3] = (uint8_t)(n2 >> 8); buf[p + 4] = (uint8_t)n2;
+      return len + 5;
+    }
+    o = end;
+  }
+  return -1;
+}
+
+/* ── plain HTTP rewrites the RFC allows (tpws) ───────────────────────────
+ * A filter that looks for "Host: blocked.example" byte for byte misses each
+ * of these, while every server takes them: header names are case-
+ * insensitive and so is a host name (RFC 9110 §5.1, §4.2.3); the space
+ * after the colon is optional whitespace, a space or a tab (RFC 9112 §5);
+ * and a server ignores an empty line before the request line (RFC 9112
+ * §2.2). Nothing that changes what is asked for (no trailing dot on the
+ * name, no doubled spaces), so a server can never answer a different
+ * request. Returns the new length (the same, longer or shorter), or len
+ * unchanged when it cannot apply; pi's offsets are moved with the bytes. */
+static int http_rewrite(uint8_t *buf, int len, int cap, proto_info *pi, int m) {
+  int h = pi->http_hdr_off, v = pi->host_off;
+  if (pi->kind != PROTO_HTTP || h < 0 || v < 0 || h + 5 > len || v > len || v < h + 5) return len;
+  if (m & HTTP_DOMCASE) {
+    int up = 1;
+    for (int i = v; i < v + pi->host_len && i < len; i++) {
+      uint8_t c = buf[i];
+      if (c >= 'a' && c <= 'z') { if (up) buf[i] = (uint8_t)(c - 32); up = !up; }
+      else if (c >= 'A' && c <= 'Z') { if (!up) buf[i] = (uint8_t)(c + 32); up = !up; }
+    }
+  }
+  if (m & HTTP_HOSTCASE) { buf[h] = 'h'; buf[h + 1] = 'o'; buf[h + 2] = 's'; buf[h + 3] = 't'; }
+  if (m & (HTTP_NOSPACE | HTTP_HOSTTAB)) {
+    /* The whitespace between "Host:" and the name, h+5 .. v, becomes none
+     * or one tab. */
+    int want = (m & HTTP_NOSPACE) ? 0 : 1, have = v - (h + 5);
+    if (len - have + want <= cap) {
+      memmove(buf + h + 5 + want, buf + v, (size_t)(len - v));
+      if (want) buf[h + 5] = '\t';
+      len += want - have;
+      pi->host_off += want - have;
+    }
+  }
+  if ((m & HTTP_METHODEOL) && len + 2 <= cap) {
+    memmove(buf + 2, buf, (size_t)len);
+    buf[0] = '\r'; buf[1] = '\n';
+    len += 2;
+    pi->http_hdr_off += 2;
+    pi->host_off += 2;
+  }
+  return len;
+}
+
+/* ── random-size segments (Xray's "fragment") ───────────────────────────
+ * The whole first payload leaves as segments of a random size in
+ * [chop_min, chop_max], each followed by a random pause in
+ * [chop_wait_min, chop_wait_max] ms. A filter that keys on the sizes or
+ * the timing of a cut it knows (the one always at the name, the one always
+ * one byte in) meets neither, and one that reads only the first segment or
+ * two never sees the name. The server receives the bytes exactly as they
+ * were. */
+static uint32_t chop_rand(uint32_t *s) {
+  uint32_t x = *s ? *s : 0x9e3779b9u;
+  x ^= x << 13; x ^= x >> 17; x ^= x << 5;
+  return *s = x;
+}
+static int send_chopped(sock_t up, const uint8_t *buf, int len, const strategy *st) {
+  static _Atomic uint32_t calls = 0;
+  uint32_t seed = (uint32_t)now_ms() ^ (uint32_t)(uintptr_t)buf ^ (++calls * 2654435761u);
+  int lo = st->chop_min > 0 ? st->chop_min : 1, hi = st->chop_max >= lo ? st->chop_max : lo;
+  int off = 0;
+  while (off < len) {
+    int n = lo + (int)(chop_rand(&seed) % (uint32_t)(hi - lo + 1));
+    if (n > len - off) n = len - off;
+    if (sock_send_all(up, buf + off, (size_t)n, 0) != 0) return -1;
+    off += n;
+    if (off < len) {
+      sock_wait_sent(up, 10);
+      int w = st->chop_wait_min;
+      if (st->chop_wait_max > w) w += (int)(chop_rand(&seed) % (uint32_t)(st->chop_wait_max - w + 1));
+      if (w > 0) sleep_ms(w);
+    }
+  }
+  return 0;
+}
+
 int desync_send_first(sock_t up, int family,
                       uint8_t *payload, int len, int cap,
                       const proto_info *pi, const strategy *st,
                       _Atomic uint64_t *desync_counter) {
   if (len <= 0) return 0;
+
+  /* Plain HTTP rewrites (http(...)): done first, with the positions moved
+   * along, so every position below refers to the bytes that leave. */
+  proto_info pi_http;
+  for (int i = 0; i < st->n_ops; i++) {
+    if (st->ops[i].kind != OP_HTTP || pi->kind != PROTO_HTTP) continue;
+    pi_http = *pi;
+    len = http_rewrite(payload, len, cap, &pi_http, st->ops[i].offset);
+    pi = &pi_http;
+    break;
+  }
 
   /* Optional HTTP Host case-scramble. */
   for (int i = 0; i < st->n_ops; i++) {
@@ -152,8 +268,33 @@ int desync_send_first(sock_t up, int family,
   }
 
   /* Re-frame the handshake, then move any cut that now sits after the inserted
-   * record header. */
-  for (int i = 0; i < st->n_ops; i++) {
+   * record header. Several record cuts (more than one tlsrec): each record
+   * that holds a cut is cut there, the last cut first so the earlier
+   * positions still mean the same bytes. One record cut goes exactly as it
+   * always has (below). */
+  int nrec = 0;
+  for (int i = 0; i < st->n_ops; i++) if (st->ops[i].kind == OP_TLSREC) nrec++;
+  if (nrec > 1 && pi->kind == PROTO_TLS) {
+    int cuts[MAX_OPS]; int nc = 0;
+    for (int i = 0; i < st->n_ops; i++) {
+      if (st->ops[i].kind != OP_TLSREC) continue;
+      int p = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi), dup = 0;
+      for (int j = 0; j < nc; j++) if (cuts[j] == p) dup = 1;
+      if (!dup) cuts[nc++] = p;
+    }
+    for (int i = 1; i < nc; i++) {        /* insertion sort, descending */
+      int v = cuts[i], j = i - 1;
+      while (j >= 0 && cuts[j] < v) { cuts[j + 1] = cuts[j]; j--; }
+      cuts[j + 1] = v;
+    }
+    for (int i = 0; i < nc; i++) {
+      int nl = tls_split_at(payload, len, cap, cuts[i]);
+      if (nl < 0) continue;
+      for (int j = 0; j < nsplits; j++) if (splits[j] > cuts[i]) splits[j] += 5;
+      len = nl;
+    }
+  }
+  for (int i = 0; i < st->n_ops && nrec == 1; i++) {
     if (st->ops[i].kind != OP_TLSREC || pi->kind != PROTO_TLS) continue;
     int pos = resolve_pos(st->ops[i].ref, st->ops[i].offset, len, pi);
     int nl = tls_insert_record(payload, len, cap, pi->tls_record_total, pos);
@@ -194,6 +335,14 @@ int desync_send_first(sock_t up, int family,
     return 0;
   }
 
+
+  /* Random-size segments (chop): the whole payload, as it now is, cut its
+   * own way; the cuts of split and disorder are not used beside it. */
+  for (int i = 0; i < st->n_ops; i++) {
+    if (st->ops[i].kind != OP_CHOP) continue;
+    if (desync_counter) (*desync_counter)++;
+    return send_chopped(up, payload, len, st);
+  }
 
   for (int i = 1; i < nsplits; i++) {   /* insertion sort, ascending */
     int v = splits[i], j = i - 1;

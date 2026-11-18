@@ -960,6 +960,11 @@ static int usable_presets(void) {
  * cut. This is what keeps working when a filter changes what it looks at.
  * Only techniques that can do something here are cycled onto: one that cannot
  * would send the request untouched, and be remembered as what works. */
+/* Only rewrites a plain HTTP request (http(...)): on any other connection it
+ * would be the cut beside it alone, a technique already in the list, so it is
+ * left out there (TLS ladders, and the next technique after a cut or a
+ * refusal, which are TLS ones). */
+#define TRAIT_HTTP   4u
 static unsigned av_get(const char *h);
 static int preset_fits(int i, unsigned avoid);
 
@@ -967,7 +972,7 @@ static void hs_on_cut(const char *h) {
   int np = strategy_preset_count();
   if (np <= 0 || !g_cfg.auto_probe) return;
   int cur = hs_get(h, NULL);
-  unsigned avoid = av_get(h);
+  unsigned avoid = av_get(h) | TRAIT_HTTP;
   for (int k = 1; k <= np; k++) {
     int next = (cur + k) % np;             /* cur is -1 when nothing is learned */
     if (!preset_fits(next, avoid)) continue;
@@ -1002,6 +1007,7 @@ static unsigned preset_traits(const strategy *st) {
   for (int i = 0; i < st->n_ops; i++) {
     if (st->ops[i].kind == OP_TLSREC) m |= TRAIT_TLSREC;
     if (st->ops[i].kind == OP_FAKE) m |= TRAIT_FAKE;
+    if (st->ops[i].kind == OP_HTTP) m |= TRAIT_HTTP;
   }
   return m;
 }
@@ -1052,7 +1058,7 @@ static int hs_on_refused(const char *h, int cand) {
   int np = strategy_preset_count();
   if (np <= 0 || cand < 0 || cand >= np || !g_cfg.auto_probe) return -1;
   unsigned mask = preset_traits(strategy_preset(cand));
-  unsigned avoid = mask | av_get(h);
+  unsigned avoid = mask | av_get(h) | TRAIT_HTTP;
   int next = -1;
   for (int k = 1; k < np && next < 0; k++)
     if (preset_fits((cand + k) % np, avoid)) next = (cand + k) % np;
@@ -4632,7 +4638,7 @@ static void *bg_thread(void *arg) {
     if (!j->first) {
       cand[n++] = ATT_PLAIN;
     } else if (round == 0) {
-      unsigned avoid = pi.kind == PROTO_TLS ? av_get(j->key) : 0;
+      unsigned avoid = pi.kind == PROTO_TLS ? (av_get(j->key) | TRAIT_HTTP) : 0;
       for (int k = 0; k < np && n < ATT_MAX; k++) {
         int i = (j->from + k) % np;
         if (i < 32 && ((j->tried >> i) & 1u)) continue;
@@ -5030,7 +5036,7 @@ static void handle(sock_t client) {
       if (learned >= np) learned = -1;
       /* Kinds of technique this name's server turned out not to take (see
        * hs_on_refused): left out of the ladder altogether. */
-      unsigned avoid = watch_tls ? av_get(key) : 0;
+      unsigned avoid = watch_tls ? (av_get(key) | TRAIT_HTTP) : 0;
       if (learned >= 0 && !preset_fits(learned, avoid)) learned = -1;
       int resumed = from >= 0 && from < np;
       ladder_st st;
