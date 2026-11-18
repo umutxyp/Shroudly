@@ -202,9 +202,12 @@
 "stop" = "ጥበቃ ያቁሙ";
 "stopping" = "በማቆም ላይ…";
 "stratAuto" = "ራስ-ሰር (የሚመከር)";
+"stratChop" = "ትናንሽ የዘፈቀደ ቁርጥራጮች";
 "stratDisorderSni" = "በSNI ላይ ቅደም ተከተል ማዛባት";
 "stratDoubleSplit" = "ድርብ ክፍፍል";
+"stratMultiRec" = "በርካታ TLS መዝገቦች";
 "stratNone" = "ጠፍቷል (የተመሰጠረ DNS ብቻ)";
+"stratOobRec" = "አስቸኳይ ባይት + የTLS መዝገብ መከፋፈል";
 "stratSplit2" = "በባይት 2 ላይ መክፈል";
 "stratSplitMid" = "በSNI መሃል ላይ መክፈል";
 "stratSplitSni" = "በSNI ላይ መክፈል";

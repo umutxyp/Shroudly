@@ -202,9 +202,12 @@
 "stop" = "Қорғанысты тоқтату";
 "stopping" = "Тоқтатылуда…";
 "stratAuto" = "Автоматты (ұсынылады)";
+"stratChop" = "Кездейсоқ ұсақ бөліктер";
 "stratDisorderSni" = "SNI тұсында ретін ауыстыру";
 "stratDoubleSplit" = "Қос бөлу";
+"stratMultiRec" = "Бірнеше TLS жазбасы";
 "stratNone" = "Өшірулі (тек шифрланған DNS)";
+"stratOobRec" = "Шұғыл байт + TLS жазбасын бөлу";
 "stratSplit2" = "2-байттан бөлу";
 "stratSplitMid" = "SNI ортасынан бөлу";
 "stratSplitSni" = "SNI тұсынан бөлу";

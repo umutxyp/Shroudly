@@ -195,29 +195,22 @@ static void ensure_presets(void) {
   add("multisplit",           "split(1),split(sni_mid),split(sni_end)");
   add("multidisorder",        "disorder(1),disorder(sni_mid),disorder(sni_end)");
   add("multisplit-tlsrec",    "split(1),split(sni_mid),tlsrec(sni+1)");
-  /* After every technique above, so none of them is tried later than before
-   * on the networks where it wins (a learned technique is kept by its name,
-   * so what users learned stays theirs):
-   *   tlsrec-multi — the handshake in four records, cut at the name's start,
-   *                  middle and last byte (NoDPI's many records): for a
-   *                  filter that puts two records back together, or reads
-   *                  only the first ones;
-   *   chop         — the request in random 100–200 byte segments, 10–20 ms
-   *                  apart (Xray's "fragment" defaults): no cut at a place a
-   *                  filter can learn to look at, no fixed timing;
-   *   tlsrec-chop  — one record cut at the name, then small random segments;
-   *   http-tricks  — plain HTTP only (left out of every other ladder): the
-   *                  Host header written the ways the RFC allows that a
-   *                  byte-for-byte match misses (tpws), and a cut in the
-   *                  name. Only the rewrites every server tried took: a tab
-   *                  after "Host:" got 400 from example.com, and an empty
-   *                  line before the request 400 from captive.apple.com
-   *                  (2026-11-18), and a 400 is an answer the ladder would
-   *                  have learned; those two stay for a strategy written by
-   *                  hand. */
-  add("tlsrec-multi",         "tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)");
-  add("chop",                 "chop(100-200:10-20)");
-  add("tlsrec-chop",          "tlsrec(sni+1),chop(16-64)");
+  /* Plain HTTP only (left out of every other ladder, so a TLS site's list,
+   * and the time it takes to reach the last way out, stay as they were):
+   * the Host header written the ways the RFC allows that a byte-for-byte
+   * match misses (tpws), and a cut in the name. Only the rewrites every
+   * server tried took: a tab after "Host:" got 400 from example.com, and an
+   * empty line before the request 400 from captive.apple.com (2026-11-18),
+   * and a 400 is an answer the ladder would have learned; those two stay for
+   * a strategy written by hand.
+   *
+   * The newer TLS techniques (several records, random-size segments, an
+   * urgent byte with a record cut) are not in this list: every technique
+   * added here is one more a site nothing opens walks before the last way
+   * out (an app that gives up after two seconds no longer reached it in
+   * four connections). They are a fixed choice in Settings, applied to
+   * every site from the first packet, and remote settings can give them to
+   * a network that needs them. */
   add("http-tricks",          "http(hostcase+domcase+nospace),split(sni_mid)");
   /* A decoy first segment, where the platform can guarantee the server never
    * sees it (Linux, via a TCP signature key). It comes last because it is the

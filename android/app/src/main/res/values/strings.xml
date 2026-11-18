@@ -287,9 +287,12 @@
     <string name="stop">Stop protection</string>
     <string name="stopping">Stopping…</string>
     <string name="stratAuto">Auto (recommended)</string>
+    <string name="stratChop">Small random pieces</string>
     <string name="stratDisorderSni">Disorder at SNI</string>
     <string name="stratDoubleSplit">Double split</string>
+    <string name="stratMultiRec">Several TLS records</string>
     <string name="stratNone">Off (encrypted DNS only)</string>
+    <string name="stratOobRec">Urgent byte + TLS record split</string>
     <string name="stratSplit2">Split at byte 2</string>
     <string name="stratSplitMid">Split in the middle of SNI</string>
     <string name="stratSplitSni">Split at SNI</string>

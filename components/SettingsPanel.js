@@ -25,6 +25,13 @@ const STRATEGIES = [
   { id: 'split-sni-mid', labelKey: 'stratSplitMid', spec: 'split(sni_mid)', auto: false },
   { id: 'double-split', labelKey: 'stratDoubleSplit', spec: 'split(1),split(sni)', auto: false },
   { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
+  // One technique for every site from the first packet, as some other tools
+  // do: the handshake in four TLS records; the request in random 100-200
+  // byte segments; an urgent byte one in plus a record cut near the name's
+  // end. Not in Auto's list (core/src/strategy.c says why).
+  { id: 'multi-rec', labelKey: 'stratMultiRec', spec: 'tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)', auto: false },
+  { id: 'chop', labelKey: 'stratChop', spec: 'chop(100-200)', auto: false },
+  { id: 'oob-rec', labelKey: 'stratOobRec', spec: 'oob(1),tlsrec(sni_end-5)', auto: false },
   // Off: connections untouched, encrypted DNS only (issue #37).
   { id: 'none', labelKey: 'stratNone', spec: 'none', auto: false },
 ];

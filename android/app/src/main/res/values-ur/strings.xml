@@ -287,9 +287,12 @@
     <string name="stop">تحفظ بند کریں</string>
     <string name="stopping">بند ہو رہا ہے…</string>
     <string name="stratAuto">خودکار (تجویز کردہ)</string>
+    <string name="stratChop">چھوٹے بے ترتیب ٹکڑے</string>
     <string name="stratDisorderSni">SNI پر ترتیب میں ردوبدل</string>
     <string name="stratDoubleSplit">دوہری تقسیم</string>
+    <string name="stratMultiRec">متعدد TLS ریکارڈ</string>
     <string name="stratNone">بند (صرف خفیہ DNS)</string>
+    <string name="stratOobRec">فوری بائٹ + TLS ریکارڈ کی تقسیم</string>
     <string name="stratSplit2">بائٹ 2 پر تقسیم</string>
     <string name="stratSplitMid">SNI کے درمیان سے تقسیم</string>
     <string name="stratSplitSni">SNI پر تقسیم</string>

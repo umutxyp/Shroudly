@@ -287,9 +287,12 @@
     <string name="stop">ጥበቃ ያቁሙ</string>
     <string name="stopping">በማቆም ላይ…</string>
     <string name="stratAuto">ራስ-ሰር (የሚመከር)</string>
+    <string name="stratChop">ትናንሽ የዘፈቀደ ቁርጥራጮች</string>
     <string name="stratDisorderSni">በSNI ላይ ቅደም ተከተል ማዛባት</string>
     <string name="stratDoubleSplit">ድርብ ክፍፍል</string>
+    <string name="stratMultiRec">በርካታ TLS መዝገቦች</string>
     <string name="stratNone">ጠፍቷል (የተመሰጠረ DNS ብቻ)</string>
+    <string name="stratOobRec">አስቸኳይ ባይት + የTLS መዝገብ መከፋፈል</string>
     <string name="stratSplit2">በባይት 2 ላይ መክፈል</string>
     <string name="stratSplitMid">በSNI መሃል ላይ መክፈል</string>
     <string name="stratSplitSni">በSNI ላይ መክፈል</string>

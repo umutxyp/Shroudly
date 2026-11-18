@@ -287,9 +287,12 @@
     <string name="stop">להפסיק הגנה</string>
     <string name="stopping">עוצר…</string>
     <string name="stratAuto">אוטומטי (מומלץ)</string>
+    <string name="stratChop">חתיכות קטנות אקראיות</string>
     <string name="stratDisorderSni">שיבוש סדר ב-SNI</string>
     <string name="stratDoubleSplit">פיצול כפול</string>
+    <string name="stratMultiRec">כמה רשומות TLS</string>
     <string name="stratNone">כבוי (DNS מוצפן בלבד)</string>
+    <string name="stratOobRec">בית דחוף + פיצול רשומת TLS</string>
     <string name="stratSplit2">פיצול בבייט 2</string>
     <string name="stratSplitMid">פיצול באמצע ה-SNI</string>
     <string name="stratSplitSni">פיצול ב-SNI</string>

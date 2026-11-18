@@ -202,9 +202,12 @@
 "stop" = "تحفظ بند کریں";
 "stopping" = "بند ہو رہا ہے…";
 "stratAuto" = "خودکار (تجویز کردہ)";
+"stratChop" = "چھوٹے بے ترتیب ٹکڑے";
 "stratDisorderSni" = "SNI پر ترتیب میں ردوبدل";
 "stratDoubleSplit" = "دوہری تقسیم";
+"stratMultiRec" = "متعدد TLS ریکارڈ";
 "stratNone" = "بند (صرف خفیہ DNS)";
+"stratOobRec" = "فوری بائٹ + TLS ریکارڈ کی تقسیم";
 "stratSplit2" = "بائٹ 2 پر تقسیم";
 "stratSplitMid" = "SNI کے درمیان سے تقسیم";
 "stratSplitSni" = "SNI پر تقسیم";

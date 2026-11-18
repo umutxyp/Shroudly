@@ -202,9 +202,12 @@
 "stop" = "保護を停止";
 "stopping" = "停止しています…";
 "stratAuto" = "自動（推奨）";
+"stratChop" = "ランダムな小さな断片";
 "stratDisorderSni" = "SNI で順序入れ替え";
 "stratDoubleSplit" = "二重分割";
+"stratMultiRec" = "複数の TLS レコード";
 "stratNone" = "オフ（暗号化 DNS のみ）";
+"stratOobRec" = "緊急バイト + TLS レコード分割";
 "stratSplit2" = "2 バイト目で分割";
 "stratSplitMid" = "SNI の中央で分割";
 "stratSplitSni" = "SNI で分割";

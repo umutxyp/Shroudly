@@ -202,9 +202,12 @@
 "stop" = "停止保护";
 "stopping" = "正在停止…";
 "stratAuto" = "自动（推荐）";
+"stratChop" = "随机小片段";
 "stratDisorderSni" = "在 SNI 处乱序";
 "stratDoubleSplit" = "双重拆分";
+"stratMultiRec" = "多个 TLS 记录";
 "stratNone" = "关闭（仅加密 DNS）";
+"stratOobRec" = "紧急字节 + TLS 记录拆分";
 "stratSplit2" = "在第 2 字节处拆分";
 "stratSplitMid" = "在 SNI 中间拆分";
 "stratSplitSni" = "在 SNI 处拆分";

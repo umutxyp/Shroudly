@@ -202,9 +202,12 @@
 "stop" = "Ҳимояро хомӯш кунед";
 "stopping" = "Қатъ мешавад…";
 "stratAuto" = "Худкор (тавсия мешавад)";
+"stratChop" = "Пораҳои хурди тасодуфӣ";
 "stratDisorderSni" = "Бетартибӣ дар SNI";
 "stratDoubleSplit" = "Тақсими дукарата";
+"stratMultiRec" = "Якчанд сабти TLS";
 "stratNone" = "Хомӯш (танҳо DNS-и рамзгузоришуда)";
+"stratOobRec" = "Байти фаврӣ + тақсими сабти TLS";
 "stratSplit2" = "Тақсим дар байти 2";
 "stratSplitMid" = "Тақсим дар миёнаи SNI";
 "stratSplitSni" = "Тақсим дар SNI";

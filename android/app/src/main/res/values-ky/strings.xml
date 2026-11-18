@@ -287,9 +287,12 @@
     <string name="stop">Коргоону токтотуу</string>
     <string name="stopping">Токтотулууда…</string>
     <string name="stratAuto">Авто (сунушталат)</string>
+    <string name="stratChop">Кокустан майда бөлүктөр</string>
     <string name="stratDisorderSni">SNI боюнча иретсиз жөнөтүү</string>
     <string name="stratDoubleSplit">Эки жолу бөлүү</string>
+    <string name="stratMultiRec">Бир нече TLS жазуусу</string>
     <string name="stratNone">Өчүк (шифрленген DNS гана)</string>
+    <string name="stratOobRec">Шашылыш байт + TLS жазуусун бөлүү</string>
     <string name="stratSplit2">2-байтта бөлүү</string>
     <string name="stratSplitMid">SNI ортосунан бөлүү</string>
     <string name="stratSplitSni">SNI боюнча бөлүү</string>

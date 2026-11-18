@@ -287,9 +287,12 @@
     <string name="stop">توقف محافظت</string>
     <string name="stopping">در حال توقف…</string>
     <string name="stratAuto">خودکار (توصیه‌شده)</string>
+    <string name="stratChop">تکه‌های کوچک تصادفی</string>
     <string name="stratDisorderSni">جابه‌جایی ترتیب در SNI</string>
     <string name="stratDoubleSplit">تقسیم دوگانه</string>
+    <string name="stratMultiRec">چند رکورد TLS</string>
     <string name="stratNone">خاموش (فقط DNS رمزگذاری‌شده)</string>
+    <string name="stratOobRec">بایت فوری + تقسیم رکورد TLS</string>
     <string name="stratSplit2">تقسیم در بایت 2</string>
     <string name="stratSplitMid">تقسیم در میانهٔ SNI</string>
     <string name="stratSplitSni">تقسیم در SNI</string>

@@ -202,9 +202,12 @@
 "stop" = "להפסיק הגנה";
 "stopping" = "עוצר…";
 "stratAuto" = "אוטומטי (מומלץ)";
+"stratChop" = "חתיכות קטנות אקראיות";
 "stratDisorderSni" = "שיבוש סדר ב-SNI";
 "stratDoubleSplit" = "פיצול כפול";
+"stratMultiRec" = "כמה רשומות TLS";
 "stratNone" = "כבוי (DNS מוצפן בלבד)";
+"stratOobRec" = "בית דחוף + פיצול רשומת TLS";
 "stratSplit2" = "פיצול בבייט 2";
 "stratSplitMid" = "פיצול באמצע ה-SNI";
 "stratSplitSni" = "פיצול ב-SNI";

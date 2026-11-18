@@ -287,9 +287,12 @@
     <string name="stop">Parar proteção</string>
     <string name="stopping">Parando…</string>
     <string name="stratAuto">Automática (recomendada)</string>
+    <string name="stratChop">Pedaços pequenos aleatórios</string>
     <string name="stratDisorderSni">Desordenar no SNI</string>
     <string name="stratDoubleSplit">Divisão dupla</string>
+    <string name="stratMultiRec">Vários registros TLS</string>
     <string name="stratNone">Desligado (só DNS criptografado)</string>
+    <string name="stratOobRec">Byte urgente + divisão do registro TLS</string>
     <string name="stratSplit2">Dividir no byte 2</string>
     <string name="stratSplitMid">Dividir no meio do SNI</string>
     <string name="stratSplitSni">Dividir no SNI</string>

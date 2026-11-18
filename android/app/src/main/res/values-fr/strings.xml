@@ -287,9 +287,12 @@
     <string name="stop">Désactiver la protection</string>
     <string name="stopping">Désactivation…</string>
     <string name="stratAuto">Auto (recommandé)</string>
+    <string name="stratChop">Petits morceaux aléatoires</string>
     <string name="stratDisorderSni">Désordre au SNI</string>
     <string name="stratDoubleSplit">Double découpage</string>
+    <string name="stratMultiRec">Plusieurs enregistrements TLS</string>
     <string name="stratNone">Désactivé (DNS chiffré seulement)</string>
+    <string name="stratOobRec">Octet urgent + découpe de l\'enregistrement TLS</string>
     <string name="stratSplit2">Découpage à l’octet 2</string>
     <string name="stratSplitMid">Découpage au milieu du SNI</string>
     <string name="stratSplitSni">Découpage au SNI</string>

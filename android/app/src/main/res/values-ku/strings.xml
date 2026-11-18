@@ -287,9 +287,12 @@
     <string name="stop">Parastinê rawestîne</string>
     <string name="stopping">Radiweste…</string>
     <string name="stratAuto">Xweber (tê pêşniyarkirin)</string>
+    <string name="stratChop">Perçeyên biçûk ên rasthatî</string>
     <string name="stratDisorderSni">Li SNI tevlihev bike</string>
     <string name="stratDoubleSplit">Parçekirina ducarî</string>
+    <string name="stratMultiRec">Çend tomarên TLS</string>
     <string name="stratNone">Girtî (tenê DNS-a şîfrekirî)</string>
+    <string name="stratOobRec">Bayta lezgîn + parvekirina tomara TLS</string>
     <string name="stratSplit2">Li bayta 2an parçe bike</string>
     <string name="stratSplitMid">Di nîvê SNI de parçe bike</string>
     <string name="stratSplitSni">Li SNI parçe bike</string>

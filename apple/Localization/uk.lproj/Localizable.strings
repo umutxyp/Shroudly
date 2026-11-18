@@ -202,9 +202,12 @@
 "stop" = "Вимкнути захист";
 "stopping" = "Вимкнення…";
 "stratAuto" = "Авто (рекомендовано)";
+"stratChop" = "Дрібні випадкові шматки";
 "stratDisorderSni" = "Перестановка на SNI";
 "stratDoubleSplit" = "Подвійне розділення";
+"stratMultiRec" = "Кілька записів TLS";
 "stratNone" = "Вимк. (лише зашифрований DNS)";
+"stratOobRec" = "Терміновий байт + поділ запису TLS";
 "stratSplit2" = "Розділення на 2-му байті";
 "stratSplitMid" = "Розділення посередині SNI";
 "stratSplitSni" = "Розділення на SNI";

@@ -202,9 +202,12 @@
 "stop" = "Désactiver la protection";
 "stopping" = "Désactivation…";
 "stratAuto" = "Auto (recommandé)";
+"stratChop" = "Petits morceaux aléatoires";
 "stratDisorderSni" = "Désordre au SNI";
 "stratDoubleSplit" = "Double découpage";
+"stratMultiRec" = "Plusieurs enregistrements TLS";
 "stratNone" = "Désactivé (DNS chiffré seulement)";
+"stratOobRec" = "Octet urgent + découpe de l'enregistrement TLS";
 "stratSplit2" = "Découpage à l’octet 2";
 "stratSplitMid" = "Découpage au milieu du SNI";
 "stratSplitSni" = "Découpage au SNI";

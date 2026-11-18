@@ -287,9 +287,12 @@
     <string name="stop">Qorumanı dayandır</string>
     <string name="stopping">Dayandırılır…</string>
     <string name="stratAuto">Avtomatik (tövsiyə olunur)</string>
+    <string name="stratChop">Kiçik təsadüfi hissələr</string>
     <string name="stratDisorderSni">SNI nöqtəsində sıranı qarışdır</string>
     <string name="stratDoubleSplit">İkiqat bölmə</string>
+    <string name="stratMultiRec">Bir neçə TLS qeydi</string>
     <string name="stratNone">Söndürülüb (yalnız şifrələnmiş DNS)</string>
+    <string name="stratOobRec">Təcili bayt + TLS qeydini bölmə</string>
     <string name="stratSplit2">2-ci baytda böl</string>
     <string name="stratSplitMid">SNI-ın ortasından böl</string>
     <string name="stratSplitSni">SNI nöqtəsində böl</string>

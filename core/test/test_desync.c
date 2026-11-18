@@ -264,17 +264,22 @@ static void run_parse(void){
   CHECK(strategy_parse("chop(5000:900)",&st)==0 && st.chop_min==1400 && st.chop_max==1400 && st.chop_wait_min==100 && st.chop_wait_max==100);
   CHECK(strategy_parse("chop(0)",&st)==0 && st.chop_min==1 && st.chop_max==1 && st.chop_wait_max==0);
   CHECK(strategy_parse("chop(30-10)",&st)==0 && st.chop_min==30 && st.chop_max==30);
+  /* The fixed choices in Settings parse. */
+  CHECK(strategy_parse("oob(1),tlsrec(sni_end-5)",&st)==0 && st.n_ops==2 && st.ops[0].kind==OP_OOB && st.ops[0].offset==1);
+  CHECK(strategy_parse("chop(100-200)",&st)==0 && st.chop_min==100 && st.chop_max==200 && st.chop_wait_max==0);
   CHECK(strategy_parse("http(hostcase+methodeol),split(sni)",&st)==0 && st.n_ops==2 && st.ops[0].kind==OP_HTTP
         && st.ops[0].offset==(HTTP_HOSTCASE|HTTP_METHODEOL));
   CHECK(strategy_parse("http(nothing)",&st)!=0);
   CHECK(strategy_parse("tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)",&st)==0 && st.n_ops==3);
-  int found=0;
+  /* Only the HTTP one joins the list: a TLS site's stays as long as it was. */
+  int found=0, tls_new=0;
   for(int i=0;i<strategy_preset_count();i++){
-    const char *nm=strategy_preset(i)->name;
-    if(!strcmp(nm,"tlsrec-multi")||!strcmp(nm,"chop")||!strcmp(nm,"tlsrec-chop")||!strcmp(nm,"http-tricks")) found++;
+    const strategy *p=strategy_preset(i);
+    if(!strcmp(p->name,"http-tricks")) found++;
+    for(int k=0;k<p->n_ops;k++) if(p->ops[k].kind==OP_CHOP) tls_new++;
   }
-  CHECK(found==4 && strategy_preset_count()<=STRATEGY_MAX_PRESETS);
-  printf("  parser and presets: %s\n", found==4?"OK":"FAIL");
+  CHECK(found==1 && tls_new==0 && strategy_preset_count()<=STRATEGY_MAX_PRESETS);
+  printf("  parser and presets: %s\n", (found==1 && tls_new==0)?"OK":"FAIL");
 }
 
 int main(void){

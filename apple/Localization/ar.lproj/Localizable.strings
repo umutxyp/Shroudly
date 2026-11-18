@@ -202,9 +202,12 @@
 "stop" = "إيقاف الحماية";
 "stopping" = "جارٍ الإيقاف…";
 "stratAuto" = "تلقائي (موصى به)";
+"stratChop" = "قطع صغيرة عشوائية";
 "stratDisorderSni" = "خلط الترتيب عند SNI";
 "stratDoubleSplit" = "تقسيم مزدوج";
+"stratMultiRec" = "عدة سجلات TLS";
 "stratNone" = "إيقاف (DNS مشفَّر فقط)";
+"stratOobRec" = "بايت عاجل + تقسيم سجل TLS";
 "stratSplit2" = "التقسيم عند البايت 2";
 "stratSplitMid" = "التقسيم في منتصف SNI";
 "stratSplitSni" = "التقسيم عند SNI";

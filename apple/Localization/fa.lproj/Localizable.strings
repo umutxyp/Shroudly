@@ -202,9 +202,12 @@
 "stop" = "توقف محافظت";
 "stopping" = "در حال توقف…";
 "stratAuto" = "خودکار (توصیه‌شده)";
+"stratChop" = "تکه‌های کوچک تصادفی";
 "stratDisorderSni" = "جابه‌جایی ترتیب در SNI";
 "stratDoubleSplit" = "تقسیم دوگانه";
+"stratMultiRec" = "چند رکورد TLS";
 "stratNone" = "خاموش (فقط DNS رمزگذاری‌شده)";
+"stratOobRec" = "بایت فوری + تقسیم رکورد TLS";
 "stratSplit2" = "تقسیم در بایت 2";
 "stratSplitMid" = "تقسیم در میانهٔ SNI";
 "stratSplitSni" = "تقسیم در SNI";

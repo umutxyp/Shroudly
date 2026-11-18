@@ -202,9 +202,12 @@
 "stop" = "Himoyani oʻchirish";
 "stopping" = "Oʻchirilmoqda…";
 "stratAuto" = "Avto (tavsiya etiladi)";
+"stratChop" = "Kichik tasodifiy boʻlaklar";
 "stratDisorderSni" = "SNI joyida tartibni buzish";
 "stratDoubleSplit" = "Ikki marta boʻlish";
+"stratMultiRec" = "Bir nechta TLS yozuvi";
 "stratNone" = "Oʻchiq (faqat shifrlangan DNS)";
+"stratOobRec" = "Shoshilinch bayt + TLS yozuvini boʻlish";
 "stratSplit2" = "2-baytdan boʻlish";
 "stratSplitMid" = "SNI oʻrtasidan boʻlish";
 "stratSplitSni" = "SNI joyidan boʻlish";

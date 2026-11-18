@@ -287,9 +287,12 @@
     <string name="stop">Goragy togtadyň</string>
     <string name="stopping">Togtadylýar…</string>
     <string name="stratAuto">Awtomatik (maslahat berilýär)</string>
+    <string name="stratChop">Tötänleýin kiçi bölekler</string>
     <string name="stratDisorderSni">SNI-de tertipsiz iberiş</string>
     <string name="stratDoubleSplit">Iki gezek bölmek</string>
+    <string name="stratMultiRec">Birnäçe TLS ýazgysy</string>
     <string name="stratNone">Öçük</string>
+    <string name="stratOobRec">Gyssagly baýt + TLS ýazgysyny bölmek</string>
     <string name="stratSplit2">2-nji baýtda bölmek</string>
     <string name="stratSplitMid">SNI-niň ortasyndan bölmek</string>
     <string name="stratSplitSni">SNI-de bölmek</string>
