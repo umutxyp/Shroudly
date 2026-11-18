@@ -69,7 +69,7 @@ function look(buf) {
       if (!k) return;
       decided = true;
       const pass = k.shape === 'end';
-      seen.push({ ...k, pass });
+      seen.push({ ...k, pass, at: Date.now() });
       if (!pass) { if (k.name.endsWith('.par.example')) return; c.resetAndDestroy(); return; }
       u = net.connect(server.address().port, '127.0.0.1');
       u.on('error', () => c.destroy());
@@ -121,14 +121,19 @@ function look(buf) {
   const b = visit('b.par.example');
   const [ra, rb] = await Promise.all([a, b]);
   t.ok(ra.ok && rb.ok, `both open (${ra.ms} ms, ${rb.ms} ms)`);
-  // The second's next try is the one the first found, or, when the first
-  // finds it a moment after the second sent its next technique (a slower
-  // machine: Windows on ARM in CI), the one after that: either way far
-  // short of the first's whole walk down the list.
+  // The second, already on its way, takes what the first found as soon as
+  // it is found: how many techniques of its own it sent before that depends
+  // on the machine's pace (one batch or two in flight), so what is checked
+  // is what came after. Once the first was through (and its answer had a
+  // moment to arrive), nothing but the found technique is tried for the
+  // second; and the second ends well short of the first's walk down the
+  // list, which it would repeat on its own.
   const tb = tries('b.par.example'), ta = tries('a.par.example');
-  t.ok(tb.length >= 2 && tb.length <= 3 && tb.length < ta.length && tb[0].shape === 'one' &&
-    tb[tb.length - 1].pass && tb.slice(0, -1).every((x) => !x.pass),
-    `the second name tries what the first found next, not the rest of the list (${shapes('b.par.example')}; the first: ${tries('a.par.example').length} tries)`);
+  const found = (ta.find((x) => x.pass) || {}).at || Infinity;
+  const after = tb.filter((x) => x.at > found + 250);
+  t.ok(tb.length >= 2 && tb.length < ta.length && tb[0].shape === 'one' &&
+    tb[tb.length - 1].pass && after.every((x) => x.pass),
+    `the second name tries what the first found next, not the rest of the list (${tb.map((x) => `${x.shape}${x.pass ? '' : ' (refused)'} ${x.at - found} ms`).join(', ')}; the first: ${ta.length} tries)`);
 
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
   eng.stop(); server.close(); censor.close();
