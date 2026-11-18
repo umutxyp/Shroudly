@@ -3,6 +3,7 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 #include "strategy.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -62,6 +63,8 @@ int strategy_parse(const char *spec, strategy *out) {
     else if (strcmp(tok, "httpcase") == 0) op.kind = OP_HTTP_CASE;
     else if (strcmp(tok, "tlsrec") == 0)   op.kind = OP_TLSREC;
     else if (strcmp(tok, "oob") == 0)      op.kind = OP_OOB;
+    else if (strcmp(tok, "chop") == 0)     op.kind = OP_CHOP;
+    else if (strcmp(tok, "http") == 0)     op.kind = OP_HTTP;
     else continue;
 
     if (op.kind == OP_FAKE) {
@@ -75,6 +78,37 @@ int strategy_parse(const char *spec, strategy *out) {
       op.offset = -1;
       { char *at = strstr(args, "pos=");
         if (at) op.offset = atoi(at + 4); }
+    } else if (op.kind == OP_CHOP) {
+      /* chop(MIN-MAX) or chop(MIN-MAX:WMIN-WMAX): segments of MIN..MAX
+       * bytes, each followed by a pause of WMIN..WMAX ms (Xray's fragment
+       * "length" and "interval"). A single number is a fixed size or pause.
+       * Kept sane: at least one byte, at most 1400, a pause of at most 100
+       * ms, so a ClientHello never takes long to leave. */
+      int a = 0, b = 0, wa = 0, wb = 0;
+      /* ':' rather than '/': what remote settings allow in a technique. */
+      char *colon = strchr(args, ':');
+      if (colon) { *colon = 0; if (sscanf(colon + 1, "%d-%d", &wa, &wb) < 2) wb = wa; }
+      if (sscanf(args, "%d-%d", &a, &b) < 2) b = a;
+      if (a < 1) a = 1;
+      if (b < a) b = a;
+      if (b > 1400) b = 1400;
+      if (a > b) a = b;
+      if (wa < 0) wa = 0;
+      if (wb < wa) wb = wa;
+      if (wb > 100) wb = 100;
+      if (wa > wb) wa = wb;
+      out->chop_min = a; out->chop_max = b; out->chop_wait_min = wa; out->chop_wait_max = wb;
+    } else if (op.kind == OP_HTTP) {
+      /* http(hostcase+domcase+hosttab+nospace+methodeol): which rewrites,
+       * joined with '+' (a comma ends the operation). */
+      int m = 0;
+      if (strstr(args, "hostcase"))  m |= HTTP_HOSTCASE;
+      if (strstr(args, "domcase"))   m |= HTTP_DOMCASE;
+      if (strstr(args, "hosttab"))   m |= HTTP_HOSTTAB;
+      if (strstr(args, "nospace"))   m |= HTTP_NOSPACE;
+      if (strstr(args, "methodeol")) m |= HTTP_METHODEOL;
+      if (!m) continue;
+      op.offset = m;
     } else if (op.kind == OP_TLSREC || op.kind == OP_OOB) {
       op.ref = parse_ref(args, &op.offset);
       if (op.ref == POS_ABS && args[0]) op.offset = atoi(args);
@@ -161,6 +195,30 @@ static void ensure_presets(void) {
   add("multisplit",           "split(1),split(sni_mid),split(sni_end)");
   add("multidisorder",        "disorder(1),disorder(sni_mid),disorder(sni_end)");
   add("multisplit-tlsrec",    "split(1),split(sni_mid),tlsrec(sni+1)");
+  /* After every technique above, so none of them is tried later than before
+   * on the networks where it wins (a learned technique is kept by its name,
+   * so what users learned stays theirs):
+   *   tlsrec-multi — the handshake in four records, cut at the name's start,
+   *                  middle and last byte (NoDPI's many records): for a
+   *                  filter that puts two records back together, or reads
+   *                  only the first ones;
+   *   chop         — the request in random 100–200 byte segments, 10–20 ms
+   *                  apart (Xray's "fragment" defaults): no cut at a place a
+   *                  filter can learn to look at, no fixed timing;
+   *   tlsrec-chop  — one record cut at the name, then small random segments;
+   *   http-tricks  — plain HTTP only (left out of every other ladder): the
+   *                  Host header written the ways the RFC allows that a
+   *                  byte-for-byte match misses (tpws), and a cut in the
+   *                  name. Only the rewrites every server tried took: a tab
+   *                  after "Host:" got 400 from example.com, and an empty
+   *                  line before the request 400 from captive.apple.com
+   *                  (2026-11-18), and a 400 is an answer the ladder would
+   *                  have learned; those two stay for a strategy written by
+   *                  hand. */
+  add("tlsrec-multi",         "tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)");
+  add("chop",                 "chop(100-200:10-20)");
+  add("tlsrec-chop",          "tlsrec(sni+1),chop(16-64)");
+  add("http-tricks",          "http(hostcase+domcase+nospace),split(sni_mid)");
   /* A decoy first segment, where the platform can guarantee the server never
    * sees it (Linux, via a TCP signature key). It comes last because it is the
    * least portable, and there is only one of it: variants that differ only in

@@ -15,8 +15,23 @@ typedef enum {
   OP_FAKE,         /* send a decoy packet (low TTL / bad data) before the real one */
   OP_HTTP_CASE,    /* rewrite Host -> hOsT for plain HTTP          */
   OP_TLSREC,       /* re-frame the ClientHello as two TLS records   */
-  OP_OOB           /* reserved */
+  OP_OOB,          /* one byte as TCP urgent data                  */
+  OP_CHOP,         /* the whole first payload in random-size segments,
+                    * with an optional random pause between them (Xray's
+                    * "fragment"); see desync.c */
+  OP_HTTP          /* plain HTTP request rewrites the RFC allows (tpws's
+                    * hostcase, domcase, hosttab, hostnospace, methodeol);
+                    * see desync.c */
 } op_kind;
+
+/* OP_HTTP's rewrites, as bits of strat_op.offset. */
+#define HTTP_HOSTCASE   0x01  /* "Host:" written "host:" */
+#define HTTP_DOMCASE    0x02  /* the host name in mixed case: ExAmPlE.CoM */
+#define HTTP_HOSTTAB    0x04  /* a tab, not a space, after "Host:" (some servers
+                               * answer 400: never in a preset) */
+#define HTTP_NOSPACE    0x08  /* no space after "Host:" */
+#define HTTP_METHODEOL  0x10  /* an empty line (CRLF) before the request line
+                               * (some servers answer 400: never in a preset) */
 
 /* Where to split, relative to the detected marker. */
 typedef enum {
@@ -44,6 +59,9 @@ typedef struct {
   int       fake_ttl;     /* TTL used for OP_FAKE decoy packets */
   fake_mode fmode;
   int       split_pos;    /* default absolute split for payloads with no marker */
+  /* OP_CHOP: segment sizes and the pause between segments, each a range
+   * picked from at random per segment (bytes; milliseconds, 0 for none). */
+  int       chop_min, chop_max, chop_wait_min, chop_wait_max;
 } strategy;
 
 /* Parse a strategy string, e.g. "fake(ttl=4),split(sni),disorder(sni+1)".
@@ -54,7 +72,7 @@ int strategy_parse(const char *spec, strategy *out);
  * they work in practice (most universal first). Used by auto-probe. There are
  * never more than STRATEGY_MAX_PRESETS of them, which is what lets the engine
  * size its attempt ladder to hold every one. */
-#define STRATEGY_MAX_PRESETS 24
+#define STRATEGY_MAX_PRESETS 32
 int             strategy_preset_count(void);
 const strategy *strategy_preset(int i);
 
