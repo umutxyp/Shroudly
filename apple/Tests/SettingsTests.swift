@@ -49,10 +49,14 @@ final class SettingsTests: XCTestCase {
     }
 
     func testStrategiesAreTheDesktopsInItsOrder() {
-        XCTAssertEqual(Strategies.all.map(\.id), ["auto", "split-sni", "disorder-sni", "split-sni-mid", "double-split", "split2", "none"])
+        XCTAssertEqual(Strategies.all.map(\.id), ["auto", "split-sni", "disorder-sni", "split-sni-mid", "double-split", "split2", "multi-rec", "chop", "oob-rec", "none"])
         XCTAssertEqual(Strategies.all.filter(\.auto).map(\.id), ["auto"])
         XCTAssertEqual(Strategies.byId("double-split").spec, "split(1),split(sni)")
         XCTAssertEqual(Strategies.byId("none").spec, "none")
+        // The fixed choices of 2.6.83, the engine's newer techniques.
+        XCTAssertEqual(Strategies.byId("multi-rec").spec, "tlsrec(sni+1),tlsrec(sni_mid),tlsrec(sni_end-1)")
+        XCTAssertEqual(Strategies.byId("chop").spec, "chop(100-200)")
+        XCTAssertEqual(Strategies.byId("oob-rec").spec, "oob(1),tlsrec(sni_end-5)")
     }
 
     func testKeepOnAloneDoesNotRestartTheTunnel() {
