@@ -121,8 +121,13 @@ function look(buf) {
   const b = visit('b.par.example');
   const [ra, rb] = await Promise.all([a, b]);
   t.ok(ra.ok && rb.ok, `both open (${ra.ms} ms, ${rb.ms} ms)`);
-  const tb = tries('b.par.example');
-  t.ok(tb.length === 2 && tb[0].shape === 'one' && tb[1].pass,
+  // The second's next try is the one the first found, or, when the first
+  // finds it a moment after the second sent its next technique (a slower
+  // machine: Windows on ARM in CI), the one after that: either way far
+  // short of the first's whole walk down the list.
+  const tb = tries('b.par.example'), ta = tries('a.par.example');
+  t.ok(tb.length >= 2 && tb.length <= 3 && tb.length < ta.length && tb[0].shape === 'one' &&
+    tb[tb.length - 1].pass && tb.slice(0, -1).every((x) => !x.pass),
     `the second name tries what the first found next, not the rest of the list (${shapes('b.par.example')}; the first: ${tries('a.par.example').length} tries)`);
 
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
