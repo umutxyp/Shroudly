@@ -97,6 +97,14 @@ trap cleanup EXIT
 
 fail() {
   say "FAILED: $*"
+  # What was on the screen: the window in front and the texts it showed, so a
+  # step that looks for something on screen says what it found instead.
+  say "in front: $(sh_ dumpsys window | grep -m1 -E 'mCurrentFocus|mFocusedWindow' | sed 's/^ *//')"
+  if sh_ uiautomator dump /sdcard/ui-fail.xml | grep -q "dumped to"; then
+    say "on screen: $(sh_ cat /sdcard/ui-fail.xml | grep -o 'text="[^"]\+"' | sed 's/^text=//' | head -60 | tr '\n' ' ')"
+  else
+    say "on screen: uiautomator could not read it ($(sh_ uiautomator dump /sdcard/ui-fail.xml | tail -1))"
+  fi
   say "app log:"
   adb_ logcat -d -s Shroudly:V 2>/dev/null | tail -40 || true
   exit 1
