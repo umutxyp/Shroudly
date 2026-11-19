@@ -1678,6 +1678,9 @@ app.whenReady().then(async () => {
     // An app's own connections (not TLS or HTTP) that cannot get through:
     // named and told in one line (raw-apps.js).
     onRaw: (kind, msg) => { if (rawWatch) rawWatch.onEvent(kind, msg).catch(() => {}); },
+    // A server that cut a connection after its handshake: Advanced mode, when
+    // on, sends its next connections the stronger way (advanced-mode.js).
+    onCutAddr: (addr) => { if (advanced && advanced.active) advanced.escalate(addr); },
     // Which services this network filters (the autopilot turns on the mode
     // their app needs), and a site whose connections keep being answered and
     // then cut: the site may be turning the user away itself (checked, then

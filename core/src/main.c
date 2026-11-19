@@ -167,6 +167,7 @@ static void usage(void) {
     "  --allow <domain>      never block it, nor a name under it (repeatable)\n"
     "  --raw-local           tests: search techniques for non-TLS streams on local addresses too\n"
     "  --local-unacked       tests: a request sent to a local address counts as not acknowledged\n"
+    "  --cut-addr-local      tests: a connection to a local address cut after its handshake is told too\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
@@ -229,6 +230,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--ipv4-only")) g_cfg.ipv4_only = 1;
     else if (!strcmp(argv[i], "--drop-quic")) g_cfg.drop_quic = 1;
     else if (!strcmp(argv[i], "--raw-local")) g_cfg.raw_local = 1;
+    else if (!strcmp(argv[i], "--cut-addr-local")) g_cfg.cut_addr_local = 1;
     else if (!strcmp(argv[i], "--local-unacked")) g_cfg.local_unacked = 1;
     else if (!strcmp(argv[i], "--doh-ip") && i+1<argc) strncpy(g_doh_fwd_ip, argv[++i], sizeof(g_doh_fwd_ip)-1);
     else if (!strcmp(argv[i], "--doh-port") && i+1<argc) g_doh_fwd_port = atoi(argv[++i]);
@@ -319,6 +321,8 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     /* What the engine did, as a raw_stats line: every minute and at stop. */
     rawscope_counters_reset();
     sup_set_report(rawscope_stats_print, 60000);
+    /* Servers the app saw cut after their handshake: escalated (rawscope.h). */
+    sup_set_escalate(rawscope_escalate_lines);
   #if defined(__linux__)
     sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
   #elif defined(_WIN32)

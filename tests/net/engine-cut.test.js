@@ -70,7 +70,7 @@ function shape(buf, name) {
   await new Promise((r) => censor.once('listening', r));
 
   const P = await freePort();
-  const eng = await startEngine(P, ['--strategy', 'split(sni)', '--auto']);
+  const eng = await startEngine(P, ['--strategy', 'split(sni)', '--auto', '--cut-addr-local']);
   async function visit(m, host) {
     mode = m;
     const before = eng.out.length;
@@ -89,22 +89,29 @@ function shape(buf, name) {
     s.destroy();
     await sleep(1200);
     const s1 = await eng.stats();
-    const cut = eng.out.slice(before).split('\n').filter((l) => l.includes('"cut"')).map((l) => JSON.parse(l));
-    return { got, cut, desync: s1.desync - s0.desync };
+    const lines = eng.out.slice(before).split('\n');
+    const cut = lines.filter((l) => l.includes('"cut"')).map((l) => JSON.parse(l));
+    const addr = lines.filter((l) => l.includes('"cut_addr"')).map((l) => JSON.parse(l));
+    return { got, cut, addr, desync: s1.desync - s0.desync };
   }
 
   let r = await visit('normal', 'fine.test.local');
-  t.ok(r.got > BIG.length && r.cut.length === 0, 'a normal connection is relayed in full, no cut reported');
+  t.ok(r.got > BIG.length && r.cut.length === 0 && r.addr.length === 0, 'a normal connection is relayed in full, no cut reported');
   r = await visit('stall', 'site.test.local');
   t.ok(r.cut.length === 1 && r.cut[0].strategy === 'stall', 'server stops mid-record -> "stall" reported');
+  // ... and its server's address, for Advanced mode's stronger way (rawscope.h).
+  t.ok(r.addr.length === 1 && r.addr[0].addr === '127.0.0.1' && r.addr[0].host === 'site.test.local',
+    `... and the server's address, for Advanced mode (${JSON.stringify(r.addr)})`);
   r = await visit('normal', 'site.test.local');
   t.ok(r.desync === 1 && r.got > BIG.length, 'next connection to the same site uses a technique, and loads');
   r = await visit('normal', 'other.test.local');
   t.ok(r.desync === 0, 'other sites are left untouched');
   r = await visit('reset', 'reset.test.local');
   t.ok(r.cut.length === 1 && r.cut[0].strategy === 'reset', 'reset after the handshake -> "reset" reported');
+  t.ok(r.addr.length === 1 && r.addr[0].addr === '127.0.0.1', '... and its server\'s address too');
   r = await visit('noreply', 'quiet.test.local');
   t.ok(r.cut.length === 1 && r.cut[0].strategy === 'noreply', 'request never answered -> "noreply" reported');
+  t.ok(r.addr.length === 0, '... but no address: nothing came after the handshake to be cut');
   // A reset on an idle keep-alive, after the whole reply was delivered, is a
   // normal teardown — not a cut. Reporting it turned Microsoft, Instagram and
   // Discord's gateway into "connects then cut, only a VPN" false alarms.

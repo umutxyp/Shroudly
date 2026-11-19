@@ -245,6 +245,10 @@ class EngineManager {
     // (kind, line): 'blocked' or 'unreachable', with the address, the port
     // and the app's own port (raw-apps.js names the app and tells).
     this.onRaw = hooks.onRaw || (() => {});
+    // The server (IPv4) of a connection cut after its handshake was answered
+    // (engine.c, report_cut_addr): Advanced mode sends that server's next
+    // connections the stronger way (advanced-mode.js, escalate).
+    this.onCutAddr = hooks.onCutAddr || (() => {});
     // Domains the engine tells about each time a program connects to one
     // (once per name in a while; nothing about the connection changes).
     this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
@@ -1452,6 +1456,9 @@ class EngineManager {
         break;
       // A connection to a watched domain: nothing in the log, it is no news
       // to the user.
+      case 'cut_addr':
+        if (typeof msg.addr === 'string' && !this.wake.recent(WAKE_QUIET_MS)) { try { this.onCutAddr(msg.addr, msg.host); } catch {} }
+        break;
       case 'seen':
         try { this.onHostEvent('seen', msg.host, null); } catch {}
         break;

@@ -507,7 +507,7 @@ static void test_stats(void) {
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0,"
                      "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0,\"dns_answered\":0,\"dns_passed\":0,\"grown\":0,\"decoy_named\":0,"
-                     "\"escalated\":0,\"strong\":0,\"strong_ts\":0}") == 0);
+                     "\"escalated\":0,\"strong\":0,\"strong_ts\":0,\"cut_asked\":0}") == 0);
   rawscope_count(RAWSCOPE_DESYNCED); rawscope_count(RAWSCOPE_DESYNCED);
   rawscope_count(RAWSCOPE_SKIPPED);
   for (int i = 0; i < 3; i++) rawscope_count(RAWSCOPE_RST_DROPPED);
@@ -524,13 +524,14 @@ static void test_stats(void) {
   for (int i = 0; i < 14; i++) rawscope_count(RAWSCOPE_ESCALATED);
   for (int i = 0; i < 15; i++) rawscope_count(RAWSCOPE_STRONG);
   for (int i = 0; i < 16; i++) rawscope_count(RAWSCOPE_STRONG_TS);
+  for (int i = 0; i < 17; i++) rawscope_count(RAWSCOPE_CUT_ASKED);
   rawscope_count(-1); rawscope_count(RAWSCOPE_NCOUNTERS);   /* ignored */
   CHECK(rawscope_counter(RAWSCOPE_DESYNCED) == 2);
   CHECK(rawscope_counter(RAWSCOPE_NCOUNTERS) == 0);
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6,"
                      "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9,\"dns_answered\":10,\"dns_passed\":11,\"grown\":12,\"decoy_named\":13,"
-                     "\"escalated\":14,\"strong\":15,\"strong_ts\":16}") == 0);
+                     "\"escalated\":14,\"strong\":15,\"strong_ts\":16,\"cut_asked\":17}") == 0);
   /* The largest counters still fit the line rawscope_stats_print writes. */
   char big[768];
   for (int c = 0; c < RAWSCOPE_NCOUNTERS; c++) for (int i = 0; i < 3; i++) rawscope_count(c);
@@ -561,6 +562,52 @@ static void test_decoy_hurt_more(void) {
   CHECK(rawscope_nodecoy(srv, 4, 1100) == 1);
 }
 
+/* Servers the app saw cut (rawscope.h, rawscope_escalate_request / _drain /
+ * _lines): only well-formed IPv4 lines count, a request lands in the escalate
+ * table when the packet thread drains, the new connections to it go the
+ * stronger way, a full queue drops, and the safety of the table holds (a
+ * resend after the stronger way takes the server out). */
+static void test_cut_requests(void) {
+  const uint64_t T = 5000000;
+  rawscope_escalate_reset(); rawscope_counters_reset();
+  rawscope_escalate_drain(T);   /* nothing left from before */
+  const uint8_t a[4] = { 104, 244, 42, 1 }, b[4] = { 162, 159, 135, 232 }, c[4] = { 1, 2, 3, 4 };
+  const char *file = "104.244.42.1\n"          /* x.com */
+                     "162.159.135.232\r\n"     /* discord, CRLF */
+                     " 1.2.3.4\n"               /* a space: skipped */
+                     "1.2.3.4.5\n1.2.3\n256.1.1.1\n0001.2.3.4\n1.2.3.4x\n::1\n\n"
+                     "1.2.3.4";                  /* no newline yet: not consumed */
+  int len = (int)strlen(file);
+  int used = rawscope_escalate_lines(file, len);
+  CHECK(used == len - 7);
+  CHECK(rawscope_escalated(a, 4, T) == 0);           /* not before the packet thread drains */
+  CHECK(rawscope_escalate_drain(T) == 2);
+  CHECK(rawscope_escalated(a, 4, T) == 1 && rawscope_escalated(b, 4, T) == 1);
+  CHECK(rawscope_escalated(c, 4, T) == 0);
+  CHECK(rawscope_counter(RAWSCOPE_CUT_ASKED) == 2);
+  CHECK(rawscope_escalate_drain(T) == 0);
+  /* The rest of the line arrives: taken then. */
+  CHECK(rawscope_escalate_lines("1.2.3.4\n", 8) == 8 && rawscope_escalate_drain(T) == 1 && rawscope_escalated(c, 4, T) == 1);
+  /* Asked again while in the table: renewed, not counted again. */
+  CHECK(rawscope_escalate_lines("104.244.42.1\n", 13) == 13 && rawscope_escalate_drain(T + 1000) == 1);
+  CHECK(rawscope_counter(RAWSCOPE_CUT_ASKED) == 3);
+  /* A new connection to it goes the stronger way; its first segment resent
+   * after the stronger way takes the server out again (the table's safety). */
+  CHECK(rawscope_escalate_first(a, 4, 443, 40001, 777, 1, T + 2000) == 1);
+  CHECK(rawscope_escalate_first(a, 4, 443, 40001, 777, 1, T + 3000) == 0);
+  CHECK(rawscope_escalated(a, 4, T + 3000) == 0);
+  /* A no-decoy server never goes the stronger way, asked or not. */
+  CHECK(rawscope_escalate_first(b, 4, 443, 40002, 1, 0, T + 2000) == 0);
+  /* Expiry, as for any escalated server. */
+  CHECK(rawscope_escalated(c, 4, T + RAWSCOPE_ESCALATE_TTL_MS + 1) == 0);
+  /* A full queue drops what does not fit; what fits is taken. */
+  for (int i = 0; i < RAWSCOPE_REQ_CAP + 10; i++) { uint8_t x[4] = { 9, 9, (uint8_t)(i >> 8), (uint8_t)i }; rawscope_escalate_request(x); }
+  CHECK(rawscope_escalate_drain(T) == RAWSCOPE_REQ_CAP);
+  CHECK(rawscope_escalate_drain(T) == 0);
+  CHECK(rawscope_escalate_lines(NULL, 5) == 0 && rawscope_escalate_lines("x", 0) == 0);
+  rawscope_escalate_reset(); rawscope_counters_reset();
+}
+
 int main(void) {
   test_scope4();
   test_scope6();
@@ -571,6 +618,7 @@ int main(void) {
   test_decoy_hurt();
   test_decoy_hurt_more();
   test_escalate();
+  test_cut_requests();
   test_stats();
   if (fails) { printf("test_rawscope: %d of %d checks FAILED\n", fails, checks); return 1; }
   printf("test_rawscope: all %d checks passed\n", checks);
