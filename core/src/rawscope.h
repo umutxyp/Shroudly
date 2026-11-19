@@ -168,6 +168,29 @@ int  rawscope_escalated(const uint8_t *addr, int alen, uint64_t now_ms);
 int  rawscope_escalate_first(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
                              uint32_t seq, int decoy, uint64_t now_ms);
 
+/* Servers the app says cut a connection after its handshake was answered
+ * (the engine's "cut_addr": a stall or a reset once data had come, the way
+ * Russia's filter ends a connection after its first 16 to 20 KB; the decoy
+ * that the filter takes for the connection's own ClientHello is what keeps
+ * it from doing so, zapret's ALT strategies). Such a server goes into the
+ * escalate table as one whose first segment went out again does, so its
+ * next connections go the stronger way; the same safety holds (a resend
+ * after the stronger way takes it out again).
+ *
+ * rawscope_escalate_request may be called from any one other thread (the
+ * supervisor reading the app's file), rawscope_escalate_drain only from the
+ * packet thread, which owns the tables: a small single-producer,
+ * single-consumer queue between them; when it is full a request is dropped
+ * (the app asks again at the next cut). IPv4 only, as the stronger way is. */
+#define RAWSCOPE_REQ_CAP 64
+void rawscope_escalate_request(const uint8_t addr4[4]);
+int  rawscope_escalate_drain(uint64_t now_ms);   /* returns how many were taken in */
+/* The app's file (supervise.h, F.escalate): buf[0..len) holds lines; each
+ * complete one that is a dotted IPv4 address and nothing else is requested
+ * (rawscope_escalate_request), any other is skipped. Returns how many bytes
+ * were consumed: up to and including the last newline. */
+int  rawscope_escalate_lines(const char *buf, int len);
+
 /* ── counters ────────────────────────────────────────────────────────────
  * Bumped by the packet thread, read by whoever reports them (the supervise
  * thread at stop), so they are atomic. */
@@ -189,6 +212,7 @@ enum {
   RAWSCOPE_ESCALATED,    /* flows whose decoyed first segment went out again unanswered */
   RAWSCOPE_STRONG,       /* first segments sent the stronger way (tcpdpi_build_strong4) */
   RAWSCOPE_STRONG_TS,    /* ... of them, with "ts" decoys (the flow carried timestamps) */
+  RAWSCOPE_CUT_ASKED,    /* servers taken into the escalate table because the app saw them cut */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);

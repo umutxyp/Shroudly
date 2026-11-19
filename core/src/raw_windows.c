@@ -504,6 +504,33 @@ static int flush_dns_cache(void) {
   return ok;
 }
 
+/* TCP timestamps on, as Linux, macOS and Android have them by default and
+ * Windows does not: the stronger way keeps its decoys from the server by the
+ * timestamp ("ts", the server drops a segment whose timestamp is older than
+ * the connection's), which a filter in between cannot tell from the real
+ * ClientHello; without timestamps it can only send them with a low TTL,
+ * which a filter farther away than that never sees (zapret's Windows
+ * service turns them on for the same reason). Connections opened from now
+ * on carry them. Netsh from the system folder, never one found on the PATH.
+ * Returns 1 when netsh said it was done. */
+static int tcp_timestamps_on(void) {
+  wchar_t sys[MAX_PATH], exe[MAX_PATH + 32];
+  UINT n = GetSystemDirectoryW(sys, MAX_PATH);
+  if (n == 0 || n >= MAX_PATH) return 0;
+  _snwprintf(exe, MAX_PATH + 32, L"%ls\\netsh.exe", sys);
+  exe[MAX_PATH + 31] = 0;
+  wchar_t cmd[] = L"netsh.exe interface tcp set global timestamps=enabled";
+  STARTUPINFOW si; PROCESS_INFORMATION pi;
+  memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
+  memset(&pi, 0, sizeof(pi));
+  if (!CreateProcessW(exe, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) return 0;
+  DWORD code = 1;
+  if (WaitForSingleObject(pi.hProcess, 5000) == WAIT_OBJECT_0) GetExitCodeProcess(pi.hProcess, &code);
+  else TerminateProcess(pi.hProcess, 1);
+  CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
+  return code == 0;
+}
+
 /* What the DNS gate sends, from its own threads (a handle takes sends from
  * any thread): an answer goes in to the program that asked, on the interface
  * its question left by; a question it does not answer goes out as it came. */
@@ -621,9 +648,10 @@ int raw_windows_start(const raw_config *cfg) {
 
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
   int flushed = g_gate && flush_dns_cache();
+  int tcp_ts = tcp_timestamps_on();
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d,\"decoy_names\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec, proto_decoy_name_count());
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d,\"decoy_names\":%d,\"tcp_ts\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec, proto_decoy_name_count(), tcp_ts);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -794,6 +822,7 @@ int raw_windows_start(const raw_config *cfg) {
          * came back out unanswered): the stronger way, for it alone
          * (rawscope.h, "escalate"). Any other server, or one the decoy
          * upsets (no decoy), goes on below exactly as before. */
+        rawscope_escalate_drain(now);   /* the app's cut servers, taken in here (rawscope.h) */
         if (strong_fits(&pi, dport) && rawscope_escalate_first(pkt + 16, 4, dport, sport, seq, decoy, now))
           handled = send_strong(pkt, (int)len, ihl, tcphl, poff, &pi, &addr);
         if (!handled) handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, decoy, &addr);

@@ -541,6 +541,7 @@ class AdvancedMode {
     this._removeDir();
     this.dir = fs.mkdtempSync(path.join(workBase(this.platform), 'shroudly-adv-'));
     this.statusFile = path.join(this.dir, 'status.log');
+    this._escalated = new Map();
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
       queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, decoyNames: o.decoyNames, opts: o,
@@ -564,6 +565,9 @@ class AdvancedMode {
       }
       if (o.dropRst && o.autottl) this.log('info', 'Advanced mode also drops injected resets and measures the decoy TTL');
       if (ready.dns_gate === 1) this.log('info', 'Advanced mode also answers the DNS of programs that ignore the proxy with encrypted DNS');
+      // Windows: TCP timestamps on (as Linux and macOS have them), so the
+      // stronger way's decoys are kept from servers by them (raw_windows.c).
+      if (ready.tcp_ts === 1) this.log('info', 'Advanced mode: TCP timestamps are on, as on Linux and macOS, so its decoys never reach the servers');
       this._startMonitor();
       return { success: true };
     } catch (e) {
@@ -630,6 +634,28 @@ class AdvancedMode {
     this._removeDir();
     this.log('success', 'Advanced mode stopped');
     return { success: true };
+  }
+
+  /* A server (IPv4) that cut a connection after its handshake was answered
+   * (engine-manager.js, cut_addr): told to the running engine through
+   * status.log.escalate, one address a line (supervise.h), so its next
+   * connections go the stronger way (rawscope.h). Once a minute per address
+   * at most, and only addresses of the internet; nothing when off. */
+  escalate(addr) {
+    if (!this.active || !this.statusFile) return false;
+    const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(String(addr));
+    if (!m) return false;
+    const o = m.slice(1).map(Number);
+    if (o.some((x) => x > 255) || o[0] === 0 || o[0] === 10 || o[0] === 127 || o[0] >= 224 ||
+        (o[0] === 169 && o[1] === 254) || (o[0] === 172 && o[1] >= 16 && o[1] <= 31) ||
+        (o[0] === 192 && o[1] === 168) || (o[0] === 100 && o[1] >= 64 && o[1] <= 127)) return false;
+    const now = Date.now();
+    this._escalated = this._escalated || new Map();
+    if (now - (this._escalated.get(addr) || 0) < 60000) return false;
+    if (this._escalated.size > 512) this._escalated.clear();
+    this._escalated.set(addr, now);
+    try { fs.appendFileSync(`${this.statusFile}.escalate`, `${addr}\n`); } catch { return false; }
+    return true;
   }
 
   cleanupSync() {

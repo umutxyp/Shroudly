@@ -2357,6 +2357,8 @@ typedef struct {
   int site_marked;    /* ok_put done for it */
   int ended;          /* who ended the relay: 1 the server (closed or reset), 2 the client */
   int cand;           /* the technique the request went out with (a preset), or ATT_PLAIN */
+  uint8_t peer4[4];   /* the server's IPv4 address, taken when the relay starts (report_cut_addr) */
+  int has_peer4;
 } cut_watch;
 
 /* The client turned the server's handshake down: the server answered, and
@@ -2379,6 +2381,30 @@ static int client_refused(const cut_watch *cw) {
 static void report(const char *ev, const char *host, const char *strat, int attempts, int fam,
                    const char *note);
 
+/* A connection cut after its handshake was answered (a stall or a reset once
+ * data had come): the server's IPv4 address, for Advanced mode, which then
+ * sends that server's next first segments the stronger way (rawscope.h,
+ * rawscope_escalate_request: the decoy the filter takes for the connection's
+ * own ClientHello keeps Russia's filter from ending the connection after its
+ * first 16 to 20 KB). Said only for an address of the internet; nothing
+ * learned from it here. */
+static void note_peer4(sock_t b, cut_watch *cw) {
+  struct sockaddr_storage ss; socklen_t sl = sizeof(ss);
+  cw->has_peer4 = 0;
+  if (getpeername(b, (struct sockaddr *)&ss, &sl) != 0 || ss.ss_family != AF_INET) return;
+  memcpy(cw->peer4, &((struct sockaddr_in *)&ss)->sin_addr, 4);
+  cw->has_peer4 = 1;
+}
+static void report_cut_addr(const cut_watch *cw) {
+  if (!cw->host || !cw->has_peer4) return;
+  const uint8_t *a = cw->peer4;
+  if (!(g_cfg.cut_addr_local && a[0] == 127) && (a[0] == 0 || a[0] == 10 || a[0] == 127 || (a[0] == 169 && a[1] == 254) || (a[0] == 172 && (a[1] & 0xf0) == 16) ||
+      (a[0] == 192 && a[1] == 168) || (a[0] == 100 && (a[1] & 0xc0) == 64) || a[0] >= 224)) return;
+  char h[256];
+  json_host(h, sizeof(h), cw->host);
+  engine_printf("{\"type\":\"cut_addr\",\"host\":\"%s\",\"addr\":\"%u.%u.%u.%u\"}\n", h, a[0], a[1], a[2], a[3]);
+}
+
 /* Bidirectional relay until either side closes. a = client, b = server. */
 /* This thread's connection in the list by name (conns.h), or -1. */
 static _Thread_local int t_conn = -1;
@@ -2387,6 +2413,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
   uint8_t *buf = (uint8_t *)malloc(RELAY_BUF);
   if (!buf) return;
   conns_sockets(t_conn, a, b);
+  if (cw && cw->host) note_peer4(b, cw);
   int reported = 0;
   uint64_t t = now_ms(), last_down = t;
   uint64_t waiting_since = cw ? cw->waiting : 0;   /* client sent something the server has not answered */
@@ -2398,6 +2425,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
       if (tls_mid_record(&cw->tt) && t - last_down >= CUT_STALL_MS) {
         report("cut", cw->host, "stall", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); reported = 1;
         hs_on_cut(cw->host);
+        if (cw->down > 0) report_cut_addr(cw);
       } else if (waiting_since && !cw->answered && t - waiting_since >= CUT_NOREPLY_MS) {
         report("cut", cw->host, "noreply", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); reported = 1;
       }
@@ -2424,7 +2452,8 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
         if (n < 0 && sock_errno() == SE_CONNRESET && cw && cw->host && !reported &&
             cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up) &&
             ((waiting_since && !cw->answered) || tls_mid_record(&cw->tt) || cw->down == 0))
-        { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); hs_on_cut(cw->host); reported = 1; }
+        { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); hs_on_cut(cw->host); reported = 1;
+          if (cw->down > 0) report_cut_addr(cw); }
         if (cw) cw->ended = 1;
         break;
       }

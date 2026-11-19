@@ -292,6 +292,68 @@ int rawscope_escalate_first(const uint8_t *raddr, int alen, uint16_t rport, uint
   return f->strong;
 }
 
+/* The app's requests (rawscope.h): a ring of IPv4 addresses, written by one
+ * thread, read by the packet thread. */
+static uint32_t g_req[RAWSCOPE_REQ_CAP];
+static atomic_uint g_req_head;   /* next to write (producer) */
+static atomic_uint g_req_tail;   /* next to read (consumer) */
+
+void rawscope_escalate_request(const uint8_t addr4[4]) {
+  if (!addr4) return;
+  unsigned h = atomic_load_explicit(&g_req_head, memory_order_relaxed);
+  unsigned t = atomic_load_explicit(&g_req_tail, memory_order_acquire);
+  if (h - t >= RAWSCOPE_REQ_CAP) return;   /* full: dropped */
+  uint32_t v; memcpy(&v, addr4, 4);
+  g_req[h % RAWSCOPE_REQ_CAP] = v;
+  atomic_store_explicit(&g_req_head, h + 1, memory_order_release);
+}
+
+int rawscope_escalate_drain(uint64_t now_ms) {
+  unsigned t = atomic_load_explicit(&g_req_tail, memory_order_relaxed);
+  unsigned h = atomic_load_explicit(&g_req_head, memory_order_acquire);
+  int n = 0;
+  while (t != h) {
+    uint32_t v = g_req[t % RAWSCOPE_REQ_CAP];
+    uint8_t a[4]; memcpy(a, &v, 4);
+    if (!rawscope_escalated(a, 4, now_ms)) rawscope_count(RAWSCOPE_CUT_ASKED);
+    rawscope_escalate_add(a, 4, now_ms);
+    t++; n++;
+  }
+  atomic_store_explicit(&g_req_tail, t, memory_order_release);
+  return n;
+}
+
+/* One dotted IPv4 address, nothing else: four numbers 0..255. */
+static int parse_ip4(const char *p, int n, uint8_t out[4]) {
+  int part = 0, val = -1, digits = 0;
+  for (int i = 0; i <= n; i++) {
+    char c = i < n ? p[i] : '.';
+    if (c >= '0' && c <= '9') {
+      if (++digits > 3) return 0;
+      val = (val < 0 ? 0 : val) * 10 + (c - '0');
+      if (val > 255) return 0;
+    } else if (c == '.') {
+      if (val < 0 || part > 3) return 0;
+      out[part++] = (uint8_t)val; val = -1; digits = 0;
+    } else return 0;
+  }
+  return part == 4;
+}
+
+int rawscope_escalate_lines(const char *buf, int len) {
+  if (!buf || len <= 0) return 0;
+  int start = 0, used = 0;
+  for (int i = 0; i < len; i++) {
+    if (buf[i] != '\n') continue;
+    int e = i;
+    if (e > start && buf[e - 1] == '\r') e--;
+    uint8_t a[4];
+    if (e - start >= 7 && e - start <= 15 && parse_ip4(buf + start, e - start, a)) rawscope_escalate_request(a);
+    start = i + 1; used = start;
+  }
+  return used;
+}
+
 /* ───────────────────────── counters ───────────────────────── */
 static atomic_ulong g_counters[RAWSCOPE_NCOUNTERS];
 
@@ -314,7 +376,7 @@ int rawscope_stats_json(char *buf, size_t cap) {
     "{\"type\":\"raw_stats\",\"desynced\":%lu,\"skipped\":%lu,\"rst_dropped\":%lu,\"rst_passed\":%lu,"
     "\"nodecoy\":%lu,\"decoy_hurt\":%lu,\"udp_seen\":%lu,\"udp_decoys\":%lu,\"quic_dropped\":%lu,"
     "\"dns_answered\":%lu,\"dns_passed\":%lu,\"grown\":%lu,\"decoy_named\":%lu,"
-    "\"escalated\":%lu,\"strong\":%lu,\"strong_ts\":%lu}",
+    "\"escalated\":%lu,\"strong\":%lu,\"strong_ts\":%lu,\"cut_asked\":%lu}",
     rawscope_counter(RAWSCOPE_DESYNCED), rawscope_counter(RAWSCOPE_SKIPPED),
     rawscope_counter(RAWSCOPE_RST_DROPPED), rawscope_counter(RAWSCOPE_RST_PASSED),
     rawscope_counter(RAWSCOPE_NODECOY), rawscope_counter(RAWSCOPE_DECOY_HURT),
@@ -323,7 +385,7 @@ int rawscope_stats_json(char *buf, size_t cap) {
     rawscope_counter(RAWSCOPE_DNS_ANSWERED), rawscope_counter(RAWSCOPE_DNS_PASSED),
     rawscope_counter(RAWSCOPE_GROWN), rawscope_counter(RAWSCOPE_DECOY_NAMED),
     rawscope_counter(RAWSCOPE_ESCALATED), rawscope_counter(RAWSCOPE_STRONG),
-    rawscope_counter(RAWSCOPE_STRONG_TS));
+    rawscope_counter(RAWSCOPE_STRONG_TS), rawscope_counter(RAWSCOPE_CUT_ASKED));
   if (n < 0 || (size_t)n >= cap) { buf[0] = 0; return 0; }
   return n;
 }

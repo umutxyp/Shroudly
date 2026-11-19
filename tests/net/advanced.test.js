@@ -166,6 +166,32 @@ function windowsArgv(line) {
   const got = await p;
   t.ok(got && got.pid === 1, `asleep for half an hour while the prompt waited: the answer after the wake is taken (${got && got.code ? got.code : 'ready'})`);
   ready = null;
+  // A server cut after its handshake (engine-manager.js, cut_addr): written to
+  // status.log.escalate for the running engine, one address a line, once a
+  // minute per address, only an internet IPv4 address, nothing when off.
+  {
+    const ae = new AdvancedMode(() => {});
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-esc-'));
+    ae.statusFile = path.join(d, 'status.log');
+    const file = `${ae.statusFile}.escalate`;
+    const read = () => { try { return fs.readFileSync(file, 'utf8'); } catch { return ''; } };
+    t.ok(ae.escalate('104.244.42.1') === false && read() === '', 'Advanced mode off: nothing written');
+    ae.active = true;
+    t.ok(ae.escalate('104.244.42.1') === true && read() === '104.244.42.1\n', 'on: the address is written for the engine');
+    t.ok(ae.escalate('104.244.42.1') === false && read() === '104.244.42.1\n', 'the same address within a minute: not again');
+    t.ok(ae.escalate('162.159.135.232') === true && read() === '104.244.42.1\n162.159.135.232\n', 'another address: appended');
+    const bad = ['127.0.0.1', '10.1.2.3', '192.168.0.1', '172.16.5.5', '169.254.1.1', '100.64.0.1', '0.1.2.3', '224.0.0.1',
+      '256.1.1.1', '1.2.3', '1.2.3.4\n5.6.7.8', '::1', '', null, 'x.com'];
+    t.ok(bad.every((a) => ae.escalate(a) === false) && read() === '104.244.42.1\n162.159.135.232\n',
+      'local, private, special or malformed addresses are never written');
+    const realNow2 = Date.now; const t0 = realNow2();
+    Date.now = () => t0 + 61000;
+    t.ok(ae.escalate('104.244.42.1') === true, 'a minute later the same address is told again');
+    Date.now = realNow2;
+    ae.statusFile = null;
+    t.ok(ae.escalate('1.1.1.1') === false, 'no status file: nothing');
+    fs.rmSync(d, { recursive: true, force: true });
+  }
   const am2 = new AdvancedMode(() => {});
   am2.readyTimeoutMs = 600;
   am2._readStatus = () => ({ errors: [] });

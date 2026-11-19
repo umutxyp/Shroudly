@@ -237,6 +237,11 @@ final class Engine {
             // Iran). Not a name that does not resolve: it may not exist at all.
             logSite("engine: \(line)")
             if obj["raw"] as? Bool != true, obj["stage"] as? String != "dns", let host = obj["host"] as? String, !host.isEmpty { onBlocked?(host) }
+        case "cut_addr":
+            // For Advanced mode on the desktop (the server of a connection cut
+            // after its handshake); there is none here, and the cut itself
+            // came as its own line.
+            break
         default:
             // Events about one site (bypass, seen...) name it.
             logSite("engine: \(line)")

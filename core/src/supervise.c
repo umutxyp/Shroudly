@@ -22,6 +22,9 @@ static sup_teardown_fn g_teardown = NULL;
 static sup_teardown_fn g_report = NULL;
 static int g_report_every = 0;
 static volatile sig_atomic_t g_signalled = 0;
+static char g_esc_path[1100];
+static sup_lines_fn g_esc_fn = NULL;
+static long g_esc_off = 0;
 
 int sup_redirect_output(const char *status_file) {
 #ifdef _WIN32
@@ -59,6 +62,30 @@ static int parent_alive(long pid) {
 #endif
 }
 
+void sup_set_escalate(sup_lines_fn fn) { g_esc_fn = fn; }
+
+/* What the app added to F.escalate since the last look. */
+static void escalate_poll(void) {
+  if (!g_esc_fn || !g_esc_path[0] || g_esc_off >= SUP_ESCALATE_MAX) return;
+#ifdef _WIN32
+  FILE *f = fopen_utf8(g_esc_path, "rb");
+  if (!f) return;
+#else
+  int fd = open(g_esc_path, O_RDONLY | O_NOFOLLOW);
+  if (fd < 0) return;
+  FILE *f = fdopen(fd, "rb");
+  if (!f) { close(fd); return; }
+#endif
+  char buf[4096];
+  if (fseek(f, g_esc_off, SEEK_SET) == 0) {
+    size_t n = fread(buf, 1, sizeof(buf), f);
+    if (n > 0) g_esc_off += g_esc_fn(buf, (int)n);
+    /* A line longer than the buffer is no address: skipped whole. */
+    if (n == sizeof(buf) && !memchr(buf, '\n', n)) g_esc_off += (long)n;
+  }
+  fclose(f);
+}
+
 #ifndef _WIN32
 static void on_signal(int sig) { (void)sig; g_signalled = 1; }
 #endif
@@ -71,6 +98,7 @@ static void *watchdog(void *arg) {
     if (g_signalled) break;
     if (g_parent_pid > 0 && !parent_alive(g_parent_pid)) break;
     if (g_stop_path[0] && file_exists(g_stop_path)) break;
+    escalate_poll();
     if (g_report && g_report_every > 0 && now_ms() - last >= (uint64_t)g_report_every) {
       last = now_ms();
       g_report();
@@ -98,8 +126,12 @@ int sup_start(const char *status_file, long parent_pid, sup_teardown_fn teardown
   g_parent_pid = parent_pid;
   g_teardown = teardown;
   g_stop_path[0] = '\0';
-  if (status_file && status_file[0])
+  g_esc_path[0] = '\0';
+  g_esc_off = 0;
+  if (status_file && status_file[0]) {
     snprintf(g_stop_path, sizeof(g_stop_path), "%s.stop", status_file);
+    snprintf(g_esc_path, sizeof(g_esc_path), "%s.escalate", status_file);
+  }
 #ifndef _WIN32
   struct sigaction sa;
   memset(&sa, 0, sizeof(sa));

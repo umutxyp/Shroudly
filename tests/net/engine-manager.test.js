@@ -225,6 +225,20 @@ const t = suite('engine-manager');
     await sleep(500);
     t.ok(!told.includes('stopped.example'), 'protection stopped before the cut stood: the autopilot is not told');
   }
+  // A server cut after its handshake: handed to Advanced mode (main.js,
+  // onCutAddr), only with an address, and never in the log.
+  {
+    const got = [];
+    const ce = new EngineManager(store, { addLog: (l, m) => logs.push(`${l}: ${m}`), onCutAddr: (a, h) => got.push(`${a} ${h}`) });
+    const n0 = logs.length;
+    ce._onLine(JSON.stringify({ type: 'cut_addr', host: 'x.com', addr: '104.244.42.1' }));
+    ce._onLine(JSON.stringify({ type: 'cut_addr', host: 'x.com' }));
+    t.ok(got.join('|') === '104.244.42.1 x.com' && logs.length === n0, `cut_addr goes to Advanced mode, nothing in the log (${got.join('|')})`);
+    const quiet = new EngineManager(store, { addLog: () => {} });
+    let threw = false;
+    try { quiet._onLine(JSON.stringify({ type: 'cut_addr', host: 'x.com', addr: '1.2.3.4' })); } catch { threw = true; }
+    t.ok(!threw, 'no Advanced mode hook: nothing happens');
+  }
   // Hosts that cannot be reached at all: one plain line per host, not one per retry.
   const unreach = (h, stage) => em._onLine(JSON.stringify({ type: 'unreachable', host: h, stage, ips: stage === 'dns' ? 0 : 2 }));
   unreach('gone.example', 'connect'); unreach('gone.example', 'connect'); unreach('nxdomain.example', 'dns');

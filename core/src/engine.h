@@ -30,6 +30,10 @@ typedef struct {
    * request cannot be staged there; with this, a request sent to a local
    * address counts as not acknowledged (see legs_unheard). */
   int      local_unacked;
+  /* --cut-addr-local (tests): a connection to a local address cut after its
+   * handshake is told too ("cut_addr"), which is never done otherwise (no
+   * filter sits there, and Advanced mode leaves local addresses alone). */
+  int      cut_addr_local;
   strategy strat;             /* active strategy (used when auto_probe is off,
                                  and as the first candidate when it is on) */
   /* --http-open: HTTP proxy requests (CONNECT, plain http://) taken

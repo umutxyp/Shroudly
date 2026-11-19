@@ -740,6 +740,7 @@ static uint32_t judge(const nfq_packet *q) {
      * back out unanswered): the stronger way, for it alone (rawscope.h,
      * "escalate"). Any other server, or one the decoy upsets (no decoy),
      * goes on below exactly as before. */
+    rawscope_escalate_drain(now);   /* the app's cut servers, taken in here (rawscope.h) */
     if (strong_fits(&pi, dport) &&
         rawscope_escalate_first((const uint8_t *)&ip->daddr, 4, (uint16_t)dport, (uint16_t)sport,
                                 seq, decoy, now) &&

@@ -26,4 +26,15 @@ int  sup_start(const char *status_file, long parent_pid, sup_teardown_fn teardow
  * watchdog thread. */
 void sup_set_report(sup_teardown_fn report, int every_ms);
 
+/* Optional, before sup_start: servers the app asks to be escalated. The app
+ * appends one IPv4 address a line to F.escalate (F the status file); the
+ * watchdog reads what was added every quarter second and hands the new bytes
+ * to `fn` (rawscope_escalate_lines), which returns how many it consumed (up
+ * to its last complete line). The file comes from the unprivileged app and
+ * is read by a privileged process: at most SUP_ESCALATE_MAX bytes of it are
+ * ever read, and a symlink is never followed. */
+#define SUP_ESCALATE_MAX (256 * 1024)
+typedef int (*sup_lines_fn)(const char *buf, int len);
+void sup_set_escalate(sup_lines_fn fn);
+
 #endif
