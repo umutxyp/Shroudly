@@ -188,8 +188,22 @@ function windowsArgv(line) {
     Date.now = () => t0 + 61000;
     t.ok(ae.escalate('104.244.42.1') === true, 'a minute later the same address is told again');
     Date.now = realNow2;
+    // Told in the log once per address, naming the site.
+    const said = [];
+    const al = new AdvancedMode((l, m) => said.push(m));
+    al.statusFile = ae.statusFile; al.active = true;
+    al.escalate('8.8.4.4', 'x.com'); al._escalated.clear(); al.escalate('8.8.4.4', 'x.com'); al.escalate('9.9.9.9', 'bad name!');
+    t.ok(said.filter((m) => m.includes('x.com (8.8.4.4)')).length === 1 && said.some((m) => m.startsWith('Advanced mode: 9.9.9.9 cut')),
+      `the log says it once per address, with the site's name when it is one (${said.join(' | ')})`);
+    // Its counters for a report: the last raw_stats line, its known numbers only.
+    fs.writeFileSync(ae.statusFile, '{"type":"raw_ready","ttl":4}\n{"type":"raw_stats","desynced":1,"strong":0,"cut_asked":0}\nnot json\n{"type":"raw_stats","desynced":9,"escalated":2,"strong":5,"strong_ts":5,"cut_asked":3,"x":"y"}\n');
+    const st = ae.stats();
+    t.ok(st && st.desynced === 9 && st.strong === 5 && st.strong_ts === 5 && st.cut_asked === 3 && st.escalated === 2 && !('x' in st),
+      `the report gets the last counters (${JSON.stringify(st)})`);
+    fs.writeFileSync(ae.statusFile, '{"type":"raw_ready"}\n');
+    t.ok(ae.stats() === null, 'none yet: nothing');
     ae.statusFile = null;
-    t.ok(ae.escalate('1.1.1.1') === false, 'no status file: nothing');
+    t.ok(ae.escalate('1.1.1.1') === false && ae.stats() === null, 'no status file: nothing');
     fs.rmSync(d, { recursive: true, force: true });
   }
   const am2 = new AdvancedMode(() => {});

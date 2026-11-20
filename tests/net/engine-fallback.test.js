@@ -222,6 +222,42 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop(); freezer.close(); site.close(); dns3.close();
   }
 
+  // The same with Advanced mode beside the engine (ADVANCED 1): it sends
+  // that server's next connections the stronger way, so the name is not sent
+  // to the last way out at its first cut; only once the cuts go on.
+  {
+    const big = 'x'.repeat(200 * 1024);
+    const site = tls.createServer(H.testServerOptions(), (s) => {
+      s.on('error', () => {});
+      s.once('data', () => s.write(`HTTP/1.1 200 OK\r\nContent-Length: ${big.length}\r\nConnection: close\r\n\r\n${big}`));
+    });
+    await new Promise((r) => site.listen(0, '127.0.0.1', r));
+    const freezer = net.createServer((c) => {
+      const u = net.connect(site.address().port, '127.0.0.1');
+      let down = 0;
+      c.on('error', () => {}); u.on('error', () => {});
+      c.on('data', (d) => u.write(d));
+      u.on('data', (d) => { if (down >= 16 * 1024 || c.destroyed) return; const part = d.subarray(0, 16 * 1024 - down); down += part.length; c.write(part); });
+    });
+    await new Promise((r) => freezer.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const dns4 = await H.dnsStub({ 'frozen-adv.example': { AAAA: ['::1'] } });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, ['--auto', '--doh', '--doh-port', String(dns4.port), '--ipv6', '--fallback-file', torFile]);
+    eng.proc.stdin.write('ADVANCED 1\n');
+    await H.sleep(200);
+    const n0 = tor.asked.length;
+    const first = await get(P, 'frozen-adv.example', freezer.address().port, 14000);
+    await H.sleep(500);
+    const second = await get(P, 'frozen-adv.example', freezer.address().port, 14000);
+    t.ok(first !== 'HTTP/1.1 200 OK' && second !== 'HTTP/1.1 200 OK' && tor.asked.length === n0,
+      `Advanced mode beside it: frozen after 16 KB once, the next connection is not sent to the last way out (${first}, then ${second}, ${tor.asked.length - n0} asked)`);
+    let later = '';
+    for (let i = 0; i < 3 && later !== 'HTTP/1.1 200 OK'; i++) { await H.sleep(500); later = await get(P, 'frozen-adv.example', freezer.address().port, 20000); }
+    t.ok(later === 'HTTP/1.1 200 OK' && tor.asked.length > n0 && tor.asked[tor.asked.length - 1].host === 'frozen-adv.example',
+      `... and once the cuts go on, it is (${later})`);
+    eng.stop(); freezer.close(); site.close(); dns4.close();
+  }
+
   /* Frozen at the same amount each time while the site's other names answer
    * (Iran, Shatel: abs.twimg.com at 43 to 46 KB beside x.com working): the
    * third time says it is the network, and the next connection goes to the

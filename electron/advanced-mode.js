@@ -542,6 +542,7 @@ class AdvancedMode {
     this.dir = fs.mkdtempSync(path.join(workBase(this.platform), 'shroudly-adv-'));
     this.statusFile = path.join(this.dir, 'status.log');
     this._escalated = new Map();
+    this._escalateTold = new Set();
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
       queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, decoyNames: o.decoyNames, opts: o,
@@ -641,7 +642,7 @@ class AdvancedMode {
    * status.log.escalate, one address a line (supervise.h), so its next
    * connections go the stronger way (rawscope.h). Once a minute per address
    * at most, and only addresses of the internet; nothing when off. */
-  escalate(addr) {
+  escalate(addr, host) {
     if (!this.active || !this.statusFile) return false;
     const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(String(addr));
     if (!m) return false;
@@ -655,7 +656,34 @@ class AdvancedMode {
     if (this._escalated.size > 512) this._escalated.clear();
     this._escalated.set(addr, now);
     try { fs.appendFileSync(`${this.statusFile}.escalate`, `${addr}\n`); } catch { return false; }
+    // Said once per address a session, so a report shows what was done.
+    this._escalateTold = this._escalateTold || new Set();
+    if (!this._escalateTold.has(addr) && this._escalateTold.size < 64) {
+      this._escalateTold.add(addr);
+      const name = typeof host === 'string' && /^[a-z0-9.-]{1,253}$/i.test(host) ? `${host} (${addr})` : addr;
+      this.log('info', `Advanced mode: ${name} cut the connection after it opened; its next connections go the stronger way`);
+    }
     return true;
+  }
+
+  /* The packet engine's last raw_stats line (rawscope.h): what it did, for a
+   * report. null when there is none yet. */
+  stats() {
+    if (!this.statusFile) return null;
+    let text = '';
+    try { text = fs.readFileSync(this.statusFile, 'utf8'); } catch { return null; }
+    const lines = text.split(/\r?\n/);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (!lines[i].includes('"raw_stats"')) continue;
+      try {
+        const m = JSON.parse(lines[i]);
+        const keep = ['desynced', 'nodecoy', 'decoy_hurt', 'escalated', 'strong', 'strong_ts', 'cut_asked'];
+        const out = {};
+        for (const k of keep) if (Number.isFinite(Number(m[k]))) out[k] = Number(m[k]);
+        return out;
+      } catch { return null; }
+    }
+    return null;
   }
 
   cleanupSync() {

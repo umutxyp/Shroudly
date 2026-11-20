@@ -440,6 +440,8 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     /* Another network (the app watches them; the engine is not told
      * otherwise): what opened sites on the last one is not presumed here. */
     else if (!strcmp(line, "NET-CHANGED")) engine_network_changed();
+    else if (!strcmp(line, "ADVANCED 1")) engine_set_advanced(1);
+    else if (!strcmp(line, "ADVANCED 0")) engine_set_advanced(0);
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
       char host[256], tech[64]; unsigned long long secs = 0;

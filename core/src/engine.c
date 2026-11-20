@@ -988,6 +988,10 @@ static void net_forget(void) {
 /* The app says the network changed (NET-CHANGED). */
 void engine_network_changed(void) { net_forget(); }
 
+/* Advanced mode beside the engine (engine_set_advanced). */
+static atomic_int g_advanced;
+void engine_set_advanced(int on) { atomic_store(&g_advanced, on ? 1 : 0); }
+
 /* ── where a silent ladder left off ──────────────────────────────────────
  * On a network that drops a blocked handshake without a word, every attempt
  * costs its whole wait, so one connection's budget covers the untouched
@@ -2567,7 +2571,14 @@ static void report(const char *ev, const char *host, const char *strat,
      * past it, since it is the address and the amount, not the name, so the
      * next connection goes to the last way out at once instead of after two
      * more broken pages (freeip.me on T2 in Moscow). */
-    if (strat && strcmp(strat, "stall") == 0 && attempts >= 12 && attempts <= 24)
+    /* With Advanced mode beside it, that server's next connections go the
+     * stronger way (cut_addr, rawscope.h), whose decoy the filter takes for
+     * the connection's own ClientHello, which zapret's users get past it
+     * with: given its chance, the name goes to the last way out only if
+     * the cuts go on (three sure ones, or the same amount three times,
+     * cuts_freeze). Rostelecom, 2.6.85: x.com was sent to Tor at its first
+     * cut, a Tor that could not start there, and never had the chance. */
+    if (strat && strcmp(strat, "stall") == 0 && attempts >= 12 && attempts <= 24 && !atomic_load(&g_advanced))
       cuts_note(host, CUTS_TO_FB);
   }
   /* Every technique failed for a name while another name of its site goes
@@ -4075,6 +4086,8 @@ static int peer_port(sock_t c) {
  * the late word of one that went out with an earlier technique must not move
  * the search twice. Returns 1 when it printed a line (the caller may hold
  * the client a moment, see RAW_HOLD_MS). */
+static void raw_to_fallback(const char *k);
+
 static int raw_result(const char *k, uint16_t port, int cand, int inherited, int ok, int how,
                       int fam, int cport) {
   char h[256];
@@ -4167,6 +4180,9 @@ static int raw_result(const char *k, uint16_t port, int cand, int inherited, int
     printed = 1;
     e->next = -1; e->round = 0; e->tries = 0; e->refused = 0;
     e->rest_until = now + RAW_REST_MS;
+    mutex_unlock(&g_raw_mx);
+    raw_to_fallback(k);
+    return printed;
   }
   mutex_unlock(&g_raw_mx);
   return printed;
@@ -4733,6 +4749,7 @@ static int upstream_carries(const char *host) {
   struct in_addr a4; struct in6_addr a6;
   if (inet_pton(AF_INET, host, &a4) == 1) {
     uint32_t v = ntohl(a4.s_addr);
+    if ((v >> 24) == 127 && g_cfg.raw_local) return 1;   /* tests: their stand-ins are on loopback */
     return !((v >> 24) == 10 || (v >> 24) == 127 || (v >> 16) == 0xC0A8 || (v >> 20) == 0xAC1 || (v >> 16) == 0xA9FE || v == 0);
   }
   if (inet_pton(AF_INET6, host, &a6) == 1) {
@@ -5011,6 +5028,20 @@ static int dns_resolver(const char *h) {
 
 static int fallback_ok(const char *host) {
   return g_cfg.fallback_kind && !g_cfg.upstream_kind && host[0] && upstream_carries(host) && !dns_resolver(host);
+}
+
+/* A destination of an app's own protocol (not TLS or HTTP) that every
+ * technique failed on: its next connections go to the last way out, where
+ * one is set, for as long as a name the network keeps cutting does
+ * (cuts_many, CUTS_WIN_MS: then the techniques are tried again), and one
+ * not running is asked for. Until 2.6.85 such a destination was only left
+ * alone for a while: Telegram in Jordan (its own protocol, straight to its
+ * addresses, which open and then carry nothing) never reached a Tor that
+ * was ready beside it. */
+static void raw_to_fallback(const char *k) {
+  if (!k || !k[0] || !fallback_ok(k)) return;
+  cuts_note(k, CUTS_TO_FB);
+  if (!fallback_alive()) { proxy_ref x = fallback_ref(); proxy_report(&x, "no technique got through", k); }
 }
 
 /* A name it carried, said once while it keeps carrying it (fb_put). */

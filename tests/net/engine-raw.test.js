@@ -119,6 +119,49 @@ async function retry(P, port, timeoutMs) { await sleep(1100); return attempt(P, 
     t.ok(wall.firsts.slice(firstsBefore).every((n) => n >= 64), 'then its connections go out untouched (no search forever)');
     t.ok(lines(eng, from).filter((l) => l.type === 'blocked' && l.raw).length === 1, 'and it is not said again');
 
+    /* 3b. the same, with a last way out set (Tor, a SOCKS5 stand-in that
+     * reaches the data centre past the filter): once every technique has
+     * failed, the next connections go there and are answered; one asked
+     * for while it is not running (Telegram in Jordan, its own protocol to
+     * its addresses, never reached a Tor that was ready beside it). */
+    {
+      const fs = require('fs'); const os = require('os'); const path = require('path');
+      const H = require('./helpers');
+      const tor = H.socksServer(dcPort);
+      await new Promise((r) => tor.once('listening', r));
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-rawfb-'));
+      const torFile = path.join(dir, 'tor.txt');
+      fs.writeFileSync(torFile, `socks5://127.0.0.1:${tor.address().port}\n`);
+      await fresh(['--auto', '--raw-local', '--fallback-file', torFile]);
+      from = eng.out.length;
+      let blocked = -1;
+      for (let i = 0; i < 12 && blocked < 0; i++) {
+        await (i ? retry(P, wallPort) : attempt(P, wallPort));
+        await sleep(100);
+        if (lines(eng, from).some((l) => l.type === 'blocked' && l.raw)) blocked = i + 1;
+      }
+      t.ok(blocked > 0, `with a last way out: every technique failed first (${blocked} connections)`);
+      const n0 = tor.asked.length;
+      const via = await attempt(P, wallPort);
+      t.ok(via && tor.asked.length > n0 && tor.asked[tor.asked.length - 1].host === '127.0.0.1' && tor.asked[tor.asked.length - 1].port === wallPort,
+        `then its next connection goes through the last way out, and is answered (${via}, ${tor.asked.length - n0} asked)`);
+      t.ok(dc.bad === 0, 'the data centre still received exactly what the app sent');
+      tor.close();
+      // Not running: asked for, with the address.
+      await fresh(['--auto', '--raw-local', '--fallback-file', torFile]);
+      from = eng.out.length;
+      for (let i = 0; i < 12; i++) {
+        await (i ? retry(P, wallPort) : attempt(P, wallPort));
+        await sleep(100);
+        if (lines(eng, from).some((l) => l.type === 'blocked' && l.raw)) break;
+      }
+      await sleep(300);
+      const ask = lines(eng, from).find((l) => l.type === 'fallback' && l.ok === 0);
+      t.ok(ask && ask.host === '127.0.0.1', `the last way out not running: asked for, naming the address (${JSON.stringify(ask)})`);
+      fs.rmSync(dir, { recursive: true, force: true });
+      await fresh();
+    }
+
     /* 4. a filter that drops silently: noticed when the app gives up */
     await fresh();
     from = eng.out.length;
