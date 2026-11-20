@@ -147,7 +147,7 @@ expect_load() { local out; out=$(loads "$@"); if [ $? -eq 0 ]; then ok "$LABEL: 
 expect_fail() { local out; out=$(loads "$@"); if [ $? -ne 0 ]; then ok "$LABEL: $out"; else bad "$LABEL: $out"; fi; }
 
 start_engine() {
-  rm -f "$WORK/status.log" "$WORK/status.log.stop"
+  rm -f "$WORK/status.log" "$WORK/status.log.stop" "$WORK/status.log.standby"
   "$ENGINE" --advanced --fake-ttl 4 --status-file "$WORK/status.log" --parent-pid $$ \
     --drop-rst 1 --autottl 1 --seqovl 0 --split "$1" --desync-mode fake --queue 200 "${@:2}" &
   ENG_PID=$!
@@ -191,6 +191,18 @@ LABEL="cut, private address: the filtered name is left alone (TLS)";  expect_fai
 LABEL="cut, private address: the filtered name is left alone (HTTP)"; expect_fail www.blocked.lab http 5000
 LABEL="cut, private address: an unfiltered name loads";              expect_load www.allowed.lab tls
 AT=$PUB
+# Standby (2.6.87): the rules removed, the engine kept running as root; the
+# filtered name is stopped again, and back from standby it loads, with no
+# new start (no password asked).
+touch "$WORK/status.log.standby"
+for _ in $(seq 50); do grep -q '"raw_paused"' "$WORK/status.log" 2>/dev/null && break; sleep 0.1; done
+if grep -q '"raw_paused"' "$WORK/status.log" && kill -0 "$ENG_PID" 2>/dev/null; then ok "standby: the rules are gone, the engine still runs"; else bad "standby: no raw_paused ($(tail -2 "$WORK/status.log"))"; fi
+LABEL="standby: the filtered name is stopped again"; expect_fail www.blocked.lab tls 5000
+LABEL="standby: an unfiltered name loads";           expect_load www.allowed.lab tls
+rm -f "$WORK/status.log.standby"
+for _ in $(seq 50); do grep -q '"raw_resumed"' "$WORK/status.log" 2>/dev/null && break; sleep 0.1; done
+if grep -q '"raw_resumed"' "$WORK/status.log" && kill -0 "$ENG_PID" 2>/dev/null; then ok "back from standby, the same process: $(grep -m1 '"raw_resumed"' "$WORK/status.log")"; else bad "not back from standby ($(tail -2 "$WORK/status.log"))"; fi
+LABEL="back from standby: the filtered name loads in full (TLS)"; expect_load www.blocked.lab tls
 stop_engine
 skipped=$(stat_of skipped); desynced=$(stat_of desynced)
 if [ -z "$skipped" ]; then

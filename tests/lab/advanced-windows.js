@@ -189,6 +189,31 @@ async function loadAll(label) {
   else bad(`the QUIC Initial got no Version Negotiation back (${qi.first ? qi.first.subarray(0, 8).toString('hex') : 'nothing'})`);
   console.log(`  ..  sent ${rtp.sent} RTP datagrams and ${short.sent} QUIC short headers to ${NOWHERE}`);
 
+  // Standby (2.6.87): the hook let go and the driver unloaded, the process
+  // kept (a game's anti-cheat sees no driver; coming back asks nothing).
+  fs.writeFileSync(`${status}.standby`, '');
+  for (let i = 0; i < 100 && !/"raw_paused"/.test(read()) && exited === null; i++) await sleep(100);
+  if (/"raw_paused"/.test(read()) && exited === null) ok('standby: the engine let go of the hook and is still running');
+  else bad(`standby: no raw_paused (exit ${exited}): ${read().slice(-300)}`);
+  const inStandby = driverState();
+  if (inStandby === 'missing' || /STOPPED/i.test(inStandby)) ok(`standby: the WinDivert driver is unloaded (${inStandby === 'missing' ? 'sc query: 1060' : inStandby})`);
+  else bad(`standby: the WinDivert driver is still loaded: ${inStandby}`);
+  await loadAll('standby');
+  fs.rmSync(`${status}.standby`, { force: true });
+  for (let i = 0; i < 150 && !/"raw_resumed"/.test(read()) && exited === null; i++) await sleep(100);
+  const resumed = (read().match(/\{"type":"raw_resumed"[^\n]*\}/) || [])[0];
+  if (resumed && exited === null) ok(`back from standby, no new process: ${resumed}`);
+  else bad(`not back from standby (exit ${exited}): ${read().slice(-300)}`);
+  const back = driverState();
+  if (/RUNNING/i.test(back)) ok('back from standby: the WinDivert driver is loaded again');
+  else bad(`back from standby: the WinDivert driver is ${back}`);
+  await loadAll('after standby');
+  if (/"dns_gate":1/.test(resumed || '')) {
+    const again = ask(RESOLVER, GATE_NAME);
+    if (again === GATE_ADDR) ok(`back from standby: the DNS gate answers again (${again})`);
+    else bad(`back from standby: the DNS gate gave ${again}, not ${GATE_ADDR}`);
+  }
+
   fs.writeFileSync(`${status}.stop`, '');
   for (let i = 0; i < 100 && exited === null; i++) await sleep(100);
   if (exited !== null) ok(`engine stopped by its stop file (exit ${exited})`);
