@@ -859,6 +859,34 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   return 0;
 }
 
+/* Standby (supervise.h, F.standby): the firewall rules removed, so nothing
+ * is queued any more and every packet goes as without Advanced mode, while
+ * the process, root, stays with its queue open; raw_linux_resume puts the
+ * rules back with no password asked (pkexec asked it at every Start until
+ * 2.6.86). From the watchdog thread; the packet loop just waits in recv. */
+static int g_standby = 0, g_resumes = 0;
+void raw_linux_pause(void) {
+  if (g_standby || !g_run) return;
+  g_standby = 1;
+  if (g_gate) { dnsgate_stop(); g_gate = 0; }
+  raw_linux_teardown();
+  printf("{\"type\":\"raw_paused\"}\n");
+  fflush(stdout);
+}
+
+void raw_linux_resume(void) {
+  if (!g_standby || !g_run) return;
+  if (install_rule() != 0) {
+    printf("{\"type\":\"raw_resume_failed\"}\n");
+    fflush(stdout);
+    return;
+  }
+  g_standby = 0;
+  g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, 0) == 0;
+  printf("{\"type\":\"raw_resumed\",\"n\":%d,\"dns_gate\":%d}\n", ++g_resumes, g_gate);
+  fflush(stdout);
+}
+
 void raw_linux_stop(void) {
   g_run = 0;
   if (g_gate) { dnsgate_stop(); g_gate = 0; }

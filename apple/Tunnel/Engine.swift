@@ -237,6 +237,9 @@ final class Engine {
             // Iran). Not a name that does not resolve: it may not exist at all.
             logSite("engine: \(line)")
             if obj["raw"] as? Bool != true, obj["stage"] as? String != "dns", let host = obj["host"] as? String, !host.isEmpty { onBlocked?(host) }
+        case "fallback_skip":
+            // The last way out did not reach a name: the usual way for a while.
+            logSite("\(obj["host"] as? String ?? "?"): the last way out (Tor) did not reach it; it goes the usual way for a while")
         case "cut_addr":
             // For Advanced mode on the desktop (the server of a connection cut
             // after its handshake); there is none here, and the cut itself

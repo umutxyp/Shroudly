@@ -1458,6 +1458,13 @@ class EngineManager {
         break;
       // A connection to a watched domain: nothing in the log, it is no news
       // to the user.
+      // The last way out did not reach a name twice (engine.c, fbmiss): it
+      // goes the usual way at once for a while instead of waiting on Tor.
+      case 'fallback_skip':
+        if (typeof msg.host === 'string' && msg.host && this.logGate.allow('fallback-skip', msg.host)) {
+          this.log('info', `${msg.host}: the last way out (Tor) did not reach it; it goes the usual way for ${Number(msg.min) || 10} minutes instead of waiting on Tor`);
+        }
+        break;
       case 'cut_addr':
         if (typeof msg.addr === 'string' && !this.wake.recent(WAKE_QUIET_MS)) { try { this.onCutAddr(msg.addr, msg.host); } catch {} }
         break;

@@ -4654,6 +4654,11 @@ static void proxy_report(const proxy_ref *x, const char *why, const char *host) 
   }
 }
 
+/* Set by proxy_open once the server greeted us (it spoke SOCKS / took the
+ * CONNECT), so a failure after that is the server not reaching the site,
+ * not a server that is not there (via_fallback, fbmiss_note). */
+static _Thread_local int t_proxy_greeted;
+
 /* Connected to host:port through server x, or SOCK_INVALID. */
 static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
   int fam = 0;
@@ -4673,7 +4678,7 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
     int auth = x->user[0] != 0;
     uint8_t hello[4] = { 5, (uint8_t)(auth ? 2 : 1), (uint8_t)(auth ? 0 : 0), 2 };
     if (sock_send_all(s, hello, auth ? 4 : 3, 0) != 0 || recv_exact(s, b, 2) != 0 || b[0] != 5) goto bad;
-    greeted = 1;
+    greeted = 1; t_proxy_greeted = 1;
     if (b[1] == 2 && auth) {
       size_t ul = strlen(x->user), pl = strlen(x->pass), k = 0;
       b[k++] = 1; b[k++] = (uint8_t)ul; memcpy(b + k, x->user, ul); k += ul;
@@ -5030,6 +5035,74 @@ static int fallback_ok(const char *host) {
   return g_cfg.fallback_kind && !g_cfg.upstream_kind && host[0] && upstream_carries(host) && !dns_resolver(host);
 }
 
+/* ── names the last way out does not reach ───────────────────────────────
+ * Tor running, but not reaching a name (it took the request, then no answer
+ * from the site within its 45 s, or said the site is out of reach): a name
+ * the network keeps cutting, or the user sends through Tor, waited those
+ * 45 s on every connection before going the usual way, and an app gave up
+ * first (India, Airtel: Roblox Studio stuck at "Setting up server", its
+ * realtime-signalr.roblox.com sent to a Tor that never reached it, 16
+ * connections, not a byte). After FBMISS_N such misses within FBMISS_WIN_MS
+ * the name goes the usual way at once for FBMISS_REST_MS; one carried
+ * clears it. */
+#define FBMISS_SLOTS   64
+#define FBMISS_N       2
+#define FBMISS_WIN_MS  (10 * 60 * 1000)
+#define FBMISS_REST_MS (10 * 60 * 1000)
+static struct { char host[256]; int n; uint64_t t, rest_until; } g_fbmiss[FBMISS_SLOTS];
+static mutex_t g_fbmiss_mx;
+
+static void fbmiss_note(const char *h) {
+  if (!h || !h[0] || strlen(h) >= sizeof(g_fbmiss[0].host)) return;
+  int told = 0;
+  mutex_lock(&g_fbmiss_mx);
+  uint64_t now = now_ms();
+  int slot = 0, had = 0;
+  for (int i = 0; i < FBMISS_SLOTS; i++) {
+    if (g_fbmiss[i].host[0] && strcmp(g_fbmiss[i].host, h) == 0) { slot = i; had = 1; break; }
+    if (g_fbmiss[i].t < g_fbmiss[slot].t) slot = i;
+  }
+  if (!had || age_ms(now, g_fbmiss[slot].t) >= FBMISS_WIN_MS) {
+    snprintf(g_fbmiss[slot].host, sizeof(g_fbmiss[slot].host), "%s", h);
+    g_fbmiss[slot].n = 0; g_fbmiss[slot].rest_until = 0;
+  }
+  g_fbmiss[slot].n++;
+  g_fbmiss[slot].t = now;
+  if (g_fbmiss[slot].n >= FBMISS_N && now >= g_fbmiss[slot].rest_until) {
+    g_fbmiss[slot].rest_until = now + FBMISS_REST_MS;
+    told = 1;
+  }
+  mutex_unlock(&g_fbmiss_mx);
+  if (told) {
+    char hh[256];
+    json_host(hh, sizeof(hh), h);
+    engine_printf("{\"type\":\"fallback_skip\",\"host\":\"%s\",\"min\":%d}\n", hh, FBMISS_REST_MS / 60000);
+  }
+}
+
+static int fbmiss_skip(const char *h) {
+  int yes = 0;
+  mutex_lock(&g_fbmiss_mx);
+  uint64_t now = now_ms();
+  for (int i = 0; i < FBMISS_SLOTS; i++)
+    if (g_fbmiss[i].host[0] && strcmp(g_fbmiss[i].host, h) == 0) { yes = now < g_fbmiss[i].rest_until; break; }
+  mutex_unlock(&g_fbmiss_mx);
+  return yes;
+}
+
+static void fbmiss_forget(void) {
+  mutex_lock(&g_fbmiss_mx);
+  memset(g_fbmiss, 0, sizeof(g_fbmiss));
+  mutex_unlock(&g_fbmiss_mx);
+}
+
+static void fbmiss_clear(const char *h) {
+  mutex_lock(&g_fbmiss_mx);
+  for (int i = 0; i < FBMISS_SLOTS; i++)
+    if (g_fbmiss[i].host[0] && strcmp(g_fbmiss[i].host, h) == 0) { g_fbmiss[i].host[0] = 0; g_fbmiss[i].n = 0; g_fbmiss[i].rest_until = 0; break; }
+  mutex_unlock(&g_fbmiss_mx);
+}
+
 /* A destination of an app's own protocol (not TLS or HTTP) that every
  * technique failed on: its next connections go to the last way out, where
  * one is set, for as long as a name the network keeps cutting does
@@ -5057,9 +5130,14 @@ static void fallback_tell(const char *host) {
  * not been carrying is said (fallback_tell). again: NULL, or the name to
  * connect to when looking whether it is reachable again. */
 static int via_fallback(sock_t client, socks_req *rq, const char *again) {
+  /* The last way out has not reached this name lately: the usual way at
+   * once, instead of waiting out its 45 s again (fbmiss). */
+  if (fbmiss_skip(rq->host)) return -1;
   proxy_ref x = fallback_ref();
+  t_proxy_greeted = 0;
   sock_t up = proxy_open(&x, rq->host, rq->port);
-  if (up == SOCK_INVALID) { fb_drop(rq->host); return -1; }
+  if (up == SOCK_INVALID) { if (t_proxy_greeted) fbmiss_note(rq->host); fb_drop(rq->host); return -1; }
+  fbmiss_clear(rq->host);
   if (socks_reply(client, rq, 1) != 0) { sock_close(up); return 0; }
   if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return 0; }
   if (fb_put(rq->host)) fallback_tell(rq->host);
@@ -5831,6 +5909,7 @@ static void engine_init_once(void) {
   mutex_init(&g_cool_mx);
   mutex_init(&g_fb_mx);
   mutex_init(&g_cuts_mx);
+  mutex_init(&g_fbmiss_mx);
   mutex_init(&g_bg_mx);
   conns_init();
   mutex_init(&g_seen_mx);
@@ -5886,6 +5965,7 @@ void engine_fallback_forget(void) {
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
   cuts_forget();
+  fbmiss_forget();
   ex_forget();
 }
 
@@ -5931,6 +6011,7 @@ static void engine_forget(void) {
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
   cuts_forget();
+  fbmiss_forget();
   dns_way_forget();
   /* The list by name and the user's blocks: the app gives its blocks again
    * after every start. */

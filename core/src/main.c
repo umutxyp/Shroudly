@@ -323,6 +323,12 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     sup_set_report(rawscope_stats_print, 60000);
     /* Servers the app saw cut after their handshake: escalated (rawscope.h). */
     sup_set_escalate(rawscope_escalate_lines);
+    /* Standby: let go of the packet hook and take it again, no new prompt. */
+  #if defined(__linux__)
+    sup_set_standby(raw_linux_pause, raw_linux_resume);
+  #elif defined(_WIN32)
+    sup_set_standby(raw_windows_pause, raw_windows_resume);
+  #endif
   #if defined(__linux__)
     sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
   #elif defined(_WIN32)

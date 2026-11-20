@@ -13,5 +13,9 @@
 int  raw_linux_start(int queue_num, const raw_config *cfg); /* blocks until stop */
 void raw_linux_stop(void);
 void raw_linux_teardown(void); /* remove the firewall rules; idempotent */
+/* Standby: the rules removed, the process and its queue kept; resume puts
+ * them back (raw_linux.c). From the watchdog thread. */
+void raw_linux_pause(void);
+void raw_linux_resume(void);
 
 #endif

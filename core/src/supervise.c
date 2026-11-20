@@ -25,6 +25,9 @@ static volatile sig_atomic_t g_signalled = 0;
 static char g_esc_path[1100];
 static sup_lines_fn g_esc_fn = NULL;
 static long g_esc_off = 0;
+static char g_standby_path[1100];
+static sup_teardown_fn g_pause = NULL, g_resume = NULL;
+static int g_in_standby = 0;
 
 int sup_redirect_output(const char *status_file) {
 #ifdef _WIN32
@@ -64,6 +67,16 @@ static int parent_alive(long pid) {
 
 void sup_set_escalate(sup_lines_fn fn) { g_esc_fn = fn; }
 
+void sup_set_standby(sup_teardown_fn pause, sup_teardown_fn resume) { g_pause = pause; g_resume = resume; }
+
+/* F.standby there: the hook let go; gone: taken again. */
+static void standby_poll(void) {
+  if (!g_pause || !g_resume || !g_standby_path[0]) return;
+  int want = file_exists(g_standby_path);
+  if (want && !g_in_standby) { g_in_standby = 1; g_pause(); }
+  else if (!want && g_in_standby) { g_in_standby = 0; g_resume(); }
+}
+
 /* What the app added to F.escalate since the last look. */
 static void escalate_poll(void) {
   if (!g_esc_fn || !g_esc_path[0] || g_esc_off >= SUP_ESCALATE_MAX) return;
@@ -99,6 +112,7 @@ static void *watchdog(void *arg) {
     if (g_parent_pid > 0 && !parent_alive(g_parent_pid)) break;
     if (g_stop_path[0] && file_exists(g_stop_path)) break;
     escalate_poll();
+    standby_poll();
     if (g_report && g_report_every > 0 && now_ms() - last >= (uint64_t)g_report_every) {
       last = now_ms();
       g_report();
@@ -107,6 +121,7 @@ static void *watchdog(void *arg) {
   if (g_teardown) g_teardown();
   if (g_report) g_report();
   if (g_stop_path[0]) remove_utf8(g_stop_path);
+  if (g_standby_path[0]) remove_utf8(g_standby_path);
   printf("{\"type\":\"stopped\"}\n");
   fflush(stdout);
 #ifdef _WIN32
@@ -127,10 +142,13 @@ int sup_start(const char *status_file, long parent_pid, sup_teardown_fn teardown
   g_teardown = teardown;
   g_stop_path[0] = '\0';
   g_esc_path[0] = '\0';
+  g_standby_path[0] = '\0';
+  g_in_standby = 0;
   g_esc_off = 0;
   if (status_file && status_file[0]) {
     snprintf(g_stop_path, sizeof(g_stop_path), "%s.stop", status_file);
     snprintf(g_esc_path, sizeof(g_esc_path), "%s.escalate", status_file);
+    snprintf(g_standby_path, sizeof(g_standby_path), "%s.standby", status_file);
   }
 #ifndef _WIN32
   struct sigaction sa;
