@@ -339,7 +339,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。\n新方法：设置中三个固定选项（多个 TLS 记录、随机小片段、紧急字节 + 记录拆分），自动模式中另外三个，以及普通 HTTP 的 Host 头改写。\n超时的更新下载会再试一次，然后直接下载。</string>
+    <string name="whatsNewAndroid">任何技巧都打不开的自有协议应用（约旦的 Telegram）现在会在获准时走最后的出路（Tor）。\n被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。\n新方法：设置中三个固定选项（多个 TLS 记录、随机小片段、紧急字节 + 记录拆分），自动模式中另外三个，以及普通 HTTP 的 Host 头改写。\n超时的更新下载会再试一次，然后直接下载。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>
