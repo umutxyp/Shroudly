@@ -339,7 +339,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Trang bị chặn mở nhanh hơn: trang mới bắt đầu bằng cách đã mở các trang bị chặn khác trên mạng của bạn, và các tên miền của cùng một dịch vụ (YouTube, Instagram, Discord…) dùng chung cách mà một trong số đó tìm ra.\nMột kỹ thuật vẫn đang hoạt động không còn bị kiểm tra lại ở kết nối đầu tiên sau khi khởi động lại.\nKỹ thuật mới: ba lựa chọn cố định trong Cài đặt (nhiều bản ghi TLS, mảnh nhỏ ngẫu nhiên, byte khẩn + tách bản ghi), thêm ba trong Tự động, và viết lại tiêu đề Host cho HTTP thường.\nLượt tải bản cập nhật bị hết thời gian được thử lại, rồi tải trực tiếp.</string>
+    <string name="whatsNewAndroid">Ứng dụng dùng giao thức riêng mà không kỹ thuật nào mở được (Telegram ở Jordan) giờ đi qua lối thoát cuối (Tor), nếu được cho phép.\nTrang bị chặn mở nhanh hơn: trang mới bắt đầu bằng cách đã mở các trang bị chặn khác trên mạng của bạn, và các tên miền của cùng một dịch vụ (YouTube, Instagram, Discord…) dùng chung cách mà một trong số đó tìm ra.\nMột kỹ thuật vẫn đang hoạt động không còn bị kiểm tra lại ở kết nối đầu tiên sau khi khởi động lại.\nKỹ thuật mới: ba lựa chọn cố định trong Cài đặt (nhiều bản ghi TLS, mảnh nhỏ ngẫu nhiên, byte khẩn + tách bản ghi), thêm ba trong Tự động, và viết lại tiêu đề Host cho HTTP thường.\nLượt tải bản cập nhật bị hết thời gian được thử lại, rồi tải trực tiếp.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

@@ -339,7 +339,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Gesperrte Seiten öffnen schneller: eine neue beginnt mit dem, was in deinem Netz schon andere gesperrte Seiten geöffnet hat, und die Namen eines Dienstes (YouTube, Instagram, Discord…) teilen, was einer findet.\nEine Technik, die weiter funktioniert, wird bei der ersten Verbindung nach einem Neustart nicht mehr erneut geprüft.\nNeue Techniken: drei feste Optionen in den Einstellungen (mehrere TLS-Records, kleine zufällige Stücke, dringendes Byte + Record teilen), drei weitere in Auto und Host-Header-Umschreibungen für einfaches HTTP.\nEin abgebrochener Update-Download wird erneut versucht, dann direkt.</string>
+    <string name="whatsNewAndroid">Apps mit eigenem Protokoll, die keine Technik öffnet (Telegram in Jordanien), gehen jetzt über den letzten Ausweg (Tor), wo er erlaubt ist.\nGesperrte Seiten öffnen schneller: eine neue beginnt mit dem, was in deinem Netz schon andere gesperrte Seiten geöffnet hat, und die Namen eines Dienstes (YouTube, Instagram, Discord…) teilen, was einer findet.\nEine Technik, die weiter funktioniert, wird bei der ersten Verbindung nach einem Neustart nicht mehr erneut geprüft.\nNeue Techniken: drei feste Optionen in den Einstellungen (mehrere TLS-Records, kleine zufällige Stücke, dringendes Byte + Record teilen), drei weitere in Auto und Host-Header-Umschreibungen für einfaches HTTP.\nEin abgebrochener Update-Download wird erneut versucht, dann direkt.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>
