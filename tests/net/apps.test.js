@@ -703,7 +703,10 @@ async function robloxInstaller(proxy, socksPort) {
     const s0 = await eng.stats();
     let head = await raw(port, 'GET https://www.wikipedia.org/ HTTP/1.1\r\nHost: www.wikipedia.org\r\nUser-Agent: shroudly-test\r\nAccept: */*\r\n\r\n');
     if (!/^HTTP\/1\.1 [234]/.test(head)) head = await raw(port, 'GET https://www.wikipedia.org/ HTTP/1.1\r\nHost: www.wikipedia.org\r\nUser-Agent: shroudly-test\r\nAccept: */*\r\n\r\n');
-    const s1 = await eng.stats();
+    // The engine counts the handshake as it relays it: read a moment later
+    // if the count is not in yet (a loaded machine; the page itself came).
+    let s1 = await eng.stats();
+    for (let i = 0; i < 10 && s1 && s0 && !(s1.tls > s0.tls); i++) { await sleep(100); s1 = await eng.stats(); }
     t.ok(/^HTTP\/1\.1 [234]\d\d/.test(head) && !head.startsWith('HTTP/1.1 405') && s1 && s0 && s1.conns_total > s0.conns_total && s1.tls > s0.tls && proxy.forwards >= 1,
       `[engine] a whole https:// address is fetched for the program, through the engine (${head.split('\r\n')[0]}${s0 && s1 ? `, conns ${s0.conns_total}->${s1.conns_total}, tls ${s0.tls}->${s1.tls}` : ', no stats'}, forwards ${proxy.forwards})`);
   }

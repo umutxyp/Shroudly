@@ -238,6 +238,18 @@ const t = suite('engine-manager');
     let threw = false;
     try { quiet._onLine(JSON.stringify({ type: 'cut_addr', host: 'x.com', addr: '1.2.3.4' })); } catch { threw = true; }
     t.ok(!threw, 'no Advanced mode hook: nothing happens');
+    // Advanced mode beside it: told to the engine, and again to a new one.
+    const sent = [];
+    const ae2 = new EngineManager(store, { addLog: () => {} });
+    ae2._command = (c) => { sent.push(c); return true; };
+    ae2.active = false;
+    t.ok(ae2.setAdvanced(true) === false && sent.length === 0, 'Advanced mode on with no engine: kept, nothing sent');
+    ae2._restoreTechniques = () => {}; ae2._applyBlocks = () => {}; ae2._applyTorSites = () => {}; ae2.doh = { setSocksPort: () => {}, summary: () => '', usingCustom: () => false };
+    try { ae2._onLine(JSON.stringify({ type: 'ready', port: 1, techniques: 24 })); } catch {}
+    t.ok(sent.includes('ADVANCED 1'), `a new engine is told Advanced mode is on (${sent.join(',')})`);
+    ae2.active = true; sent.length = 0;
+    ae2.setAdvanced(false);
+    t.ok(sent.join() === 'ADVANCED 0' && ae2._advancedOn === false, 'off: told at once');
   }
   // Hosts that cannot be reached at all: one plain line per host, not one per retry.
   const unreach = (h, stage) => em._onLine(JSON.stringify({ type: 'unreachable', host: h, stage, ips: stage === 'dns' ? 0 : 2 }));

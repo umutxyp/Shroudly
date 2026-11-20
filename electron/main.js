@@ -810,6 +810,7 @@ function netJson(url, timeout) {
  * is what carries browsers, so the tray and the status follow it too. */
 function advancedState(active) {
   toWindow('advanced:state', { active });
+  if (engine) { try { engine.setAdvanced(active); } catch {} }
   // Tor is the last of all ways: the sites it carried until now try Advanced
   // mode first.
   if (active && engine) { try { engine.forgetFallback(); } catch {} }
@@ -1680,7 +1681,7 @@ app.whenReady().then(async () => {
     onRaw: (kind, msg) => { if (rawWatch) rawWatch.onEvent(kind, msg).catch(() => {}); },
     // A server that cut a connection after its handshake: Advanced mode, when
     // on, sends its next connections the stronger way (advanced-mode.js).
-    onCutAddr: (addr) => { if (advanced && advanced.active) advanced.escalate(addr); },
+    onCutAddr: (addr, host) => { if (advanced && advanced.active) advanced.escalate(addr, host); },
     // Which services this network filters (the autopilot turns on the mode
     // their app needs), and a site whose connections keep being answered and
     // then cut: the site may be turning the user away itself (checked, then
@@ -4050,7 +4051,10 @@ function reportSituation() {
     stats: engine ? engine.getStats() : null,
     // What runs beside the engine, and why not where it does not.
     parts: {
-      advanced: safe(() => ({ on: !!(advanced && advanced.active), available: !!(advanced && advanced.available()), why: advanced ? advanced.reasonCode() : 'not loaded' })),
+      advanced: safe(() => ({ on: !!(advanced && advanced.active), available: !!(advanced && advanced.available()), why: advanced ? advanced.reasonCode() : 'not loaded',
+        // What the packet engine did (its raw_stats line): servers escalated
+        // after a cut, first segments sent the stronger way, with timestamps.
+        stats: advanced && advanced.active ? advanced.stats() : null })),
       discordRelay: safe(() => !!(discordRelay && discordRelay.running)),
       appProxy: safe(() => !!(appProxy && appProxy.running)),
       tor: safe(() => (engine && engine.tor ? { here: engine.tor.present(), ...engine.tor.status() } : null)),

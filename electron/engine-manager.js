@@ -1288,6 +1288,8 @@ class EngineManager {
         // The names the user blocked in the Connections list (issue #74).
         this._applyBlocks();
         this._applyTorSites();
+        // Advanced mode beside it (setAdvanced): told again to a new engine.
+        if (this._advancedOn) this._command('ADVANCED 1');
         // Encrypted DNS routes that go through the engine can start now.
         this.doh.setSocksPort(msg.port);
         clearTimeout(this._dohReport);
@@ -1637,6 +1639,15 @@ class EngineManager {
    * again, instead of being kept for their TTL (doh.c, DNS-CLEAR). And the
    * technique that opened sites on the old network is no longer tried first
    * for new names on this one (engine.c, net_best; NET-CHANGED). */
+  /* Advanced mode runs beside the engine (main.js advancedState): it
+   * escalates a server that cut a connection after its handshake, so the
+   * engine gives that its chance before the last way out (engine.c,
+   * engine_set_advanced). Kept for an engine started later. */
+  setAdvanced(on) {
+    this._advancedOn = !!on;
+    return this.active ? this._command(on ? 'ADVANCED 1' : 'ADVANCED 0') : false;
+  }
+
   networkChanged() {
     if (!this.active) return false;
     const ok = this._command('DNS-CLEAR');

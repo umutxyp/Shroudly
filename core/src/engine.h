@@ -139,6 +139,10 @@ int  engine_avoid(const char *host, unsigned mask, uint64_t age);
 /* NET-CHANGED: the device is on another network now; what opened sites on
  * the last one (see net_best in engine.c) is no longer presumed here. */
 void engine_network_changed(void);
+/* The app says whether Advanced mode runs beside it (ADVANCED 1 / 0): it
+ * escalates a server that cut a connection after its handshake (cut_addr),
+ * so such a cut is not taken for one no technique gets past. */
+void engine_set_advanced(int on);
 int  engine_is_running(void);
 const engine_stats *engine_get_stats(void);
 
