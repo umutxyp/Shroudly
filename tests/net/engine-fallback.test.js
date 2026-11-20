@@ -222,6 +222,50 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop(); freezer.close(); site.close(); dns3.close();
   }
 
+  // A Tor that is running but does not reach the site (it takes the request,
+  // then says the site is out of reach): a name sent there first (the user's
+  // Tor list here) waited on it every time. After two misses it goes the
+  // usual way at once for a while, said once (India, Airtel: Roblox Studio's
+  // realtime-signalr.roblox.com, 16 connections to a Tor that never got it).
+  {
+    const asked = [];
+    const blind = net.createServer((c) => {
+      c.on('error', () => {});
+      let st = 0, b = Buffer.alloc(0);
+      c.on('data', (d) => {
+        b = Buffer.concat([b, d]);
+        if (st === 0 && b.length >= 2 + b[1]) { b = b.subarray(2 + b[1]); c.write(Buffer.from([5, 0])); st = 1; }
+        if (st === 1 && b.length >= 7) { asked.push(1); c.end(Buffer.from([5, 4, 0, 1, 0, 0, 0, 0, 0, 0])); st = 2; }   // host unreachable
+      });
+    });
+    await listening(blind.listen(0, '127.0.0.1'));
+    const blindFile = file('blind-tor.txt', `socks5://127.0.0.1:${blind.address().port}\n`);
+    const site = tls.createServer(H.testServerOptions(), (s) => {
+      s.on('error', () => {});
+      s.once('data', () => s.end('HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok'));
+    });
+    await new Promise((r) => site.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const dns5 = await H.dnsStub({ 'studio.example': { AAAA: ['::1'] } });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, ['--auto', '--doh', '--doh-port', String(dns5.port), '--ipv6', '--fallback-file', blindFile]);
+    eng.proc.stdin.write('TOR studio.example\n');
+    await H.sleep(200);
+    const r1 = await get(P, 'studio.example', site.address().port, 15000);
+    const r2 = await get(P, 'studio.example', site.address().port, 15000);
+    const a2 = asked.length;
+    const r3 = await get(P, 'studio.example', site.address().port, 15000);
+    const told = (eng.out.match(/"type":"fallback_skip","host":"studio\.example"/g) || []).length;
+    t.ok(r1 === 'HTTP/1.1 200 OK' && r2 === 'HTTP/1.1 200 OK' && a2 === 2,
+      `a Tor that does not reach the name: the usual way after it each time (${r1}, ${r2}; Tor asked ${a2})`);
+    t.ok(r3 === 'HTTP/1.1 200 OK' && asked.length === a2 && told === 1,
+      `after two misses the name goes the usual way at once, said once (Tor asked ${asked.length - a2} more, told ${told})`);
+    eng.proc.stdin.write('FALLBACK-FORGET\n');
+    await H.sleep(200);
+    await get(P, 'studio.example', site.address().port, 15000);
+    t.ok(asked.length === a2 + 1, 'the last way out forgotten (a new start of Tor): tried for it again');
+    eng.stop(); blind.close(); site.close(); dns5.close();
+  }
+
   // The same with Advanced mode beside the engine (ADVANCED 1): it sends
   // that server's next connections the stronger way, so the name is not sent
   // to the last way out at its first cut; only once the cuts go on.

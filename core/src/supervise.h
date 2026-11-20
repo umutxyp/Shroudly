@@ -37,4 +37,12 @@ void sup_set_report(sup_teardown_fn report, int every_ms);
 typedef int (*sup_lines_fn)(const char *buf, int len);
 void sup_set_escalate(sup_lines_fn fn);
 
+/* Optional, before sup_start: standby. While F.standby exists (F the status
+ * file; the app creates it, and removes it to end the standby), `pause` is
+ * called once, and `resume` once when it is gone again; both in the
+ * watchdog's thread. Lets the elevated engine let go of the packet hook
+ * (for a game's anti-cheat, or protection stopped) and take it again with
+ * no new permission prompt. */
+void sup_set_standby(sup_teardown_fn pause, sup_teardown_fn resume);
+
 #endif

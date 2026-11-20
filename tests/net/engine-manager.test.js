@@ -238,6 +238,13 @@ const t = suite('engine-manager');
     let threw = false;
     try { quiet._onLine(JSON.stringify({ type: 'cut_addr', host: 'x.com', addr: '1.2.3.4' })); } catch { threw = true; }
     t.ok(!threw, 'no Advanced mode hook: nothing happens');
+    // The last way out did not reach a name: one line, not one per connection.
+    const fl = [];
+    const fe = new EngineManager(store, { addLog: (l, m) => fl.push(m) });
+    fe._onLine(JSON.stringify({ type: 'fallback_skip', host: 'realtime-signalr.roblox.com', min: 10 }));
+    fe._onLine(JSON.stringify({ type: 'fallback_skip', host: 'realtime-signalr.roblox.com', min: 10 }));
+    t.ok(fl.filter((m) => m.startsWith('realtime-signalr.roblox.com: the last way out (Tor) did not reach it')).length === 1,
+      `Tor not reaching a name: said once (${fl.join(' | ')})`);
     // Advanced mode beside it: told to the engine, and again to a new one.
     const sent = [];
     const ae2 = new EngineManager(store, { addLog: () => {} });

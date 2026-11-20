@@ -112,6 +112,11 @@ static PFN_CalcCsum p_CalcCsum;
 
 static HANDLE g_handle = INVALID_HANDLE_VALUE;
 static volatile int g_run = 0;
+static volatile LONG g_standby = 0;   /* raw_windows_pause: hook closed, driver unloaded */
+static volatile LONG g_resumes = 0;
+/* unload_driver: 0 not yet, 1 under way, 2 done; set back to 0 when standby
+ * ends, so the next stop unloads the driver loaded again. */
+static volatile LONG g_unload_state = 0;
 static int g_quic_block = 1;      /* drop QUIC Initial -> browsers fall to TCP */
 static int g_udp_fake = 1;        /* decoys ahead of Discord voice datagrams */
 static int g_fake_repeats = 6;    /* decoy datagrams per voice flow */
@@ -550,21 +555,11 @@ static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound
   p_Send(g_handle, buf, (UINT)len, &s, &a);
 }
 
-int raw_windows_start(const raw_config *cfg) {
-  g_cfg = *cfg;
-  if (g_cfg.fake_ttl <= 0) g_cfg.fake_ttl = 4;
-  g_quic_block = g_cfg.quic_block ? 1 : 0;
-  g_udp_fake = g_cfg.udp_fake ? 1 : 0;
-  g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
-  g_udp_match = 0;
-  udp_flow_init(&g_flows);
-  tcpdpi_hops_reset();
-  tcpdpi_xlate_reset();
-  rawscope_touch_reset();
-  rawscope_nodecoy_reset();
-  rawscope_escalate_reset();
-  if (load_windivert() != 0) return -1;
-
+/* Opens the packet hook (WinDivert loads its driver for it): the filter for
+ * what the loop acts on, simpler ones should the driver refuse a payload
+ * test, and the repairs for a driver that would not load. 0 when open, -1
+ * after saying why. At start, and again when standby ends (raw_windows_resume). */
+static int open_hook(void) {
   /* The kernel filter takes only what the loop below acts on:
    *   - outbound TCP 80/443 with payload (the decoy / desync path);
    *   - outbound UDP 443 whose payload is a QUIC long header (an Initial is
@@ -645,6 +640,24 @@ int raw_windows_start(const raw_config *cfg) {
     report_windivert_error("windivert_open", "WinDivertOpen", open_err ? open_err : GetLastError());
     return -1;
   }
+  return 0;
+}
+
+int raw_windows_start(const raw_config *cfg) {
+  g_cfg = *cfg;
+  if (g_cfg.fake_ttl <= 0) g_cfg.fake_ttl = 4;
+  g_quic_block = g_cfg.quic_block ? 1 : 0;
+  g_udp_fake = g_cfg.udp_fake ? 1 : 0;
+  g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
+  g_udp_match = 0;
+  udp_flow_init(&g_flows);
+  tcpdpi_hops_reset();
+  tcpdpi_xlate_reset();
+  rawscope_touch_reset();
+  rawscope_nodecoy_reset();
+  rawscope_escalate_reset();
+  if (load_windivert() != 0) return -1;
+  if (open_hook() != 0) return -1;
 
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
   int flushed = g_gate && flush_dns_cache();
@@ -657,8 +670,25 @@ int raw_windows_start(const raw_config *cfg) {
   uint8_t pkt[65535];
   WINDIVERT_ADDRESS addr;
   while (g_run) {
+    /* Standby (raw_windows_pause): the hook closed and its driver unloaded,
+     * the process kept, elevated; at its end the hook is opened again here,
+     * with no permission prompt. */
+    if (g_standby || g_handle == INVALID_HANDLE_VALUE) {
+      if (g_standby) { Sleep(100); continue; }
+      InterlockedExchange(&g_unload_state, 0);
+      if (open_hook() != 0) {
+        printf("{\"type\":\"raw_resume_failed\"}\n"); fflush(stdout);
+        InterlockedExchange(&g_standby, 1);
+        continue;
+      }
+      g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
+      printf("{\"type\":\"raw_resumed\",\"n\":%ld,\"dns_gate\":%d}\n", (long)InterlockedIncrement(&g_resumes), g_gate);
+      fflush(stdout);
+      continue;
+    }
     UINT len = 0;
     if (!p_Recv(g_handle, pkt, sizeof(pkt), &len, &addr)) {
+      if (g_standby) continue;                     /* closed for standby */
       if (GetLastError() == ERROR_NO_DATA) break; /* shutdown */
       continue;
     }
@@ -845,7 +875,6 @@ int raw_windows_start(const raw_config *cfg) {
 /* 0: not yet, 1: under way, 2: done. Both stop paths can get here at once
  * (the watchdog on a stop request, the packet loop as it ends): the second
  * waits for the first, since the watchdog ends the process right after. */
-static volatile LONG g_unload_state = 0;
 static void unload_driver(void) {
   if (InterlockedCompareExchange(&g_unload_state, 1, 0) != 0) {
     for (int i = 0; i < 50 && g_unload_state != 2; i++) Sleep(100);
@@ -873,6 +902,27 @@ static void unload_driver(void) {
   fflush(stdout);
   InterlockedExchange(&g_unload_state, 2);
 }
+
+/* Standby (supervise.h, F.standby): the hook closed and the driver unloaded,
+ * as at a stop, so a game's anti-cheat that looks at the loaded drivers sees
+ * none, while the process, elevated, stays; raw_windows_resume opens the
+ * hook again from the packet loop with no permission prompt. Until 2.6.86 a
+ * game's anti-cheat or a Stop ended the process, and coming back asked for
+ * the administrator's permission every time. Called from the watchdog. */
+void raw_windows_pause(void) {
+  if (InterlockedCompareExchange(&g_standby, 1, 0) != 0) return;
+  if (g_gate) { dnsgate_stop(); g_gate = 0; }
+  HANDLE h = (HANDLE)InterlockedExchangePointer((PVOID volatile *)&g_handle, INVALID_HANDLE_VALUE);
+  if (h != INVALID_HANDLE_VALUE) {
+    if (p_Shutdown) p_Shutdown(h, 0x1 /*WINDIVERT_SHUTDOWN_RECV*/);
+    p_Close(h);
+  }
+  if (!g_cfg.keep_driver) unload_driver();
+  printf("{\"type\":\"raw_paused\"}\n");
+  fflush(stdout);
+}
+
+void raw_windows_resume(void) { InterlockedExchange(&g_standby, 0); }
 
 /* Every stop path: the watchdog's (a stop request, Shroudly gone; the process
  * ends right after) and the end of the packet loop. The handle is taken once,
