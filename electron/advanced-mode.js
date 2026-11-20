@@ -283,6 +283,10 @@ class AdvancedMode {
     this.alive = alive;     // the tests bring their own
     this.aliveCheckMs = ALIVE_CHECK_MS;
     this.monitor = null;
+    // Standby: the engine runs, elevated, with its packet hook let go (pause,
+    // resume); active is false meanwhile.
+    this.standby = false;
+    this.standbyWaitMs = 10000;
     // An installed Shroudly: Advanced mode's files are always part of it
     // where it has Advanced mode (release.yml builds them for Windows x64
     // and Linux), so one gone was taken, most likely by an antivirus.
@@ -360,12 +364,18 @@ class AdvancedMode {
     // The driver started from its copy in Common Files\Shroudly (use_system_copy):
     // 1 it did, 0 it could not, null not tried.
     let copy = null;
+    // Standby (supervise.h): how many times the hook was let go, taken again,
+    // or could not be taken again.
+    let paused = 0, resumed = 0, resumeFailed = 0;
     for (const raw of text.split(/\r?\n/)) {
       const line = raw.trim();
       if (!line) continue;
       try {
         const m = JSON.parse(line);
         if (m.type === 'raw_ready') ready = m;
+        else if (m.type === 'raw_paused') paused++;
+        else if (m.type === 'raw_resumed') resumed++;
+        else if (m.type === 'raw_resume_failed') resumeFailed++;
         else if (m.type === 'stopped') stopped = true;
         else if (m.type === 'driver' && m.stale != null) stale = Math.max(stale || 0, Number(m.stale) === 1 ? 1 : 0);
         else if (m.type === 'driver' && m.copy != null) copy = Number(m.copy) === 1 ? 1 : 0;
@@ -375,7 +385,7 @@ class AdvancedMode {
         }
       } catch { errors.push(line); }
     }
-    return { ready, stopped, errors, fault, stale, copy };
+    return { ready, stopped, errors, fault, stale, copy, paused, resumed, resumeFailed };
   }
 
   /* The engine ended before it was ready: why, as an AdvError. A WinDivert
@@ -523,6 +533,7 @@ class AdvancedMode {
    * the first one's answer instead of a second prompt that would undo it. */
   start(fakeTtl, opts) {
     if (this.active) return Promise.resolve({ success: true, alreadyActive: true });
+    if (this.standby && !this._starting) this._starting = this._resumeOrStart(fakeTtl, opts).finally(() => { this._starting = null; });
     if (!this._starting) this._starting = this._start(fakeTtl, opts).finally(() => { this._starting = null; });
     return this._starting;
   }
@@ -583,7 +594,7 @@ class AdvancedMode {
     clearInterval(this.monitor);
     let looked = Date.now();
     this.monitor = setInterval(() => {
-      if (!this.active) return;
+      if (!this.active && !this.standby) return;
       const s = this._readStatus();
       // Windows: ended from outside while it ran leaves no "stopped" line,
       // and would otherwise be taken for on for the rest of the session.
@@ -592,6 +603,7 @@ class AdvancedMode {
       const gone = look && !s.stopped && this.childExit === null && !this.alive(this.pid);
       if (s.stopped || this.childExit !== null || gone) {
         this.active = false;
+        this.standby = false;
         clearInterval(this.monitor);
         this.log('warning', gone ? 'Advanced backend was ended from outside (no stop was asked)' : 'Advanced backend exited');
         if (typeof this.onExit === 'function') { try { this.onExit(); } catch {} }
@@ -628,10 +640,58 @@ class AdvancedMode {
     this.pid = null;
   }
 
+  /* Standby: the packet hook let go and its driver unloaded (a game's
+   * anti-cheat sees none), the engine kept running, elevated, so coming back
+   * asks for no permission again (supervise.h, F.standby). Until 2.6.86 a
+   * game or a Stop ended it, and the way back was a new prompt each time.
+   * true once the engine says so; otherwise it is stopped for good. */
+  async pause() {
+    if (!this.active || !this.statusFile) return false;
+    const before = this._readStatus().paused;
+    try { fs.writeFileSync(`${this.statusFile}.standby`, ''); } catch { await this.stop(); return false; }
+    const deadline = Date.now() + this.standbyWaitMs;
+    while (Date.now() < deadline) {
+      const st = this._readStatus();
+      if (st.paused > before) {
+        this.active = false;
+        this.standby = true;
+        this.log('info', 'Advanced mode on standby: its driver is unloaded, and it comes back without asking for permission again');
+        return true;
+      }
+      if (st.stopped || this.childExit !== null) break;
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    await this.stop();
+    return false;
+  }
+
+  /* Out of standby (see pause): the hook taken again, no prompt. Falls back
+   * to a full stop and a new start (one prompt) if the engine cannot. */
+  async _resumeOrStart(fakeTtl, opts) {
+    const before = this._readStatus();
+    try { fs.rmSync(`${this.statusFile}.standby`, { force: true }); } catch {}
+    const deadline = Date.now() + this.standbyWaitMs;
+    while (Date.now() < deadline) {
+      const st = this._readStatus();
+      if (st.resumed > before.resumed) {
+        this.standby = false;
+        this.active = true;
+        this.log('success', 'Advanced mode back on (no new permission prompt)');
+        return { success: true };
+      }
+      if (st.resumeFailed > before.resumeFailed || st.stopped || this.childExit !== null) break;
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    this.log('info', 'Advanced mode could not come back from standby; starting it again');
+    await this.stop();
+    return this._start(fakeTtl, opts);
+  }
+
   async stop() {
     clearInterval(this.monitor);
     await this._requestStop();
     this.active = false;
+    this.standby = false;
     this._removeDir();
     this.log('success', 'Advanced mode stopped');
     return { success: true };

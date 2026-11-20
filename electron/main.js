@@ -1305,6 +1305,15 @@ const advancedProtection = new AdvancedProtection({
     try { await advanced.stop(); } catch {}
     advancedState(false);
   },
+  // Standby: the driver let go, the elevated engine kept, so it comes back
+  // with no new permission prompt (advanced-mode.js pause).
+  pause: async () => {
+    let ok = false;
+    try { ok = await advanced.pause(); } catch {}
+    advancedState(false);
+    return ok;
+  },
+  waiting: () => !!(advanced && advanced.standby),
   // A crash restart or a settings restart under way is still protection on.
   protectionOn: () => !!(engine && (engine.isActive() || engine.coming)),
   antiCheat: () => Autopilot.antiCheatRunning(),
@@ -1832,6 +1841,9 @@ app.whenReady().then(async () => {
       // As the user's own Stop: should the install not happen, Advanced mode
       // comes back with their next Start, without a permission prompt now.
       try { await advancedProtection.stopped({ user: true }); } catch {}
+      // Not left on standby: its program must not be running while the
+      // installer replaces it.
+      if (advanced && advanced.standby) { try { await advanced.stop(); } catch {} }
     },
     // The install did not happen (a folder it cannot write to, an installer
     // that would not start): Shroudly carries on as before the install began,
@@ -2058,7 +2070,7 @@ app.on('before-quit', (e) => {
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
   const engineOn = engine && engine.isActive();
-  const advancedOn = advanced && advanced.active;
+  const advancedOn = advanced && (advanced.active || advanced.standby);
   if (!engineOn && !advancedOn) return;
   e.preventDefault();
   exitInProgress = true;
@@ -3960,7 +3972,7 @@ ipcMain.handle('app:repair', () => Repair.repair({
 ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
   store,
   turnOffModes: async () => {
-    if (advanced && advanced.active) {
+    if (advanced && (advanced.active || advanced.standby)) {
       advancedProtection.offByHand();
       await advanced.stop();
       advancedState(false);

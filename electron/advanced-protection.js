@@ -55,6 +55,10 @@ class AdvancedProtection {
    * opts.mayAsk()          optional: a permission prompt may be brought up by itself (the setting)
    * opts.blocked()         optional: an antivirus blocked it this session
    * opts.stop()            stop it, and tell the window
+   * opts.pause()           optional: standby instead (the driver let go, the
+   *                        engine kept, so coming back asks nothing); true
+   *                        when on standby, false when it stopped instead
+   * opts.waiting()         optional: on standby now, so a start asks nothing
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
    * opts.declined()        the user declined the permission prompt
@@ -69,6 +73,8 @@ class AdvancedProtection {
     this.mayAsk = opts.mayAsk || (() => true);
     this.blocked = opts.blocked || (() => false);
     this.stopBackend = opts.stop;
+    this.pauseBackend = opts.pause || null;
+    this.waiting = opts.waiting || (() => false);
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
     this.declined = opts.declined || (() => {});
@@ -94,9 +100,16 @@ class AdvancedProtection {
     this.stops++;
     // Stepped aside for a game: the Stop ends the wait; after the user's
     // own, the next Start brings it back (once the game has closed).
-    if (this.paused) { this.paused = null; this.resume = !!user; return; }
+    if (this.paused) {
+      this.paused = null; this.resume = !!user;
+      // Not coming back (not the user's own Stop): no engine left waiting.
+      if (!user && this.waiting()) { try { await this.stopBackend(); } catch {} }
+      return;
+    }
     if (!this.active()) return;
     this.resume = !!user;
+    // The user's own Stop: standby, so their next Start asks nothing again.
+    if (user && this.pauseBackend) { try { if (await this.pauseBackend()) return; } catch {} return; }
     try { await this.stopBackend(); } catch {}
   }
 
@@ -123,7 +136,7 @@ class AdvancedProtection {
           this.log('info', `${was} has closed; Advanced mode is not brought back, as security software blocked it earlier in this session`);
           return;
         }
-        if (!this.mayAsk()) {
+        if (!this.waiting() && !this.mayAsk()) {
           this.log('info', `${was} has closed; Advanced mode is not brought back, as Shroudly does not ask for permission by itself (a setting)`);
           this.tell('autoAdvancedNoAskAfterGame', { program: was });
           return;
@@ -138,7 +151,10 @@ class AdvancedProtection {
       // Advanced mode was started, nor at the first look).
       if (!game || before === undefined || before || !this.active() || !this.protectionOn()) return;
       this.paused = { game };
-      try { await this.stopBackend(); } catch {}
+      // Standby where it can (the driver unloaded all the same), so the way
+      // back asks for no permission again; else stopped as before.
+      if (this.pauseBackend) { try { await this.pauseBackend(); } catch {} }
+      else { try { await this.stopBackend(); } catch {} }
       this.log('info', `Advanced mode paused: ${game} is running, and its anti-cheat does not allow the packet driver Advanced mode uses; it comes back when the game closes`);
       this.tell('autoAdvancedPausedForGame', { program: game });
     } finally { this.guarding = false; }
@@ -172,11 +188,13 @@ class AdvancedProtection {
   async run(since) {
     if (!this.current(since)) return { success: false, code: 'protection_off' };
     // Never two permission prompts at once, nor one over a full-screen game;
-    // a Stop while waiting still wins.
-    await this.ready();
-    if (!this.current(since)) return { success: false, code: 'protection_off' };
-    await this.notBusy(() => !this.current(since));
-    if (!this.current(since)) return { success: false, code: 'protection_off' };
+    // a Stop while waiting still wins. From standby there is no prompt.
+    if (!this.waiting()) {
+      await this.ready();
+      if (!this.current(since)) return { success: false, code: 'protection_off' };
+      await this.notBusy(() => !this.current(since));
+      if (!this.current(since)) return { success: false, code: 'protection_off' };
+    }
     const r = await this.startBackend();
     // Already running: the user's own start from Settings, left alone.
     if (r && r.success && !r.alreadyActive && !this.current(since)) {

@@ -250,6 +250,55 @@ function rig({ antiCheat = null, holdScan = false } = {}) {
     t.ok(!b.active && declined === 1, 'its permission prompt declined when it comes back: recorded as a decline');
   }
 
+  // ── standby (2.6.87): the driver let go, the elevated engine kept, so the
+  //    way back after a game, or after the user's own Stop, asks nothing ──
+  {
+    const b = { active: true, waiting: false, prompts: 0, resumes: 0, stops: 0, pauses: 0, pauseOk: true };
+    let game = null, on = true;
+    const told = [], logs = [];
+    let busyAsked = 0;
+    const g = new AdvancedProtection({
+      active: () => b.active,
+      start: async () => {
+        if (b.waiting) { b.resumes++; b.waiting = false; b.active = true; return { success: true }; }
+        b.prompts++; b.active = true; return { success: true };
+      },
+      stop: async () => { b.stops++; b.active = false; b.waiting = false; },
+      pause: async () => { b.pauses++; b.active = false; if (b.pauseOk) { b.waiting = true; return true; } return false; },
+      waiting: () => b.waiting,
+      notBusy: async () => { busyAsked++; },
+      mayAsk: () => false,                             // "Ask for permission by itself" off
+      protectionOn: () => on,
+      antiCheat: async () => game,
+      tell: (id, p) => told.push(`${id}:${p.program}`),
+      log: (l, m) => logs.push(m),
+    });
+    await g.guard();
+    game = 'FortniteLauncher.exe'; await g.guard();
+    t.ok(!b.active && b.waiting && b.pauses === 1 && b.stops === 0 && g.paused, 'a game with an anti-cheat starts: standby (the driver let go), not stopped');
+    game = null; await g.guard();
+    t.ok(b.active && b.resumes === 1 && b.prompts === 0 && busyAsked === 0,
+      'the game closed: back from standby, no permission prompt, not even waiting for a full-screen program (nothing to show)');
+    t.ok(told[told.length - 1] === 'autoAdvancedBackAfterGame:FortniteLauncher.exe', '... said in one line, even with "Ask for permission by itself" off (it asks nothing)');
+    // The user's own Stop, then Start: standby and back, no prompt.
+    await g.stopped({ user: true });
+    t.ok(!b.active && b.waiting && b.stops === 0 && g.resume === true, "the user's Stop: standby, not stopped");
+    await g.started();
+    t.ok(b.active && b.resumes === 2 && b.prompts === 0, "the user's Start: back from standby, no prompt");
+    // Standby could not be had (the engine stopped instead): the old way.
+    b.pauseOk = false;
+    await g.stopped({ user: true });
+    t.ok(!b.active && !b.waiting && g.resume === true, 'standby refused: stopped, and the next Start brings it back');
+    await g.started();
+    t.ok(b.active && b.prompts === 1, '... with one permission prompt, as before');
+    // Paused for a game, then protection restarted by itself (not the user):
+    // nothing comes back, so no engine is left waiting.
+    b.pauseOk = true; g.lastGame = null; game = 'cs2.exe'; await g.guard();
+    t.ok(b.waiting && g.paused, 'standby for the next game');
+    await g.stopped({ user: false });
+    t.ok(!b.waiting && b.stops >= 1 && !g.paused, 'not the user\'s Stop: the waiting engine is stopped, nothing left running');
+  }
+
   // ── "Ask for permission by itself" off (issue #55): after the game it
   //    stays off, and the user is told ──
   {

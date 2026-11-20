@@ -206,6 +206,41 @@ function windowsArgv(line) {
     t.ok(ae.escalate('1.1.1.1') === false && ae.stats() === null, 'no status file: nothing');
     fs.rmSync(d, { recursive: true, force: true });
   }
+  // Standby (pause / start from standby): an engine stand-in that answers the
+  // standby file as supervise.c does.
+  {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-standby-'));
+    const said = [];
+    const am = new AdvancedMode((l, m) => said.push(m));
+    am.statusFile = path.join(d, 'status.log');
+    fs.writeFileSync(am.statusFile, '{"type":"raw_ready","ttl":4}\n');
+    am.active = true; am.standbyWaitMs = 3000;
+    let resumeWorks = true, inStandby = false;
+    const engine = setInterval(() => {
+      const want = fs.existsSync(`${am.statusFile}.standby`);
+      if (want && !inStandby) { inStandby = true; fs.appendFileSync(am.statusFile, '{"type":"raw_paused"}\n'); }
+      else if (!want && inStandby) { inStandby = false; fs.appendFileSync(am.statusFile, resumeWorks ? '{"type":"raw_resumed","n":1}\n' : '{"type":"raw_resume_failed"}\n'); }
+    }, 50);
+    t.ok(await am.pause() === true && am.standby && !am.active, 'pause: on standby once the engine says so (active off meanwhile)');
+    let started = 0;
+    am._start = async () => { started++; am.active = true; return { success: true, prompted: true }; };
+    am._requestStop = async () => {};
+    const r = await am.start(4, {});
+    t.ok(r.success && am.active && !am.standby && started === 0 && said.includes('Advanced mode back on (no new permission prompt)'),
+      'start from standby: back, no new start (no permission prompt)');
+    t.ok(await am.pause() === true, 'standby again');
+    resumeWorks = false;
+    const r2 = await am.start(4, {});
+    t.ok(r2.success && started === 1 && am.active, 'the engine cannot take the hook again: stopped and started anew (one prompt)');
+    // An engine that never answers the standby: stopped for good, not left half-way.
+    clearInterval(engine);
+    am.active = true; am.standby = false; am.standbyWaitMs = 400;
+    let stopped = 0; am.stop = async () => { stopped++; am.active = false; am.standby = false; };
+    t.ok(await am.pause() === false && stopped === 1 && !am.standby, 'no answer to the standby: stopped for good');
+    am.active = false; am.standby = false;
+    t.ok(await am.pause() === false, 'off: nothing to put on standby');
+    fs.rmSync(d, { recursive: true, force: true });
+  }
   const am2 = new AdvancedMode(() => {});
   am2.readyTimeoutMs = 600;
   am2._readStatus = () => ({ errors: [] });
