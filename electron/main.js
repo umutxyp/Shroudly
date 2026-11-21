@@ -30,6 +30,7 @@ const Snowflake = require('./snowflake');
 const WhatsNew = require('./whats-new');
 const HelperServer = require('./helper-server');
 const DataDir = require('./data-dir');
+const { WriteGuard, ensureTmp } = require('./write-guard');
 const SystemHosts = require('./system-hosts');
 const NationalNet = require('./national-net');
 const AdvancedMode = require('./advanced-mode');
@@ -418,6 +419,11 @@ const securityTold = new Set();
 // Advanced mode was blocked this session: it is not brought back by itself
 // (after a game, at the next Start) against the blocker.
 let advancedBlocked = false;
+// A computer that refuses Shroudly's new files (write-guard.js): told once,
+// and Advanced mode is not tried again by itself this session.
+let writeGuard = null;
+// The same failure of Advanced mode said once a minute, not at every try.
+let advancedFailSaid = { msg: '', at: 0 };
 function securityBlocked(info, { quiet = false } = {}) {
   if (!info || !info.part) return;
   addLog('error', SecurityBlock.logLine(info));
@@ -1533,7 +1539,11 @@ app.whenReady().then(async () => {
   }
   // Settings that cannot be written (a full disk, a folder not writable):
   // kept for this run instead of ending it (settings-file.js), said once.
-  const unsaved = (e) => addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`);
+  // The system's temporary folder, made again if a cleaning program deleted
+  // it; and the folders Shroudly writes in, looked at when a write fails.
+  ensureTmp();
+  writeGuard = new WriteGuard({ dirs: [app.getPath('userData')], log: addLog });
+  const unsaved = (e) => { addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`); try { writeGuard.note(e); } catch {} };
   if (settingsOpened.unsaved) unsaved(settingsOpened.unsaved);
   else settingsOpened.onUnsaved = unsaved;
   // A data folder chosen earlier that cannot be used this run (data-dir.js).
@@ -3392,7 +3402,14 @@ async function startAdvanced() {
     // its own line (securityBlocked).
     const blocked = (e.code === 'security_blocked' || e.code === 'files_missing') && e.info;
     if (blocked) securityBlocked(e.info);
-    else addLog('error', `Advanced mode failed: ${e.message}`);
+    else if (e.message !== advancedFailSaid.msg || Date.now() - advancedFailSaid.at > 60000) {
+      addLog('error', `Advanced mode failed: ${e.message}`);
+      advancedFailSaid = { msg: e.message, at: Date.now() };
+    }
+    // Its working folder could not be made: the temporary folder made again
+    // (a cleaning program deleted it), or new files refused on this computer,
+    // said once, and not asked for again by itself this session.
+    if (!blocked && writeGuard && writeGuard.note(e)) advancedBlocked = true;
     // Windows 7 without the SHA-2 update: it fails the same way until the
     // update is in; not asked for again by itself this session.
     if (e.code === 'needs_sha2') advancedBlocked = true;
