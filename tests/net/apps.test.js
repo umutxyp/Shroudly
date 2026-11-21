@@ -506,6 +506,22 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok(e.clearSync() === 'changed' && b.env.size === 0, 'removing leaves nothing behind');
   t.ok(e.clearSync() === 'unchanged', 'removing twice changes nothing');
 
+  // #96: the NO_PROXY an earlier version wrote is replaced where it is in
+  // use, and removed as ours when the mode goes off; the user's own is kept.
+  b = fakeBackend({ HTTPS_PROXY: url, https_proxy: url, [AppEnv.MARK]: url, NO_PROXY: AppEnv.NO_PROXY_OLD[0], no_proxy: AppEnv.NO_PROXY_OLD[0] });
+  e = new AppEnv({ backend: b });
+  t.ok(e.applySync(url) === 'changed' && b.get('NO_PROXY') === AppEnv.NO_PROXY_VALUE && b.get('no_proxy') === AppEnv.NO_PROXY_VALUE,
+    "an earlier version's NO_PROXY (with the IPv6 ranges) is replaced by today's");
+  t.ok(e.applySync(url) === 'unchanged', 'and then nothing more to change');
+  t.ok(e.clearSync() === 'changed' && b.env.size === 0, 'removing leaves nothing behind');
+  b = fakeBackend({ HTTPS_PROXY: url, https_proxy: url, [AppEnv.MARK]: url, NO_PROXY: AppEnv.NO_PROXY_OLD[0], no_proxy: AppEnv.NO_PROXY_OLD[0] });
+  e = new AppEnv({ backend: b });
+  t.ok(e.clearSync() === 'changed' && b.env.size === 0, "an earlier version's NO_PROXY is removed as ours when the mode goes off");
+  b = fakeBackend({ HTTPS_PROXY: url, https_proxy: url, [AppEnv.MARK]: url, NO_PROXY: 'corp.example', no_proxy: 'corp.example' });
+  e = new AppEnv({ backend: b });
+  e.applySync(url);
+  t.ok(b.get('NO_PROXY') === 'corp.example', "the user's own NO_PROXY is left as it is");
+
   b = fakeBackend({ HTTPS_PROXY: 'http://127.0.0.1:7890' });
   e = new AppEnv({ backend: b, listening: () => true });
   t.ok(e.applySync(url) === 'foreign' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:7890' && !b.get(AppEnv.MARK), "another local proxy that runs (Clash on 7890) is never replaced");
@@ -617,6 +633,10 @@ async function robloxInstaller(proxy, socksPort) {
 
   // the uninstaller removes exactly these values
   const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8');
+  t.ok(AppEnv.NO_PROXY_OLD.length >= 1 && AppEnv.NO_PROXY_OLD.every((v) => nsh.includes(`"${v}"`)), 'installer.nsh also removes the NO_PROXY value earlier versions wrote');
+  // #96: nothing in it that a URL parser reads as host:port (Python's httpx: "Invalid port: ':'").
+  t.ok(AppEnv.NO_PROXY_VALUE.split(',').every((x) => x === '::1' || !x.includes(':')) && !AppEnv.NO_PROXY_VALUE.includes('['),
+    'NO_PROXY holds no IPv6 range and no bracketed address (httpx cannot read them)');
   t.ok(nsh.includes(`"${AppEnv.MARK}"`) && nsh.includes(`"${AppEnv.NO_PROXY_VALUE}"`), 'installer.nsh removes the same mark and NO_PROXY value');
   t.ok(nsh.includes(`"${AppEnv.NODE_MARK}"`) && nsh.includes(`"${AppEnv.NODE_KEY}"`), 'installer.nsh removes NODE_USE_ENV_PROXY by the same mark');
 

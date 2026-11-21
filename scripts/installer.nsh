@@ -114,7 +114,10 @@
     ${If} $1 == $0
       DeleteRegValue HKCU "${_KEY}" "HTTPS_PROXY"
       ReadRegStr $1 HKCU "${_KEY}" "NO_PROXY"
-      ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10"
+      ; Ours: the value since 2.6.88, or the one up to 2.6.87 (with two IPv6
+      ; ranges at its end, issue #96).
+      ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10"
+      ${OrIf} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10"
         DeleteRegValue HKCU "${_KEY}" "NO_PROXY"
       ${EndIf}
     ${EndIf}
