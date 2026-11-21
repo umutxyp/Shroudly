@@ -57,7 +57,14 @@ const MARK = 'SHROUDLY_APP_PROXY';
 // forms are understood by curl, Go and Python; anything that does not know
 // them treats them as names that never match, which is harmless.
 const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
-  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
+  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10';
+// What Shroudly wrote up to 2.6.87: with the IPv6 ranges fc00::/7 and
+// fe80::/10 at its end, which Python's httpx cannot read ("Invalid port:
+// ':'", issue #96: Unsloth Studio and every tool on httpx would not start
+// while Games and apps mode was on). Still known as ours, so it is replaced
+// by the value above and removed when the mode goes off.
+const NO_PROXY_OLD = [NO_PROXY_VALUE + ',fc00::/7,fe80::/10'];
+const ourNoProxy = (v) => v === NO_PROXY_VALUE || NO_PROXY_OLD.includes(v);
 const OURS = /^http:\/\/127\.0\.0\.1:\d+$/;
 // A proxy value's server on this computer: { host, port } of
 // http://127.0.0.1:1080, socks5://[::1]:1080, 127.0.0.1:1080; else null.
@@ -239,7 +246,7 @@ function removeOurs(store, names) {
   if (!mark) return false;
   for (const k of names.proxy) if (store.get(k) === mark) store.del(k);
   if (names.proxy.every((k) => !store.get(k))) {
-    for (const k of names.noProxy) if (store.get(k) === NO_PROXY_VALUE) store.del(k);
+    for (const k of names.noProxy) if (ourNoProxy(store.get(k))) store.del(k);
   }
   if (store.get(NODE_MARK)) {
     for (const k of names.node || []) if (store.get(k) === '1') store.del(k);
@@ -349,8 +356,12 @@ class AppEnv {
       return 'foreign';
     }
     if (this._current() === url) {
-      if (migrated) this._commit(url);
-      this._arm(url); this.applied = true; return 'unchanged';
+      // The NO_PROXY an earlier version wrote (NO_PROXY_OLD, issue #96):
+      // replaced by today's, so programs started from now on get it.
+      let renewed = false;
+      for (const k of b.names.noProxy) if (NO_PROXY_OLD.includes(b.get(k))) { b.set(k, NO_PROXY_VALUE); renewed = true; }
+      if (migrated || renewed) this._commit(url);
+      this._arm(url); this.applied = true; return renewed ? 'changed' : 'unchanged';
     }
 
     // Another program's values found gone (see _foreign): the session's own
@@ -377,7 +388,7 @@ class AppEnv {
     // values are ours.
     b.set(MARK, url);
     for (const k of b.names.proxy) b.set(k, url);
-    const noProxyFree = b.names.noProxy.every((k) => { const v = b.get(k); return !v || v === NO_PROXY_VALUE; }) &&
+    const noProxyFree = b.names.noProxy.every((k) => { const v = b.get(k); return !v || ourNoProxy(v); }) &&
                         !b.names.noProxy.some((k) => this._elsewhere(k));
     if (noProxyFree) for (const k of b.names.noProxy) b.set(k, NO_PROXY_VALUE);
     // Node.js too, when the user has not said otherwise (mark first).
@@ -484,6 +495,7 @@ module.exports.MARK = MARK;
 module.exports.NODE_KEY = NODE_KEY;
 module.exports.NODE_MARK = NODE_MARK;
 module.exports.NO_PROXY_VALUE = NO_PROXY_VALUE;
+module.exports.NO_PROXY_OLD = NO_PROXY_OLD;
 module.exports.localProxy = localProxy;
 module.exports.backend = backend;
 module.exports.parseRegQuery = parseRegQuery;

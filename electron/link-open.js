@@ -31,7 +31,10 @@ const LH = require('./link-handlers');
 const MARK = 'SHROUDLY_APP_PROXY';
 const OURS = /^http:\/\/127\.0\.0\.1:(\d+)$/;
 const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
-  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
+  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10';
+// The value up to 2.6.87 (app-env.js, issue #96): still ours.
+const NO_PROXY_OLD = [NO_PROXY_VALUE + ',fc00::/7,fe80::/10'];
+const ourNoProxy = (v) => v === NO_PROXY_VALUE || NO_PROXY_OLD.includes(v);
 
 /* { cls, link } from the command line, or null. The link is what Windows
  * put for %1: one argument, a URL, never anything that could become more. */
@@ -128,12 +131,12 @@ function launchEnv(parent, vol, live) {
     set(MARK, mark);
     const np = vol.get('NO_PROXY');
     const cnp = get('NO_PROXY');
-    if (np && (!cnp || cnp === NO_PROXY_VALUE)) set('NO_PROXY', np);
+    if (np && (!cnp || ourNoProxy(cnp))) set('NO_PROXY', np);
   } else if (cur) {
     // Ours from an earlier run, pointing at nothing now.
     del('HTTPS_PROXY');
     del(MARK);
-    if (get('NO_PROXY') === NO_PROXY_VALUE) del('NO_PROXY');
+    if (ourNoProxy(get('NO_PROXY'))) del('NO_PROXY');
   }
   return env;
 }
