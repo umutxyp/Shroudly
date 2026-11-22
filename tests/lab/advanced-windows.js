@@ -135,9 +135,26 @@ async function loadAll(label) {
   console.log(`  ..  the STUN server ${stunBefore.answered ? 'answers' : 'does not answer'} without the engine`);
 
   // The forwarder standing in, and what a public resolver says without the engine.
-  const fwdPort = 53000 + (process.pid % 900);
-  const fwd = spawn(process.execPath, [path.join(__dirname, 'lab-dns.js'), 'forwarder', String(fwdPort), `${GATE_NAME}=${GATE_ADDR}`], { stdio: ['ignore', 'pipe', 'inherit'] });
-  await new Promise((res) => { fwd.stdout.once('data', res); setTimeout(res, 3000); });
+  // On a port the system picks (one chosen here may be one Windows keeps
+  // for itself that day), and only once it says it listens: a forwarder
+  // that never came up used to be taken for a DNS gate that does not answer.
+  let fwd = null;
+  let fwdPort = 0;
+  for (let tries = 0; tries < 3 && !fwdPort; tries++) {
+    const p = spawn(process.execPath, [path.join(__dirname, 'lab-dns.js'), 'forwarder', '0', `${GATE_NAME}=${GATE_ADDR}`], { stdio: ['ignore', 'pipe', 'inherit'] });
+    let out = '';
+    const port = await new Promise((res) => {
+      const done = (v) => { clearTimeout(timer); res(v); };
+      const timer = setTimeout(() => done(0), 10000);
+      p.stdout.on('data', (d) => { out += d; const m = /ready (\d+)/.exec(out); if (m) done(Number(m[1])); });
+      p.on('exit', () => done(0));
+    });
+    if (port) { fwd = p; fwdPort = port; } else { try { p.kill(); } catch {} }
+  }
+  if (!fwdPort) { bad('the lab\'s own DNS forwarder did not start (three tries): nothing of the DNS gate can be tried'); process.exit(1); }
+  const fwdAnswers = ask(`127.0.0.1:${fwdPort}`, GATE_NAME);
+  if (fwdAnswers === GATE_ADDR) console.log(`  ..  the lab's forwarder answers on port ${fwdPort}`);
+  else { bad(`the lab's own DNS forwarder on port ${fwdPort} answered ${fwdAnswers}, not ${GATE_ADDR}`); process.exit(1); }
   const gateBefore = ask(RESOLVER, GATE_NAME);
   console.log(`  ..  without the engine ${RESOLVER} says ${GATE_NAME}: ${gateBefore}`);
   // The system's resolver keeps that answer ("no such name") in its cache:

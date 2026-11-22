@@ -15,7 +15,11 @@
  *       asks <server> over UDP (Node's own resolver, not the system's) and
  *       prints the addresses, comma-separated, or the error code.
  *
- * serve and forwarder print "ready" once listening.
+ * serve, forwarder and network print "ready <port>" once listening (port 0
+ * asks the system for a free one: a port chosen by the caller may be one
+ * Windows keeps for itself that day, and the forwarder then never came up,
+ * which the Windows lab took for a DNS gate that does not answer). One that
+ * cannot listen says why and ends with exit code 3.
  */
 
 const dgram = require('dgram');
@@ -45,7 +49,8 @@ function listen(host, port, pick, delayOf = () => 0) {
     const name = question(q).name;
     setTimeout(() => s.send(answer(q, pick(name)), from.port, from.address), delayOf(name));
   });
-  s.bind(port, host, () => console.log('ready'));
+  s.on('error', (e) => { console.error(`lab-dns: cannot listen on ${host}:${port}: ${e.message}`); process.exit(3); });
+  s.bind(port, host, () => console.log(`ready ${s.address().port}`));
 }
 
 const [mode, a, b, ...rest] = process.argv.slice(2);
