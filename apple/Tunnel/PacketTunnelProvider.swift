@@ -82,6 +82,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     // "Your own server": the line the engine gets, and the Shadowsocks client.
     private var upstreamLine: String?
     private var ssClient: ShadowsocksClient?
+    private var vlessClient: VlessClient?
     // "Block ads and trackers": when the list was last fetched or tried,
     // whether a fetch runs, and the engine's verdict being waited for.
     private var adblockTried: Date?
@@ -189,6 +190,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         engine = nil
         doh?.stop(); doh = nil
         ssClient?.stop(); ssClient = nil
+        vlessClient?.stop(); vlessClient = nil
         torRoute.stop()
         TorNotice.reset()
         dnsAround = false
@@ -390,9 +392,18 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
      * user and password), the others as they are. */
     private func prepareOwnServer() throws {
         ssClient?.stop(); ssClient = nil
+        vlessClient?.stop(); vlessClient = nil
         upstreamLine = nil
         guard let link = settings.ownServerLink else { return }
-        if link.kind == "ss" {
+        if let v = link.vless {
+            // VLESS or Trojan: the tunnel's own client, which says why the
+            // server could not be used (not there, its certificate, its answer).
+            let a = SocksAuth.random()
+            let c = VlessClient(link: v, auth: a, onError: { [weak self] why in self?.ownServerDownCode(why == "tls" ? "cert" : why) })
+            let p = try c.start()
+            vlessClient = c
+            upstreamLine = OwnServer.engineLine(link, localPort: p, auth: a)
+        } else if link.kind == "ss" {
             let a = SocksAuth.random()
             let c = ShadowsocksClient(link: link, auth: a, log: { [weak self] in self?.log($0) })
             let p = try c.start()
@@ -404,9 +415,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         log("Your own server: \(OwnServer.describe(link)); every site goes through it")
     }
 
-    private func ownServerDown(_ why: String?) {
+    private func ownServerDown(_ why: String?) { ownServerDownCode(OwnServer.whyCode(why)) }
+
+    /* The same with the reason's code already (the VLESS client's own). */
+    private func ownServerDownCode(_ code: String) {
         let d = AppGroup.defaults
-        d.set(OwnServer.localIf(OwnServer.whyCode(why), host: settings.ownServerLink?.host), forKey: OwnServer.Down.why)
+        d.set(OwnServer.localIf(code, host: settings.ownServerLink?.host), forKey: OwnServer.Down.why)
         d.set(Date().timeIntervalSince1970, forKey: OwnServer.Down.at)
         d.set(settings.ownServerLink.map(OwnServer.describe) ?? "", forKey: OwnServer.Down.server)
     }

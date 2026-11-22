@@ -15,7 +15,7 @@ import Foundation
  * (Tunnel/Shadowsocks.swift).
  */
 struct OwnServerLink: Equatable {
-    var kind: String          // "socks5", "http" or "ss"
+    var kind: String          // "socks5", "http", "ss", "vless" or "trojan"
     var host: String
     var port: Int
     var user = ""
@@ -23,17 +23,25 @@ struct OwnServerLink: Equatable {
     var method = ""
     var password = ""
     var name = ""
+    /* A VLESS or Trojan link's own parts (Shared/Vless.swift). */
+    var vless: VlessLink?
+
+    /* The kinds that go through a client of the tunnel's own. */
+    var localClient: Bool { kind == "ss" || vless != nil }
 }
 
 enum OwnServer {
     /* Shadowsocks methods and their key lengths (Tunnel/Shadowsocks.swift). */
     static let methods: [String: Int] = ["chacha20-ietf-poly1305": 32, "aes-256-gcm": 32, "aes-128-gcm": 16]
 
-    /* A link, or why it cannot be used: empty, format, method, user. */
+    /* A link, or why it cannot be used: empty, format, method, user, or
+     * unsupported (a VLESS or Trojan link of a kind not carried: `what`
+     * names it, Vless.parse). */
     struct Parsed: Equatable {
         var link: OwnServerLink?
         var error: String?
         var method: String?
+        var what: String?
     }
 
     private static func match(_ pattern: String, _ text: String, _ opts: NSRegularExpression.Options = []) -> [String?]? {
@@ -66,6 +74,11 @@ enum OwnServer {
     static func parse(_ input: String?) -> Parsed {
         let text = (input ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         if text.isEmpty { return Parsed(link: nil, error: "empty") }
+        if text.lowercased().hasPrefix("vless://") || text.lowercased().hasPrefix("trojan://") {
+            let v = Vless.parse(text)
+            guard let l = v.link else { return Parsed(link: nil, error: v.error, method: nil, what: v.what) }
+            return Parsed(link: OwnServerLink(kind: l.kind, host: l.host, port: l.port, name: l.name, vless: l))
+        }
         if let m = match("^(socks5h?|socks|http)://(?:([^@/]*)@)?([^/?#]+)/?$", text, [.caseInsensitive]) {
             guard let hp = hostPort(m[3] ?? "") else { return Parsed(link: nil, error: "format") }
             var user = "", pass = ""
@@ -119,6 +132,7 @@ enum OwnServer {
 
     /* What the screen and the log show: never the password. */
     static func describe(_ l: OwnServerLink) -> String {
+        if let v = l.vless { return Vless.describe(v) }
         switch l.kind {
         case "ss": return "Shadowsocks \(place(l))"
         case "http": return "HTTP \(place(l))"
@@ -129,7 +143,7 @@ enum OwnServer {
     /* The engine's --upstream-file line: the server, or for Shadowsocks the
      * tunnel's own client on 127.0.0.1:localPort with its user and password. */
     static func engineLine(_ l: OwnServerLink, localPort: Int = 0, auth: SocksAuth? = nil) -> String {
-        if l.kind == "ss" { return "socks5://\(auth.map { "\($0.user):\($0.pass)@" } ?? "")127.0.0.1:\(localPort)" }
+        if l.localClient { return "socks5://\(auth.map { "\($0.user):\($0.pass)@" } ?? "")127.0.0.1:\(localPort)" }
         let cred = l.user.isEmpty ? "" : "\(l.user)\(l.pass.isEmpty ? "" : ":\(l.pass)")@"
         return "\(l.kind)://\(cred)\(place(l))"
     }
@@ -139,6 +153,10 @@ enum OwnServer {
      * password itself). */
     static func masked(_ typed: String) -> String {
         let t = typed.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A VLESS link's UUID and a Trojan link's password are its whole secret.
+        if t.lowercased().hasPrefix("vless://") || t.lowercased().hasPrefix("trojan://"), let scheme = t.range(of: "://"), let at = t[scheme.upperBound...].firstIndex(of: "@") {
+            return "\(t[..<scheme.upperBound])••••\(t[at...])"
+        }
         if let at = t.lastIndex(of: "@"), let scheme = t.range(of: "://") {
             if t.lowercased().hasPrefix("ss://") { return "ss://••••\(t[at...])" }
             let info = t[scheme.upperBound..<at]
@@ -267,6 +285,7 @@ enum OwnServer {
         case "silent": return "ownServerWhySilent"
         case "tls": return "ownServerWhyTls"
         case "local": return "ownServerWhyLocal"
+        case "cert": return "ownServerWhyCert"
         default: return "ownServerWhyProtocol"
         }
     }
@@ -276,6 +295,7 @@ enum OwnServer {
         switch error {
         case "method": return "ownServerErrMethod"
         case "user": return "ownServerErrUser"
+        case "unsupported": return "ownServerErrUnsupported"
         default: return "ownServerErrFormat"
         }
     }
@@ -292,14 +312,16 @@ enum OwnServer {
         case "ownServerWhySilent": return tr("ownServerWhySilent")
         case "ownServerWhyTls": return tr("ownServerWhyTls")
         case "ownServerWhyLocal": return tr("ownServerWhyLocal")
+        case "ownServerWhyCert": return tr("ownServerWhyCert")
         default: return tr("ownServerWhyProtocol")
         }
     }
 
-    static func errorText(_ error: String?, method: String?) -> String {
+    static func errorText(_ error: String?, method: String?, what: String? = nil) -> String {
         switch errorKey(error) {
         case "ownServerErrMethod": return tr("ownServerErrMethod", ["method": method ?? ""])
         case "ownServerErrUser": return tr("ownServerErrUser")
+        case "ownServerErrUnsupported": return tr("ownServerErrUnsupported", ["what": Vless.unsupportedName(what)])
         default: return tr("ownServerErrFormat")
         }
     }
