@@ -153,6 +153,13 @@ app.disableHardwareAcceleration();
 // settled once the log can take it.
 const settingsOpened = SettingsFile.open(Store, { dir: app.getPath('userData') });
 const store = settingsOpened.store;
+// The last way out (Tor) is off until the user allows it, on every system
+// and in every store edition (owner, 2026-11-23). Up to 2.6.89 the switch
+// showed on from the first start and Tor waited for a yes before carrying
+// anything; now the switch shows what the user chose. Written once, so
+// every read below sees it: someone who said yes keeps it on, everyone
+// else has it off and is asked when a site needs it (askTorAgain).
+try { if (store.get('torLastResort') === undefined) store.set('torLastResort', store.get('torApproved', false) === true); } catch {}
 let mainWindow = null;
 let tray = null;
 let engine = null;
@@ -680,7 +687,7 @@ function answerTor(yes) {
     addLog('info', `The last way out: allowed by the user${host ? ` (for ${host})` : ''}; Tor starts and stays allowed`);
     // Asked again with it off (askTorAgain): on, and the engine started
     // again with it; Tor itself starts when a site needs it.
-    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    if (store.get('torLastResort', false) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
     else if (engine && engine.isActive() && engine.tor) engine.tor.need();
   } else {
     store.set('torApproved', false);
@@ -732,7 +739,7 @@ function getJson(url, timeout) {
 const REPORT_TOR_WAIT_MS = 150000;
 async function torForReport(waitMs = REPORT_TOR_WAIT_MS) {
   const tor = engine && engine.isActive() ? engine.tor : null;
-  if (!tor || store.get('torLastResort', true) === false) return null;
+  if (!tor || store.get('torLastResort', false) === false) return null;
   if (tor.state === 'ready') return () => {};
   const allowed = store.get('torApproved', false) === true;
   addLog('info', `Report: not through the usual way; starting Tor to send it${allowed ? '' : ' (for the report alone)'}`);
@@ -3566,7 +3573,7 @@ function serviceWorks(family, host, rows) {
  * said names it, instead of "only a VPN" or nothing at all (an Iran report:
  * Tor turned off, YouTube and Instagram dead, not a word said). */
 function torOffHere() {
-  return store.get('torLastResort', true) === false && !store.get('ownServer') && !torUnsupported();
+  return store.get('torLastResort', false) === false && !store.get('ownServer') && !torUnsupported();
 }
 
 /* A site no technique opens (still blocked after them all) while Tor is
@@ -3963,7 +3970,7 @@ ipcMain.handle('conns:tor', (e, host, on) => {
       store.set('torApproved', true);
       addLog('info', `The last way out: allowed by the user (sending ${String(host)} through Tor); Tor starts when it is needed`);
     }
-    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    if (store.get('torLastResort', false) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
     else if (engine.isActive() && engine.tor) engine.tor.need();
   }
   return r;
@@ -3980,7 +3987,7 @@ ipcMain.handle('conns:torApp', (e, id, on) => {
       store.set('torApproved', true);
       addLog('info', `The last way out: allowed by the user (sending ${String(id)} through Tor); Tor starts when it is needed`);
     }
-    if (store.get('torLastResort', true) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
+    if (store.get('torLastResort', false) === false) { store.set('torLastResort', true); scheduleEngineRestart(); }
     else if (engine.isActive() && engine.tor) engine.tor.need();
   }
   return r;

@@ -24,8 +24,10 @@ const t = suite('tor-ask');
 const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
 
 (async () => {
-  // The desktop's EngineManager, as main.js runs it.
-  const mem = {};
+  // The desktop's EngineManager, as main.js runs it. The switch on and Tor
+  // not allowed: the state of a Shroudly up to 2.6.89 that was never asked
+  // (the switch now starts off: see the end of this file).
+  const mem = { torLastResort: true };
   const store = { get: (k, d) => (k in mem ? mem[k] : d), set: (k, v) => { mem[k] = v; }, delete: (k) => { delete mem[k]; } };
   const asked = [];
   let needs = 0;
@@ -122,7 +124,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
   const again = main.slice(main.indexOf('function askTorAgain('), main.indexOf('function answerTor('));
   t.ok(/const TOR_REST_MS = 24 \* 60 \* 60 \* 1000/.test(main) && /now - rest < TOR_REST_MS\) return false/.test(again) && /store\.set\('torAskRest', now\)/.test(again) && /askTor\(host\)/.test(again),
     'desktop: asked again at most once a day, the same card');
-  t.ok(/store\.get\('torLastResort', true\) === false\) \{ store\.set\('torLastResort', true\); scheduleEngineRestart\(\); \}/.test(ask)
+  t.ok(/store\.get\('torLastResort', false\) === false\) \{ store\.set\('torLastResort', true\); scheduleEngineRestart\(\); \}/.test(ask)
     && /store\.set\('torLastResort', false\);\s*store\.set\('torAskRest', Date\.now\(\)\)/.test(ask)
     && /if \(value === false\) store\.set\('torAskRest', Date\.now\(\)\)/.test(main),
     'desktop: yes turns the last way out on again; no, or off in Settings, rests a day');
@@ -158,4 +160,24 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
 
   console.log(`tor-ask: ${t.count} passed`);
   process.exit(0);
+
+  // Off until the user allows it, on every system and store edition (owner,
+  // 2026-11-23): with nothing stored, the switch is on only where Tor was
+  // allowed before; asked when a site needs it.
+  {
+    const m = read('electron', 'main.js');
+    t.ok(/if \(store\.get\('torLastResort'\) === undefined\) store\.set\('torLastResort', store\.get\('torApproved', false\) === true\)/.test(m)
+      && !/store\.get\('torLastResort', true\)/.test(m) && !/store\.get\('torLastResort', true\)/.test(read('electron', 'engine-manager.js')),
+    'desktop: nothing stored: off, unless Tor was allowed before; no read takes "on" for nothing stored');
+    const panel = read('components', 'SettingsPanel.js');
+    t.ok(/checked=\{settings\.torLastResort === true\}/.test(panel) && !/torLastResort !== false/.test(panel), 'desktop: the switch shows on only when it is on');
+    t.ok(require('../../electron/report-settings').effective({}).settings.torLastResort === false, 'desktop: a report says off for nothing stored');
+    t.ok(/getBoolean\("torLastResort", it\.getBoolean\("torApproved", false\)\)/.test(read('android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'TorRoute.kt')),
+      'Android: nothing stored: off, unless Tor was allowed before');
+    const st = read('apple', 'Shared', 'Settings.swift');
+    t.ok(/var torLastResort = false/.test(st) && /as\? Bool \?\? defaults\.bool\(forKey: "torApproved"\)/.test(st), 'Apple (iPhone, iPad, Mac, Apple TV): the same');
+    // And the way it asks then: a site nothing opens, once a day at most.
+    const em3 = new EngineManager({ get: (k, d) => ({ torLastResort: false })[k] ?? d, set() {} }, { torRoute: { stop() {} } });
+    t.ok(em3.torFor() === 'off' && em3.torOffByUser() === true, 'desktop: off, so a site nothing opens asks (askTorAgain), as after a "no"');
+  }
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

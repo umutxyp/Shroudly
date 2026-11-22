@@ -58,7 +58,8 @@ struct AppSettings: Equatable {
     var dnsStrict = false
     // "When nothing else works: the Tor network" (Tunnel/TorRoute.swift): on
     // unless turned off; nothing to do on Apple TV, which has no Tor.
-    var torLastResort = true
+    /* Off until the user allows it (owner, 2026-11-23). */
+    var torLastResort = false
     // The Mac: every app's connections through the tunnel (a VPN), or, by
     // default, Shroudly as the Mac's proxy, as the desktop app from GitHub
     // works: the apps that use the system's proxy (browsers and most others)
@@ -117,7 +118,8 @@ final class SettingsStore {
         s.ipv6Off = defaults.bool(forKey: Key.ipv6Off)
         s.keepOn = defaults.bool(forKey: Key.keepOn)
         s.ownServer = defaults.string(forKey: Key.ownServer) ?? ""
-        s.torLastResort = defaults.object(forKey: Key.torLastResort) as? Bool ?? true
+        // With nothing set: on only where Tor was allowed before.
+        s.torLastResort = defaults.object(forKey: Key.torLastResort) as? Bool ?? defaults.bool(forKey: "torApproved")
         s.macAllApps = defaults.bool(forKey: Key.macAllApps)
         s.dnsKind = defaults.string(forKey: CustomDns.Key.kind) ?? "auto"
         s.dnsServer = defaults.string(forKey: CustomDns.Key.server) ?? ""

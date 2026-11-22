@@ -532,13 +532,13 @@ class EngineManager {
    * or it could not be set up). */
   torFor() {
     if (!this.tor || this.ownServer()) return null;
-    if (this.store.get('torLastResort', true) === false) return 'off';
+    if (this.store.get('torLastResort', false) === false) return 'off';
     if (!this.active || !this._torFile) return null;
     return this.store.get('torApproved', false) === true ? 'carries' : 'asks';
   }
 
   torOffByUser() {
-    return !!this.tor && this.store.get('torLastResort', true) === false && !this.ownServer();
+    return !!this.tor && this.store.get('torLastResort', false) === false && !this.ownServer();
   }
 
   /* The user's own server (Settings, "Your own server"), as stored and
@@ -594,7 +594,7 @@ class EngineManager {
   async _prepareTor(ownServer) {
     this._torFile = null;
     if (!this.tor) return;
-    if (ownServer || this.store.get('torLastResort', true) === false) { this.tor.stop(); return; }
+    if (ownServer || this.store.get('torLastResort', false) === false) { this.tor.stop(); return; }
     try { this._torFile = await this.tor.prepare(); }
     catch (e) { this.log('warning', `The last way out could not be set up: ${e.message}`); }
   }
@@ -1561,7 +1561,7 @@ class EngineManager {
         // asked (a notification and a card in the window), never Tor by itself.
         if (!msg.ok) {
           // Not for an engine being stopped: a late line must not start Tor.
-          if (!this.active || !this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
+          if (!this.active || !this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', false) === false) break;
           this._torWanted(msg.host || '');
           break;
         }

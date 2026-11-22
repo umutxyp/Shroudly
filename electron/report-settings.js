@@ -21,7 +21,7 @@ const DEFAULTS = {
   preferIpv6: false,
   listenPort: 10808,
   adBlock: false,
-  torLastResort: true,
+  torLastResort: false,
   torApproved: false,
   discordMode: false,
   appMode: false,

@@ -1204,9 +1204,9 @@ export default function SettingsPanel({ active = false }) {
                 off; the user's own server, when set, carries everything. */}
             <Toggle label={t('lastResort')}
                     desc={settings.ownServer ? t('lastResortOwnServer') : `${t('lastResortDesc')} ${t('lastResortAsks')}`}
-                    checked={settings.torLastResort !== false}
+                    checked={settings.torLastResort === true}
                     onChange={(v) => save('torLastResort', v)} />
-            {settings.torLastResort !== false && !settings.ownServer && <TorPrepare t={t} />}
+            {settings.torLastResort === true && !settings.ownServer && <TorPrepare t={t} />}
           </div>
 
           {active && (

@@ -103,7 +103,9 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
             ) + lines.map { "Bridge $it" }).joinToString("\n") + "\n"
         }
 
-        fun enabled(ctx: Context) = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("torLastResort", true)
+        /* Off until the user allows it (owner, 2026-11-23): with nothing
+         * set, it is on only where Tor was allowed before (torApproved). */
+        fun enabled(ctx: Context) = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).let { it.getBoolean("torLastResort", it.getBoolean("torApproved", false)) }
         /* Turned on by hand in Settings: the user's yes to it too (issue
          * #77); off, it asks again once turned on. */
         fun setEnabled(ctx: Context, on: Boolean) =

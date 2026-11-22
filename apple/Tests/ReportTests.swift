@@ -76,8 +76,8 @@ final class ReportTests: XCTestCase {
         var s = AppSettings()
         var r = Report.settings(s, adBlock: false, countMeIn: true, helpOthers: false)
         XCTAssertEqual(r.changed, [])
-        XCTAssertTrue(r.line.contains("Tor last resort true") && r.line.contains("own server not set"))
-        s.torLastResort = false
+        XCTAssertTrue(r.line.contains("Tor last resort false") && r.line.contains("own server not set"))
+        s.torLastResort = true
         s.ownServer = "ss://secret@203.0.113.9:8388"
         s.dnsServer = "https://dns.example/q"
         r = Report.settings(s, adBlock: true, countMeIn: false, helpOthers: true)

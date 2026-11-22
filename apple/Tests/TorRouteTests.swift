@@ -25,8 +25,9 @@ final class TorRouteTests: XCTestCase {
     }
 
     func testEngineToldOnlyWithoutOwnServer() {
-        let s = AppSettings()
-        XCTAssertTrue(s.torLastResort, "on unless turned off")
+        XCTAssertFalse(AppSettings().torLastResort, "off until the user allows it (owner, 2026-11-23)")
+        var s = AppSettings()
+        s.torLastResort = true
         let a = EngineArgs.make(port: 1, dohPort: 2, settings: s, authFile: nil, blockIps: [], fallbackFile: "/tmp/fb")
         XCTAssertEqual(Array(a.suffix(2)), ["--fallback-file", "/tmp/fb"])
         let own = EngineArgs.make(port: 1, dohPort: 2, settings: s, authFile: nil, blockIps: [], upstreamFile: "/tmp/up", fallbackFile: "/tmp/fb")
@@ -38,12 +39,20 @@ final class TorRouteTests: XCTestCase {
         let d = UserDefaults(suiteName: "TorRouteTests")!
         d.removePersistentDomain(forName: "TorRouteTests")
         let store = SettingsStore(defaults: d)
-        XCTAssertTrue(store.load().torLastResort)
+        XCTAssertFalse(store.load().torLastResort, "nothing stored: off")
+        // Nothing stored but Tor allowed before (a Shroudly up to 2.6.89 whose
+        // user said yes): it stays on.
+        d.set(true, forKey: "torApproved")
+        XCTAssertTrue(store.load().torLastResort, "allowed before: on")
+        d.set(false, forKey: "torApproved")
         var s = store.load()
+        s.torLastResort = true
+        store.save(s)
+        XCTAssertTrue(store.load().torLastResort)
+        XCTAssertFalse(s.sameTunnel(as: AppSettings()), "a change restarts the tunnel")
         s.torLastResort = false
         store.save(s)
         XCTAssertFalse(store.load().torLastResort)
-        XCTAssertFalse(s.sameTunnel(as: AppSettings()), "a change restarts the tunnel")
     }
 
     func testOnlyOnTheMac() {
