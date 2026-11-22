@@ -521,23 +521,22 @@ class AdvancedMode {
   }
 
   /* Said once, a moment after a start through the prompt: whether the
-   * permission is kept now. */
-  _noteInstall() {
+   * permission is kept now. Looked at a few times (the installer is a
+   * process of its own, and an antivirus may hold it up). */
+  _noteInstall(waits = [this.installNoteMs || 6000, 15000, 45000]) {
     const t = this._task();
-    if (!t || this._installTold) return;
+    if (!t || this._installTold || !waits.length) return;
     const timer = setTimeout(() => {
       if (this._installTold) return;
-      if (AdvTask.current(this.bundledDir(), t.admin) && (AdvTask.installResult(t.admin) || {}).ok) {
+      const res = AdvTask.installResult(t.admin);
+      if (res && res.ok && AdvTask.current(this.bundledDir(), t.admin)) {
         this._installTold = true;
         this.log('info', 'Advanced mode: the permission is kept from now on: it turns on without asking again (asked once more only after an update that changes its engine)');
-        return;
-      }
-      const res = AdvTask.installResult(t.admin);
-      if (res && !res.ok) {
+      } else if (res && !res.ok) {
         this._installTold = true;
         this.log('info', `Advanced mode: the permission could not be kept for the next start (${res.why}${res.hr && res.hr !== '0x00000000' ? `, ${res.hr}` : ''}); it will be asked for again`);
-      }
-    }, this.installNoteMs || 6000);
+      } else this._noteInstall(waits.slice(1));
+    }, waits[0]);
     if (timer.unref) timer.unref();
   }
 

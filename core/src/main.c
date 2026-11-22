@@ -535,7 +535,25 @@ static char **utf8_argv(int *argc) {
 }
 #endif
 
+#ifdef _WIN32
+/* A program with no console (the Advanced engine: built for the windows
+ * subsystem so that its task shows no console window, advtask.h) started by
+ * something that hands it no streams (the permission prompt's launcher, the
+ * Task Scheduler) has none at all: stdout and stderr are not open, and
+ * sending them to the status file fails (supervise.c), which ended the
+ * engine without a word. Each stream that is not open is opened on NUL, as
+ * it is when the app starts a program with its streams ignored. */
+static void open_missing_streams(void) {
+  if (_fileno(stdin) < 0) { if (!freopen("NUL", "r", stdin)) { /* nothing reads it */ } }
+  if (_fileno(stdout) < 0) { if (!freopen("NUL", "w", stdout)) { /* said nowhere */ } }
+  if (_fileno(stderr) < 0) { if (!freopen("NUL", "w", stderr)) { /* said nowhere */ } }
+}
+#endif
+
 int main(int argc, char **argv) {
+#ifdef _WIN32
+  open_missing_streams();
+#endif
   if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
   if (argc > 1 && !strcmp(argv[1], "--broadcast-env")) return broadcast_env();
   if (argc > 1 && !strcmp(argv[1], "--reg")) return winreg_main(argc, argv);

@@ -5,11 +5,14 @@
  * real Task Scheduler and the real WinDivert driver (CI's Windows runners
  * are Administrator).
  *
- * The engine, started as the permission prompt would start it, copies itself
- * and WinDivert's files to <Common Files>\Shroudly\advanced and registers its
- * task. Then the app's own code (AdvancedMode) starts Advanced mode: it must
- * come up through the task (schtasks /Run), not through the prompt's
- * launcher, running the copy, with pages loading through it; standby, back
+ * The app's own code (AdvancedMode) starts Advanced mode a first time: with
+ * no copies yet it goes through the prompt's launcher (PowerShell, RunAs),
+ * where the engine, which has no console, is handed no streams and must
+ * come up all the same, and the engine keeps the permission by itself: it
+ * copies itself and WinDivert's files to <Common Files>\Shroudly\advanced
+ * and registers its task. The next start must come up through the task
+ * (schtasks /Run), not through the launcher, running the copy, with pages
+ * loading through it; standby, back
  * and stop work through the user's folder; a request that is not exactly
  * the app's starts nothing; a request used twice never disturbs the engine
  * that runs; and the uninstaller's request removes the task and the copies.
@@ -115,7 +118,38 @@ function taskXml(name) {
     else bad(`asked for another user: exit ${r.code}, task ${taskXml(name) === null ? 'absent' : 'there'}`);
   }
 
-  // The installer, as the engine started through the prompt starts it.
+  // The way of every first start, and of a user's PC after an update: the
+  // prompt's launcher (PowerShell, Start-Process -Verb RunAs; here it asks
+  // nothing, the runner being elevated already). The engine has no console
+  // and is handed no streams this way, and must come up all the same; it
+  // also keeps the permission, by itself, for the starts after this one.
+  {
+    const lines = [];
+    const tools0 = [];
+    const first = new AdvancedMode((level, m) => { lines.push(m); console.log(`      [${level}] ${m}`); });
+    first.bundledDir = () => bundled;
+    first.installNoteMs = 3000;
+    const run0 = first.runTool;
+    first.runTool = (cmd, args, ms) => { tools0.push(path.basename(String(cmd)).toLowerCase()); return run0(cmd, args, ms); };
+    let up = null;
+    try { up = await first.start(4, {}); } catch (e) { bad(`the first start, through the prompt's launcher, failed: ${e.code} ${e.message}`); }
+    if (up && up.success && !first.viaTask && tools0.includes('powershell.exe') && !tools0.includes('schtasks.exe') && lines.includes('Advanced mode: asking for administrator permission')) {
+      ok('the first start goes through the prompt\'s launcher (no copies yet, so the task is not even tried), and the engine comes up without a console or streams');
+    } else if (up) bad(`the first start: viaTask ${first.viaTask}, tools ${tools0.join(', ')}`);
+    if (up) {
+      await loads('through the engine started by the launcher');
+      for (let i = 0; i < 100 && !(AdvTask.installResult(admin) && AdvTask.current(bundled, admin)); i++) await sleep(100);
+      await sleep(3500);
+      if (lines.some((m) => /the permission is kept from now on/.test(m))) ok('and it kept the permission by itself: the log says it turns on without asking from now on');
+      else bad(`the permission was not kept by the engine started through the launcher: ${JSON.stringify(AdvTask.installResult(admin))}, last lines: ${lines.slice(-2).join(' | ')}`);
+      await first.stop();
+      for (let i = 0; i < 50 && driverState() !== 'missing'; i++) await sleep(100);
+      if (driverState() === 'missing') ok('stopped: the driver is unloaded');
+      else bad(`after its stop the driver is ${driverState()}`);
+    }
+  }
+
+  // What it installed (and the installer once more by hand: doing it again changes nothing).
   {
     const r = await runExit(engine, ['--task-install-only', user]);
     const res = AdvTask.installResult(admin);
@@ -143,8 +177,12 @@ function taskXml(name) {
     const sd = await runExit('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
       `$s = New-Object -ComObject Schedule.Service; $s.Connect(); $s.GetFolder('\\').GetTask('${name.replace(/'/g, "''")}').GetSecurityDescriptor(0xF)`]);
     note(`the task's access list: ${sd.out || `(not read, exit ${sd.code})`}`);
-    if (/\(A;;(0x1200a9|GRGX|FRFX);;;S-1-5-21-[\d-]+\)/.test(sd.out) && !/;;;(WD|AU|BU|IU)\)/.test(sd.out)) ok('this user may read and run it, and nothing more; no group of users is on its list');
-    else note('its access list is not the one asked for (Windows kept its own)');
+    // The user: by SID, or by the short name Windows prints for a built-in account (LA).
+    const who = '(?:S-1-5-21-[\\d-]+|LA)';
+    const mayRun = new RegExp(`\\(A;;(0x1200a9|GRGX|FRFX);;;${who}\\)`).test(sd.out);
+    const mayChange = new RegExp(`\\(A;[A-Z]*;(FA|GA|0x1f01ff|0x1f019f);;;${who}\\)`).test(sd.out);
+    if (mayRun && !mayChange && !/;;;(WD|AU|BU|IU)\)/.test(sd.out)) ok('this user may read and run it, and nothing more (not change it); no group of users is on its list');
+    else bad(`the task's access list is not the one asked for: run ${mayRun}, change ${mayChange}`);
   }
 
   // The app's own start: through the task, not through the prompt.
@@ -251,6 +289,15 @@ function taskXml(name) {
       fs.writeFileSync(path.join(userDir, `${id}.stop`), '');
       for (let i = 0; i < 60 && driverState() !== 'missing'; i++) await sleep(100);
       fs.rmSync(userDir, { recursive: true, force: true });
+      // Such a process must not be able to change what the task runs.
+      const mark = path.join(process.env.TEMP || 'C:\\Windows\\Temp', `shroudly-lab-change-${id}.txt`);
+      await runExit('runas.exe', ['/trustlevel:0x20000', `cmd.exe /c schtasks.exe /Change /TN "${name}" /TR "cmd.exe /c echo changed" > "${mark}" 2>&1`], 20000);
+      await sleep(3000);
+      const xml = taskXml(name) || '';
+      const said = (() => { try { return fs.readFileSync(mark, 'utf8').trim().slice(0, 160); } catch { return '(nothing written)'; } })();
+      if (/<Arguments>--task<\/Arguments>/.test(xml) && /shroudly-core-adv\.exe/i.test(xml)) ok(`a process without administrator rights cannot change what the task runs (schtasks /Change: ${said})`);
+      else bad(`the task was changed by a process without administrator rights: ${xml.slice(-400)}`);
+      try { fs.rmSync(mark, { force: true }); } catch {}
     }
   }
 

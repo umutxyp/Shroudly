@@ -257,8 +257,10 @@ static HRESULT register_task(const wchar_t *name, const wchar_t *sid, const wcha
     L"</Task>", sid, dir, FILES[0]);
   xml[4095] = 0;
   /* Administrators and the system: everything. This user: read and run,
-   * nothing else (not change, not delete). Nobody else. */
-  _snwprintf(sddl, 256, L"D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;GRGX;;;%ls)", sid);
+   * nothing else (not change, not delete). Nobody else, and nothing
+   * inherited from the tasks' folder (P), which would give the user who
+   * registered it everything. */
+  _snwprintf(sddl, 256, L"D:P(A;;FA;;;BA)(A;;FA;;;SY)(A;;GRGX;;;%ls)", sid);
   sddl[255] = 0;
 
   ITaskService *svc; ITaskFolder *root;
