@@ -139,6 +139,40 @@ async function realPowerShell() {
     t.ok(a === null && b === null && c === 'from-once' && onceAsked === 1 && started.length === 2 && !h.child,
       'one that never answers, twice: no longer kept running; each question gets a PowerShell of its own, as before');
   }
+  {
+    // PowerShell kept from starting or answering altogether (an antivirus
+    // blocking its command line): not started again for every question.
+    let onceAsked = 0;
+    let answers = false;
+    let clock = 1000000;
+    let told = 0;
+    PsHost.setOnRest(() => { told++; });
+    const h = new PsHost({ script: 'x', now: () => clock, start: () => null,
+      once: async (script, line) => { onceAsked++; return answers ? `${line.split(' ')[0]} info back\r\n` : ''; } });
+    h.silent = 2;
+    const got = [];
+    for (let i = 0; i < 10; i++) got.push(await h.request('info', String(i), 300));
+    t.ok(got.every((x) => x === null) && onceAsked === PsHost.REST_AFTER && h.resting() && told === 1,
+      `a PowerShell that never answers: started for ${PsHost.REST_AFTER} questions, then for none (10 asked), and said once`);
+    h.prepare();
+    t.ok(onceAsked === PsHost.REST_AFTER, 'and none is started ahead meanwhile');
+    clock += PsHost.REST_MS + 1;
+    t.ok(!h.resting() && await h.request('info', 'a', 300) === null && onceAsked === PsHost.REST_AFTER + 1 && h.resting(),
+      'after the rest one question is tried; still no answer: at rest again at once');
+    clock += PsHost.REST_MS + 1;
+    t.ok(h.resting(), '...for twice as long');
+    clock += PsHost.REST_MS;
+    answers = true;
+    t.ok(await h.request('info', 'b', 300) === 'back' && !h.resting() && h.restMs === PsHost.REST_MS && told === 1,
+      'once it answers again it is asked as before, and the next rest would be the short one');
+    answers = false;
+    for (let i = 0; i < PsHost.REST_AFTER - 1; i++) await h.request('info', String(i), 300);
+    t.ok(!h.resting(), `fewer than ${PsHost.REST_AFTER} misses in a row: no rest (a slow answer now and then is not a block)`);
+    PsHost.setOnRest(null);
+    // The line main.js says then.
+    const main = require('fs').readFileSync(require('path').join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/require\('\.\/ps-host'\)\.setOnRest\(\(\) => addLog\('warning', 'PowerShell does not answer on this computer/.test(main), 'the log says so once');
+  }
 
   {
     // A slow question (a signature check asking about revocation online) and

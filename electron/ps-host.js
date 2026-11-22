@@ -13,6 +13,16 @@
  * replaced; one that never answers at all (twice) is not used again this
  * session: each question then starts a PowerShell of its own, as before.
  *
+ * A PowerShell that is kept from starting or from answering altogether (an
+ * antivirus that blocks its command line: Avast showed its "powershell.exe
+ * command line" warning over and over, a TTNet report) must not be started
+ * for every question: one that is being judged is asked about every two
+ * seconds. After REST_AFTER questions in a row that got no answer from a
+ * PowerShell of their own, none is started for REST_MS; each rest after
+ * that is twice as long (to REST_MAX_MS) until one answers again. Meanwhile
+ * a question gets no answer at once, which is what its askers already
+ * handle (roblox-watch.js, user-busy.js). Said once (onRest).
+ *
  * Requests "<id> <op> <arg>", answers "<id> <op> <payload>": ASCII only
  * (text goes as its character codes), so no console code page can garble a
  * path such as C:\Users\Ümit. What it writes as errors is kept (errors),
@@ -23,6 +33,12 @@ const { spawn, execFile } = require('child_process');
 const { envFor } = require('./win-powershell');
 
 const IDLE_MS = 3 * 60 * 1000;
+const REST_AFTER = 4;
+const REST_MS = 10 * 60 * 1000;
+const REST_MAX_MS = 6 * 60 * 60 * 1000;
+// Said once a run, whichever host rests first (main.js sets it).
+let onRest = null;
+let restTold = false;
 
 const defaultStart = (script) => spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
   { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], env: envFor('powershell.exe') });
@@ -57,11 +73,19 @@ class PsHost {
     this.silent = 0;            // ones that ended without answering anything
     this.starts = 0;
     this.errors = '';           // the end of what PowerShell wrote as errors (tests, support)
+    this.now = opts.now || Date.now;
+    this.onceMissed = 0;        // questions in a row a PowerShell of their own did not answer
+    this.restUntil = 0;         // none is started before this
+    this.restMs = REST_MS;      // how long the next rest is
+    this.rested = false;        // it has rested, and has not answered since
   }
+
+  /* No PowerShell is started now: it has not answered here (see above). */
+  resting() { return this.now() < this.restUntil; }
 
   /* Started now, so that the first real question does not wait for it. */
   prepare() {
-    if (this.silent >= 2) return;
+    if (this.silent >= 2 || this.resting()) return;
     if (!this.child) this._start();
     this._idle();
   }
@@ -89,10 +113,25 @@ class PsHost {
   stop() { if (this.child) this._end(this.child, true); }
 
   async _once(id, line, timeoutMs) {
+    if (this.resting()) return null;
     const out = await this.onceFn(this.script, line, timeoutMs);
     for (const l of String(out || '').split(/\r?\n/)) {
       const m = /^(\d+) (\S+) ?(.*)$/.exec(l.trim());
-      if (m && Number(m[1]) === id) return m[3];
+      if (m && Number(m[1]) === id) {
+        this.onceMissed = 0;
+        this.rested = false;
+        this.restMs = REST_MS;
+        return m[3];
+      }
+    }
+    // No answer. After a rest one question is enough to rest again.
+    this.onceMissed++;
+    if (!this.resting() && this.onceMissed >= (this.rested ? 1 : REST_AFTER)) {
+      this.restUntil = this.now() + this.restMs;
+      this.restMs = Math.min(this.restMs * 2, REST_MAX_MS);
+      this.onceMissed = 0;
+      this.rested = true;
+      if (!restTold && typeof onRest === 'function') { restTold = true; try { onRest(); } catch {} }
     }
     return null;
   }
@@ -187,3 +226,8 @@ class PsHost {
 
 module.exports = PsHost;
 module.exports.IDLE_MS = IDLE_MS;
+module.exports.REST_AFTER = REST_AFTER;
+module.exports.REST_MS = REST_MS;
+module.exports.REST_MAX_MS = REST_MAX_MS;
+/* What to do the first time a host rests (main.js: a line in the log). */
+module.exports.setOnRest = (fn) => { onRest = typeof fn === 'function' ? fn : null; restTold = false; };

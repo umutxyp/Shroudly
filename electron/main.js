@@ -315,6 +315,9 @@ function reportOffered() {
 }
 // reg.exe that Windows will not start: said once, in the log (win-reg.js).
 WinReg.setLog(addLog);
+// PowerShell that never answers here (an antivirus blocking its command
+// line) is no longer started for every question (ps-host.js): said once.
+require('./ps-host').setOnRest(() => addLog('warning', 'PowerShell does not answer on this computer (a security program may be blocking it), so Shroudly stops starting it for a while; what it is asked for (which Roblox program runs since when, whether a game is full-screen) goes without until it answers again'));
 
 function isAutoStartLaunch() {
   if (process.argv.includes(AUTOSTART_ARG)) return true;
@@ -2844,10 +2847,34 @@ function applyAppMode(on) {
   return run;
 }
 
+/* The setting could not be put in place because Windows did not answer (a
+ * PC still starting up, an antivirus holding its tools back: app-env.js
+ * regKey): tried again by itself, a few times, further and further apart.
+ * It used to stay off for the whole session, with Roblox open and no way to
+ * the internet. Nothing is tried once the mode is off or on. */
+const APP_MODE_RETRY_MS = [8000, 30000, 90000, 300000];
+const appModeRetry = { timer: null, n: 0 };
+function appModeRetryLater() {
+  if (appModeRetry.timer || appModeRetry.n >= APP_MODE_RETRY_MS.length) return false;
+  const wait = APP_MODE_RETRY_MS[appModeRetry.n++];
+  appModeRetry.timer = setTimeout(() => {
+    appModeRetry.timer = null;
+    if (store.get('appMode') === true && appState.failed && appModeSupported()) applyAppMode(true).catch(() => {});
+  }, wait);
+  if (appModeRetry.timer.unref) appModeRetry.timer.unref();
+  return true;
+}
+function appModeRetryForget() {
+  clearTimeout(appModeRetry.timer);
+  appModeRetry.timer = null;
+  appModeRetry.n = 0;
+}
+
 async function applyAppModeNow(on) {
   if (!appModeSupported()) return { success: false, code: 'unsupported' };
   appState.failed = false;
   if (!on) {
+    appModeRetryForget();
     try { appEnv.clearSync(); } catch {}
     tellAppUsers();
     if (flatpakEnv) { try { await flatpakEnv.clear(); } catch {} }
@@ -2901,12 +2928,16 @@ async function applyAppModeNow(on) {
     return { success: true };
   }
   try { r = appEnv.applySync(AppProxy.proxyUrl(port)); setAt = Date.now(); } catch (e) {
-    addLog('error', `Games and apps: ${e.message}`);
     appProxy.stop();
     appState.failed = true;
+    // Windows did not answer: not for good, so it is tried again by itself.
+    const again = e && e.code === 'EAGAIN' && store.get('appMode') === true && appModeRetryLater();
+    if (again) addLog('warning', `Games and apps: ${e.message}; trying again shortly`);
+    else addLog('error', `Games and apps: ${e.message}`);
     sendAppState();
     return { success: false, code: 'edit_failed' };
   }
+  appModeRetryForget();
   if (r === 'foreign') {
     // Somebody else's proxy for programs (HTTPS_PROXY): never replaced.
     appProxy.stop();

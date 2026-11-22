@@ -77,6 +77,44 @@ const exitErr = (status) => Object.assign(new Error('Command failed'), { status 
   calls.length = 0;
   t.ok(/from the engine/.test(await WinReg.run(['query', 'HKCU\\Software\\X'])) && calls.length === 2 && calls[0][0] === 'reg.exe' && calls[1][1] === '--reg',
     'the same without blocking');
+
+  // reg.exe that starts and does not answer in time (a PC still starting
+  // up, an antivirus holding every new program back): the engine does it,
+  // and after two such waits reg.exe is not tried again in this run.
+  {
+    const slowErr = () => Object.assign(new Error('spawnSync reg.exe ETIMEDOUT'), { status: null, signal: 'SIGTERM', code: 'ETIMEDOUT' });
+    const slowHooks = {
+      core,
+      execFileSync(file, args) {
+        calls.push([path.basename(file), ...args]);
+        if (WinReg.isReg(file)) throw slowErr();
+        return QUERY_OUT.replace('one', 'from the engine');
+      },
+      execFile(file, args, opts, cb) {
+        calls.push([path.basename(file), ...args]);
+        if (WinReg.isReg(file)) { setImmediate(() => cb(Object.assign(new Error('Command failed'), { killed: true, signal: 'SIGTERM', code: null }), '', '')); return; }
+        setImmediate(() => cb(null, QUERY_OUT.replace('one', 'from the engine'), ''));
+      },
+    };
+    WinReg._setHooks(slowHooks);
+    calls.length = 0; logs.length = 0;
+    const a = WinReg.runSync(['add', 'HKCU\\Volatile Environment', '/v', 'HTTPS_PROXY', '/t', 'REG_SZ', '/d', 'http://127.0.0.1:10810', '/f']);
+    t.ok(/from the engine/.test(a) && calls.length === 2 && calls[0][0] === 'reg.exe' && calls[1][1] === '--reg' && calls[1][2] === 'add' && !WinReg.refused() && !WinReg.slow(),
+      'reg.exe that did not answer in time: the same arguments to the engine (it is not "refused", and is tried once more)');
+    const b = await WinReg.run(['query', 'HKCU\\Volatile Environment']);
+    t.ok(/from the engine/.test(b) && calls.length === 4 && WinReg.slow(), 'the same without blocking; that was the second wait');
+    calls.length = 0;
+    WinReg.runSync(['query', 'HKCU\\Software\\X']);
+    await WinReg.run(['query', 'HKCU\\Software\\X']);
+    t.ok(calls.length === 2 && calls.every((c) => c[1] === '--reg'), 'after two waits reg.exe is not tried again in this run (each holds the app for seconds)');
+    t.ok(logs.length === 1 && /reg\.exe did not answer in time .*Shroudly reads and writes these settings itself/.test(logs[0]), 'said once in the log');
+    // With no engine to ask, the wait is reg.exe's own error, as before.
+    WinReg._setHooks({ ...slowHooks, core: path.join(path.dirname(core), 'not-there.exe') });
+    let err = null;
+    try { WinReg.runSync(['query', 'HKCU\\Software\\X']); } catch (e) { err = e; }
+    t.ok(err && err.code === 'ETIMEDOUT' && !WinReg.slow(), 'no engine to ask: the error as before');
+    WinReg._setHooks({ ...hooks });
+  }
   WinReg._setHooks({ ...hooks, core: path.join(path.dirname(core), 'not-there.exe') });
   let err = null;
   try { WinReg.runSync(['query', 'HKCU\\Software\\X']); } catch (e) { err = e; }

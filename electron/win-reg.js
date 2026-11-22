@@ -16,6 +16,15 @@
  *
  * reg.exe that ran and ended with an error (a value not there, access
  * denied to one key) is its answer, not a refusal to start: passed on.
+ *
+ * reg.exe that started and did not answer in time (a PC still starting up
+ * with an antivirus looking at every new program: four seconds were not
+ * enough, and Games and apps mode stayed off for the session, a TTNet
+ * report) is no answer either: the same arguments go to the engine, which
+ * is already running and starts no Windows tool. Every operation here can
+ * be done twice with the same result (a query, add /f, delete /f). After
+ * two such waits reg.exe is not tried again in this run: each one holds
+ * the whole app for its four seconds.
  */
 
 const { execFile, execFileSync } = require('child_process');
@@ -24,6 +33,9 @@ const { coreBinaryPath } = require('./core-path');
 
 const SPAWN_REFUSED = new Set(['EPERM', 'EACCES', 'ENOENT', 'UNKNOWN', 'EINVAL']);
 let refused = null;      // the spawn error reg.exe gave, once it gave one
+let slow = 0;            // times reg.exe did not answer in time
+const SLOW_MAX = 2;
+let toldSlow = false;
 let log = () => {};
 let told = false;
 // Tests: stand-ins for the two programs.
@@ -39,6 +51,18 @@ function isReg(cmd) {
 function notStarted(e) {
   return !!e && (e.status === undefined || e.status === null) && !e.signal && !e.killed
     && typeof e.code === 'string' && SPAWN_REFUSED.has(e.code);
+}
+
+/* It started and was ended for taking too long: no exit code, a signal. */
+function timedOut(e) {
+  return !!e && (e.status === undefined || e.status === null) && (e.code === 'ETIMEDOUT' || e.killed === true || !!e.signal);
+}
+
+function noteSlow() {
+  slow++;
+  if (toldSlow) return;
+  toldSlow = true;
+  try { log('warning', 'reg.exe did not answer in time (a busy PC, or a security program holding it back); Shroudly reads and writes these settings itself'); } catch {}
 }
 
 function engine() {
@@ -64,12 +88,27 @@ function viaEngineSync(args, timeout) {
  * reg.exe the caller names (a full path or just "reg.exe"). Throws as
  * execFileSync does: e.status 1 for "not there". */
 function runSync(args, { timeout = 4000, cmd = 'reg.exe' } = {}) {
-  if (!refused) {
+  if (!refused && slow < SLOW_MAX) {
     const run = hooks && hooks.execFileSync ? hooks.execFileSync : execFileSync;
     try { return String(run(cmd, args, { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || ''); }
-    catch (e) { if (!notStarted(e)) throw e; noteRefused(e); }
+    catch (e) {
+      if (notStarted(e)) noteRefused(e);
+      else if (timedOut(e) && engine()) noteSlow();
+      else throw e;
+    }
   }
+  if (!refused && !engine()) throw Object.assign(new Error('reg.exe did not answer in time'), { code: 'ETIMEDOUT' });
   return viaEngineSync(args, timeout);
+}
+
+/* The engine's own answer, asked directly: for a reg.exe that started but
+ * did not answer in time (a PC still starting up, a security program
+ * holding every new reg.exe back). Throws as execFileSync does. */
+function engineSync(args, { timeout = 4000 } = {}) {
+  const core = engine();
+  if (!core) throw Object.assign(new Error('the engine is not there to ask'), { code: 'ENOENT' });
+  const run = hooks && hooks.execFileSync ? hooks.execFileSync : execFileSync;
+  return String(run(core, ['--reg', ...args], { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
 }
 
 function execAsync(file, args, timeout) {
@@ -84,12 +123,16 @@ function execAsync(file, args, timeout) {
 
 /* The same, without blocking. */
 async function run(args, { timeout = 8000, cmd = 'reg.exe' } = {}) {
-  if (!refused) {
+  if (!refused && slow < SLOW_MAX) {
     try { return await execAsync(cmd, args, timeout); }
-    catch (e) { if (!notStarted(e)) throw e; noteRefused(e); }
+    catch (e) {
+      if (notStarted(e)) noteRefused(e);
+      else if (timedOut(e) && engine()) noteSlow();
+      else throw e;
+    }
   }
   const core = engine();
-  if (!core) throw refused;
+  if (!core) throw refused || Object.assign(new Error('reg.exe did not answer in time'), { code: 'ETIMEDOUT' });
   return execAsync(core, ['--reg', ...args], timeout);
 }
 
@@ -97,9 +140,12 @@ module.exports = {
   isReg,
   notStarted,
   runSync,
+  engineSync,
   run,
   setLog(fn) { log = typeof fn === 'function' ? fn : () => {}; },
   // Whether reg.exe was refused this run (Repair and the log say so).
   refused: () => !!refused,
-  _setHooks(h) { hooks = h; refused = null; told = false; },
+  // Whether reg.exe is no longer tried in this run for not answering in time.
+  slow: () => slow >= SLOW_MAX,
+  _setHooks(h) { hooks = h; refused = null; told = false; slow = 0; toldSlow = false; },
 };

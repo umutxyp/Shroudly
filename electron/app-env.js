@@ -110,12 +110,24 @@ function parseRegQuery(text) {
   return out;
 }
 
-function regAll(key) { return regKey(key) || new Map(); }
+function regAll(key) { try { return regKey(key) || new Map(); } catch { return new Map(); } }
 
-/* The same, or null when the key is not there (or cannot be read). */
+/* The same, or null when the key is not there (reg.exe's exit 1). Throws
+ * (EAGAIN) when it could not be read at all: a reg.exe that did not answer
+ * in time is no "not there". On a PC still starting up, with an antivirus
+ * looking at every program started, it took longer than its four seconds,
+ * and Games and apps mode was then refused for the whole session as if
+ * Windows had no session environment (a TTNet report: Roblox open with no
+ * way to the internet, "critical settings could not be downloaded"). The
+ * engine is asked then, which reads the registry itself, without reg.exe. */
 function regKey(key) {
   try { return parseRegQuery(runSync('reg.exe', ['query', key])); }
-  catch { return null; }
+  catch (e) {
+    if (e && e.status === 1) return null;
+    try { return parseRegQuery(WinReg.engineSync(['query', key])); }
+    catch (e2) { if (e2 && e2.status === 1) return null; }
+    throw Object.assign(new Error('Windows did not answer when asked for the environment'), { code: 'EAGAIN' });
+  }
 }
 
 /* Windows: tell Explorer and the other running programs that the
@@ -182,7 +194,15 @@ function backend(platform = process.platform) {
     // call blocks the app for tens of milliseconds. undefined: not read yet;
     // session null: the key is not there.
     let session; let user; let machine;
-    const sessionKey = () => { if (session === undefined) session = regKey(WIN_SESSION_ENV); return session; };
+    // unread: it could not be read this time (regKey), which is not the
+    // same as not being there.
+    let unread = false;
+    const sessionKey = () => {
+      if (session === undefined) {
+        try { session = regKey(WIN_SESSION_ENV); unread = false; } catch { session = null; unread = true; }
+      }
+      return session;
+    };
     const userKey = () => { if (user === undefined) user = regAll(WIN_USER_ENV); return user; };
     return {
       names: { proxy: ['HTTPS_PROXY'], noProxy: ['NO_PROXY'], node: [NODE_KEY] },
@@ -191,7 +211,10 @@ function backend(platform = process.platform) {
       set: (k, v) => {
         // Windows creates the key at logon, volatile. reg.exe would create a
         // missing one as an ordinary, kept key: never written then.
-        if (!sessionKey()) throw Object.assign(new Error('this session has no volatile environment'), { code: 'ENOTSUP' });
+        if (!sessionKey()) {
+          if (unread) throw Object.assign(new Error("Windows did not answer when asked for this session's environment"), { code: 'EAGAIN' });
+          throw Object.assign(new Error('this session has no volatile environment'), { code: 'ENOTSUP' });
+        }
         runSync('reg.exe', ['add', WIN_SESSION_ENV, '/v', k, '/t', 'REG_SZ', '/d', v, '/f']);
         session.set(k.toUpperCase(), v);
       },

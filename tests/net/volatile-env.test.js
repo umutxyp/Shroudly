@@ -38,14 +38,25 @@ const MACH = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environ
 function fakeWindows() {
   const keys = new Map([[VOL, new Map()], [USR, new Map([['Path', '%USERPROFILE%\\AppData\\Local\\Microsoft\\WindowsApps;']])], [MACH, new Map()]]);
   const log = []; const spawned = [];
+  const state = { slow: 0, engine: 'ok' }; const engineAsked = [];
   const find = (m, name) => [...m.keys()].find((n) => n.toUpperCase() === name.toUpperCase());
   const exec = (cmd, args) => {
-    if (!/^reg(\.exe)?$/i.test(cmd)) throw new Error(`unexpected program ${cmd}`);
+    // The engine's own registry reader (win-reg.js engineSync), asked when
+    // reg.exe did not answer: the same answers, or none (engine: 'dead').
+    const viaEngine = !/^reg(\.exe)?$/i.test(cmd) && args[0] === '--reg';
+    if (viaEngine) {
+      engineAsked.push(args.slice(1));
+      if (state.engine === 'dead') throw Object.assign(new Error('spawnSync ETIMEDOUT'), { status: null, signal: 'SIGTERM', code: 'ETIMEDOUT' });
+      args = args.slice(1);
+    } else if (!/^reg(\.exe)?$/i.test(cmd)) throw new Error(`unexpected program ${cmd}`);
+    // reg.exe that starts but does not answer in time (state.slow: how many times).
+    else if (state.slow > 0) { state.slow--; throw Object.assign(new Error('spawnSync reg.exe ETIMEDOUT'), { status: null, signal: 'SIGTERM', code: 'ETIMEDOUT' }); }
     const [op, key] = args;
     log.push([op, key, ...args.slice(2)]);
     const name = args[args.indexOf('/v') + 1];
     if (op === 'query') {
-      if (!keys.has(key)) throw new Error('ERROR: The system was unable to find the specified registry key or value.');
+      // As execFileSync reports reg.exe's exit 1.
+      if (!keys.has(key)) throw Object.assign(new Error('ERROR: The system was unable to find the specified registry key or value.'), { status: 1 });
       const lines = [...keys.get(key)].map(([n, v]) => `    ${n}    REG_SZ    ${v}`);
       return Buffer.from(`\r\n${key.replace(/^HKCU/, 'HKEY_CURRENT_USER')}\r\n${lines.join('\r\n')}\r\n\r\n`);
     }
@@ -74,7 +85,7 @@ function fakeWindows() {
     children.push(c);
     return c;
   };
-  return { keys, log, spawned, children, exec, spawn, val: (key, name) => { const m = keys.get(key); const n = m && find(m, name); return n ? m.get(n) : null; } };
+  return { keys, log, spawned, children, exec, spawn, state, engineAsked, val: (key, name) => { const m = keys.get(key); const n = m && find(m, name); return n ? m.get(n) : null; } };
 }
 
 /* app-env.js loaded afresh with reg.exe and PowerShell replaced by `w`.
@@ -111,7 +122,10 @@ function runInstallerCleanup(keys) {
       if (!line || line.startsWith(';')) continue;
       const tok = line.match(/"[^"]*"|\S+/g);
       const val = (x) => (x.startsWith('$') ? (v[x] ?? '') : x.replace(/^"(.*)"$/, '$1'));
-      if (tok[0] === '${If}') { stack.push(active() && (tok[2] === '==' ? val(tok[1]) === val(tok[3]) : val(tok[1]) !== val(tok[3]))); continue; }
+      const cond = () => (tok[2] === '==' ? val(tok[1]) === val(tok[3]) : val(tok[1]) !== val(tok[3]));
+      if (tok[0] === '${If}') { stack.push(active() && cond()); continue; }
+      // ${OrIf}: the block also runs when this is so (where the blocks around it run).
+      if (tok[0] === '${OrIf}') { stack[stack.length - 1] = stack[stack.length - 1] || (stack.slice(0, -1).every(Boolean) && cond()); continue; }
       if (tok[0] === '${EndIf}') { stack.pop(); continue; }
       if (!active()) continue;
       const key = (x) => `HKCU\\${val(x)}`;
@@ -405,6 +419,34 @@ async function realWindows() {
     t.ok(err && err.code === 'ENOTSUP' && !w.keys.has(VOL) && !writes(w).length,
       'win32: a session without Volatile Environment is refused; the key is not created (reg.exe would make a kept one)');
   }
+  // reg.exe that does not answer in time (a PC still starting up, an
+  // antivirus holding every new program back) is no "not there": the engine
+  // reads the registry itself, and where even that fails it is an error to
+  // try again after, never "this session has no volatile environment".
+  if (fs.existsSync(require(path.join(ROOT, 'electron', 'core-path.js')).coreBinaryPath())) {
+    const w = fakeWindows();
+    // The first looks at the registry get no answer from reg.exe (the PC is
+    // still starting up); it answers again after.
+    w.state.slow = 2;
+    const A = loadWith(w);
+    const a = new A({ platform: 'win32' });
+    let r = null; let err = null;
+    try { r = a.applySync(url); } catch (x) { err = x; }
+    t.ok(!err && r === 'changed' && w.engineAsked.some((q) => q[0] === 'query' && q[1] === VOL) && w.val(VOL, 'HTTPS_PROXY') === url,
+      `win32: reg.exe not answering: the engine reads the session's environment itself, and the setting is put in place (${w.engineAsked.length} questions to the engine)`);
+    a.clearSync();
+
+    const w2 = fakeWindows();
+    w2.state.slow = 99; w2.state.engine = 'dead';
+    const A2 = loadWith(w2);
+    err = null;
+    try { new A2({ platform: 'win32' }).applySync(url); } catch (x) { err = x; }
+    t.ok(err && err.code === 'EAGAIN' && /did not answer/.test(err.message) && !writes(w2).length,
+      'win32: nothing answers at all: an error to try again after (EAGAIN), nothing written, and not "no volatile environment"');
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/e\.code === 'EAGAIN' && store\.get\('appMode'\) === true && appModeRetryLater\(\)/.test(main) && /APP_MODE_RETRY_MS = \[8000, 30000, 90000, 300000\]/.test(main),
+      'and Games and apps mode is tried again by itself then (after 8 s, 30 s, 90 s, 5 min), not left off for the session');
+  } else t.ok(false, 'the engine is not built (node scripts/build-core.js): the registry fallback cannot be tried');
   {
     // A user who set HTTPS_PROXY after an older Shroudly did: its mark goes, their value stays.
     const w = fakeWindows();
