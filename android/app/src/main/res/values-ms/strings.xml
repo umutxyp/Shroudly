@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly percuma dan bersumber terbuka di bawah lesen MIT: sesiapa sahaja boleh membaca, mengaudit dan membina kodnya.</string>
     <string name="openSourceTitle">Sumber terbuka</string>
     <string name="ownServer">Pelayan sendiri</string>
-    <string name="ownServerDesc">Setiap laman melalui pelayan yang anda tetapkan: tampal pautan SOCKS5, HTTP atau Shadowsocks miliknya. Semasa internet diputuskan, pelayan dalam negara yang masih sampai ke dunia ialah jalan keluar. Pelayan itu nampak laman yang anda buka: guna hanya pelayan yang anda percayai.</string>
+    <string name="ownServerDesc">Setiap laman melalui pelayan yang anda tetapkan: tampal pautan SOCKS5, HTTP, Shadowsocks, VLESS atau Trojan miliknya. Semasa internet diputuskan, pelayan dalam negara yang masih sampai ke dunia ialah jalan keluar. Pelayan itu nampak laman yang anda buka: guna hanya pelayan yang anda percayai.</string>
     <string name="ownServerDown">Pelayan sendiri anda tidak berfungsi</string>
     <string name="ownServerDownBody">{server}: {why}. Laman tidak akan terbuka sehingga ia berfungsi. Untuk berhenti menggunakannya: {path}.</string>
-    <string name="ownServerErrFormat">Ini bukan pautan yang boleh digunakan Shroudly. Rupanya seperti: socks5://1.2.3.4:1080, http://user:pass@host:3128 atau ss://…</string>
+    <string name="ownServerErrFormat">Ini bukan pautan yang boleh digunakan Shroudly. Rupanya seperti: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… atau trojan://…</string>
     <string name="ownServerErrMethod">Kaedah Shadowsocks ini ({method}) tidak disokong; guna chacha20-ietf-poly1305, aes-256-gcm atau aes-128-gcm.</string>
+    <string name="ownServerErrUnsupported">Jenis pautan ini belum disokong ({what}). Shroudly menerima VLESS dan Trojan melalui TCP, WebSocket atau HTTPUpgrade, dengan atau tanpa TLS.</string>
     <string name="ownServerErrUser">Nama pengguna tidak boleh mengandungi “:” atau “@”.</string>
     <string name="ownServerExit">Melalui pelayan sendiri. Laman web melihat: {ip}</string>
     <string name="ownServerFails">Tidak berjaya: {why}. Tidak digunakan; semak pautannya, atau guna juga.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Berfungsi: satu laman terbuka melaluinya dalam {ms} ms. Sedang digunakan.</string>
     <string name="ownServerWhyAsks">ia meminta nama pengguna dan kata laluan</string>
     <string name="ownServerWhyAuth">ia menolak nama pengguna atau kata laluan</string>
+    <string name="ownServerWhyCert">sijilnya tidak sah untuk namanya</string>
     <string name="ownServerWhyLocal">alamatnya milik rangkaian rumah atau pejabat, jadi ia hanya berfungsi pada rangkaian itu; dari tempat lain, penghala orang yang berkongsi mesti memajukan port ke internet</string>
     <string name="ownServerWhyNoAnswer">ia tidak menjawab</string>
     <string name="ownServerWhyProtocol">ia tidak memahami protokol yang dipilih</string>

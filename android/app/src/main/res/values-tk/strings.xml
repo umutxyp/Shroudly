@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly mugt we MIT ygtyýarnamasy boýunça açyk çeşmeli: islendik adam onuň koduny okap, barlap we ýygnap bilýär.</string>
     <string name="openSourceTitle">Açyk çeşme</string>
     <string name="ownServer">Öz serweriňiz</string>
-    <string name="ownServerDesc">Her bir saýt siziň görkezen serweriňizden geçýär: onuň SOCKS5, HTTP ýa-da Shadowsocks baglanyşygyny goýuň. Internet öçürilende, ýurduň içinde bolup dünýä bilen henizem baglanyşygy bar serwer çykalga bolup biler. Bu serwer haýsy saýtlary açýandygyňyzy görýär: diňe ynanýan serweriňizi ulanyň.</string>
+    <string name="ownServerDesc">Her bir saýt siziň görkezen serweriňizden geçýär: onuň SOCKS5, HTTP, Shadowsocks, VLESS ýa-da Trojan baglanyşygyny goýuň. Internet öçürilende, ýurduň içinde bolup dünýä bilen henizem baglanyşygy bar serwer çykalga bolup biler. Bu serwer haýsy saýtlary açýandygyňyzy görýär: diňe ynanýan serweriňizi ulanyň.</string>
     <string name="ownServerDown">Öz serweriňiz işlemeýär</string>
     <string name="ownServerDownBody">{server}: {why}. Ol işleýänçä saýtlar açylmaýar. Ulanmagy bes etmek üçin: {path}.</string>
-    <string name="ownServerErrFormat">Bu Shroudly-niň ulanyp biljek baglanyşygy däl. Ol şeýle görünýär: socks5://1.2.3.4:1080, http://user:pass@host:3128 ýa-da ss://…</string>
+    <string name="ownServerErrFormat">Bu Shroudly-niň ulanyp biljek baglanyşygy däl. Ol şeýle görünýär: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… ýa-da trojan://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks usuly ({method}) goldanmaýar; chacha20-ietf-poly1305, aes-256-gcm ýa-da aes-128-gcm ulanyň.</string>
+    <string name="ownServerErrUnsupported">Baglanyşygyň bu görnüşi entek goldanmaýar ({what}). Shroudly TCP, WebSocket ýa-da HTTPUpgrade arkaly, TLS bilen ýa-da TLS-siz VLESS we Trojan kabul edýär.</string>
     <string name="ownServerErrUser">Ulanyjy adynda “:” ýa-da “@” bolup bilmez.</string>
     <string name="ownServerExit">Öz serweriňiz arkaly. Saýtlaryň görýän salgysy: {ip}</string>
     <string name="ownServerFails">Işlemedi: {why}. Ulanylmaýar; baglanyşygy barlaň ýa-da şonda-da ulanyň.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Işleýär: saýt onuň üsti bilen {ms} ms-da açyldy. Ulanylýar.</string>
     <string name="ownServerWhyAsks">ol ulanyjy adyny we paroly soraýar</string>
     <string name="ownServerWhyAuth">ol ulanyjy adyny ýa-da paroly kabul etmedi</string>
+    <string name="ownServerWhyCert">onuň sertifikaty öz ady üçin hakyky däl</string>
     <string name="ownServerWhyLocal">onuň salgysy öý ýa-da edara ulgamyna degişli, şonuň üçin diňe şol ulgamda işleýär; başga ýerden paýlaşýan adamyň routeri porty internete açmaly</string>
     <string name="ownServerWhyNoAnswer">ol jogap bermeýär</string>
     <string name="ownServerWhyProtocol">ol saýlanan protokoly düşünmeýär</string>

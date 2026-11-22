@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly bepul va MIT litsenziyasi ostidagi ochiq manbali dastur: istalgan kishi uning kodini oʻqishi, tekshirishi va yigʻishi mumkin.</string>
     <string name="openSourceTitle">Ochiq manba</string>
     <string name="ownServer">Oʻz serveringiz</string>
-    <string name="ownServerDesc">Har bir sayt siz koʻrsatgan server orqali oʻtadi: uning SOCKS5, HTTP yoki Shadowsocks havolasini qoʻying. Internet oʻchirilganda, mamlakat ichidagi va dunyo bilan aloqasi hali bor server chiqish yoʻli boʻlishi mumkin. Bu server qaysi saytlarni ochayotganingizni koʻradi: faqat oʻzingiz ishonadigan serverdan foydalaning.</string>
+    <string name="ownServerDesc">Har bir sayt siz koʻrsatgan server orqali oʻtadi: uning SOCKS5, HTTP, Shadowsocks, VLESS yoki Trojan havolasini qoʻying. Internet oʻchirilganda, mamlakat ichidagi va dunyo bilan aloqasi hali bor server chiqish yoʻli boʻlishi mumkin. Bu server qaysi saytlarni ochayotganingizni koʻradi: faqat oʻzingiz ishonadigan serverdan foydalaning.</string>
     <string name="ownServerDown">Oʻz serveringiz ishlamayapti</string>
     <string name="ownServerDownBody">{server}: {why}. U ishlamaguncha saytlar ochilmaydi. Foydalanishni toʻxtatish uchun: {path}.</string>
-    <string name="ownServerErrFormat">Bu Shroudly foydalana oladigan havola emas. U shunday koʻrinadi: socks5://1.2.3.4:1080, http://user:pass@host:3128 yoki ss://…</string>
+    <string name="ownServerErrFormat">Bu Shroudly foydalana oladigan havola emas. U shunday koʻrinadi: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… yoki trojan://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks usuli ({method}) qoʻllab-quvvatlanmaydi; chacha20-ietf-poly1305, aes-256-gcm yoki aes-128-gcm dan foydalaning.</string>
+    <string name="ownServerErrUnsupported">Havolaning bu turi hali qoʻllab-quvvatlanmaydi ({what}). Shroudly TCP, WebSocket yoki HTTPUpgrade orqali, TLS bilan yoki TLSsiz VLESS va Trojan qabul qiladi.</string>
     <string name="ownServerErrUser">Foydalanuvchi nomida “:” yoki “@” boʻlishi mumkin emas.</string>
     <string name="ownServerExit">Oʻz serveringiz orqali. Saytlar koʻradigan manzil: {ip}</string>
     <string name="ownServerFails">Ishlamadi: {why}. Foydalanilmayapti; havolani tekshiring yoki baribir foydalaning.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Ishlayapti: sayt u orqali {ms} ms da ochildi. Foydalanilmoqda.</string>
     <string name="ownServerWhyAsks">u foydalanuvchi nomi va parol soʻrayapti</string>
     <string name="ownServerWhyAuth">u foydalanuvchi nomi yoki parolni qabul qilmadi</string>
+    <string name="ownServerWhyCert">uning sertifikati oʻz nomi uchun yaroqsiz</string>
     <string name="ownServerWhyLocal">uning manzili uy yoki ofis tarmog\'iga tegishli, shuning uchun faqat o\'sha tarmoqda ishlaydi; boshqa joydan ulashayotgan odamning routeri portni internetga ochishi kerak</string>
     <string name="ownServerWhyNoAnswer">u javob bermayapti</string>
     <string name="ownServerWhyProtocol">u tanlangan protokolni tushunmaydi</string>

@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly — MIT лицензиясы бойынша тегін әрі ашық бастапқы кодты бағдарлама: кез келген адам оның кодын оқып, тексеріп, құрастыра алады.</string>
     <string name="openSourceTitle">Ашық бастапқы код</string>
     <string name="ownServer">Өз серверіңіз</string>
-    <string name="ownServerDesc">Барлық сайт сіз көрсеткен сервер арқылы өтеді: оның SOCKS5, HTTP немесе Shadowsocks сілтемесін қойыңыз. Интернет өшірілгенде, әлеммен байланысы әлі бар ел ішіндегі сервер шығу жолы бола алады. Бұл сервер қай сайттарды ашатыныңызды көреді: тек өзіңіз сенетін серверді қолданыңыз.</string>
+    <string name="ownServerDesc">Барлық сайт сіз көрсеткен сервер арқылы өтеді: оның SOCKS5, HTTP, Shadowsocks, VLESS немесе Trojan сілтемесін қойыңыз. Интернет өшірілгенде, әлеммен байланысы әлі бар ел ішіндегі сервер шығу жолы бола алады. Бұл сервер қай сайттарды ашатыныңызды көреді: тек өзіңіз сенетін серверді қолданыңыз.</string>
     <string name="ownServerDown">Өз серверіңіз жұмыс істемей тұр</string>
     <string name="ownServerDownBody">{server}: {why}. Ол жұмыс істемейінше сайттар ашылмайды. Қолдануды тоқтату үшін: {path}.</string>
-    <string name="ownServerErrFormat">Бұл Shroudly қолдана алатын сілтеме емес. Ол былай көрінеді: socks5://1.2.3.4:1080, http://user:pass@host:3128 немесе ss://…</string>
+    <string name="ownServerErrFormat">Бұл Shroudly қолдана алатын сілтеме емес. Ол былай көрінеді: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… немесе trojan://…</string>
     <string name="ownServerErrMethod">Бұл Shadowsocks әдісіне ({method}) қолдау жоқ; chacha20-ietf-poly1305, aes-256-gcm немесе aes-128-gcm қолданыңыз.</string>
+    <string name="ownServerErrUnsupported">Сілтеменің бұл түріне әзірге қолдау көрсетілмейді ({what}). Shroudly TCP, WebSocket немесе HTTPUpgrade арқылы, TLS-пен немесе TLS-сіз VLESS пен Trojan қабылдайды.</string>
     <string name="ownServerErrUser">Пайдаланушы атында «:» немесе «@» болмауы керек.</string>
     <string name="ownServerExit">Өз серверіңіз арқылы. Сайттар көретін мекенжай: {ip}</string>
     <string name="ownServerFails">Жұмыс істемеді: {why}. Қолданылмайды; сілтемені тексеріңіз немесе бәрібір қолданыңыз.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Жұмыс істейді: сайт ол арқылы {ms} мс ішінде ашылды. Қолданылуда.</string>
     <string name="ownServerWhyAsks">ол пайдаланушы аты мен құпиясөзді сұрайды</string>
     <string name="ownServerWhyAuth">ол пайдаланушы атын немесе құпиясөзді қабылдамады</string>
+    <string name="ownServerWhyCert">оның сертификаты өз атауы үшін жарамсыз</string>
     <string name="ownServerWhyLocal">оның мекенжайы үй не кеңсе желісіне тиесілі, сондықтан тек сол желіде жұмыс істейді; басқа жерден бөлісетін адамның роутері портты интернетке ашуы керек</string>
     <string name="ownServerWhyNoAnswer">ол жауап бермейді</string>
     <string name="ownServerWhyProtocol">ол таңдалған хаттаманы түсінбейді</string>

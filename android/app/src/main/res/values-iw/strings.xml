@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly הוא תוכנה חינמית בקוד פתוח ברישיון MIT: כל אחד יכול לקרוא, לבדוק ולבנות את הקוד שלו.</string>
     <string name="openSourceTitle">קוד פתוח</string>
     <string name="ownServer">שרת משלכם</string>
-    <string name="ownServerDesc">כל האתרים עוברים דרך שרת שתבחרו: הדביקו את הקישור שלו מסוג SOCKS5, HTTP או Shadowsocks. בזמן ניתוק אינטרנט, שרת בתוך המדינה שעדיין מגיע לעולם הוא דרך החוצה. השרת הזה רואה אילו אתרים אתם פותחים: השתמשו רק בשרת שאתם סומכים עליו.</string>
+    <string name="ownServerDesc">כל האתרים עוברים דרך שרת שתבחרו: הדביקו את הקישור שלו מסוג SOCKS5, HTTP, Shadowsocks, VLESS או Trojan. בזמן ניתוק אינטרנט, שרת בתוך המדינה שעדיין מגיע לעולם הוא דרך החוצה. השרת הזה רואה אילו אתרים אתם פותחים: השתמשו רק בשרת שאתם סומכים עליו.</string>
     <string name="ownServerDown">השרת שלכם לא עובד</string>
     <string name="ownServerDownBody">{server}: {why}. אתרים לא ייפתחו עד שהוא יעבוד. כדי להפסיק להשתמש בו: {path}.</string>
-    <string name="ownServerErrFormat">זה לא קישור ש-Shroudly יכול להשתמש בו. הוא נראה כך: socks5://1.2.3.4:1080, http://user:pass@host:3128 או ss://…</string>
+    <string name="ownServerErrFormat">זה לא קישור ש-Shroudly יכול להשתמש בו. הוא נראה כך: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… או trojan://…</string>
     <string name="ownServerErrMethod">שיטת Shadowsocks הזו ({method}) אינה נתמכת; השתמשו ב-chacha20-ietf-poly1305, ב-aes-256-gcm או ב-aes-128-gcm.</string>
+    <string name="ownServerErrUnsupported">סוג הקישור הזה עדיין לא נתמך ({what}). Shroudly מקבל VLESS ו-Trojan על גבי TCP, WebSocket או HTTPUpgrade, עם TLS או בלעדיו.</string>
     <string name="ownServerErrUser">שם משתמש לא יכול להכיל “:” או “@”.</string>
     <string name="ownServerExit">דרך השרת שלכם. האתרים רואים: {ip}</string>
     <string name="ownServerFails">לא עבד: {why}. לא בשימוש; בדקו את הקישור, או השתמשו בו בכל זאת.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">עובד: אתר נפתח דרכו תוך {ms} אלפיות שנייה. בשימוש.</string>
     <string name="ownServerWhyAsks">הוא מבקש שם משתמש וסיסמה</string>
     <string name="ownServerWhyAuth">הוא דחה את שם המשתמש או הסיסמה</string>
+    <string name="ownServerWhyCert">התעודה שלו אינה תקפה לשם שלו</string>
     <string name="ownServerWhyLocal">הכתובת שלו שייכת לרשת ביתית או משרדית, ולכן הוא עובד רק באותה רשת; ממקום אחר, הנתב של מי שמשתף צריך להעביר את הפורט לאינטרנט</string>
     <string name="ownServerWhyNoAnswer">הוא לא עונה</string>
     <string name="ownServerWhyProtocol">הוא לא מדבר בפרוטוקול שנבחר</string>

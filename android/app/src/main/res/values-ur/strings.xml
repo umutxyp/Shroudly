@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly مفت اور MIT لائسنس کے تحت اوپن سورس ہے: کوئی بھی اس کا کوڈ پڑھ، جانچ اور بلڈ کر سکتا ہے۔</string>
     <string name="openSourceTitle">اوپن سورس</string>
     <string name="ownServer">اپنا سرور</string>
-    <string name="ownServerDesc">ہر سائٹ آپ کے بتائے ہوئے سرور سے گزرتی ہے: اس کا SOCKS5، HTTP یا Shadowsocks لنک یہاں چسپاں کریں۔ انٹرنیٹ بند ہونے پر ملک کے اندر کا کوئی سرور جو اب بھی دنیا تک پہنچتا ہو، نکلنے کا راستہ ہے۔ وہ سرور دیکھتا ہے کہ آپ کون سی سائٹیں کھولتے ہیں: صرف ایسا سرور استعمال کریں جس پر آپ کو بھروسا ہو۔</string>
+    <string name="ownServerDesc">ہر سائٹ آپ کے بتائے ہوئے سرور سے گزرتی ہے: اس کا SOCKS5، HTTP، Shadowsocks، VLESS یا Trojan لنک یہاں چسپاں کریں۔ انٹرنیٹ بند ہونے پر ملک کے اندر کا کوئی سرور جو اب بھی دنیا تک پہنچتا ہو، نکلنے کا راستہ ہے۔ وہ سرور دیکھتا ہے کہ آپ کون سی سائٹیں کھولتے ہیں: صرف ایسا سرور استعمال کریں جس پر آپ کو بھروسا ہو۔</string>
     <string name="ownServerDown">آپ کا اپنا سرور کام نہیں کر رہا</string>
     <string name="ownServerDownBody">{server}: {why}۔ جب تک یہ کام نہ کرے، سائٹیں نہیں کھلیں گی۔ استعمال بند کرنے کے لیے: {path}۔</string>
-    <string name="ownServerErrFormat">یہ ایسا لنک نہیں جو Shroudly استعمال کر سکے۔ یہ ایسا دکھتا ہے: socks5://1.2.3.4:1080، http://user:pass@host:3128 یا ss://…</string>
+    <string name="ownServerErrFormat">یہ ایسا لنک نہیں جو Shroudly استعمال کر سکے۔ یہ ایسا دکھتا ہے: socks5://1.2.3.4:1080، http://user:pass@host:3128، ss://…، vless://… یا trojan://…</string>
     <string name="ownServerErrMethod">Shadowsocks کا یہ طریقہ ({method}) سپورٹ نہیں ہوتا؛ chacha20-ietf-poly1305، aes-256-gcm یا aes-128-gcm استعمال کریں۔</string>
+    <string name="ownServerErrUnsupported">اس قسم کا لنک ابھی سپورٹ نہیں ہوتا ({what})۔ Shroudly، TCP، WebSocket یا HTTPUpgrade پر، TLS کے ساتھ یا اس کے بغیر VLESS اور Trojan قبول کرتا ہے۔</string>
     <string name="ownServerErrUser">یوزر نیم میں “:” یا “@” نہیں ہو سکتا۔</string>
     <string name="ownServerExit">آپ کے اپنے سرور کے ذریعے۔ سائٹس یہ دیکھتی ہیں: {ip}</string>
     <string name="ownServerFails">کام نہیں کیا: {why}۔ استعمال نہیں ہو رہا؛ لنک چیک کریں، یا پھر بھی استعمال کریں۔</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">کام کر رہا ہے: اس کے ذریعے ایک سائٹ {ms} ms میں کھلی۔ استعمال میں۔</string>
     <string name="ownServerWhyAsks">یہ یوزر نیم اور پاس ورڈ مانگتا ہے</string>
     <string name="ownServerWhyAuth">اس نے یوزر نیم یا پاس ورڈ قبول نہیں کیا</string>
+    <string name="ownServerWhyCert">اس کا سرٹیفکیٹ اس کے نام کے لیے درست نہیں</string>
     <string name="ownServerWhyLocal">اس کا پتہ کسی گھر یا دفتر کے نیٹ ورک کا ہے، اس لیے یہ صرف اسی نیٹ ورک پر چلتا ہے؛ کہیں اور سے، شیئر کرنے والے کے راؤٹر کو پورٹ انٹرنیٹ پر کھولنا ہوگا</string>
     <string name="ownServerWhyNoAnswer">یہ جواب نہیں دیتا</string>
     <string name="ownServerWhyProtocol">یہ منتخب پروٹوکول نہیں سمجھتا</string>

@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly, MIT lisansıyla ücretsiz ve açık kaynaklıdır: kodunu herkes okuyabilir, denetleyebilir ve derleyebilir.</string>
     <string name="openSourceTitle">Açık kaynak</string>
     <string name="ownServer">Kendi sunucun</string>
-    <string name="ownServerDesc">Her site, belirttiğin bir sunucudan geçer: onun SOCKS5, HTTP ya da Shadowsocks bağlantısını yapıştır. İnternet kesintisinde, ülke içinde olup dünyaya hâlâ ulaşabilen bir sunucu bir çıkış yoludur. O sunucu hangi siteleri açtığını görür: yalnızca güvendiğin birini kullan.</string>
+    <string name="ownServerDesc">Her site, belirttiğin bir sunucudan geçer: onun SOCKS5, HTTP, Shadowsocks, VLESS ya da Trojan bağlantısını yapıştır. İnternet kesintisinde, ülke içinde olup dünyaya hâlâ ulaşabilen bir sunucu bir çıkış yoludur. O sunucu hangi siteleri açtığını görür: yalnızca güvendiğin birini kullan.</string>
     <string name="ownServerDown">Kendi sunucun çalışmıyor</string>
     <string name="ownServerDownBody">{server}: {why}. Sunucu çalışana kadar siteler açılmaz. Kullanmayı bırakmak için: {path}.</string>
-    <string name="ownServerErrFormat">Shroudly\'nin kullanabileceği bir bağlantı değil. Şuna benzer: socks5://1.2.3.4:1080, http://user:pass@host:3128 ya da ss://…</string>
+    <string name="ownServerErrFormat">Shroudly\'nin kullanabileceği bir bağlantı değil. Şuna benzer: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… ya da trojan://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks yöntemi ({method}) desteklenmiyor; chacha20-ietf-poly1305, aes-256-gcm ya da aes-128-gcm kullan.</string>
+    <string name="ownServerErrUnsupported">Bu tür bağlantı henüz desteklenmiyor ({what}). Shroudly; TCP, WebSocket ya da HTTPUpgrade üzerinden, TLS\'li ya da TLS\'siz VLESS ve Trojan kabul eder.</string>
     <string name="ownServerErrUser">Kullanıcı adında “:” ya da “@” olamaz.</string>
     <string name="ownServerExit">Kendi sunucun üzerinden. Sitelerin gördüğü adres: {ip}</string>
     <string name="ownServerFails">Çalışmadı: {why}. Kullanılmıyor; bağlantıyı kontrol et ya da yine de kullan.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Çalışıyor: bir site onun üzerinden {ms} ms\'de açıldı. Kullanımda.</string>
     <string name="ownServerWhyAsks">kullanıcı adı ve şifre istiyor</string>
     <string name="ownServerWhyAuth">kullanıcı adını ya da şifreyi kabul etmedi</string>
+    <string name="ownServerWhyCert">sertifikası kendi adı için geçerli değil</string>
     <string name="ownServerWhyLocal">adresi bir ev ya da iş ağına ait; yalnızca o ağda çalışır. Başka bir yerden kullanmak için paylaşan kişinin modemi portu internete açmalı</string>
     <string name="ownServerWhyNoAnswer">cevap vermiyor</string>
     <string name="ownServerWhyProtocol">seçilen protokolü konuşmuyor</string>

@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly miễn phí và là mã nguồn mở theo giấy phép MIT: bất kỳ ai cũng có thể đọc, kiểm tra và tự biên dịch mã của nó.</string>
     <string name="openSourceTitle">Mã nguồn mở</string>
     <string name="ownServer">Máy chủ riêng</string>
-    <string name="ownServerDesc">Mọi trang đều đi qua một máy chủ do bạn chỉ định: hãy dán liên kết SOCKS5, HTTP hoặc Shadowsocks của nó. Khi internet bị cắt, một máy chủ trong nước vẫn còn kết nối ra thế giới là một lối thoát. Máy chủ đó thấy bạn mở những trang nào: chỉ dùng máy chủ bạn tin tưởng.</string>
+    <string name="ownServerDesc">Mọi trang đều đi qua một máy chủ do bạn chỉ định: hãy dán liên kết SOCKS5, HTTP, Shadowsocks, VLESS hoặc Trojan của nó. Khi internet bị cắt, một máy chủ trong nước vẫn còn kết nối ra thế giới là một lối thoát. Máy chủ đó thấy bạn mở những trang nào: chỉ dùng máy chủ bạn tin tưởng.</string>
     <string name="ownServerDown">Máy chủ riêng của bạn không hoạt động</string>
     <string name="ownServerDownBody">{server}: {why}. Các trang sẽ không mở cho đến khi nó hoạt động. Để ngừng dùng: {path}.</string>
-    <string name="ownServerErrFormat">Đây không phải liên kết Shroudly dùng được. Nó trông như: socks5://1.2.3.4:1080, http://user:pass@host:3128 hoặc ss://…</string>
+    <string name="ownServerErrFormat">Đây không phải liên kết Shroudly dùng được. Nó trông như: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… hoặc trojan://…</string>
     <string name="ownServerErrMethod">Phương thức Shadowsocks này ({method}) không được hỗ trợ; hãy dùng chacha20-ietf-poly1305, aes-256-gcm hoặc aes-128-gcm.</string>
+    <string name="ownServerErrUnsupported">Loại liên kết này chưa được hỗ trợ ({what}). Shroudly nhận VLESS và Trojan qua TCP, WebSocket hoặc HTTPUpgrade, có hoặc không có TLS.</string>
     <string name="ownServerErrUser">Tên người dùng không được chứa “:” hoặc “@”.</string>
     <string name="ownServerExit">Qua máy chủ riêng của bạn. Các trang web thấy: {ip}</string>
     <string name="ownServerFails">Không thành công: {why}. Chưa được dùng; hãy kiểm tra liên kết, hoặc vẫn dùng nó.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Hoạt động: một trang đã mở qua nó trong {ms} ms. Đang dùng.</string>
     <string name="ownServerWhyAsks">nó yêu cầu tên người dùng và mật khẩu</string>
     <string name="ownServerWhyAuth">nó từ chối tên người dùng hoặc mật khẩu</string>
+    <string name="ownServerWhyCert">chứng chỉ của nó không hợp lệ cho tên của nó</string>
     <string name="ownServerWhyLocal">địa chỉ của nó thuộc mạng gia đình hoặc văn phòng, nên chỉ dùng được trong chính mạng đó; từ nơi khác, router của người chia sẻ phải mở cổng ra internet</string>
     <string name="ownServerWhyNoAnswer">nó không trả lời</string>
     <string name="ownServerWhyProtocol">nó không dùng giao thức đã chọn</string>

@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly በMIT ፈቃድ ስር ነፃ እና ክፍት ምንጭ ነው፤ ማንኛውም ሰው ኮዱን ማንበብ፣ መመርመር እና መገንባት ይችላል።</string>
     <string name="openSourceTitle">ክፍት ምንጭ</string>
     <string name="ownServer">የራስዎ አገልጋይ</string>
-    <string name="ownServerDesc">ሁሉም ጣቢያዎች እርስዎ በሚሰጡት አገልጋይ በኩል ያልፋሉ፤ የSOCKS5፣ HTTP ወይም Shadowsocks ማገናኛውን ይለጥፉ። ኢንተርኔት ሲቋረጥ፣ በአገር ውስጥ ያለና አሁንም ዓለምን የሚደርስ አገልጋይ መውጫ መንገድ ነው። ያ አገልጋይ የትኞቹን ጣቢያዎች እንደሚከፍቱ ያያል፤ የሚያምኑትን አገልጋይ ብቻ ይጠቀሙ።</string>
+    <string name="ownServerDesc">ሁሉም ጣቢያዎች እርስዎ በሚሰጡት አገልጋይ በኩል ያልፋሉ፤ የSOCKS5፣ HTTP፣ Shadowsocks፣ VLESS ወይም Trojan ማገናኛውን ይለጥፉ። ኢንተርኔት ሲቋረጥ፣ በአገር ውስጥ ያለና አሁንም ዓለምን የሚደርስ አገልጋይ መውጫ መንገድ ነው። ያ አገልጋይ የትኞቹን ጣቢያዎች እንደሚከፍቱ ያያል፤ የሚያምኑትን አገልጋይ ብቻ ይጠቀሙ።</string>
     <string name="ownServerDown">የራስዎ አገልጋይ እየሠራ አይደለም</string>
     <string name="ownServerDownBody">{server}፦ {why}። እስኪሠራ ድረስ ጣቢያዎች አይከፈቱም። መጠቀም ለማቆም፦ {path}።</string>
-    <string name="ownServerErrFormat">Shroudly ሊጠቀምበት የሚችል ማገናኛ አይደለም። እንዲህ ይመስላል፦ socks5://1.2.3.4:1080፣ http://user:pass@host:3128 ወይም ss://…</string>
+    <string name="ownServerErrFormat">Shroudly ሊጠቀምበት የሚችል ማገናኛ አይደለም። እንዲህ ይመስላል፦ socks5://1.2.3.4:1080፣ http://user:pass@host:3128፣ ss://…፣ vless://… ወይም trojan://…</string>
     <string name="ownServerErrMethod">ይህ የShadowsocks ዘዴ ({method}) አይደገፍም፤ chacha20-ietf-poly1305፣ aes-256-gcm ወይም aes-128-gcm ይጠቀሙ።</string>
+    <string name="ownServerErrUnsupported">ይህ ዓይነት ማገናኛ ገና አይደገፍም ({what})። Shroudly በTCP፣ WebSocket ወይም HTTPUpgrade ላይ፣ ከTLS ጋር ወይም ያለ እሱ VLESS እና Trojanን ይቀበላል።</string>
     <string name="ownServerErrUser">የተጠቃሚ ስም “:” ወይም “@” ሊይዝ አይችልም።</string>
     <string name="ownServerExit">በራስዎ አገልጋይ በኩል። ድረ-ገጾች የሚያዩት አድራሻ፦ {ip}</string>
     <string name="ownServerFails">አልሠራም፦ {why}። ጥቅም ላይ አይደለም፤ ማገናኛውን ያረጋግጡ፣ ወይም ቢሆንም ይጠቀሙበት።</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">ይሠራል፦ አንድ ጣቢያ በእሱ በኩል በ{ms} ms ውስጥ ተከፍቷል። ጥቅም ላይ ነው።</string>
     <string name="ownServerWhyAsks">የተጠቃሚ ስም እና የይለፍ ቃል ይጠይቃል</string>
     <string name="ownServerWhyAuth">የተጠቃሚ ስሙን ወይም የይለፍ ቃሉን አልተቀበለም</string>
+    <string name="ownServerWhyCert">የእውቅና ማረጋገጫው ለስሙ ልክ አይደለም</string>
     <string name="ownServerWhyLocal">አድራሻው የቤት ወይም የቢሮ አውታረ መረብ ነው፤ በዚያው አውታረ መረብ ብቻ ይሰራል። ከሌላ ቦታ ለመጠቀም የሚያጋራው ሰው ራውተር ፖርቱን ወደ ኢንተርኔት ማስተላለፍ አለበት</string>
     <string name="ownServerWhyNoAnswer">ምላሽ አይሰጥም</string>
     <string name="ownServerWhyProtocol">የተመረጠውን ፕሮቶኮል አይናገርም</string>

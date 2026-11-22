@@ -29,18 +29,29 @@ import javax.net.ssl.SSLSocketFactory
  *   http://user:password@host:port     (CONNECT; the same)
  *   ss://BASE64URL(method:password)@host:port#name   (SIP002)
  *   ss://BASE64(method:password@host:port)#name      (the older form)
+ *   vless://UUID@host:port?type=ws&security=tls&path=…&host=…&sni=…#name
+ *   trojan://password@host:port?…      (Vless.kt: over TLS, on plain TCP,
+ *                                       a WebSocket or HTTPUpgrade)
  *   host:port                          (SOCKS5)
- * Shadowsocks goes through Shroudly's own client (Shadowsocks.Client).
+ * Shadowsocks, VLESS and Trojan go through Shroudly's own clients
+ * (Shadowsocks.Client, Vless.Client).
  */
 object OwnServer {
     data class Link(
         val kind: String, val host: String, val port: Int,
         val user: String = "", val pass: String = "",
         val method: String = "", val password: String = "", val name: String = "",
+        /* A VLESS or Trojan link's own parts (kind "vless" or "trojan"). */
+        val vless: Vless.Link? = null,
     )
 
-    /* A link, or the reason it cannot be used: empty, format, method, user. */
-    data class Parsed(val link: Link?, val error: String? = null, val method: String? = null)
+    /* A link, or the reason it cannot be used: empty, format, method, user,
+     * or unsupported (a VLESS or Trojan link of a kind not carried: `what`
+     * names it, Vless.parse). */
+    data class Parsed(val link: Link?, val error: String? = null, val method: String? = null, val what: String? = null)
+
+    /* The kinds that go through a client of Shroudly's own on this device. */
+    fun localClient(l: Link?): Boolean = l != null && (l.kind == "ss" || l.vless != null)
 
     private fun hostPort(text: String): Pair<String, Int>? {
         val m = Regex("^\\[([0-9a-fA-F:.]+)]:(\\d{1,5})$").matchEntire(text) ?: Regex("^([^\\s:/@\\[\\]]+):(\\d{1,5})$").matchEntire(text) ?: return null
@@ -59,6 +70,11 @@ object OwnServer {
     fun parse(input: String?): Parsed {
         val text = input?.trim().orEmpty()
         if (text.isEmpty()) return Parsed(null, "empty")
+        if (Regex("^(vless|trojan)://", RegexOption.IGNORE_CASE).containsMatchIn(text)) {
+            val v = Vless.parse(text)
+            val l = v.link ?: return Parsed(null, v.error, what = v.what)
+            return Parsed(Link(l.kind, l.host, l.port, name = l.name, vless = l))
+        }
         Regex("^(socks5h?|socks|http)://(?:([^@/]*)@)?([^/?#]+)/?$", RegexOption.IGNORE_CASE).matchEntire(text)?.let { m ->
             val (host, port) = hostPort(m.groupValues[3]) ?: return Parsed(null, "format")
             var user = ""
@@ -107,15 +123,16 @@ object OwnServer {
 
     /* What the log and the screen show: never the password. */
     fun describe(l: Link): String = when (l.kind) {
+        "vless", "trojan" -> l.vless?.let { Vless.describe(it) } ?: where(l)
         "ss" -> "Shadowsocks ${where(l)}"
         "http" -> "HTTP ${where(l)}"
         else -> "SOCKS5 ${where(l)}"
     }
 
-    /* The engine's --upstream-file line: the server, or for Shadowsocks the
-     * local client on `localPort` with its password. */
+    /* The engine's --upstream-file line: the server, or for Shadowsocks,
+     * VLESS and Trojan the local client on `localPort` with its password. */
     fun engineLine(l: Link, localPort: Int = 0, auth: SocksAuth? = null): String =
-        if (l.kind == "ss") "socks5://${auth?.let { "${it.user}:${it.pass}@" } ?: ""}127.0.0.1:$localPort"
+        if (localClient(l)) "socks5://${auth?.let { "${it.user}:${it.pass}@" } ?: ""}127.0.0.1:$localPort"
         else "${l.kind}://${if (l.user.isNotEmpty()) "${l.user}${if (l.pass.isNotEmpty()) ":${l.pass}" else ""}@" else ""}${where(l)}"
 
     /* Written readable by this app alone, read by the engine at its start. */
@@ -137,7 +154,8 @@ object OwnServer {
     )
     val WHY_TEXT: Map<String, String> = WHY.entries.associate { (k, v) -> v to k } +
         mapOf("silent" to "nothing came back (the password or the method may be wrong)", "tls" to "it answers, but no site's certificate came through it",
-            "local" to "its address is on a home or office network: it works only on that network")
+            "local" to "its address is on a home or office network: it works only on that network",
+            "cert" to "its certificate is not one for its name (or its TLS was refused)")
 
     fun whyCode(text: String?): String = WHY[text] ?: "protocol"
 
@@ -167,6 +185,7 @@ object OwnServer {
         "silent" -> R.string.ownServerWhySilent
         "tls" -> R.string.ownServerWhyTls
         "local" -> R.string.ownServerWhyLocal
+        "cert" -> R.string.ownServerWhyCert
         else -> R.string.ownServerWhyProtocol
     }
 
@@ -236,10 +255,22 @@ object OwnServer {
         nameOk: (String, SSLSession) -> Boolean = { h, session -> HttpsURLConnection.getDefaultHostnameVerifier().verify(h, session) },
     ): String? {
         var client: Shadowsocks.Client? = null
+        var vclient: Vless.Client? = null
         var clientError: IOException? = null
+        var clientWhy: String? = null
         var s: Socket? = null
         try {
-            if (l.kind == "ss") {
+            if (l.vless != null) {
+                // Why it could not be reached is the client's to say: not
+                // there, its certificate, or an answer not this protocol's.
+                vclient = Vless.Client(l.vless) { why -> clientWhy = why }
+                s = Socket().apply { soTimeout = timeoutMs; connect(InetSocketAddress("127.0.0.1", vclient.port), timeoutMs) }
+                try {
+                    socks5(s, "", "", host, port)
+                } catch (_: IOException) {
+                    return when (clientWhy) { "tls" -> "cert"; "protocol" -> "protocol"; else -> "noAnswer" }
+                }
+            } else if (l.kind == "ss") {
                 client = Shadowsocks.Client(l.host, l.port, l.method, l.password) { e, _ -> clientError = e }
                 s = Socket().apply { soTimeout = timeoutMs; connect(InetSocketAddress("127.0.0.1", client.port), timeoutMs) }
                 try {
@@ -263,13 +294,20 @@ object OwnServer {
                 t.startHandshake()
                 if (!nameOk(host, t.session)) "tls" else null
             } catch (_: IOException) {
-                if (l.kind == "ss") (if (clientError != null && clientError?.message?.contains("authenticate") != true) "noAnswer" else "silent") else "tls"
+                when {
+                    // Through a client of ours, a site that never answers means the
+                    // server took the connection and carried nothing: a wrong key.
+                    l.vless != null -> if (clientWhy != null) "noAnswer" else "silent"
+                    l.kind == "ss" -> if (clientError != null && clientError?.message?.contains("authenticate") != true) "noAnswer" else "silent"
+                    else -> "tls"
+                }
             }
         } catch (_: IOException) {
             return "noAnswer"
         } finally {
             try { s?.close() } catch (_: IOException) {}
             client?.close()
+            vclient?.close()
         }
     }
 
@@ -364,6 +402,7 @@ object OwnServer {
      */
     class Session(private val dir: File, private val log: (String) -> Unit) {
         private var client: Shadowsocks.Client? = null
+        private var vclient: Vless.Client? = null
         private var clientKey: String? = null
         private var auth: SocksAuth? = null
         @Volatile private var shown = ""
@@ -375,18 +414,19 @@ object OwnServer {
          * start and the caller then deletes; null for none. */
         @Synchronized
         fun fileFor(l: Link?): File? {
-            val key = l?.takeIf { it.kind == "ss" }?.let { "${it.host} ${it.port} ${it.method} ${it.password}" }
-            if (client != null && clientKey != key) close()
+            val key = l?.takeIf { localClient(it) }?.let { if (it.vless != null) it.vless.toString() else "${it.host} ${it.port} ${it.method} ${it.password}" }
+            if ((client != null || vclient != null) && clientKey != key) close()
             if (l == null) return null
-            if (key != null && client == null) {
+            if (key != null && client == null && vclient == null) {
                 val a = SocksAuth.random()
-                client = Shadowsocks.Client(l.host, l.port, l.method, l.password, a.user, a.pass) { _, bad -> down(if (bad) "protocol" else "noAnswer") }
+                if (l.vless != null) vclient = Vless.Client(l.vless, a.user, a.pass) { why -> down(if (why == "tls") "cert" else why) }
+                else client = Shadowsocks.Client(l.host, l.port, l.method, l.password, a.user, a.pass) { _, bad -> down(if (bad) "protocol" else "noAnswer") }
                 clientKey = key
                 auth = a
             }
             shown = describe(l)
             val f = File(dir, FILE)
-            writeFile(f, engineLine(l, client?.port ?: 0, auth))
+            writeFile(f, engineLine(l, client?.port ?: vclient?.port ?: 0, auth))
             return f
         }
 
@@ -408,6 +448,8 @@ object OwnServer {
         fun close() {
             client?.close()
             client = null
+            vclient?.close()
+            vclient = null
             clientKey = null
             auth = null
             stopExit()

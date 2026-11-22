@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly pulsuzdur və MIT lisenziyası ilə açıq mənbəlidir: hər kəs onun kodunu oxuya, yoxlaya və yığa bilər.</string>
     <string name="openSourceTitle">Açıq mənbə</string>
     <string name="ownServer">Öz serveriniz</string>
-    <string name="ownServerDesc">Hər sayt sizin göstərdiyiniz serverdən keçir: onun SOCKS5, HTTP və ya Shadowsocks linkini yapışdırın. İnternet kəsiləndə ölkə daxilində olub dünyaya hələ də çıxışı olan server bir çıxış yoludur. Bu server hansı saytları açdığınızı görür: yalnız etibar etdiyiniz serverdən istifadə edin.</string>
+    <string name="ownServerDesc">Hər sayt sizin göstərdiyiniz serverdən keçir: onun SOCKS5, HTTP, Shadowsocks, VLESS və ya Trojan linkini yapışdırın. İnternet kəsiləndə ölkə daxilində olub dünyaya hələ də çıxışı olan server bir çıxış yoludur. Bu server hansı saytları açdığınızı görür: yalnız etibar etdiyiniz serverdən istifadə edin.</string>
     <string name="ownServerDown">Öz serveriniz işləmir</string>
     <string name="ownServerDownBody">{server}: {why}. O işləyənə qədər saytlar açılmır. İstifadəni dayandırmaq üçün: {path}.</string>
-    <string name="ownServerErrFormat">Bu, Shroudly-nin istifadə edə biləcəyi link deyil. Belə görünür: socks5://1.2.3.4:1080, http://user:pass@host:3128 və ya ss://…</string>
+    <string name="ownServerErrFormat">Bu, Shroudly-nin istifadə edə biləcəyi link deyil. Belə görünür: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… və ya trojan://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks metodu ({method}) dəstəklənmir; chacha20-ietf-poly1305, aes-256-gcm və ya aes-128-gcm istifadə edin.</string>
+    <string name="ownServerErrUnsupported">Bu növ link hələ dəstəklənmir ({what}). Shroudly TCP, WebSocket və ya HTTPUpgrade üzərindən, TLS ilə və ya TLS-siz VLESS və Trojan qəbul edir.</string>
     <string name="ownServerErrUser">İstifadəçi adında “:” və ya “@” ola bilməz.</string>
     <string name="ownServerExit">Öz serveriniz üzərindən. Saytların gördüyü ünvan: {ip}</string>
     <string name="ownServerFails">İşləmədi: {why}. İstifadə olunmur; linki yoxlayın və ya yenə də istifadə edin.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">İşləyir: sayt onun üzərindən {ms} ms-də açıldı. İstifadədədir.</string>
     <string name="ownServerWhyAsks">istifadəçi adı və şifrə istəyir</string>
     <string name="ownServerWhyAuth">istifadəçi adını və ya şifrəni qəbul etmədi</string>
+    <string name="ownServerWhyCert">sertifikatı öz adı üçün etibarlı deyil</string>
     <string name="ownServerWhyLocal">ünvanı ev və ya ofis şəbəkəsinə aiddir, yalnız həmin şəbəkədə işləyir; başqa yerdən paylaşan şəxsin router-i portu internetə açmalıdır</string>
     <string name="ownServerWhyNoAnswer">cavab vermir</string>
     <string name="ownServerWhyProtocol">seçilmiş protokolu başa düşmür</string>

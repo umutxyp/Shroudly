@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly وړیا او د MIT جواز لاندې پرانیستې سرچینه ده: هر څوک کولی شي د هغه کوډ ولولي، وڅېړي او جوړ یې کړي.</string>
     <string name="openSourceTitle">پرانیستې سرچینه</string>
     <string name="ownServer">خپل سرور</string>
-    <string name="ownServerDesc">ټول سایټونه د هغه سرور له لارې تېرېږي چې تاسو یې ټاکئ: د هغه SOCKS5، HTTP یا Shadowsocks لینک دلته ولګوئ. د انټرنېټ د بندېدو پر مهال، د هېواد دننه یو سرور چې لا هم نړۍ ته رسېږي د وتلو یوه لاره ده. هغه سرور ویني چې تاسو کوم سایټونه پرانیزئ: یوازې هغه سرور وکاروئ چې باور پرې لرئ.</string>
+    <string name="ownServerDesc">ټول سایټونه د هغه سرور له لارې تېرېږي چې تاسو یې ټاکئ: د هغه SOCKS5، HTTP، Shadowsocks، VLESS یا Trojan لینک دلته ولګوئ. د انټرنېټ د بندېدو پر مهال، د هېواد دننه یو سرور چې لا هم نړۍ ته رسېږي د وتلو یوه لاره ده. هغه سرور ویني چې تاسو کوم سایټونه پرانیزئ: یوازې هغه سرور وکاروئ چې باور پرې لرئ.</string>
     <string name="ownServerDown">خپل سرور مو کار نه کوي</string>
     <string name="ownServerDownBody">{server}: {why}. تر هغه چې کار ونکړي، سایټونه نه پرانیستل کېږي. د کارولو د بندولو لپاره: {path}.</string>
-    <string name="ownServerErrFormat">دا داسې لینک نه دی چې Shroudly یې وکاروي. داسې ښکاري: socks5://1.2.3.4:1080، http://user:pass@host:3128 یا ss://…</string>
+    <string name="ownServerErrFormat">دا داسې لینک نه دی چې Shroudly یې وکاروي. داسې ښکاري: socks5://1.2.3.4:1080، http://user:pass@host:3128، ss://…، vless://… یا trojan://…</string>
     <string name="ownServerErrMethod">د Shadowsocks دا طریقه ({method}) نه ملاتړ کېږي؛ chacha20-ietf-poly1305، aes-256-gcm یا aes-128-gcm وکاروئ.</string>
+    <string name="ownServerErrUnsupported">دا ډول لینک لا نه ملاتړ کېږي ({what}). Shroudly د TCP، WebSocket یا HTTPUpgrade له لارې، له TLS سره یا پرته، VLESS او Trojan مني.</string>
     <string name="ownServerErrUser">د کارن نوم کې «:» یا «@» نه شي راتلای.</string>
     <string name="ownServerExit">ستاسو د خپل سرور له لارې. سایټونه دا ګوري: {ip}</string>
     <string name="ownServerFails">کار یې ونکړ: {why}. نه کارول کېږي؛ لینک وګورئ، یا یې بیا هم وکاروئ.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">کار کوي: یو سایټ د هغه له لارې په {ms} ملي‌ثانیو کې پرانیستل شو. په کار کې.</string>
     <string name="ownServerWhyAsks">د کارن نوم او پټنوم غواړي</string>
     <string name="ownServerWhyAuth">د کارن نوم یا پټنوم یې ونه منل</string>
+    <string name="ownServerWhyCert">سند یې د خپل نوم لپاره سم نه دی</string>
     <string name="ownServerWhyLocal">پته یې د کور یا دفتر د شبکې ده، نو یوازې په همغه شبکه کې کار کوي؛ له بل ځای څخه، د شریکوونکي روټر باید پورټ انټرنیټ ته پرانیزي</string>
     <string name="ownServerWhyNoAnswer">ځواب نه ورکوي</string>
     <string name="ownServerWhyProtocol">په ټاکل شوي پروتوکول نه پوهېږي</string>

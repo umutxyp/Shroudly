@@ -809,6 +809,7 @@ class SettingsActivity : Activity() {
                     status.text = when (bad) {
                         "method" -> text(R.string.ownServerErrMethod, "method" to (parsed.method ?: l?.method ?: ""))
                         "user" -> getString(R.string.ownServerErrUser)
+                        "unsupported" -> text(R.string.ownServerErrUnsupported, "what" to Vless.unsupportedName(parsed.what))
                         else -> getString(R.string.ownServerErrFormat)
                     }
                     return@setOnClickListener

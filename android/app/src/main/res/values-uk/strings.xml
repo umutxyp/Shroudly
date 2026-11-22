@@ -220,11 +220,12 @@
     <string name="openSourceDesc">Shroudly — безплатна програма з відкритим кодом за ліцензією MIT: будь-хто може читати, перевіряти й збирати її код.</string>
     <string name="openSourceTitle">Відкритий код</string>
     <string name="ownServer">Власний сервер</string>
-    <string name="ownServerDesc">Усі сайти йдуть через сервер, який ви вкажете: вставте його посилання SOCKS5, HTTP або Shadowsocks. Під час відключення інтернету виходом може стати сервер усередині країни, який ще має зв’язок зі світом. Цей сервер бачить, які сайти ви відкриваєте: використовуйте лише той, якому довіряєте.</string>
+    <string name="ownServerDesc">Усі сайти йдуть через сервер, який ви вкажете: вставте його посилання SOCKS5, HTTP, Shadowsocks, VLESS або Trojan. Під час відключення інтернету виходом може стати сервер усередині країни, який ще має зв’язок зі світом. Цей сервер бачить, які сайти ви відкриваєте: використовуйте лише той, якому довіряєте.</string>
     <string name="ownServerDown">Власний сервер не працює</string>
     <string name="ownServerDownBody">{server}: {why}. Сайти не відкриються, доки він не запрацює. Щоб припинити його використовувати: {path}.</string>
-    <string name="ownServerErrFormat">Shroudly не може використати це посилання. Воно має такий вигляд: socks5://1.2.3.4:1080, http://user:pass@host:3128 або ss://…</string>
+    <string name="ownServerErrFormat">Shroudly не може використати це посилання. Воно має такий вигляд: socks5://1.2.3.4:1080, http://user:pass@host:3128, ss://…, vless://… або trojan://…</string>
     <string name="ownServerErrMethod">Цей метод Shadowsocks ({method}) не підтримується; використовуйте chacha20-ietf-poly1305, aes-256-gcm або aes-128-gcm.</string>
+    <string name="ownServerErrUnsupported">Такий вид посилання поки не підтримується ({what}). Shroudly приймає VLESS і Trojan через TCP, WebSocket або HTTPUpgrade, з TLS або без нього.</string>
     <string name="ownServerErrUser">Ім’я користувача не може містити «:» або «@».</string>
     <string name="ownServerExit">Через ваш власний сервер. Сайти бачать: {ip}</string>
     <string name="ownServerFails">Не спрацювало: {why}. Не використовується; перевірте посилання або однаково використайте його.</string>
@@ -233,6 +234,7 @@
     <string name="ownServerOk">Працює: сайт відкрився через нього за {ms} мс. Використовується.</string>
     <string name="ownServerWhyAsks">він вимагає ім’я користувача та пароль</string>
     <string name="ownServerWhyAuth">він не прийняв ім’я користувача або пароль</string>
+    <string name="ownServerWhyCert">його сертифікат недійсний для його імені</string>
     <string name="ownServerWhyLocal">його адреса належить домашній або офісній мережі, тож він працює лише в цій мережі; з іншого місця роутер того, хто ділиться, має відкрити порт в інтернет</string>
     <string name="ownServerWhyNoAnswer">він не відповідає</string>
     <string name="ownServerWhyProtocol">він не розуміє вибраний протокол</string>
