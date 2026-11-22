@@ -14,6 +14,7 @@ export const OWN_SERVER_WHY = {
   silent: 'ownServerWhySilent',
   tls: 'ownServerWhyTls',
   local: 'ownServerWhyLocal',
+  cert: 'ownServerWhyCert',
 };
 
 /* Under "the site itself refuses you": what does change it, a trusted
@@ -25,7 +26,16 @@ export function abroadHint(t, isRTL = false) {
   return t('probeServiceAbroad', { share: path('share'), ownServer: path('ownServer') });
 }
 
-export const OWN_SERVER_ERRORS = { empty: 'ownServerErrFormat', format: 'ownServerErrFormat', method: 'ownServerErrMethod', user: 'ownServerErrUser' };
+export const OWN_SERVER_ERRORS = {
+  empty: 'ownServerErrFormat', format: 'ownServerErrFormat', method: 'ownServerErrMethod', user: 'ownServerErrUser', unsupported: 'ownServerErrUnsupported',
+};
+
+/* The part of a VLESS or Trojan link that is not carried (electron/vless.js
+ * parseLink `what`), by the name its users know it by: the same in every
+ * language. */
+export const OWN_SERVER_UNSUPPORTED = {
+  reality: 'REALITY', flow: 'XTLS Vision', transport: 'gRPC / XHTTP / mKCP', encryption: 'VLESS Encryption', security: 'XTLS',
+};
 
 const b64 = (s) => {
   try { return decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/')))); } catch { return ''; }
@@ -35,16 +45,21 @@ const b64 = (s) => {
  * not being edited: the screen may be seen by others. */
 export function maskLink(link) {
   const text = String(link || '');
+  // A VLESS link's UUID and a Trojan link's password are its whole secret.
+  if (/^(vless|trojan):\/\//i.test(text)) return text.replace(/^((?:vless|trojan):\/\/)[^@/?#]+@/i, '$1••••@');
   if (/^ss:\/\//i.test(text)) return text.replace(/^(ss:\/\/)[^@#]+@/i, '$1••••@').replace(/^(ss:\/\/)[A-Za-z0-9+/=_-]{12,}(#|$)/i, '$1••••$2');
   return text.replace(/^([a-z0-9]+:\/\/[^:@/]*):[^@/]*@/i, '$1:••••@');
 }
 
 /* "SOCKS5 1.2.3.4:1080", "HTTP proxy.example:3128", "Shadowsocks
- * 5.6.7.8:8388": the kind and the address of a link, or '' . */
+ * 5.6.7.8:8388", "VLESS edge.example:443": the kind and the address of a
+ * link, or '' . */
 export function serverShown(link) {
   const text = String(link || '').trim();
   let m = /^(socks5h?|socks|http):\/\/(?:[^@/]*@)?([^/?#]+)/i.exec(text);
   if (m) return `${/^http$/i.test(m[1]) ? 'HTTP' : 'SOCKS5'} ${m[2]}`;
+  m = /^(vless|trojan):\/\/[^@/?#]+@([^/?#]+)/i.exec(text);
+  if (m) return `${/^vless$/i.test(m[1]) ? 'VLESS' : 'Trojan'} ${m[2]}`;
   m = /^ss:\/\/([^#]+)/i.exec(text);
   if (m) {
     // Cut at the first "?" (plugin options), no backtracking pattern.

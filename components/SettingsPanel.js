@@ -11,7 +11,7 @@ import {
 import Select from './Select';
 import { NOT_FROM } from './helpNudge';
 import { probeView } from './probeView';
-import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, maskLink, serverShown, abroadHint } from './ownServerText';
+import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, OWN_SERVER_UNSUPPORTED, maskLink, serverShown, abroadHint } from './ownServerText';
 
 /* The technique, one choice (as on Android): Auto finds what works for each
  * site by itself (the engine's auto mode); any other is that one technique
@@ -393,7 +393,7 @@ function OwnServer({ value, onSave }) {
           <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
             <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
             <span className="min-w-0">{state.invalid
-              ? t(OWN_SERVER_ERRORS[state.invalid] || 'ownServerErrFormat', { method: state.method || '' })
+              ? t(OWN_SERVER_ERRORS[state.invalid] || 'ownServerErrFormat', { method: state.method || '', what: OWN_SERVER_UNSUPPORTED[state.what] || state.what || '' })
               : t('ownServerFails', { why: t(OWN_SERVER_WHY[state.why] || 'ownServerWhyNoAnswer') })}</span>
           </p>
         )}

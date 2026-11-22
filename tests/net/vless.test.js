@@ -63,6 +63,28 @@ const IDHEX = ID.replace(/-/g, '');
   'a key that is no UUID, no port, a Host or a path with a line break in it: not a link');
 }
 
+// ── what the window shows of a link ──
+{
+  const vm = require('vm');
+  const code = `${fs.readFileSync(path.join(ROOT, 'components', 'ownServerText.js'), 'utf8').replace(/export (const|function)/g, '$1')}\n;({ maskLink, serverShown, OWN_SERVER_ERRORS, OWN_SERVER_WHY, OWN_SERVER_UNSUPPORTED })`;
+  const W = vm.runInNewContext(code, { atob: (x) => Buffer.from(x, 'base64').toString('binary'), escape, decodeURIComponent });
+  const link = `vless://${ID}@edge.example.net:443?type=ws&security=tls&path=%2Fabc&host=edge.example.net#Mine`;
+  t.ok(W.maskLink(link) === 'vless://••••@edge.example.net:443?type=ws&security=tls&path=%2Fabc&host=edge.example.net#Mine' && !W.maskLink(link).includes(ID),
+    'the saved link is shown with its key covered');
+  t.ok(W.maskLink('trojan://my%20secret@t.example:443?sni=t.example') === 'trojan://••••@t.example:443?sni=t.example', '…a Trojan link with its password covered');
+  t.ok(W.serverShown(link) === 'VLESS edge.example.net:443' && W.serverShown('trojan://x@[2001:db8::1]:443') === 'Trojan [2001:db8::1]:443', 'and named by its kind and address');
+  const src = fs.readFileSync(path.join(ROOT, 'electron', 'vless.js'), 'utf8');
+  const whats = [...new Set([...src.matchAll(/no\('([a-z]+)'\)/g)].map((m) => m[1]))];
+  t.ok(whats.length === 5 && whats.every((w) => typeof W.OWN_SERVER_UNSUPPORTED[w] === 'string') && W.OWN_SERVER_ERRORS.unsupported === 'ownServerErrUnsupported' && W.OWN_SERVER_WHY.cert === 'ownServerWhyCert',
+    `every part a link can be refused for has its name in the window (${whats.join(', ')})`);
+  const locales = fs.readdirSync(path.join(ROOT, 'locales')).filter((f) => f.endsWith('.json'));
+  const bad = locales.filter((f) => {
+    const d = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', f), 'utf8'));
+    return !/\{what\}/.test(d.ownServerErrUnsupported || '') || !d.ownServerWhyCert || !/vless:\/\/…/.test(d.ownServerErrFormat) || !/trojan:\/\/…/.test(d.ownServerErrFormat) || !/VLESS/.test(d.ownServerDesc) || !/Trojan/.test(d.ownServerDesc);
+  });
+  t.ok(locales.length === 31 && !bad.length, `said in all 31 languages: not supported (with what), the certificate, and the kinds of link (${bad.join(', ') || 'all'})`);
+}
+
 // ── the protocols' own bytes ──
 const vectors = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'vless-vectors.json'), 'utf8'));
 for (const v of vectors.vless) {
