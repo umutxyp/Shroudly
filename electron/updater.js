@@ -401,7 +401,7 @@ class Updater {
    * quitting). onAppImageMoved(file): the AppImage now lives at file.
    * metered(): whether the connection is paid for by the byte.
    * adminPrompt(version): the sentence macOS's password dialog shows. */
-  constructor({ log, store, notify, beforeInstall, onInstallFailed, onAppImageMoved, busy, fullScreen, away, metered, adminPrompt, dir }) {
+  constructor({ log, store, notify, beforeInstall, onInstallFailed, onAppImageMoved, busy, fullScreen, playing, away, metered, adminPrompt, dir }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
@@ -421,6 +421,9 @@ class Updater {
     // A full-screen game or video in front (user-busy.js): the restart would
     // cut it off too.
     this.fullScreen = fullScreen || (async () => false);
+    // A game being played, or a full-screen program in front: no download
+    // is started by itself meanwhile (_downloadsByItself).
+    this.playing = playing || (async () => false);
     this.busyApps = false;
     this.toldWaiting = false;
     this.away = away || awayFromComputer;
@@ -806,6 +809,17 @@ class Updater {
     try { metered = !!(await this.metered()); } catch {}
     if (metered) {
       if (this._first('metered', version)) this.log('info', `Update ${version} is not downloaded by itself on a metered connection`);
+      return false;
+    }
+    // Not while a game is being played or a full-screen program is in
+    // front: about a hundred megabytes take a thin line whole for minutes,
+    // and the game's delay goes from tens of milliseconds to seconds "out
+    // of nowhere" (a report from an ADSL line, 13 Mbit/s down). Looked at
+    // again at each check, so it comes once the game is over.
+    let playing = false;
+    try { playing = !!(await this.playing()); } catch {}
+    if (playing) {
+      if (this._first('playing', version)) this.log('info', `Update ${version} is downloaded once no game or full-screen program is running`);
       return false;
     }
     return true;

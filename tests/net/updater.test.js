@@ -724,10 +724,10 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
 
   // ── what downloads by itself (MISS-2) ──
   {
-    const found = async ({ releaseDate, fetched, manual = false, metered = false, store } = {}) => {
+    const found = async ({ releaseDate, fetched, manual = false, metered = false, playing = () => false, store } = {}) => {
       store = store || memStore(fetched ? { [Updater.FETCHED_KEY]: fetched } : {});
       const logs = [];
-      const u = new Updater({ store, log: (l, m) => logs.push(m), metered: async () => metered });
+      const u = new Updater({ store, log: (l, m) => logs.push(m), metered: async () => metered, playing: async () => playing() });
       u.mac = false;
       let downloads = 0;
       u.download = async () => { downloads++; };
@@ -748,6 +748,24 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
     await m.u._found('2.5.6', old);
     t.ok(m.logs.filter((l) => /metered/.test(l)).length === 1 && m.logs.filter((l) => /^Update available/.test(l)).length === 1,
       '…and at the next check neither line again (BR-7: not 48 times a day)');
+    // A game being played, or a full-screen program in front: about 100 MB
+    // would take a thin line whole for minutes, and the game with it.
+    let inGame = true;
+    const g = await found({ releaseDate: old, playing: () => inGame });
+    t.ok(g.downloads() === 0 && g.u.state.status === 'available' && g.logs.filter((l) => l === 'Update 2.5.6 is downloaded once no game or full-screen program is running').length === 1,
+      'a game or a full-screen program running: not downloaded by itself meanwhile, the button there, said once');
+    await g.u._found('2.5.6', old);
+    t.ok(g.downloads() === 0 && g.logs.filter((l) => /no game or full-screen/.test(l)).length === 1, '…still running at the next check: still waiting, not said again');
+    inGame = false;
+    await g.u._found('2.5.6', old);
+    t.ok(g.downloads() === 1, '…and once the game is over it downloads at the next check');
+    t.ok((await found({ releaseDate: old, playing: () => true, manual: true })).downloads() === 1, '"Check for updates" by hand downloads even then (the user asked)');
+    t.ok((await found({ releaseDate: old, playing: () => { throw new Error('cannot look'); } })).downloads() === 1, 'a look that fails never holds an update back');
+    {
+      const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+      t.ok(/playing: async \(\) => \{\s+try \{ const p = await RobloxApp\.pids\(\); if \(p && p\.length > 0\) return true; \} catch \{\}\s+return userBusy\.fullScreen\(\);/.test(main),
+        'the app looks for the Roblox player and for a full-screen program in front, with protection on or off');
+    }
     const fails = await found({ releaseDate: old });
     fails.u._set({ version: '2.5.6' });
     fails.u._downloadFailed(new Error('connection reset'));

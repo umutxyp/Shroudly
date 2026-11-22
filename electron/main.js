@@ -1841,6 +1841,13 @@ app.whenReady().then(async () => {
     }),
     // A full-screen game or video while protection is on.
     fullScreen: async () => !!(engine && engine.isActive()) && userBusy.fullScreen(),
+    // A game going on, with protection on or off: the Roblox player open, or
+    // any full-screen program in front. No update is downloaded by itself
+    // meanwhile (it would take the line the game needs).
+    playing: async () => {
+      try { const p = await RobloxApp.pids(); if (p && p.length > 0) return true; } catch {}
+      return userBusy.fullScreen();
+    },
     // Installing quits the app: stop the engine first so the system proxy is
     // put back, exactly as on a normal quit.
     beforeInstall: async () => {
