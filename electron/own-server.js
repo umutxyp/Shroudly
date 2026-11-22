@@ -12,15 +12,23 @@
  *   http://[user[:password]@]host:port        (CONNECT)
  *   ss://BASE64URL(method:password)@host:port[#name]   (SIP002)
  *   ss://BASE64(method:password@host:port)[#name]      (the older form)
+ *   vless://UUID@host:port?type=ws&security=tls&path=…&host=…&sni=…[#name]
+ *   trojan://password@host:port?…              (vless.js: over TLS, plain
+ *                                               TCP, WebSocket or HTTPUpgrade)
  *   host:port                                  (SOCKS5)
- * Shadowsocks goes through a client of Shroudly's own on this computer
- * (shadowsocks.js), which the engine is pointed at.
+ * Shadowsocks, VLESS and Trojan go through a client of Shroudly's own on
+ * this computer (shadowsocks.js, vless.js), which the engine is pointed at.
  */
 
 const net = require('net');
 const tls = require('tls');
 const SS = require('./shadowsocks');
+const Vless = require('./vless');
 const UPnP = require('./upnp');
+
+/* The kinds that go through a client of Shroudly's own on this computer. */
+const LOCAL_KINDS = ['ss', 'vless', 'trojan'];
+const localClient = (p) => !!p && LOCAL_KINDS.includes(p.kind);
 
 const { METHODS } = SS;
 
@@ -35,10 +43,13 @@ function hostPort(text) {
 }
 
 /* { ok: true, kind, host, port, user, pass, method, password, name } or
- * { ok: false, error } with error one of: empty, format, method, user. */
+ * { ok: false, error } with error one of: empty, format, method, user,
+ * unsupported (a VLESS or Trojan link of a kind not carried: `what` names
+ * it, vless.js). */
 function parseLink(input) {
   const text = String(input || '').trim();
   if (!text) return { ok: false, error: 'empty' };
+  if (/^(vless|trojan):\/\//i.test(text)) return Vless.parseLink(text);
   let m = /^(socks5h?|socks|http):\/\/(?:([^@/]*)@)?([^/?#]+)\/?$/i.exec(text);
   if (m) {
     const hp = hostPort(m[3]);
@@ -98,14 +109,16 @@ function parseLink(input) {
 /* What the log and the window show: never the password. */
 function describe(p) {
   if (!p || !p.ok) return '';
+  if (p.kind === 'vless' || p.kind === 'trojan') return Vless.describe(p);
   const where = p.host.includes(':') ? `[${p.host}]:${p.port}` : `${p.host}:${p.port}`;
   return p.kind === 'ss' ? `Shadowsocks ${where}` : `${p.kind === 'http' ? 'HTTP' : 'SOCKS5'} ${where}`;
 }
 
 /* The engine's --upstream-file line for a SOCKS5 or HTTP server (or, for
- * Shadowsocks, the local client on `localPort`, with its { user, pass }). */
+ * Shadowsocks, VLESS and Trojan, the local client on `localPort`, with its
+ * { user, pass }). */
 function engineLine(p, localPort, auth = null) {
-  if (p.kind === 'ss') return `socks5://${auth ? `${auth.user}:${auth.pass}@` : ''}127.0.0.1:${localPort}`;
+  if (localClient(p)) return `socks5://${auth ? `${auth.user}:${auth.pass}@` : ''}127.0.0.1:${localPort}`;
   const where = p.host.includes(':') ? `[${p.host}]:${p.port}` : `${p.host}:${p.port}`;
   const who = p.user ? `${p.user}${p.pass ? `:${p.pass}` : ''}@` : '';
   return `${p.kind}://${who}${where}`;
@@ -121,6 +134,19 @@ function ssLink({ method, password, host, port, name = 'Shroudly' }) {
 /* Why a server could not be used, as the engine says it (engine.c,
  * upstream_report) and as the test below finds it: a code the window
  * translates. */
+/* The client of Shroudly's own for a server that needs one (localClient):
+ * a SOCKS5 server on 127.0.0.1, { port, close() }. onDown(why): the server
+ * could not be used, with one of the codes below. */
+function startLocalClient(p, { user = '', pass = '', onDown = () => {}, ca = null } = {}) {
+  if (p.kind === 'ss') {
+    return SS.startClient({
+      server: p.host, port: p.port, method: p.method, password: p.password, user, pass,
+      onError: (e) => onDown(/authenticate/.test(e.message) ? 'protocol' : 'noAnswer'),
+    });
+  }
+  return Vless.startClient(p, { user, pass, ca, onError: (e) => onDown(e.why === 'tls' ? 'cert' : e.why === 'protocol' ? 'protocol' : 'noAnswer') });
+}
+
 const WHY = {
   'does not answer': 'noAnswer',
   'refused the user name or password': 'auth',
@@ -133,6 +159,7 @@ const WHY_TEXT = Object.fromEntries(Object.entries(WHY).map(([k, v]) => [v, k]))
 WHY_TEXT.silent = 'nothing came back (the password or the method may be wrong)';
 WHY_TEXT.tls = 'it answers, but no site\'s certificate came through it';
 WHY_TEXT.local = 'its address is on a home or office network: it works only on that network';
+WHY_TEXT.cert = 'its certificate is not one for its name (or its TLS was refused)';
 
 /* A link's address that only its own network reaches (192.168.x.x, 10.x,
  * a provider's shared 100.64.x.x, fe80::, fc00::): a link "Share my
@@ -249,7 +276,7 @@ async function test(p, opts = {}) {
   return !r.ok && p && localHost(p.host) ? { ...r, why: 'local' } : r;
 }
 
-async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000, trace = false } = {}) {
+async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, serverCa = null, timeout = 12000, trace = false } = {}) {
   const t0 = Date.now();
   let s = null;
   let client = null;
@@ -263,6 +290,14 @@ async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, timeout = 
         client = await SS.startClient({ server: p.host, port: p.port, method: p.method, password: p.password, onError: (e) => { clientError = e; } });
         s = await tcp('127.0.0.1', client.port, timeout);
         try { await socks5(s, { user: '' }, host, port); } catch { throw new Why(clientError && /authenticate/.test(clientError.message) ? 'silent' : 'noAnswer'); }
+      } else if (p.kind === 'vless' || p.kind === 'trojan') {
+        // Why it could not be reached is the client's to say: not there, its
+        // certificate, or an answer that is not this protocol's.
+        client = await Vless.startClient(p, { ca: serverCa, onError: (e) => { clientError = e; } });
+        s = await tcp('127.0.0.1', client.port, timeout);
+        try { await socks5(s, { user: '' }, host, port); } catch {
+          throw new Why(clientError && clientError.why === 'tls' ? 'cert' : clientError && clientError.why === 'protocol' ? 'protocol' : 'noAnswer');
+        }
       } else {
         s = await tcp(p.host, p.port, timeout);
         if (p.kind === 'http') await connectHttp(s, p, host, port);
@@ -293,7 +328,9 @@ async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, timeout = 
         });
         t.on('error', () => {
           if (up) { t.destroy(); resolve(null); return; }
-          reject(new Why(p.kind === 'ss' ? (clientError ? 'noAnswer' : 'silent') : 'tls'));
+          // Through a client of ours, a site that never answers means the
+          // server took the connection and carried nothing: a wrong key.
+          reject(new Why(localClient(p) ? (clientError ? 'noAnswer' : 'silent') : 'tls'));
         });
       });
     })()]);
@@ -308,4 +345,4 @@ async function testOnce(p, { host = 'cloudflare.com', port = 443, ca, timeout = 
   }
 }
 
-module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, traceLoc, whyCode, WHY_TEXT, localHost };
+module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, traceLoc, whyCode, WHY_TEXT, localHost, localClient, startLocalClient, LOCAL_KINDS };

@@ -3732,7 +3732,7 @@ function setOwnServer(value) {
     addLog('info', 'Your own server: off; sites go straight again');
   } else {
     const p = OwnServer.parseLink(value);
-    if (!p.ok) return { success: false, error: p.error };
+    if (!p.ok) return { success: false, error: p.error, method: p.method, what: p.what };
     const link = String(value).trim();
     if (link === was) return { success: true };
     store.set('ownServer', link);

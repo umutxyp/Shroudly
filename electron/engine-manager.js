@@ -262,7 +262,7 @@ class EngineManager {
     // own server"; own-server.js): this user's own folder, as it holds the
     // server's password.
     this.dataDir = hooks.dataDir || require('os').tmpdir();
-    this._ssClient = null;      // { key, port, close } for a Shadowsocks server
+    this._ssClient = null;      // { key, port, close }: the local client for a Shadowsocks, VLESS or Trojan server
     this._upstreamFile = null;
     // The last way out (tor-route.js): Tor, for a connection nothing else
     // got through; main.js brings it (none in the tests unless they do).
@@ -557,15 +557,14 @@ class EngineManager {
     // server, never straight out to a resolver (issue #67).
     if (this.doh && this.doh.setThroughEngine) this.doh.setThroughEngine(!!p);
     await this._prepareTor(!!p);
-    const key = p && p.kind === 'ss' ? `${p.host} ${p.port} ${p.method} ${p.password}` : null;
+    // Shadowsocks, VLESS and Trojan: a client of Shroudly's own in between
+    // (kept while the link stays the same).
+    const key = OwnServer.localClient(p) ? String(this.store.get('ownServer')).trim() : null;
     if (this._ssClient && this._ssClient.key !== key) { this._ssClient.close(); this._ssClient = null; }
     if (!p) { this._removeUpstream(); return; }
     if (key && !this._ssClient) {
       const auth = { user: crypto.randomBytes(8).toString('hex'), pass: crypto.randomBytes(16).toString('hex') };
-      const c = await require('./shadowsocks').startClient({
-        server: p.host, port: p.port, method: p.method, password: p.password, ...auth,
-        onError: (e) => this._onOwnServerDown(/authenticate/.test(e.message) ? 'protocol' : 'noAnswer'),
-      });
+      const c = await OwnServer.startLocalClient(p, { ...auth, onDown: (why) => this._onOwnServerDown(why) });
       this._ssClient = { key, auth, ...c };
     }
     const file = path.join(this.dataDir, 'own-server.txt');
@@ -660,7 +659,7 @@ class EngineManager {
    * that cannot be read. */
   async testOwnServer(link) {
     const p = OwnServer.parseLink(link);
-    if (!p.ok) return { ok: false, invalid: p.error, method: p.method };
+    if (!p.ok) return { ok: false, invalid: p.error, method: p.method, what: p.what };
     return OwnServer.test(p, { trace: true });
   }
 
