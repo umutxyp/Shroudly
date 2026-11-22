@@ -45,4 +45,11 @@ void sup_set_escalate(sup_lines_fn fn);
  * no new permission prompt. */
 void sup_set_standby(sup_teardown_fn pause, sup_teardown_fn resume);
 
+/* Optional, before sup_start: the files the app controls the engine by
+ * (F.stop, F.escalate, F.standby) named after `base` instead of the status
+ * file, for an engine whose status is written where the app cannot write
+ * (advtask.h). keep: they are only looked at and read, never removed (they
+ * are in a folder of the user's, and this process is an administrator's). */
+void sup_set_control(const char *base, int keep);
+
 #endif

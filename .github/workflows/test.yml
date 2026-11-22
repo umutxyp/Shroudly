@@ -128,6 +128,16 @@ jobs:
         shell: bash
         run: node tests/lab/advanced-windows-repair.js electron/tools/core/win32-x64/shroudly-core-adv.exe
 
+      # Advanced mode with the administrator permission given once
+      # (core/src/advtask.h): the copies in Common Files, the real scheduled
+      # task, the app's own start through it (no launcher, no prompt),
+      # standby, stop, requests that are refused, and the uninstaller's
+      # request (tests/lab/advanced-windows-task.js).
+      - name: Advanced mode kept-permission lab (Windows, real task)
+        if: matrix.part == '1' && (matrix.os == 'windows-latest')
+        shell: bash
+        run: node tests/lab/advanced-windows-task.js electron/tools/core/win32-x64/shroudly-core-adv.exe
+
       # Microsoft Store apps and the loopback proxy (issue #26): a process in
       # an app container of our own reaches the internet but not 127.0.0.1
       # nor the engine's SOCKS port until it has a loopback exemption, and

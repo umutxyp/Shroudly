@@ -8,7 +8,9 @@
  * "advanced"), the UI offers this mode. It is privileged and platform-specific:
  *
  *   Windows x64: WinDivert driver, bundled next to shroudly-core-adv.exe.
- *                Started through a UAC prompt.
+ *                Started through a UAC prompt, once: after that through a
+ *                task that keeps the permission (advanced-task.js), with
+ *                the prompt again only when an update changed the engine.
  *   Linux      : NFQUEUE (over netlink: no library needed) + raw sockets. Started
  *                through pkexec; the engine installs and removes its own
  *                iptables/nftables rule.
@@ -34,6 +36,7 @@
 const { spawn, execFile } = require('child_process');
 const { envFor } = require('./win-powershell');
 const SecurityBlock = require('./security-block');
+const AdvTask = require('./advanced-task');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -46,6 +49,13 @@ const STOP_TIMEOUT_MS = 4000;
 // is the answer), and a security program watching such requests should not
 // see one every second for hours.
 const ALIVE_CHECK_MS = 5000;
+// The permission prompt may stay on screen this long (nobody at the
+// computer when it starts); after that it counts as not answered.
+const PROMPT_TIMEOUT_MS = 180000;
+// Started by its task, the engine says its process id within a second;
+// waited for this long (a slow disk, an antivirus reading the file first)
+// before the prompt is used instead.
+const TASK_WAIT_MS = 10000;
 
 function archKey() { return process.arch === 'arm64' ? 'arm64' : process.arch === 'ia32' ? 'ia32' : process.arch === 'arm' ? 'armv7l' : 'x64'; }
 
@@ -245,7 +255,11 @@ function winQuoteArg(a) {
 function launcherArgs(bin, args) {
   const argLine = args.map(winQuoteArg).join(' ');
   const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
+  // $ProgressPreference: PowerShell writes its "preparing modules" progress
+  // to the error stream as CLIXML when nobody reads it live, which then was
+  // all a failure said ("Advanced mode failed: #< CLIXML").
   const script =
+    "$ProgressPreference = 'SilentlyContinue'; " +
     `try { $p = Start-Process -FilePath ${q(bin)} -ArgumentList ${q(argLine)} -Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop } ` +
     'catch { $e = $_.Exception; while ($e) { $c = $e.NativeErrorCode; if ($c -eq 1223) { exit 2 }; ' +
     'if ($c -eq 5 -or $c -eq 225 -or $c -eq 226) { exit 3 }; if ($c -eq 2 -or $c -eq 3) { exit 4 }; $e = $e.InnerException }; ' +
@@ -255,15 +269,22 @@ function launcherArgs(bin, args) {
   return ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encoded];
 }
 
+/* PowerShell's error stream without its CLIXML records (progress, mostly):
+ * they are no message for a person. */
+function plainErr(s) {
+  return String(s || '').replace(/#< CLIXML[\s\S]*?(<\/Objs>|$)/g, '').trim();
+}
+
 /* A program that could not be started at all (ENOENT...) or ran out of
- * time says so in stderr: "PowerShell exited with -1" alone told nobody why. */
+ * time says so in stderr: "PowerShell exited with -1" alone told nobody why.
+ * timedOut: it was ended for taking longer than `timeout`. */
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
     execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) => {
-      if (!err) { resolve({ code: 0, stdout: String(stdout || ''), stderr: String(stderr || '') }); return; }
-      if (typeof err.code === 'number') { resolve({ code: err.code, stdout: String(stdout || ''), stderr: String(stderr || '') }); return; }
+      if (!err) { resolve({ code: 0, stdout: String(stdout || ''), stderr: plainErr(stderr) }); return; }
+      if (typeof err.code === 'number') { resolve({ code: err.code, stdout: String(stdout || ''), stderr: plainErr(stderr) }); return; }
       const why = err.killed ? `${path.basename(cmd)} did not finish in time` : `${path.basename(cmd)} could not be started (${err.code || err.message})`;
-      resolve({ code: -1, stdout: '', stderr: String(stderr || '').trim() || why });
+      resolve({ code: -1, stdout: '', stderr: plainErr(stderr) || why, timedOut: !!err.killed });
     });
   });
 }
@@ -279,7 +300,16 @@ class AdvancedMode {
     this.statusFile = null;
     this.child = null;      // pkexec / direct child on Linux; none on Windows
     this.childExit = null;  // exit code of that child, once it has exited
-    this.pid = null;        // Windows: the elevated engine's process, from the launcher
+    this.pid = null;        // Windows: the elevated engine's process, from the launcher (or said by the engine: its task)
+    // The files the engine is controlled by are named after this (.stop,
+    // .standby, .escalate): the status file, or, for an engine started by
+    // its task, a name in the user's own folder (advanced-task.js).
+    this.ctl = null;
+    this.viaTask = false;   // Windows: this engine was started by its task, without a prompt
+    this.taskWaitMs = TASK_WAIT_MS;
+    this.runTool = run;     // the tests bring their own
+    this.env = process.env;
+    this.bundledDir = () => path.dirname(advBinaryPath());
     this.alive = alive;     // the tests bring their own
     this.aliveCheckMs = ALIVE_CHECK_MS;
     this.monitor = null;
@@ -426,13 +456,98 @@ class AdvancedMode {
   }
 
   async _launchWindows(bin, args) {
-    this._launched(await run('powershell.exe', launcherArgs(bin, args), 180000));
+    this._launched(await this.runTool('powershell.exe', launcherArgs(bin, args), PROMPT_TIMEOUT_MS));
+  }
+
+  /* Windows: where the kept permission lives for this user, or null where
+   * it cannot be used (advanced-task.js). */
+  _task() {
+    if (this.platform !== 'win32' || this.taskOff) return null;
+    const admin = AdvTask.adminDir(this.env);
+    const userDir = AdvTask.userDir(this.env);
+    const user = AdvTask.userName(undefined, this.env);
+    if (!admin || !userDir || !user) return null;
+    return { admin, userDir, user, name: AdvTask.taskName(user) };
+  }
+
+  /* Windows: the engine started by its task, with the permission given
+   * before: no prompt. true when it runs and said its process id; false
+   * when this way is not there (never allowed yet, an update changed the
+   * engine, the task gone or not allowed to run) and the prompt is to be
+   * used. argsFor(statusFile): the engine's arguments. */
+  async _launchByTask(argsFor) {
+    const t = this._task();
+    if (!t) return false;
+    if (!AdvTask.current(this.bundledDir(), t.admin)) return false;
+    const args = AdvTask.requestArgs(argsFor(''));
+    if (!args) return false;
+    const id = AdvTask.newId();
+    const statusFile = path.join(t.admin, 'run', `${id}.log`);
+    try {
+      fs.rmSync(t.userDir, { recursive: true, force: true });
+      fs.mkdirSync(t.userDir, { recursive: true });
+      fs.writeFileSync(path.join(t.userDir, 'request'), AdvTask.requestText(id, args));
+    } catch { return false; }
+    const r = await this.runTool(AdvTask.schtasks(this.env), ['/Run', '/TN', t.name], 15000);
+    if (r.code !== 0) {
+      try { fs.rmSync(t.userDir, { recursive: true, force: true }); } catch {}
+      return false;
+    }
+    const deadline = Date.now() + this.taskWaitMs;
+    let pid = null;
+    while (!pid && Date.now() < deadline) {
+      pid = AdvTask.pidLine(statusFile);
+      if (!pid) await new Promise((res) => setTimeout(res, 150));
+    }
+    if (!pid) {
+      // Should it still come up, it ends at once.
+      try { fs.writeFileSync(path.join(t.userDir, `${id}.stop`), ''); } catch {}
+      this.log('info', 'Advanced mode: the permission given before could not be used this time, so it is asked for again');
+      return false;
+    }
+    this.dir = t.userDir;
+    this.statusFile = statusFile;
+    this.ctl = path.join(t.userDir, id);
+    this.pid = pid;
+    this.viaTask = true;
+    return true;
+  }
+
+  /* Windows: the engine started through the prompt also keeps the
+   * permission for the next starts (--task-install, core/src/advtask.h). */
+  _withInstall(args) {
+    const t = this._task();
+    return t ? [...args, '--task-install', t.user] : args;
+  }
+
+  /* Said once, a moment after a start through the prompt: whether the
+   * permission is kept now. */
+  _noteInstall() {
+    const t = this._task();
+    if (!t || this._installTold) return;
+    const timer = setTimeout(() => {
+      if (this._installTold) return;
+      if (AdvTask.current(this.bundledDir(), t.admin) && (AdvTask.installResult(t.admin) || {}).ok) {
+        this._installTold = true;
+        this.log('info', 'Advanced mode: the permission is kept from now on: it turns on without asking again (asked once more only after an update that changes its engine)');
+        return;
+      }
+      const res = AdvTask.installResult(t.admin);
+      if (res && !res.ok) {
+        this._installTold = true;
+        this.log('info', `Advanced mode: the permission could not be kept for the next start (${res.why}${res.hr && res.hr !== '0x00000000' ? `, ${res.hr}` : ''}); it will be asked for again`);
+      }
+    }, this.installNoteMs || 6000);
+    if (timer.unref) timer.unref();
   }
 
   /* What the launcher's exit says (launcherArgs): the engine's process id
    * kept, or the AdvError it stands for. */
   _launched(r) {
     if (r.code === 2) throw new AdvError('declined', 'Administrator permission was not granted.');
+    // Nobody answered the prompt (the computer started with no one at it):
+    // not a "no", and nothing went wrong.
+    if (r.timedOut) throw new AdvError('unanswered', 'The administrator permission prompt was not answered.');
     if (r.code === 3) throw this._blockError('security_blocked', 'denied', { detail: 'elevated start' });
     if (r.code === 4) {
       const bad = this._badFile();
@@ -550,21 +665,32 @@ class AdvancedMode {
     const o = opts || {};
 
     this._removeDir();
-    this.dir = fs.mkdtempSync(path.join(workBase(this.platform), 'shroudly-adv-'));
-    this.statusFile = path.join(this.dir, 'status.log');
     this._escalated = new Map();
     this._escalateTold = new Set();
-    const args = buildArgs({
-      ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
+    const argsFor = (statusFile) => buildArgs({
+      ttl, statusFile, parentPid: process.pid, platform: this.platform,
       queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, decoyNames: o.decoyNames, opts: o,
     });
 
-    this.log('info', 'Advanced mode: asking for administrator permission');
     try {
-      if (this.platform === 'win32') await this._launchWindows(advBinaryPath(), args);
-      else await this._launchLinux(advBinaryPath(), args);
+      // Windows: with the permission given before, when there is one.
+      let byTask = false;
+      try { byTask = this.platform === 'win32' && await this._launchByTask(argsFor); } catch { byTask = false; }
+      if (byTask) {
+        this.log('info', 'Advanced mode: starting with the administrator permission given before (no prompt)');
+      } else {
+        this.viaTask = false;
+        this.dir = fs.mkdtempSync(path.join(workBase(this.platform), 'shroudly-adv-'));
+        this.statusFile = path.join(this.dir, 'status.log');
+        this.ctl = this.statusFile;
+        const args = argsFor(this.statusFile);
+        this.log('info', 'Advanced mode: asking for administrator permission');
+        if (this.platform === 'win32') await this._launchWindows(advBinaryPath(), this._withInstall(args));
+        else await this._launchLinux(advBinaryPath(), args);
+      }
       const ready = await this._waitReady();
       this.active = true;
+      if (this.platform === 'win32' && !byTask) this._noteInstall();
       const fixedBy = this._readStatus();
       if (fixedBy.stale === 1) this.log('info', 'Advanced mode: a WinDivert service that could not start (left behind by another program, or by an earlier try) was removed, so Shroudly\'s own driver could start');
       if (fixedBy.copy === 1) this.log('info', 'Advanced mode: Windows could not load the driver from Shroudly\'s folder, so it now starts from a copy in Common Files\\Shroudly');
@@ -620,7 +746,7 @@ class AdvancedMode {
 
   async _requestStop() {
     if (!this.statusFile) return;
-    try { fs.writeFileSync(`${this.statusFile}.stop`, ''); } catch {}
+    try { fs.writeFileSync(`${this.ctl || this.statusFile}.stop`, ''); } catch {}
     const deadline = Date.now() + STOP_TIMEOUT_MS;
     while (Date.now() < deadline) {
       if (this._readStatus().stopped || this.childExit !== null) return;
@@ -636,6 +762,7 @@ class AdvancedMode {
     try { fs.rmSync(this.dir, { recursive: true, force: true }); } catch {}
     this.dir = null;
     this.statusFile = null;
+    this.ctl = null;
     this.child = null;
     this.pid = null;
   }
@@ -648,7 +775,7 @@ class AdvancedMode {
   async pause() {
     if (!this.active || !this.statusFile) return false;
     const before = this._readStatus().paused;
-    try { fs.writeFileSync(`${this.statusFile}.standby`, ''); } catch { await this.stop(); return false; }
+    try { fs.writeFileSync(`${this.ctl || this.statusFile}.standby`, ''); } catch { await this.stop(); return false; }
     const deadline = Date.now() + this.standbyWaitMs;
     while (Date.now() < deadline) {
       const st = this._readStatus();
@@ -669,7 +796,7 @@ class AdvancedMode {
    * to a full stop and a new start (one prompt) if the engine cannot. */
   async _resumeOrStart(fakeTtl, opts) {
     const before = this._readStatus();
-    try { fs.rmSync(`${this.statusFile}.standby`, { force: true }); } catch {}
+    try { fs.rmSync(`${this.ctl || this.statusFile}.standby`, { force: true }); } catch {}
     const deadline = Date.now() + this.standbyWaitMs;
     while (Date.now() < deadline) {
       const st = this._readStatus();
@@ -715,7 +842,7 @@ class AdvancedMode {
     if (now - (this._escalated.get(addr) || 0) < 60000) return false;
     if (this._escalated.size > 512) this._escalated.clear();
     this._escalated.set(addr, now);
-    try { fs.appendFileSync(`${this.statusFile}.escalate`, `${addr}\n`); } catch { return false; }
+    try { fs.appendFileSync(`${this.ctl || this.statusFile}.escalate`, `${addr}\n`); } catch { return false; }
     // Said once per address a session, so a report shows what was done.
     this._escalateTold = this._escalateTold || new Set();
     if (!this._escalateTold.has(addr) && this._escalateTold.size < 64) {
@@ -749,7 +876,7 @@ class AdvancedMode {
   cleanupSync() {
     // The engine also exits on its own once this process is gone.
     clearInterval(this.monitor);
-    if (this.statusFile) { try { fs.writeFileSync(`${this.statusFile}.stop`, ''); } catch {} }
+    if (this.statusFile) { try { fs.writeFileSync(`${this.ctl || this.statusFile}.stop`, ''); } catch {} }
   }
 }
 
@@ -763,3 +890,4 @@ module.exports.AdvError = AdvError;
 module.exports.wrongBuild = wrongBuild;
 module.exports.launcherArgs = launcherArgs;
 module.exports.workBase = workBase;
+module.exports.plainErr = plainErr;

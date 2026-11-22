@@ -25,8 +25,13 @@ const outRoot = path.join(root, 'electron', 'tools', 'core');
 const TARGETS = {
   'linux-x64':   { zig: 'x86_64-linux-gnu.2.28',  bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
   'linux-arm64': { zig: 'aarch64-linux-gnu.2.28', bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
-  // advapi32: the service manager, to unload the WinDivert driver at stop
-  'win32-x64':   { zig: 'x86_64-windows.win7-gnu', bin: 'shroudly-core-adv.exe', libs: ['-lws2_32', '-ladvapi32', '-liphlpapi'], feat: [] },
+  // advapi32: the service manager, to unload the WinDivert driver at stop.
+  // ole32, oleaut32: the Task Scheduler, for a start without a permission
+  // prompt (core/src/advtask.h). No console of its own (the windows
+  // subsystem): started by its task it would otherwise open a console
+  // window on the user's desktop for as long as it runs; what it says goes
+  // to its status file, or to the pipes of whoever starts it.
+  'win32-x64':   { zig: 'x86_64-windows.win7-gnu', bin: 'shroudly-core-adv.exe', libs: ['-lws2_32', '-ladvapi32', '-liphlpapi', '-lole32', '-loleaut32', '-Wl,--subsystem,windows'], feat: [] },
   // no win32-arm64: WinDivert ships no ARM64 driver
 };
 

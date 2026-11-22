@@ -40,6 +40,7 @@
 #include "adblock.h"
 #ifdef _WIN32
 #include "winprocs.h"
+#include "advtask.h"
 #endif
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
@@ -73,6 +74,8 @@ static int g_tlsrec   = 0;      /* Advanced mode: split the TLS record of a Clie
 static int g_keep_driver = 0;   /* Advanced mode, Windows: leave the WinDivert driver loaded at stop */
 static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
+static char g_control_base[1024] = "";  /* Advanced mode: its control files, when not by the status file */
+static int g_from_task = 0;             /* Advanced mode, Windows: started by its task (advtask.h) */
 static char g_auth_file[1024] = "";
 static char g_upstream_file[1024] = "";
 static char g_fallback_file[1024] = "";
@@ -120,6 +123,8 @@ static void defaults(void) {
   g_dns_gate = 0;
   g_fake_repeats = 6;
   g_status_file[0] = 0;
+  g_control_base[0] = 0;
+  g_from_task = 0;
   g_auth_file[0] = 0;
   g_upstream_file[0] = 0;
   g_fallback_file[0] = 0;
@@ -265,6 +270,8 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--fallback-file") && i+1<argc) strncpy(g_fallback_file, argv[++i], sizeof(g_fallback_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
+    else if (!strcmp(argv[i], "--control-base") && i+1<argc) strncpy(g_control_base, argv[++i], sizeof(g_control_base)-1);
+    else if (!strcmp(argv[i], "--from-task")) g_from_task = 1;
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
   }
 
@@ -303,6 +310,13 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
    * as a program of its own: it ends the process when it stops. */
   if (g_advanced && !embedded) {
     if (g_status_file[0] && sup_redirect_output(g_status_file) != 0) return 2;
+  #if defined(_WIN32)
+    /* Started by its task, the app has no process id from a launcher: said
+     * here, first (advtask.h). Its control files are the user's: never
+     * removed by this process. */
+    if (g_from_task) { printf("{\"type\":\"task\",\"pid\":%lu}\n", (unsigned long)GetCurrentProcessId()); fflush(stdout); }
+  #endif
+    sup_set_control(g_control_base, g_from_task);
     raw_config rc;
     raw_config_defaults(&rc, g_fake_ttl);
     rc.drop_rst = g_drop_rst;
@@ -528,6 +542,14 @@ int main(int argc, char **argv) {
 #ifdef _WIN32
   char **u = utf8_argv(&argc);
   if (u) argv = u;
+#endif
+#if defined(_WIN32) && defined(SHROUDLY_RAW)
+  /* Advanced mode with the permission given once (advtask.h). */
+  if (argc > 2 && !strcmp(argv[1], "--task-install-only")) return advtask_install(argv[2]);
+  if (argc > 1 && !strcmp(argv[1], "--task")) {
+    int rc = advtask_task(&argc, &argv);
+    if (rc != 0) return rc;
+  } else advtask_install_spawn(&argc, argv);
 #endif
   return engine_main(argc, argv, stdin, stdout, 0);
 }

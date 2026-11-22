@@ -449,6 +449,207 @@ function windowsArgv(line) {
     t.ok(['not_built', null].includes(dev.reasonCode()), 'a developer\'s run: "not built" as before');
   }
 
+  // Windows: the permission given once (advanced-task.js, core/src/advtask.h).
+  // The engine is started by its task, without a prompt, only while the
+  // copies an administrator's folder holds are the engine this Shroudly
+  // brings; anything else ends in the prompt, which also keeps the
+  // permission for the next start.
+  {
+    const AdvTask = require(path.join(ROOT, 'electron', 'advanced-task.js'));
+    t.ok(AdvTask.adminDir({ CommonProgramFiles: 'C:\\Program Files\\Common Files' }) === 'C:\\Program Files\\Common Files\\Shroudly\\advanced'
+      && AdvTask.adminDir({ CommonProgramW6432: 'D:\\PF\\Common Files', CommonProgramFiles: 'C:\\x86' }) === 'D:\\PF\\Common Files\\Shroudly\\advanced'
+      && AdvTask.adminDir({}) === null && AdvTask.adminDir({ CommonProgramFiles: 'relative\\x' }) === null,
+    'the copies: <Common Files>\\Shroudly\\advanced (none where Windows names no such folder)');
+    t.ok(AdvTask.userDir({ LOCALAPPDATA: 'C:\\Users\\Ümit\\AppData\\Local' }) === 'C:\\Users\\Ümit\\AppData\\Local\\Shroudly\\advanced' && AdvTask.userDir({}) === null,
+      'the request: the user\'s own %LOCALAPPDATA%\\Shroudly\\advanced');
+    t.ok(AdvTask.userName(() => 'Ümit Yılmaz') === 'Ümit Yılmaz' && AdvTask.userName(() => '', { USERNAME: 'sleax' }) === 'sleax'
+      && AdvTask.userName(() => { throw new Error('x'); }, { USERNAME: 'a' }) === 'a'
+      && AdvTask.userName(() => 'a"b') === null && AdvTask.userName(() => 'a\\b') === null && AdvTask.userName(() => '', {}) === null && AdvTask.userName(() => ' x') === null,
+    'the user\'s name as Windows has it; one that could not go on a command line: none (the prompt as before)');
+    t.ok(AdvTask.taskName('sleax') === 'Shroudly Advanced mode (sleax)', 'the task is named after the user (one each on a shared PC)');
+
+    // A request carries the engine's options and never where it writes.
+    const full = buildArgs({ ttl: 4, statusFile: 'C:\\x\\status.log', parentPid: 4242, platform: 'win32', quicBlock: false, udpFake: false, fakeRepeats: 6, dnsGate: 56148,
+      decoyNames: ['www.turkiye.gov.tr'], opts: { tlsrec: true, keepDriver: true, split: 'disorder', desyncMode: 'fakedsplit', seqovl: 3 } });
+    const req = AdvTask.requestArgs(full);
+    t.ok(Array.isArray(req) && !req.includes('--status-file') && !req.some((a) => /status\.log/.test(a)) && req.length === full.length - 2
+      && argval(req, '--parent-pid') === '4242' && argval(req, '--decoy-name') === 'www.turkiye.gov.tr' && req.includes('--no-quic-block'),
+    'a request: every option of the engine\'s command line, without the status file');
+    t.ok(AdvTask.requestArgs([...full, '--queue', '200']) === null && AdvTask.requestArgs(['--auth-file', 'x']) === null && AdvTask.requestArgs(['--fake-ttl']) === null,
+      'an option the engine would refuse from a request: no request (the prompt as before)');
+    const id = AdvTask.newId();
+    t.ok(/^[0-9a-f]{32}$/.test(id) && AdvTask.newId() !== id, 'an id: 32 hex digits, new each time');
+    t.ok(AdvTask.requestText(id, ['--advanced', '--fake-ttl', '4']) === `shroudly-advanced 1\nid ${id}\n--advanced\n--fake-ttl\n4\n` && AdvTask.UNINSTALL_TEXT === 'shroudly-advanced 1\nuninstall\n',
+      'its text: a head line, the id, one argument a line (and the uninstaller\'s)');
+    // What the app may ask is what the engine takes: the two lists agree.
+    {
+      const c = fs.readFileSync(path.join(ROOT, 'core', 'src', 'advtask.c'), 'utf8');
+      const table = c.slice(c.indexOf('} OPTS[] = {'), c.indexOf('};', c.indexOf('} OPTS[] = {')));
+      const inC = [...table.matchAll(/\{ "(--[a-z-]+)", '([fnwh])' \}/g)].map((m) => [m[1], m[2]]);
+      const flags = inC.filter((o) => o[1] === 'f').map((o) => o[0]);
+      const values = inC.filter((o) => o[1] !== 'f').map((o) => o[0]);
+      t.ok(inC.length === 15 && flags.every((f) => AdvTask.requestArgs([f]) !== null) && values.every((v) => AdvTask.requestArgs([v, '1']) !== null && AdvTask.requestArgs([v]) === null)
+        && req.filter((a) => a.startsWith('--')).every((a) => inC.some((o) => o[0] === a)),
+      `the engine's list of what a request may carry is the app's (${inC.length} options), and covers every option the app sends`);
+      t.ok(!inC.some((o) => /file|base|task|listen|auth|adblock|upstream|fallback/.test(o[0])), 'nothing in it names a file');
+    }
+
+    const work = fs.mkdtempSync(path.join(tmp, 'task-'));
+    const bundled = path.join(work, 'bundled');
+    const admin = path.join(work, 'admin');
+    const userDir = path.join(work, 'user', 'advanced');
+    fs.mkdirSync(bundled); fs.mkdirSync(path.join(admin, 'run'), { recursive: true });
+    for (const f of AdvTask.FILES) fs.writeFileSync(path.join(bundled, f), `bytes of ${f}`);
+    t.ok(AdvTask.current(bundled, admin) === false, 'no copies yet: not current');
+    for (const f of AdvTask.FILES) fs.writeFileSync(path.join(admin, f), `bytes of ${f}`);
+    t.ok(AdvTask.current(bundled, admin) === true, 'the copies byte for byte this Shroudly\'s engine: current');
+    fs.writeFileSync(path.join(admin, 'WinDivert.dll'), 'bytes of another');
+    t.ok(AdvTask.current(bundled, admin) === false && AdvTask.current(bundled, null) === false, 'one file different (an update, or tampered with): not current');
+    fs.writeFileSync(path.join(admin, 'WinDivert.dll'), 'bytes of WinDivert.dll');
+    t.ok(AdvTask.installResult(admin) === null, 'no installer result yet');
+    fs.writeFileSync(path.join(admin, 'run', 'install.log'), '{"type":"task_install","ok":0,"why":"register","hr":"0x80070005"}\n');
+    t.ok(JSON.stringify(AdvTask.installResult(admin)) === '{"ok":false,"why":"register","hr":"0x80070005"}', 'the installer\'s result read back');
+    t.ok(AdvTask.pidLine(path.join(admin, 'run', 'none.log')) === null, 'no status yet: no process id');
+
+    // An engine stand-in: what the task would start. It reads the request as
+    // advtask.c does and writes its status where only it can.
+    const said = [];
+    const tools = [];
+    let engine = 'ok';         // 'ok', 'silent', 'notask'
+    let stops = 0;
+    const mk = () => {
+      const am = new AdvancedMode((l, m) => said.push(m));
+      am.platform = 'win32';
+      am.reasonCode = () => null;
+      am.bundledDir = () => bundled;
+      am._task = () => ({ admin, userDir, user: 'Ümit', name: AdvTask.taskName('Ümit') });
+      am.alive = () => true;
+      am.taskWaitMs = 600;
+      am.installNoteMs = 50;
+      am.runTool = async (cmd, args) => {
+        tools.push([cmd, ...args]);
+        if (/schtasks/i.test(cmd)) {
+          if (engine === 'notask') return { code: 1, stdout: '', stderr: 'ERROR: The system cannot find the file specified.' };
+          const lines = fs.readFileSync(path.join(userDir, 'request'), 'utf8').split('\n');
+          const rid = lines[1].slice(3);
+          if (engine === 'ok') {
+            const status = path.join(admin, 'run', `${rid}.log`);
+            fs.writeFileSync(status, `${JSON.stringify({ type: 'task', pid: 5150 })}\n${JSON.stringify({ type: 'raw_ready', ttl: 4, dns_gate: 0 })}\n`);
+            const timer = setInterval(() => {
+              if (fs.existsSync(path.join(userDir, `${rid}.stop`))) { stops++; fs.appendFileSync(status, '{"type":"stopped"}\n'); clearInterval(timer); }
+            }, 20);
+            if (timer.unref) timer.unref();
+          }
+          return { code: 0, stdout: 'SUCCESS', stderr: '' };
+        }
+        // The prompt's launcher.
+        return { code: 2, stdout: '', stderr: '' };
+      };
+      return am;
+    };
+
+    let am = mk();
+    const r = await am._start(4, { dnsGate: 0 });
+    const sch = tools.find((x) => /schtasks\.exe$/i.test(x[0]));
+    t.ok(r.success && am.active && am.viaTask && am.pid === 5150 && sch && sch[1] === '/Run' && sch[2] === '/TN' && sch[3] === 'Shroudly Advanced mode (Ümit)'
+      && !tools.some((x) => /powershell/i.test(x[0])),
+    'copies current: started by its task (schtasks /Run), no PowerShell, no prompt; its process id from the engine itself');
+    t.ok(said.includes('Advanced mode: starting with the administrator permission given before (no prompt)') && !said.includes('Advanced mode: asking for administrator permission'),
+      'and the log says it was the kept permission, not a new ask');
+    const reqText = fs.readFileSync(path.join(userDir, 'request'), 'utf8');
+    t.ok(/^shroudly-advanced 1\nid [0-9a-f]{32}\n--advanced\n--fake-ttl\n4\n/.test(reqText) && reqText.includes(`\n--parent-pid\n${process.pid}\n`) && !/status/.test(reqText),
+      'the request it left: the options and this process, no file named');
+    t.ok(path.dirname(am.statusFile) === path.join(admin, 'run') && path.dirname(am.ctl) === userDir && am.dir === userDir,
+      'its status is read from the administrator\'s folder; what controls it is written in the user\'s');
+    // Standby and back go through the user's folder too.
+    {
+      const status = am.statusFile;
+      const ctl = am.ctl;
+      am.standbyWaitMs = 2000;
+      const timer = setInterval(() => {
+        const want = fs.existsSync(`${ctl}.standby`);
+        const text = fs.readFileSync(status, 'utf8');
+        const paused = (text.match(/raw_paused/g) || []).length;
+        const resumed = (text.match(/raw_resumed/g) || []).length;
+        if (want && paused === resumed) fs.appendFileSync(status, '{"type":"raw_paused"}\n');
+        if (!want && paused > resumed) fs.appendFileSync(status, '{"type":"raw_resumed","n":1}\n');
+      }, 20);
+      const paused = await am.pause();
+      const back = await am.start(4, {});
+      clearInterval(timer);
+      t.ok(paused === true && back.success && am.active && !am.standby && !fs.existsSync(`${status}.standby`),
+        'standby and back: asked through the user\'s folder, nothing written by the app next to the status');
+    }
+    await am.stop();
+    t.ok(stops === 1 && !am.active && !fs.existsSync(userDir), 'stopped through the user\'s folder (.stop), which is then removed');
+
+    // The task is not there (never allowed, or removed): the prompt, which
+    // also keeps the permission (--task-install with the user's name).
+    engine = 'notask'; tools.length = 0; said.length = 0;
+    am = mk();
+    let e = await am._start(4, {}).then(() => null, (x) => x);
+    const ps = tools.find((x) => /powershell/i.test(x[0]));
+    const script = ps ? Buffer.from(ps[ps.indexOf('-EncodedCommand') + 1], 'base64').toString('utf16le') : '';
+    t.ok(e && e.code === 'declined' && said.includes('Advanced mode: asking for administrator permission') && /--task-install Ümit'/.test(script),
+      'no task: the prompt as before, and the engine started through it is told to keep the permission');
+    t.ok(!fs.existsSync(userDir), 'nothing left in the user\'s folder');
+
+    // The task started but its engine never said anything: the prompt, and a
+    // stop left for an engine that might still come.
+    engine = 'silent'; tools.length = 0; said.length = 0;
+    am = mk();
+    e = await am._start(4, {}).then(() => null, (x) => x);
+    t.ok(e && e.code === 'declined' && tools.some((x) => /powershell/i.test(x[0])) && said.includes('Advanced mode: the permission given before could not be used this time, so it is asked for again')
+      && fs.readdirSync(userDir).some((f) => f.endsWith('.stop')),
+    'the task ran but no engine answered: the prompt, and a stop waits for an engine that comes late');
+
+    // The copies are not this Shroudly's engine (an update): the task is not even tried.
+    engine = 'ok'; tools.length = 0;
+    fs.writeFileSync(path.join(bundled, 'shroudly-core-adv.exe'), 'the engine of a newer Shroudly');
+    am = mk();
+    e = await am._start(4, {}).then(() => null, (x) => x);
+    t.ok(e && e.code === 'declined' && !tools.some((x) => /schtasks/i.test(x[0])) && tools.some((x) => /powershell/i.test(x[0])),
+      'after an update that changed the engine: the old copy is never started; the prompt once, for the new one');
+
+    // Whether the permission is kept now, said once after a start through the prompt.
+    said.length = 0;
+    fs.writeFileSync(path.join(admin, 'run', 'install.log'), '{"type":"task_install","ok":1,"why":"ok","hr":"0x00000000"}\n');
+    for (const f of AdvTask.FILES) fs.copyFileSync(path.join(bundled, f), path.join(admin, f));
+    am = mk();
+    am._noteInstall(); am._noteInstall();
+    await new Promise((res) => setTimeout(res, 200));
+    t.ok(said.filter((m) => /the permission is kept from now on/.test(m)).length === 1, 'kept: said once');
+    said.length = 0;
+    fs.writeFileSync(path.join(admin, 'run', 'install.log'), '{"type":"task_install","ok":0,"why":"register","hr":"0x80070005"}\n');
+    fs.writeFileSync(path.join(admin, 'WinDivert.dll'), 'an older one');
+    am = mk();
+    am._noteInstall();
+    await new Promise((res) => setTimeout(res, 200));
+    t.ok(said.length === 1 && /could not be kept for the next start \(register, 0x80070005\)/.test(said[0]), 'not kept: said with the reason');
+
+    // Other systems, and a Windows where no folder is named: only the prompt.
+    const lin = new AdvancedMode(() => {});
+    lin.platform = 'linux';
+    const bare = new AdvancedMode(() => {});
+    bare.platform = 'win32'; bare.env = {};
+    t.ok(lin._task() === null && bare._task() === null && JSON.stringify(bare._withInstall(['--advanced'])) === '["--advanced"]', 'Linux, or no folders named: nothing of this is used');
+  }
+
+  // A prompt nobody answered, and PowerShell's own records, are told as what they are.
+  {
+    const { plainErr } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+    t.ok(plainErr('#< CLIXML\r\n<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><Obj S="progress" RefId="0"><TN RefId="0"><T>System.Management.Automation.PSCustomObject</T></TN></Obj></Objs>') === ''
+      && plainErr('#< CLIXML\r\n<Objs Version="1.1.0.1"><Obj') === '' && plainErr('  Access is denied  ') === 'Access is denied',
+    'PowerShell\'s CLIXML records are no message ("Advanced mode failed: #< CLIXML"); its words stay');
+    const am = new AdvancedMode(() => {});
+    let e = null;
+    try { am._launched({ code: -1, stdout: '', stderr: 'powershell.exe did not finish in time', timedOut: true }); } catch (x) { e = x; }
+    t.ok(e && e.code === 'unanswered' && e.message === 'The administrator permission prompt was not answered.', 'the prompt left unanswered for three minutes: said so, not a failure with PowerShell\'s output');
+    const a = launcherArgs('C:\\x\\shroudly-core-adv.exe', ['--advanced']);
+    t.ok(Buffer.from(a[a.indexOf('-EncodedCommand') + 1], 'base64').toString('utf16le').startsWith("$ProgressPreference = 'SilentlyContinue'; try { $p = Start-Process"),
+      'and PowerShell is told to write no progress records');
+  }
+
   // The launcher (Windows PowerShell, encoded so a user folder like C:\Users\Ümit
   // survives): the elevated engine's process id, and an exit per answer.
   {
