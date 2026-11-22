@@ -210,7 +210,12 @@ static int http_rewrite(uint8_t *buf, int len, int cap, proto_info *pi, int m) {
       else if (c >= 'A' && c <= 'Z') { if (!up) buf[i] = (uint8_t)(c + 32); up = !up; }
     }
   }
-  if (m & HTTP_HOSTCASE) { buf[h] = 'h'; buf[h + 1] = 'o'; buf[h + 2] = 's'; buf[h + 3] = 't'; }
+  /* Mixed case, not all lower: "host:" is what every HTTP/2 client
+   * writes, and a filter that looks for "Host:" looks for "host:" too
+   * (Vietnam's resets both, and lets "hOsT:" and "HOST:" through, measured
+   * 2026-11-22); every one of 96 web servers answered "hOsT:" as it
+   * answers "Host:". tpws writes "host". */
+  if (m & HTTP_HOSTCASE) { buf[h] = 'h'; buf[h + 1] = 'O'; buf[h + 2] = 's'; buf[h + 3] = 'T'; }
   if (m & (HTTP_NOSPACE | HTTP_HOSTTAB)) {
     /* The whitespace between "Host:" and the name, h+5 .. v, becomes none
      * or one tab. */

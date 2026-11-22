@@ -25,7 +25,8 @@ typedef enum {
 } op_kind;
 
 /* OP_HTTP's rewrites, as bits of strat_op.offset. */
-#define HTTP_HOSTCASE   0x01  /* "Host:" written "host:" */
+#define HTTP_HOSTCASE   0x01  /* "Host:" written "hOsT:" (mixed: a filter that
+                               * matches "Host:" often matches "host:" too) */
 #define HTTP_DOMCASE    0x02  /* the host name in mixed case: ExAmPlE.CoM */
 #define HTTP_HOSTTAB    0x04  /* a tab, not a space, after "Host:" (some servers
                                * answer 400: never in a preset) */

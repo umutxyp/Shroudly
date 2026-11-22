@@ -312,16 +312,16 @@ int main(void){
   run_chop();
   {
     const char *req="GET / HTTP/1.1\r\nHost: Blocked.example.org\r\nAccept: */*\r\n\r\n";
-    run_http("http(hostcase+domcase)",req,"GET / HTTP/1.1\r\nhost: BlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
+    run_http("http(hostcase+domcase)",req,"GET / HTTP/1.1\r\nhOsT: BlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
     run_http("http(hosttab)",req,"GET / HTTP/1.1\r\nHost:\tBlocked.example.org\r\nAccept: */*\r\n\r\n");
     run_http("http(nospace)",req,"GET / HTTP/1.1\r\nHost:Blocked.example.org\r\nAccept: */*\r\n\r\n");
     run_http("http(methodeol)",req,"\r\nGET / HTTP/1.1\r\nHost: Blocked.example.org\r\nAccept: */*\r\n\r\n");
     /* All four together, and the preset (its rewrites and its cut in the
      * name): still one request. */
     run_http("http(hostcase+domcase+hosttab+methodeol),split(sni_mid)",req,
-             "\r\nGET / HTTP/1.1\r\nhost:\tBlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
+             "\r\nGET / HTTP/1.1\r\nhOsT:\tBlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
     run_http("http(hostcase+domcase+nospace),split(sni_mid)",req,
-             "GET / HTTP/1.1\r\nhost:BlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
+             "GET / HTTP/1.1\r\nhOsT:BlOcKeD.eXaMpLe.OrG\r\nAccept: */*\r\n\r\n");
     /* A TLS ClientHello is left as it is by http(...). */
     uint8_t ch[1024], orig[1024]; int clen=make_ch(ch,"www.example.com"); memcpy(orig,ch,(size_t)clen);
     srv_t s; CHECK(send_through("http(hostcase+methodeol)",ch,clen,(int)sizeof(ch),&s)==0);
