@@ -2874,9 +2874,9 @@ async function applyAppModeNow(on) {
   if (!appModeSupported()) return { success: false, code: 'unsupported' };
   appState.failed = false;
   if (!on) {
-    appModeRetryForget();
     try { appEnv.clearSync(); } catch {}
     tellAppUsers();
+    appModeRetryForget();
     if (flatpakEnv) { try { await flatpakEnv.clear(); } catch {} }
     appProxy.stop();
     store.set('appMode', false);
