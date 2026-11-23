@@ -341,7 +341,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">「自分のサーバー」で VLESS と Trojan のリンク（vless://、trojan://）が使えるようになりました。TCP、WebSocket、HTTPUpgrade 上で、TLS あり・なしに対応します。REALITY、gRPC、XHTTP にはまだ対応していません。\n最後の手段（Tor）が届かないサイトは、もうそれを待ちません。2 回失敗すると 10 分間は通常の経路を使います（Roblox Studio）。\nどの手法でも開けない独自プロトコルのアプリ（ヨルダンの Telegram）は、許可されていれば最後の手段（Tor）を通るようになりました。\nブロックされたサイトが速く開くように：新しいサイトは、あなたのネットワークで他のブロックされたサイトを開いた方法から始め、同じサービスの各ドメイン（YouTube、Instagram、Discord…）は見つかった方法を共有します。\n動き続けている方法は、再起動後の最初の接続で再確認されなくなりました。\n新しい方法：設定に3つの固定の選択肢（複数の TLS レコード、ランダムな小さな断片、緊急バイト + レコード分割）、自動にさらに3つ、プレーン HTTP の Host ヘッダー書き換え。</string>
+    <string name="whatsNewAndroid">「ほかに何も効かないとき: Tor ネットワーク」は、自分でオンにするか、確認で「Tor を使う」を選ぶまでオフになりました。以前に Tor を許可していればオンのままです。\n「自分のサーバー」で VLESS と Trojan のリンク（vless://、trojan://）が使えるようになりました。TCP、WebSocket、HTTPUpgrade 上で、TLS あり・なしに対応します。REALITY、gRPC、XHTTP にはまだ対応していません。\n最後の手段（Tor）が届かないサイトは、もうそれを待ちません。2 回失敗すると 10 分間は通常の経路を使います（Roblox Studio）。\nどの手法でも開けない独自プロトコルのアプリ（ヨルダンの Telegram）は、許可されていれば最後の手段（Tor）を通るようになりました。\nブロックされたサイトが速く開くように：新しいサイトは、あなたのネットワークで他のブロックされたサイトを開いた方法から始め、同じサービスの各ドメイン（YouTube、Instagram、Discord…）は見つかった方法を共有します。\n動き続けている方法は、再起動後の最初の接続で再確認されなくなりました。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

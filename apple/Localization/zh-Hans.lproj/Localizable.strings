@@ -234,6 +234,6 @@
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
 "whatsNewApple" = "“自己的服务器”现在接受 VLESS 和 Trojan 链接（vless://、trojan://）：基于 TCP、WebSocket 或 HTTPUpgrade，带或不带 TLS。暂不支持 REALITY、gRPC 和 XHTTP。\n被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。\n新方法：设置中三个固定选项（多个 TLS 记录、随机小片段、紧急字节 + 记录拆分），自动模式中另外三个，以及普通 HTTP 的 Host 头改写。";
-"whatsNewMac" = "“自己的服务器”现在接受 VLESS 和 Trojan 链接（vless://、trojan://）：基于 TCP、WebSocket 或 HTTPUpgrade，带或不带 TLS。暂不支持 REALITY、gRPC 和 XHTTP。\n最后的出路（Tor）到达不了的网站不再等待它：失败两次后，十分钟内改走普通路径（Roblox Studio）。\n任何技巧都打不开的自有协议应用（约旦的 Telegram）现在会在获准时走最后的出路（Tor）。\n被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。\n新方法：设置中三个固定选项（多个 TLS 记录、随机小片段、紧急字节 + 记录拆分），自动模式中另外三个，以及普通 HTTP 的 Host 头改写。";
+"whatsNewMac" = "“其他方法都无效时:Tor 网络”现在默认关闭，直到您自己打开或在询问时选择“使用 Tor”。之前已允许 Tor 的，保持打开。\n“自己的服务器”现在接受 VLESS 和 Trojan 链接（vless://、trojan://）：基于 TCP、WebSocket 或 HTTPUpgrade，带或不带 TLS。暂不支持 REALITY、gRPC 和 XHTTP。\n最后的出路（Tor）到达不了的网站不再等待它：失败两次后，十分钟内改走普通路径（Roblox Studio）。\n任何技巧都打不开的自有协议应用（约旦的 Telegram）现在会在获准时走最后的出路（Tor）。\n被封锁的网站打开更快：新网站会先用已在你的网络上打开过其他被封锁网站的方法，同一服务的各个域名（YouTube、Instagram、Discord…）共享其中一个找到的方法。\n一直有效的方法在重启后的第一个连接上不再重新检查。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";
